@@ -1,0 +1,5 @@
+Peripheral_Type=Keyboard, Count=0
+Peripheral_Type=Mouse, Count=4
+Peripheral_Type=Mouse, Count=0
+Peripheral_Type=keyboard, Count=6
+Peripheral_Type=mouse, Count=1

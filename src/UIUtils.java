@@ -1,20 +1,36 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.swing.*;
 
 public class UIUtils {
+    private static ArrayList<HashMap<String, String>> devices = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> cables = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> accessories = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> templates = new ArrayList<>();
+    private static final String DEVICES_FILE = "inventory.txt";
+    private static final String CABLES_FILE = "cables.txt";
+    private static final String ACCESSORIES_FILE = "accessories.txt";
+    private static final String TEMPLATES_FILE = "templates.txt";
 
-    // Create a consistently formatted JLabel
+    static {
+        loadDevices();
+        loadCables();
+        loadAccessories();
+        loadTemplates();
+    }
+
     public static JLabel createAlignedLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
 
-    // Create a consistently formatted JTextField
     public static JTextField createFormattedTextField() {
         JTextField textField = new JTextField();
         textField.setPreferredSize(new Dimension(450, 30));
@@ -23,7 +39,6 @@ public class UIUtils {
         return textField;
     }
 
-    // Create a consistently formatted JComboBox
     public static JComboBox<String> createFormattedComboBox(String[] items) {
         JComboBox<String> comboBox = new JComboBox<>(items);
         comboBox.setPreferredSize(new Dimension(450, 30));
@@ -32,21 +47,18 @@ public class UIUtils {
         return comboBox;
     }
 
-    // Create a consistently formatted JButton
     public static JButton createFormattedButton(String text) {
         JButton button = new JButton(text);
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         return button;
     }
 
-    // Create a consistently formatted JCheckBox
     public static JCheckBox createFormattedCheckBox(String text) {
         JCheckBox checkBox = new JCheckBox(text);
         checkBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         return checkBox;
     }
 
-    // Create a consistently formatted date picker with calendar popup
     public static JPanel createFormattedDatePicker() {
         JPanel datePanel = new JPanel();
         datePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -56,27 +68,24 @@ public class UIUtils {
         JTextField dateField = new JTextField();
         dateField.setPreferredSize(new Dimension(400, 30));
         dateField.setMaximumSize(new Dimension(400, 30));
-        dateField.setEditable(false); // Read-only to prevent manual input
+        dateField.setEditable(false);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        dateField.setText(dateFormat.format(new Date())); // Default to today’s date
+        dateField.setText(dateFormat.format(new Date()));
 
         JButton calendarButton = new JButton("...");
         calendarButton.setPreferredSize(new Dimension(40, 30));
         calendarButton.setMaximumSize(new Dimension(40, 30));
 
-        // Create calendar dialog
         calendarButton.addActionListener(e -> {
             JDialog calendarDialog = new JDialog((Frame) null, "Select Date", true);
             calendarDialog.setLayout(new BorderLayout());
-            calendarDialog.setSize(250, 200); // Compact size
+            calendarDialog.setSize(250, 200);
             calendarDialog.setLocationRelativeTo(datePanel);
 
-            // Simple calendar panel using JComboBox for month, day, year
             JPanel calendarPanel = new JPanel(new GridLayout(3, 2, 5, 5));
             calendarPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             Calendar cal = Calendar.getInstance();
 
-            // Month combo
             JComboBox<String> monthCombo = new JComboBox<>(new String[]{
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"
@@ -85,12 +94,10 @@ public class UIUtils {
             monthCombo.setMaximumSize(new Dimension(200, 30));
             monthCombo.setSelectedIndex(cal.get(Calendar.MONTH));
 
-            // Day combo (updated dynamically based on year/month)
             JComboBox<Integer> dayCombo = new JComboBox<>();
             dayCombo.setPreferredSize(new Dimension(200, 30));
             dayCombo.setMaximumSize(new Dimension(200, 30));
 
-            // Year combo (current year ± 10 years)
             JComboBox<Integer> yearCombo = new JComboBox<>();
             for (int i = cal.get(Calendar.YEAR) - 10; i <= cal.get(Calendar.YEAR) + 10; i++) {
                 yearCombo.addItem(i);
@@ -99,13 +106,11 @@ public class UIUtils {
             yearCombo.setMaximumSize(new Dimension(200, 30));
             yearCombo.setSelectedItem(cal.get(Calendar.YEAR));
 
-            // Update days when year or month changes
             updateDayCombo(dayCombo, yearCombo, monthCombo);
             ActionListener updateDays = e2 -> updateDayCombo(dayCombo, yearCombo, monthCombo);
             yearCombo.addActionListener(updateDays);
             monthCombo.addActionListener(updateDays);
 
-            // OK and Cancel buttons
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton okButton = new JButton("OK");
             JButton cancelButton = new JButton("Cancel");
@@ -123,7 +128,6 @@ public class UIUtils {
             buttonPanel.add(okButton);
             buttonPanel.add(cancelButton);
 
-            // Add components in MM-dd-yyyy order
             calendarPanel.add(new JLabel("Month:"));
             calendarPanel.add(monthCombo);
             calendarPanel.add(new JLabel("Day:"));
@@ -140,7 +144,6 @@ public class UIUtils {
         return datePanel;
     }
 
-    // Helper to update day combo based on selected year and month
     private static void updateDayCombo(JComboBox<Integer> dayCombo, JComboBox<Integer> yearCombo, JComboBox<String> monthCombo) {
         dayCombo.removeAllItems();
         Calendar cal = Calendar.getInstance();
@@ -152,32 +155,26 @@ public class UIUtils {
         dayCombo.setSelectedIndex(0);
     }
 
-    // Create a scrollable content panel with optimized scrolling
     public static JScrollPane createScrollableContentPanel(JPanel contentPanel) {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(contentPanel);
-        // Optimize scrolling speed
-        scrollPane.getVerticalScrollBar().setUnitIncrement(20); // Faster scrolling per wheel notch
-        scrollPane.getVerticalScrollBar().setBlockIncrement(60); // Faster scrolling per page
-        // Enable double buffering for smoother rendering
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(60);
         scrollPane.setDoubleBuffered(true);
-        // Optional: Add custom mouse wheel listener for even faster scrolling
         scrollPane.addMouseWheelListener(e -> {
             JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-            int unitsToScroll = e.getUnitsToScroll() * 10; // Multiply scroll amount for faster response
+            int unitsToScroll = e.getUnitsToScroll() * 10;
             int newPosition = verticalScrollBar.getValue() + unitsToScroll;
             verticalScrollBar.setValue(newPosition);
         });
         return scrollPane;
     }
 
-    // Set up the main application frame with tabbed pane
     public static JFrame createMainFrame(String title, JPanel... tabs) {
         JFrame frame = new JFrame(title);
         frame.setSize(600, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create and populate tabbed pane
         JTabbedPane tabbedPane = new JTabbedPane();
         for (JPanel tab : tabs) {
             String tabName = tab.getClass().getSimpleName().replace("Tab", "");
@@ -185,11 +182,13 @@ public class UIUtils {
         }
 
         frame.add(tabbedPane);
-        
-        // Ensure proper shutdown
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                saveDevices();
+                saveCables();
+                saveAccessories();
+                saveTemplates();
                 System.exit(0);
             }
         });
@@ -197,7 +196,6 @@ public class UIUtils {
         return frame;
     }
 
-    // Helper to get selected ports as comma-separated string
     public static String getSelectedPorts(JCheckBox... ports) {
         StringBuilder sb = new StringBuilder();
         for (JCheckBox port : ports) {
@@ -209,7 +207,6 @@ public class UIUtils {
         return sb.length() > 0 ? sb.toString() : "None";
     }
 
-    // Helper to get date from date picker panel
     public static String getDateFromPicker(JPanel datePicker) {
         for (Component comp : datePicker.getComponents()) {
             if (comp instanceof JTextField) {
@@ -217,5 +214,341 @@ public class UIUtils {
             }
         }
         return "";
+    }
+
+    public static String capitalizeWords(String input) {
+        if (input == null || input.trim().isEmpty()) return input;
+        return Arrays.stream(input.trim().split("\\s+"))
+                .map(word -> word.isEmpty() ? word : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+    }
+
+    public static String validateDevice(Map<String, String> data) {
+        String deviceName = data.get("Device_Name");
+        String serialNumber = data.get("Serial_Number");
+        String purchaseCost = data.get("Purchase_Cost");
+        String networkAddress = data.get("Network_Address");
+
+        if (deviceName == null || deviceName.trim().isEmpty()) {
+            return "Device Name is required";
+        }
+        if (serialNumber == null || serialNumber.trim().isEmpty()) {
+            return "Serial Number is required";
+        }
+        for (HashMap<String, String> device : devices) {
+            if (device.get("Device_Name").equals(deviceName)) {
+                return "Device Name '" + deviceName + "' already exists";
+            }
+            if (device.get("Serial_Number").equals(serialNumber)) {
+                return "Serial Number '" + serialNumber + "' already exists";
+            }
+        }
+        if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
+            try {
+                Double.parseDouble(purchaseCost);
+            } catch (NumberFormatException e) {
+                return "Purchase Cost must be a valid number";
+            }
+        }
+        if (networkAddress != null && !networkAddress.trim().isEmpty()) {
+            if (!Pattern.matches("^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|([0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}))$", networkAddress)) {
+                return "Network Address must be a valid IP or MAC address";
+            }
+        }
+        return null;
+    }
+
+    public static String validatePeripheral(Map<String, String> data) {
+        String peripheralName = data.get("Peripheral_Type");
+        String count = data.get("Count");
+        if (peripheralName == null || peripheralName.trim().isEmpty()) {
+            return "Peripheral Type is required";
+        }
+        if (count != null && !count.trim().isEmpty()) {
+            try {
+                int c = Integer.parseInt(count);
+                if (c < 0) {
+                    return "Count cannot be negative";
+                }
+            } catch (NumberFormatException e) {
+                return "Count must be a valid number";
+            }
+        }
+        return null;
+    }
+
+    public static void saveDevice(Map<String, String> data) {
+        if (data.containsKey("Device_Name")) {
+            data.put("Device_Name", capitalizeWords(data.get("Device_Name")));
+        }
+        if (data.containsKey("Peripheral_Type")) {
+            data.put("Peripheral_Type", capitalizeWords(data.get("Peripheral_Type")));
+        }
+        if (data.containsKey("Device_Type")) {
+            data.put("Device_Type", capitalizeWords(data.get("Device_Type")));
+        }
+        if (data.containsKey("Brand")) {
+            data.put("Brand", capitalizeWords(data.get("Brand")));
+        }
+        if (data.containsKey("Model")) {
+            data.put("Model", capitalizeWords(data.get("Model")));
+        }
+        devices.add(new HashMap<>(data));
+        saveDevices();
+    }
+
+    public static void saveCable(Map<String, String> data) {
+        cables.add(new HashMap<>(data));
+        saveCables();
+    }
+
+    public static void saveAccessory(Map<String, String> data) {
+        accessories.add(new HashMap<>(data));
+        saveAccessories();
+    }
+
+    public static void saveTemplate(Map<String, String> data) {
+        templates.add(new HashMap<>(data));
+        saveTemplates();
+    }
+
+    public static ArrayList<HashMap<String, String>> getTemplates() {
+        return templates;
+    }
+
+    public static ArrayList<HashMap<String, String>> getDevices() {
+        return devices;
+    }
+
+    public static ArrayList<HashMap<String, String>> getCables() {
+        return cables;
+    }
+
+    public static ArrayList<HashMap<String, String>> getAccessories() {
+        return accessories;
+    }
+
+    public static void loadDevices() {
+        try {
+            File file = new File(DEVICES_FILE);
+            if (file.exists()) {
+                String content = new String(Files.readAllBytes(file.toPath()));
+                String[] lines = content.split("\n");
+                devices.clear();
+                for (String line : lines) {
+                    if (line.trim().isEmpty()) continue;
+                    HashMap<String, String> item = new HashMap<>();
+                    String[] pairs = line.split(", ");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split("=", 2);
+                        if (keyValue.length == 2) {
+                            item.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                    if (item.containsKey("Device_Name")) {
+                        devices.add(item);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading devices: " + e.getMessage());
+        }
+    }
+
+    public static void saveDevices() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (HashMap<String, String> device : devices) {
+                sb.append(mapToString(device)).append("\n");
+            }
+            Files.writeString(new File(DEVICES_FILE).toPath(), sb.toString().trim());
+        } catch (Exception e) {
+            System.err.println("Error saving devices: " + e.getMessage());
+        }
+    }
+
+    public static void loadCables() {
+        try {
+            File file = new File(CABLES_FILE);
+            if (file.exists()) {
+                String content = new String(Files.readAllBytes(file.toPath()));
+                String[] lines = content.split("\n");
+                cables.clear();
+                for (String line : lines) {
+                    if (line.trim().isEmpty()) continue;
+                    HashMap<String, String> item = new HashMap<>();
+                    String[] pairs = line.split(", ");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split("=", 2);
+                        if (keyValue.length == 2) {
+                            item.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                    cables.add(item);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading cables: " + e.getMessage());
+        }
+    }
+
+    public static void saveCables() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (HashMap<String, String> cable : cables) {
+                sb.append(mapToString(cable)).append("\n");
+            }
+            Files.writeString(new File(CABLES_FILE).toPath(), sb.toString().trim());
+        } catch (Exception e) {
+            System.err.println("Error saving cables: " + e.getMessage());
+        }
+    }
+
+    public static void loadAccessories() {
+        try {
+            File file = new File(ACCESSORIES_FILE);
+            if (file.exists()) {
+                String content = new String(Files.readAllBytes(file.toPath()));
+                String[] lines = content.split("\n");
+                accessories.clear();
+                for (String line : lines) {
+                    if (line.trim().isEmpty()) continue;
+                    HashMap<String, String> item = new HashMap<>();
+                    String[] pairs = line.split(", ");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split("=", 2);
+                        if (keyValue.length == 2) {
+                            item.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                    accessories.add(item);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading accessories: " + e.getMessage());
+        }
+    }
+
+    public static void saveAccessories() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (HashMap<String, String> accessory : accessories) {
+                sb.append(mapToString(accessory)).append("\n");
+            }
+            Files.writeString(new File(ACCESSORIES_FILE).toPath(), sb.toString().trim());
+        } catch (Exception e) {
+            System.err.println("Error saving accessories: " + e.getMessage());
+        }
+    }
+
+    public static void loadTemplates() {
+        try {
+            File file = new File(TEMPLATES_FILE);
+            if (file.exists()) {
+                String content = new String(Files.readAllBytes(file.toPath()));
+                String[] lines = content.split("\n");
+                templates.clear();
+                for (String line : lines) {
+                    if (line.trim().isEmpty()) continue;
+                    HashMap<String, String> template = new HashMap<>();
+                    String[] pairs = line.split(", ");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split("=", 2);
+                        if (keyValue.length == 2) {
+                            template.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                    templates.add(template);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading templates: " + e.getMessage());
+        }
+    }
+
+    public static void saveTemplates() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (HashMap<String, String> template : templates) {
+                sb.append(mapToString(template)).append("\n");
+            }
+            Files.writeString(new File(TEMPLATES_FILE).toPath(), sb.toString().trim());
+        } catch (Exception e) {
+            System.err.println("Error saving templates: " + e.getMessage());
+        }
+    }
+
+    private static String mapToString(HashMap<String, String> map) {
+        return map.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining(", "));
+    }
+
+    public static ArrayList<String> getPeripheralTypes(ArrayList<HashMap<String, String>> peripherals) {
+        ArrayList<String> types = new ArrayList<>();
+        for (HashMap<String, String> peripheral : peripherals) {
+            String type = peripheral.getOrDefault("Peripheral_Type", "").toLowerCase();
+            if (!type.isEmpty() && !types.contains(type) && !type.equals("headset")) {
+                types.add(type);
+            }
+        }
+        return types;
+    }
+
+    public static void addNewPeripheralType(JTextField newTypeField, JComboBox<String> comboBox, JLabel statusLabel, ArrayList<HashMap<String, String>> peripherals, ArrayList<String> existingTypes) {
+        String newType = newTypeField.getText().trim();
+        if (newType.isEmpty()) {
+            statusLabel.setText("Error: Enter a new peripheral type");
+            return;
+        }
+        if (existingTypes.contains(newType.toLowerCase())) {
+            statusLabel.setText("Error: " + newType + " already exists");
+            return;
+        }
+        newType = capitalizeWords(newType);
+        HashMap<String, String> newPeripheral = new HashMap<>();
+        newPeripheral.put("Peripheral_Type", newType);
+        newPeripheral.put("Count", "0");
+        peripherals.add(newPeripheral);
+        existingTypes.add(newType.toLowerCase());
+        comboBox.setModel(new DefaultComboBoxModel<>(existingTypes.toArray(new String[0])));
+        if (peripherals == accessories) saveAccessories();
+        else if (peripherals == cables) saveCables();
+        newTypeField.setText("");
+        newTypeField.setVisible(false);
+        statusLabel.setText(newType + " added with count 0");
+    }
+
+    public static void updatePeripheralCount(String type, int delta, ArrayList<HashMap<String, String>> peripherals, JLabel statusLabel) {
+        for (HashMap<String, String> peripheral : peripherals) {
+            if (peripheral.getOrDefault("Peripheral_Type", "").equals(type)) {
+                int currentCount = Integer.parseInt(peripheral.getOrDefault("Count", "0"));
+                int newCount = currentCount + delta;
+                if (newCount < 0) newCount = 0;
+                peripheral.put("Count", String.valueOf(newCount));
+                if (peripherals == accessories) saveAccessories();
+                else if (peripherals == cables) saveCables();
+                statusLabel.setText(type + " updated. New count: " + newCount);
+                return;
+            }
+        }
+        if (delta > 0) {
+            HashMap<String, String> newPeripheral = new HashMap<>();
+            newPeripheral.put("Peripheral_Type", type);
+            newPeripheral.put("Count", String.valueOf(delta));
+            peripherals.add(newPeripheral);
+            if (peripherals == accessories) saveAccessories();
+            else if (peripherals == cables) saveCables();
+            statusLabel.setText(type + " added. New count: " + delta);
+        }
+    }
+
+    public static int getPeripheralCount(String type, ArrayList<HashMap<String, String>> peripherals) {
+        for (HashMap<String, String> peripheral : peripherals) {
+            if (peripheral.getOrDefault("Peripheral_Type", "").equals(type)) {
+                return Integer.parseInt(peripheral.getOrDefault("Count", "0"));
+            }
+        }
+        return 0;
     }
 }

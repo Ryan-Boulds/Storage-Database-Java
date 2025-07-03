@@ -1,149 +1,139 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.*;
 
 public class LogAccessoriesTab extends JPanel {
+    private JLabel statusLabel;
+    private JComboBox<String> accessoryTypeCombo;
+    private JTextField countField;
+    private JTextField newTypeField;
+    private JPanel newTypePanel;
 
     public LogAccessoriesTab() {
         setLayout(new BorderLayout(10, 10));
 
-        // Create the dropdown for accessory selection
-        JComboBox<String> accessoryCombo = UIUtils.createFormattedComboBox(
-            new String[]{"Keyboard", "Mouse", "Monitor"}
-        );
-        JPanel topPanel = new JPanel();
-        topPanel.add(UIUtils.createAlignedLabel("Select Accessory:"));
-        topPanel.add(accessoryCombo);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        // Create the panels for each accessory type
-        JPanel keyboardPanel = createKeyboardPanel();
-        JPanel mousePanel = createMousePanel();
-        JPanel monitorPanel = createMonitorPanel();
+        ArrayList<String> existingTypes = UIUtils.getPeripheralTypes(UIUtils.getAccessories());
+        String[] initialItems = new String[existingTypes.size() + 1];
+        for (int i = 0; i < existingTypes.size(); i++) {
+            initialItems[i] = existingTypes.get(i);
+        }
+        initialItems[existingTypes.size()] = "Add New Accessory Type"; // Fixed typo: existingTypes instead of existingItems
+        accessoryTypeCombo = new JComboBox<>(initialItems);
+        accessoryTypeCombo.setPreferredSize(new Dimension(450, 30));
+        accessoryTypeCombo.setMaximumSize(new Dimension(450, 30));
+        accessoryTypeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        accessoryTypeCombo.setEditable(false);
 
-        // Create a scrollable content panel
-        JPanel contentPanel = new JPanel();
-        JScrollPane scrollPane = UIUtils.createScrollableContentPanel(contentPanel);
-        contentPanel.add(keyboardPanel); // Default to keyboard panel
-        add(topPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        newTypePanel = new JPanel();
+        newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        newTypeField = UIUtils.createFormattedTextField();
+        newTypeField.setVisible(false);
+        JButton addNewTypeButton = UIUtils.createFormattedButton("Add New Type");
+        newTypePanel.add(UIUtils.createAlignedLabel("New Accessory Type:"));
+        newTypePanel.add(newTypeField);
+        newTypePanel.add(addNewTypeButton);
+        newTypePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Action listener for the accessory combo box
-        accessoryCombo.addActionListener(e -> {
-            String selected = (String) accessoryCombo.getSelectedItem();
-            contentPanel.removeAll();
-            switch (selected) {
-                case "Keyboard":
-                    contentPanel.add(keyboardPanel);
-                    break;
-                case "Mouse":
-                    contentPanel.add(mousePanel);
-                    break;
-                case "Monitor":
-                    contentPanel.add(monitorPanel);
-                    break;
+        countField = UIUtils.createFormattedTextField();
+        countField.setText("1"); // Default to 1
+        JButton addButton = UIUtils.createFormattedButton("Add Accessory");
+        JButton removeButton = UIUtils.createFormattedButton("Remove Accessory");
+        statusLabel = UIUtils.createAlignedLabel("");
+
+        accessoryTypeCombo.addActionListener(e -> {
+            Object selectedItem = accessoryTypeCombo.getSelectedItem();
+            if (selectedItem != null && selectedItem.equals("Add New Accessory Type")) {
+                newTypeField.setVisible(true);
+                newTypePanel.setVisible(true);
+                panel.revalidate();
+                panel.repaint();
+            } else {
+                newTypeField.setVisible(false);
+                newTypePanel.setVisible(false);
+                panel.revalidate();
+                panel.repaint();
             }
-            contentPanel.revalidate();
-            contentPanel.repaint();
         });
 
-        // Set initial selection
-        accessoryCombo.setSelectedItem("Keyboard");
-    }
-
-    private JPanel createKeyboardPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        JTextField brandField = UIUtils.createFormattedTextField();
-        JButton addToStorageButton = UIUtils.createFormattedButton("Add to Storage");
-        JButton deployedButton = UIUtils.createFormattedButton("Deployed");
-
-        addToStorageButton.addActionListener(e -> {
-            System.out.println("Keyboard Added to Storage - Brand: " +
-                (brandField.getText().isEmpty() ? "null" : brandField.getText()));
+        addNewTypeButton.addActionListener(e -> {
+            String newType = newTypeField.getText().trim();
+            if (newType.isEmpty()) {
+                statusLabel.setText("Error: Enter a new accessory type");
+                return;
+            }
+            newType = UIUtils.capitalizeWords(newType);
+            HashMap<String, String> newAccessory = new HashMap<>();
+            newAccessory.put("Peripheral_Type", newType);
+            newAccessory.put("Count", "0");
+            UIUtils.getAccessories().add(newAccessory);
+            UIUtils.saveAccessories(); // Ensure save is called
+            accessoryTypeCombo.removeItem("Add New Accessory Type");
+            accessoryTypeCombo.addItem(newType);
+            accessoryTypeCombo.addItem("Add New Accessory Type");
+            accessoryTypeCombo.setSelectedItem(newType); // Safely set the new type
+            newTypeField.setText("");
+            newTypeField.setVisible(false);
+            statusLabel.setText(newType + " added with count 0");
         });
 
-        deployedButton.addActionListener(e -> {
-            System.out.println("Keyboard Deployed - Brand: " +
-                (brandField.getText().isEmpty() ? "null" : brandField.getText()));
+        addButton.addActionListener(e -> {
+            Object selectedItem = accessoryTypeCombo.getSelectedItem();
+            if (selectedItem == null || selectedItem.equals("Add New Accessory Type")) {
+                statusLabel.setText("Error: Select or add an accessory type first");
+                return;
+            }
+            String type = selectedItem.toString();
+            int count = 1;
+            try {
+                count = Integer.parseInt(countField.getText().trim());
+                if (count <= 0) {
+                    statusLabel.setText("Error: Count must be positive");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                statusLabel.setText("Error: Invalid count");
+                return;
+            }
+            UIUtils.updatePeripheralCount(type, count, UIUtils.getAccessories(), statusLabel);
+            accessoryTypeCombo.setSelectedItem(type); // Re-select to maintain state
         });
 
-        panel.add(UIUtils.createAlignedLabel("Brand:"));
-        panel.add(brandField);
-        panel.add(addToStorageButton);
-        panel.add(deployedButton);
-
-        return panel;
-    }
-
-    private JPanel createMousePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        JTextField mouseBrandField = UIUtils.createFormattedTextField();
-        JButton mouseAddToStorageButton = UIUtils.createFormattedButton("Add to Storage");
-        JButton mouseDeployedButton = UIUtils.createFormattedButton("Deployed");
-
-        mouseAddToStorageButton.addActionListener(e -> {
-            System.out.println("Mouse Added to Storage - Brand: " +
-                (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
+        removeButton.addActionListener(e -> {
+            Object selectedItem = accessoryTypeCombo.getSelectedItem();
+            if (selectedItem == null || selectedItem.equals("Add New Accessory Type")) {
+                statusLabel.setText("Error: Select or add an accessory type first");
+                return;
+            }
+            String type = selectedItem.toString();
+            int count = 1;
+            try {
+                count = Integer.parseInt(countField.getText().trim());
+                if (count <= 0) {
+                    statusLabel.setText("Error: Count must be positive");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                statusLabel.setText("Error: Invalid count");
+                return;
+            }
+            UIUtils.updatePeripheralCount(type, -count, UIUtils.getAccessories(), statusLabel);
+            accessoryTypeCombo.setSelectedItem(type); // Re-select to maintain state
         });
 
-        mouseDeployedButton.addActionListener(e -> {
-            System.out.println("Mouse Deployed - Brand: " +
-                (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
-        });
+        panel.add(UIUtils.createAlignedLabel("Accessory Type:"));
+        panel.add(accessoryTypeCombo);
+        panel.add(newTypePanel);
+        panel.add(UIUtils.createAlignedLabel("Count:"));
+        panel.add(countField);
+        panel.add(addButton);
+        panel.add(removeButton);
 
-        panel.add(UIUtils.createAlignedLabel("Brand:"));
-        panel.add(mouseBrandField);
-        panel.add(mouseAddToStorageButton);
-        panel.add(mouseDeployedButton);
-
-        return panel;
-    }
-
-    private JPanel createMonitorPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        JTextField monitorBrandField = UIUtils.createFormattedTextField();
-        JTextField screenSizeField = UIUtils.createFormattedTextField();
-        JComboBox<String> resolutionCombo = UIUtils.createFormattedComboBox(
-            new String[]{"Widescreen", "Full Screen"}
-        );
-        JCheckBox vgaCheckBox = UIUtils.createFormattedCheckBox("VGA");
-        JCheckBox hdmiCheckBox = UIUtils.createFormattedCheckBox("HDMI");
-        JCheckBox displayPortCheckBox = UIUtils.createFormattedCheckBox("DisplayPort");
-        JButton addToStorageButton = UIUtils.createFormattedButton("Add to Storage");
-        JButton deployedButton = UIUtils.createFormattedButton("Deployed");
-
-        addToStorageButton.addActionListener(e -> {
-            System.out.println("Monitor Added to Storage - Brand: " +
-                (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
-                ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
-                ", Resolution: " + resolutionCombo.getSelectedItem() +
-                ", Ports: " + UIUtils.getSelectedPorts(vgaCheckBox, hdmiCheckBox, displayPortCheckBox));
-        });
-
-        deployedButton.addActionListener(e -> {
-            System.out.println("Monitor Deployed - Brand: " +
-                (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
-                ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
-                ", Resolution: " + resolutionCombo.getSelectedItem() +
-                ", Ports: " + UIUtils.getSelectedPorts(vgaCheckBox, hdmiCheckBox, displayPortCheckBox));
-        });
-
-        panel.add(UIUtils.createAlignedLabel("Brand:"));
-        panel.add(monitorBrandField);
-        panel.add(UIUtils.createAlignedLabel("Screen Size (inches):"));
-        panel.add(screenSizeField);
-        panel.add(UIUtils.createAlignedLabel("Resolution:"));
-        panel.add(resolutionCombo);
-        panel.add(vgaCheckBox);
-        panel.add(hdmiCheckBox);
-        panel.add(displayPortCheckBox);
-        panel.add(addToStorageButton);
-        panel.add(deployedButton);
-
-        return panel;
+        JScrollPane scrollPane = UIUtils.createScrollableContentPanel(panel);
+        add(scrollPane, BorderLayout.CENTER);
+        add(statusLabel, BorderLayout.SOUTH);
     }
 }
