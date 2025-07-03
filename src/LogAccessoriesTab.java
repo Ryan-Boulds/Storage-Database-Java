@@ -54,123 +54,169 @@ public class LogAccessoriesTab extends JPanel {
         accessoryCombo.setSelectedItem("Keyboard");
     }
 
-    // Method to create the keyboard panel
-    private JPanel createKeyboardPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Stack vertically
+private JPanel createKeyboardPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Stack vertically
 
-        JTextField brandField = new JTextField();
-        brandField.setPreferredSize(new Dimension(150, 30)); // Set size for brand field (fixed width)
-        brandField.setMaximumSize(new Dimension(150, 30)); // Ensure it doesn't stretch
-        JButton addToStorageButton = new JButton("Add to Storage");
-        JButton deployedButton = new JButton("Deployed");
+    JTextField brandField = new JTextField();
+    brandField.setPreferredSize(new Dimension(450, 30));
+    brandField.setMaximumSize(new Dimension(450, 30));
+    brandField.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Add action listeners to print to terminal when buttons are clicked
-        addToStorageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Keyboard Added to Storage - Brand: " + (brandField.getText().isEmpty() ? "null" : brandField.getText()));
-            }
-        });
+    JButton addToStorageButton = new JButton("Add to Storage");
+    addToStorageButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        deployedButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Keyboard Deployed - Brand: " + (brandField.getText().isEmpty() ? "null" : brandField.getText()));
-            }
-        });
+    JButton deployedButton = new JButton("Deployed");
+    deployedButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        panel.add(new JLabel("Brand:"));
-        panel.add(brandField);
-        panel.add(addToStorageButton);
-        panel.add(deployedButton);
+    // Action listeners
+    addToStorageButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Keyboard Added to Storage - Brand: " +
+                (brandField.getText().isEmpty() ? "null" : brandField.getText()));
+        }
+    });
 
-        return panel;
+    deployedButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Keyboard Deployed - Brand: " +
+                (brandField.getText().isEmpty() ? "null" : brandField.getText()));
+        }
+    });
+
+    panel.add(createAlignedLabel("Brand:"));
+    panel.add(brandField);
+    panel.add(addToStorageButton);
+    panel.add(deployedButton);
+
+    return panel;
+}
+
+
+private JPanel createMousePanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Stack vertically
+
+    JTextField mouseBrandField = new JTextField();
+    mouseBrandField.setPreferredSize(new Dimension(450, 30));
+    mouseBrandField.setMaximumSize(new Dimension(450, 30));
+    mouseBrandField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JButton mouseAddToStorageButton = new JButton("Add to Storage");
+    mouseAddToStorageButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JButton mouseDeployedButton = new JButton("Deployed");
+    mouseDeployedButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    // Add action listeners
+    mouseAddToStorageButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Mouse Added to Storage - Brand: " +
+                (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
+        }
+    });
+
+    mouseDeployedButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Mouse Deployed - Brand: " +
+                (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
+        }
+    });
+
+    panel.add(createAlignedLabel("Brand:"));
+    panel.add(mouseBrandField);
+    panel.add(mouseAddToStorageButton);
+    panel.add(mouseDeployedButton);
+
+    return panel;
+}
+
+
+private JPanel createMonitorPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical stack
+
+    JTextField monitorBrandField = new JTextField();
+    monitorBrandField.setPreferredSize(new Dimension(450, 30));
+    monitorBrandField.setMaximumSize(new Dimension(450, 30));
+    monitorBrandField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JTextField screenSizeField = new JTextField();
+    screenSizeField.setPreferredSize(new Dimension(450, 30));
+    screenSizeField.setMaximumSize(new Dimension(450, 30));
+    screenSizeField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JComboBox<String> resolutionCombo = new JComboBox<>(new String[]{"Widescreen", "Full Screen"});
+    resolutionCombo.setPreferredSize(new Dimension(450, 30));
+    resolutionCombo.setMaximumSize(new Dimension(450, 30));
+    resolutionCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JCheckBox vgaCheckBox = new JCheckBox("VGA");
+    vgaCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JCheckBox hdmiCheckBox = new JCheckBox("HDMI");
+    hdmiCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JCheckBox displayPortCheckBox = new JCheckBox("DisplayPort");
+    displayPortCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JButton addToStorageButton = new JButton("Add to Storage");
+    addToStorageButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JButton deployedButton = new JButton("Deployed");
+    deployedButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    // ✅ Add action listeners
+    addToStorageButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Monitor Added to Storage - Brand: " +
+                (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
+                ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
+                ", Resolution: " + resolutionCombo.getSelectedItem() +
+                ", Ports: " + getSelectedPorts(vgaCheckBox, hdmiCheckBox, displayPortCheckBox));
+        }
+    });
+
+    deployedButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Monitor Deployed - Brand: " +
+                (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
+                ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
+                ", Resolution: " + resolutionCombo.getSelectedItem() +
+                ", Ports: " + getSelectedPorts(vgaCheckBox, hdmiCheckBox, displayPortCheckBox));
+        }
+    });
+
+    panel.add(createAlignedLabel("Brand:"));
+    panel.add(monitorBrandField);
+    panel.add(createAlignedLabel("Screen Size (inches):"));
+    panel.add(screenSizeField);
+    panel.add(createAlignedLabel("Resolution:"));
+    panel.add(resolutionCombo);
+    panel.add(vgaCheckBox);
+    panel.add(hdmiCheckBox);
+    panel.add(displayPortCheckBox);
+    panel.add(addToStorageButton);
+    panel.add(deployedButton);
+
+    return panel;
+}
+
+
+// Helper to get selected ports as comma-separated string
+private String getSelectedPorts(JCheckBox... ports) {
+    StringBuilder sb = new StringBuilder();
+    for (JCheckBox port : ports) {
+        if (port.isSelected()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(port.getText());
+        }
     }
+    return sb.length() > 0 ? sb.toString() : "None";
+}
 
-    // Method to create the mouse panel
-    private JPanel createMousePanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Stack vertically
+// Helper to align JLabels to the left
+private JLabel createAlignedLabel(String text) {
+    JLabel label = new JLabel(text);
+    label.setAlignmentX(Component.LEFT_ALIGNMENT);
+    return label;
+}
 
-        JTextField mouseBrandField = new JTextField();
-        mouseBrandField.setPreferredSize(new Dimension(150, 30)); // Set size for mouse brand field (fixed width)
-        mouseBrandField.setMaximumSize(new Dimension(150, 30)); // Ensure it doesn't stretch
-        JButton mouseAddToStorageButton = new JButton("Add to Storage");
-        JButton mouseDeployedButton = new JButton("Deployed");
-
-        // Add action listeners to print to terminal when buttons are clicked
-        mouseAddToStorageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Mouse Added to Storage - Brand: " + (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
-            }
-        });
-
-        mouseDeployedButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Mouse Deployed - Brand: " + (mouseBrandField.getText().isEmpty() ? "null" : mouseBrandField.getText()));
-            }
-        });
-
-        panel.add(new JLabel("Brand:"));
-        panel.add(mouseBrandField);
-        panel.add(mouseAddToStorageButton);
-        panel.add(mouseDeployedButton);
-
-        return panel;
-    }
-
-    // Method to create the monitor panel
-    private JPanel createMonitorPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Stack components vertically
-
-        JTextField monitorBrandField = new JTextField();
-        monitorBrandField.setPreferredSize(new Dimension(150, 30)); // Set size for monitor brand field (fixed width)
-        monitorBrandField.setMaximumSize(new Dimension(150, 30)); // Ensure it doesn't stretch
-        
-        JTextField screenSizeField = new JTextField();
-        screenSizeField.setPreferredSize(new Dimension(50, 30)); // Narrow width for screen size
-        screenSizeField.setMaximumSize(new Dimension(50, 30)); // Ensure it doesn't stretch
-
-        JComboBox<String> resolutionCombo = new JComboBox<>(new String[]{"Widescreen", "Full Screen"});
-        resolutionCombo.setPreferredSize(new Dimension(150, 30)); // Set size for resolution combo box
-        resolutionCombo.setMaximumSize(new Dimension(150, 30)); // Ensure it doesn't stretch
-        
-        JCheckBox vgaCheckBox = new JCheckBox("VGA");
-        JCheckBox hdmiCheckBox = new JCheckBox("HDMI");
-        JCheckBox displayPortCheckBox = new JCheckBox("DisplayPort");
-
-        JButton addToStorageButton = new JButton("Add to Storage");
-        JButton deployedButton = new JButton("Deployed");
-
-        // Action listeners to print to terminal when buttons are clicked
-        addToStorageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Monitor Added to Storage - Brand: " + (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
-                                   ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
-                                   ", Resolution: " + (resolutionCombo.getSelectedItem() == null ? "null" : resolutionCombo.getSelectedItem()));
-            }
-        });
-
-        deployedButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Monitor Deployed - Brand: " + (monitorBrandField.getText().isEmpty() ? "null" : monitorBrandField.getText()) +
-                                   ", Screen Size: " + (screenSizeField.getText().isEmpty() ? "null" : screenSizeField.getText()) +
-                                   ", Resolution: " + (resolutionCombo.getSelectedItem() == null ? "null" : resolutionCombo.getSelectedItem()));
-            }
-        });
-
-        panel.add(new JLabel("Brand:"));
-        panel.add(monitorBrandField);
-        panel.add(new JLabel("Screen Size (inches):"));
-        panel.add(screenSizeField);
-        panel.add(new JLabel("Resolution:"));
-        panel.add(resolutionCombo);
-        panel.add(vgaCheckBox);
-        panel.add(hdmiCheckBox);
-        panel.add(displayPortCheckBox);
-        panel.add(addToStorageButton);
-        panel.add(deployedButton);
-
-        return panel;
-    }
 }
