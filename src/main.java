@@ -4,7 +4,7 @@ public class main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Inventory Management");
-            frame.setSize(600, 600);
+            frame.setSize(1200, 600);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JTabbedPane tabbedPane = new JTabbedPane();
@@ -13,12 +13,14 @@ public class main {
             LogCablesTab logCablesTab = new LogCablesTab();
             LogAccessoriesTab logAccessoriesTab = new LogAccessoriesTab();
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
+           ImportDataTab importDataTab = new ImportDataTab(); // Added new tab
 
             tabbedPane.addTab("ViewInventory", viewInventoryTab);
             tabbedPane.addTab("LogNewDevice", logNewDeviceTab);
             tabbedPane.addTab("LogCables", logCablesTab);
             tabbedPane.addTab("LogAccessories", logAccessoriesTab);
             tabbedPane.addTab("AccessoriesCount", accessoriesCountTab);
+            tabbedPane.addTab("ImportData", importDataTab); // Added new tab
 
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
@@ -26,7 +28,7 @@ public class main {
                     viewInventoryTab.updateTable(null, "All", "All", "All");
                 } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
                     AccessoriesCountTab newTab = new AccessoriesCountTab();
-                    tabbedPane.setComponentAt(4, newTab);
+                    tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);
                 }
             });
 
