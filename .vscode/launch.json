@@ -1,9 +1,2 @@
 {
-  "type": "java",
-  "name": "Launch Program",
-  "request": "launch",
-  "mainClass": "ImportDataTab",
-  "classPaths": [
-    "lib/*"
-  ]
 }
