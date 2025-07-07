@@ -2,8 +2,8 @@ import java.util.Map;
 
 public class SQLGenerator {
     public static String formatDeviceSQL(Map<String, String> data) {
-        StringBuilder sql = new StringBuilder("INSERT INTO Inventory (Device_Name, Device_Type, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor) VALUES (");
-        String[] fields = {"Device_Name", "Device_Type", "Brand", "Model", "Serial_Number", "Building_Location", "Room_Desk", "Specification", "Processor_Type", "Storage_Capacity", "Network_Address", "OS_Version", "Department", "Added_Memory", "Status", "Assigned_User", "Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase", "Purchase_Cost", "Vendor"};
+        StringBuilder sql = new StringBuilder("INSERT INTO Inventory (Device_Name, Device_Type, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM) VALUES (");
+        String[] fields = {"Device_Name", "Device_Type", "Brand", "Model", "Serial_Number", "Building_Location", "Room_Desk", "Specification", "Processor_Type", "Storage_Capacity", "Network_Address", "OS_Version", "Department", "Added_Memory", "Status", "Assigned_User", "Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase", "Purchase_Cost", "Vendor", "Memory_RAM"};
         for (int i = 0; i < fields.length; i++) {
             String value = data.get(fields[i]);
             if (value == null || value.trim().isEmpty()) {

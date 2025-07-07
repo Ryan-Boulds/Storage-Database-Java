@@ -13,14 +13,14 @@ public class main {
             LogCablesTab logCablesTab = new LogCablesTab();
             LogAccessoriesTab logAccessoriesTab = new LogAccessoriesTab();
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
-           ImportDataTab importDataTab = new ImportDataTab(); // Added new tab
+            ImportDataTab importDataTab = new ImportDataTab();
 
             tabbedPane.addTab("ViewInventory", viewInventoryTab);
             tabbedPane.addTab("LogNewDevice", logNewDeviceTab);
             tabbedPane.addTab("LogCables", logCablesTab);
             tabbedPane.addTab("LogAccessories", logAccessoriesTab);
             tabbedPane.addTab("AccessoriesCount", accessoriesCountTab);
-            tabbedPane.addTab("ImportData", importDataTab); // Added new tab
+            tabbedPane.addTab("ImportData", importDataTab);
 
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {

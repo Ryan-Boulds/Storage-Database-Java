@@ -33,7 +33,7 @@ public class ViewInventoryTab extends JPanel {
         filterPanel.add(filterButton);
         filterPanel.add(refreshButton);
 
-        String[] columns = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due"};
+        String[] columns = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -62,6 +62,7 @@ public class ViewInventoryTab extends JPanel {
         table.getColumnModel().getColumn(17).setPreferredWidth(80);
         table.getColumnModel().getColumn(18).setPreferredWidth(100);
         table.getColumnModel().getColumn(19).setPreferredWidth(100);
+        table.getColumnModel().getColumn(20).setPreferredWidth(100);
 
         JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -158,6 +159,7 @@ public class ViewInventoryTab extends JPanel {
             String addedStor = device.getOrDefault("Added_Storage", "");
             String lastMaint = device.getOrDefault("Last_Maintenance", "");
             String maintDue = device.getOrDefault("Maintenance_Due", "");
+            String memoryRAM = device.getOrDefault("Memory_RAM", "");
 
             if ((searchText == null || deviceName.toLowerCase().contains(searchText) || serial.toLowerCase().contains(searchText)) &&
                 (typeFilter.equals("All") || deviceType.equals(typeFilter)) &&
@@ -187,7 +189,8 @@ public class ViewInventoryTab extends JPanel {
                 device.getOrDefault("Added_Memory", ""),
                 device.getOrDefault("Added_Storage", ""),
                 device.getOrDefault("Last_Maintenance", ""),
-                device.getOrDefault("Maintenance_Due", "")
+                device.getOrDefault("Maintenance_Due", ""),
+                device.getOrDefault("Memory_RAM", "")
             });
         }
     }
@@ -196,8 +199,8 @@ public class ViewInventoryTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JTextField[] fields = new JTextField[20];
-        String[] columnNames = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due"};
+        JTextField[] fields = new JTextField[21];
+        String[] columnNames = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)"};
         for (int i = 0; i < columnNames.length; i++) {
             JTextField field = UIUtils.createFormattedTextField();
             field.setText(device.getOrDefault(columnNames[i], ""));

@@ -14,13 +14,13 @@ public class ImportDataTab extends JPanel {
         "Room_Desk", "Specification", "Processor_Type", "Storage_Capacity", "Network_Address",
         "OS_Version", "Department", "Added_Memory", "Status", "Assigned_User",
         "Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase",
-        "Purchase_Cost", "Vendor"
+        "Purchase_Cost", "Vendor", "Memory_RAM"
     };
     private final String[] tableColumns = {
         "Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status",
         "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor",
         "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification",
-        "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due"
+        "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)"
     };
 
     public ImportDataTab() {

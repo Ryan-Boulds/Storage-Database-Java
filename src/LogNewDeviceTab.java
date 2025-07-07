@@ -10,7 +10,8 @@ public class LogNewDeviceTab extends JPanel {
     private JPanel computerPanel, printerPanel, routerPanel, switchPanel;
     private JTextField deviceNameField, deviceTypeField, brandField, modelField, serialNumberField, processorTypeField,
                       storageCapacityField, networkAddressField, departmentField, purchaseCostField, vendorField,
-                      osVersionField, roomDeskField, specificationField, assignedUserField, buildingLocationField;
+                      osVersionField, roomDeskField, specificationField, assignedUserField, buildingLocationField,
+                      memoryRAMField;
     private JComboBox<String> addedMemoryCombo, addedStorageCombo, statusCombo;
     private JLabel statusLabel;
 
@@ -72,6 +73,7 @@ public class LogNewDeviceTab extends JPanel {
         specificationField = UIUtils.createFormattedTextField();
         assignedUserField = UIUtils.createFormattedTextField();
         buildingLocationField = UIUtils.createFormattedTextField();
+        memoryRAMField = UIUtils.createFormattedTextField();
         addedMemoryCombo = UIUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
         addedStorageCombo = UIUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
         statusCombo = UIUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
@@ -139,6 +141,7 @@ public class LogNewDeviceTab extends JPanel {
             specificationField.setText("");
             assignedUserField.setText("");
             buildingLocationField.setText("");
+            memoryRAMField.setText("");
             addedMemoryCombo.setSelectedItem("null");
             addedStorageCombo.setSelectedItem("null");
             statusCombo.setSelectedItem("Deployed");
@@ -177,6 +180,8 @@ public class LogNewDeviceTab extends JPanel {
         panel.add(osVersionField);
         panel.add(UIUtils.createAlignedLabel("Assigned User:"));
         panel.add(assignedUserField);
+        panel.add(UIUtils.createAlignedLabel("Memory (RAM):"));
+        panel.add(memoryRAMField);
         panel.add(UIUtils.createAlignedLabel("Added Memory:"));
         panel.add(addedMemoryCombo);
         panel.add(UIUtils.createAlignedLabel("Added Storage:"));
@@ -513,6 +518,7 @@ public class LogNewDeviceTab extends JPanel {
         data.put("Specification", specificationField.getText());
         data.put("OS_Version", osVersionField.getText());
         data.put("Assigned_User", assignedUserField.getText());
+        data.put("Memory_RAM", memoryRAMField.getText());
         data.put("Added_Memory", (String) addedMemoryCombo.getSelectedItem());
         data.put("Added_Storage", (String) addedStorageCombo.getSelectedItem());
         data.put("Status", (String) statusCombo.getSelectedItem());
@@ -540,6 +546,7 @@ public class LogNewDeviceTab extends JPanel {
         specificationField.setText(template.getOrDefault("Specification", ""));
         osVersionField.setText(template.getOrDefault("OS_Version", ""));
         assignedUserField.setText(template.getOrDefault("Assigned_User", ""));
+        memoryRAMField.setText(template.getOrDefault("Memory_RAM", ""));
         purchaseCostField.setText(template.getOrDefault("Purchase_Cost", ""));
         vendorField.setText(template.getOrDefault("Vendor", ""));
         addedMemoryCombo.setSelectedItem(template.getOrDefault("Added_Memory", "null"));
