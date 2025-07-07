@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.*;
@@ -17,22 +18,30 @@ public class LogCablesTab extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         ArrayList<String> existingTypes = UIUtils.getPeripheralTypes(UIUtils.getCables());
-        String[] initialItems = new String[existingTypes.size() + 2]; // +2 for "Cable" and "Add New Cable Type"
-        initialItems[0] = "Cable";
-        for (int i = 0; i < existingTypes.size(); i++) {
-            initialItems[i + 1] = existingTypes.get(i);
+        String[] initialItems;
+        if (existingTypes.isEmpty()) {
+            initialItems = new String[]{"Add New Cable Type"};
+        } else {
+            initialItems = new String[existingTypes.size() + 1];
+            for (int i = 0; i < existingTypes.size(); i++) {
+                initialItems[i] = existingTypes.get(i);
+            }
+            initialItems[existingTypes.size()] = "Add New Cable Type";
         }
-        initialItems[initialItems.length - 1] = "Add New Cable Type";
         cableTypeCombo = new JComboBox<>(initialItems);
         cableTypeCombo.setPreferredSize(new Dimension(450, 30));
         cableTypeCombo.setMaximumSize(new Dimension(450, 30));
         cableTypeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cableTypeCombo.setSelectedItem("Cable"); // Default to "Cable"
+        // Set no initial selection if there are existing types
+        if (!existingTypes.isEmpty()) {
+            cableTypeCombo.setSelectedIndex(-1);
+        }
 
         newTypePanel = new JPanel();
         newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         newTypeField = UIUtils.createFormattedTextField();
         newTypeField.setVisible(false);
+        newTypePanel.setVisible(false); // Ensure panel is hidden initially
         JButton addNewTypeButton = UIUtils.createFormattedButton("Add New Type");
         newTypePanel.add(UIUtils.createAlignedLabel("New Cable Type:"));
         newTypePanel.add(newTypeField);
@@ -45,20 +54,29 @@ public class LogCablesTab extends JPanel {
         JButton removeButton = UIUtils.createFormattedButton("Remove Cable");
         statusLabel = UIUtils.createAlignedLabel("");
 
+        // Temporarily disable ActionListener during initialization
+        ActionListener[] listeners = cableTypeCombo.getActionListeners();
+        for (ActionListener listener : listeners) {
+            cableTypeCombo.removeActionListener(listener);
+        }
+
         cableTypeCombo.addActionListener(e -> {
             Object selectedItem = cableTypeCombo.getSelectedItem();
             if (selectedItem != null && selectedItem.equals("Add New Cable Type")) {
                 newTypeField.setVisible(true);
                 newTypePanel.setVisible(true);
-                panel.revalidate();
-                panel.repaint();
             } else {
                 newTypeField.setVisible(false);
                 newTypePanel.setVisible(false);
-                panel.revalidate();
-                panel.repaint();
             }
+            panel.revalidate();
+            panel.repaint();
         });
+
+        // Re-add listeners after setting initial state
+        for (ActionListener listener : listeners) {
+            cableTypeCombo.addActionListener(listener);
+        }
 
         addNewTypeButton.addActionListener(e -> {
             String newType = newTypeField.getText().trim();
@@ -78,7 +96,10 @@ public class LogCablesTab extends JPanel {
             cableTypeCombo.setSelectedItem(newType); // Safely set the new type
             newTypeField.setText("");
             newTypeField.setVisible(false);
+            newTypePanel.setVisible(false); // Hide panel after adding
             statusLabel.setText(newType + " added with count 0");
+            panel.revalidate();
+            panel.repaint();
         });
 
         addButton.addActionListener(e -> {
