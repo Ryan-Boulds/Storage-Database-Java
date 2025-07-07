@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class main {
+public class mainFile {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Inventory Management");

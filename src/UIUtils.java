@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -8,11 +9,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.*;
 
+
+
 public class UIUtils {
-    private static ArrayList<HashMap<String, String>> devices = new ArrayList<>();
-    private static ArrayList<HashMap<String, String>> cables = new ArrayList<>();
-    private static ArrayList<HashMap<String, String>> accessories = new ArrayList<>();
-    private static ArrayList<HashMap<String, String>> templates = new ArrayList<>();
+    private static final ArrayList<HashMap<String, String>> devices = new ArrayList<>();
+    private static final ArrayList<HashMap<String, String>> cables = new ArrayList<>();
+    private static final ArrayList<HashMap<String, String>> accessories = new ArrayList<>();
+    private static final ArrayList<HashMap<String, String>> templates = new ArrayList<>();
     private static final String DEVICES_FILE = "inventory.txt";
     private static final String CABLES_FILE = "cables.txt";
     private static final String ACCESSORIES_FILE = "accessories.txt";
@@ -245,7 +248,7 @@ public class UIUtils {
         }
         if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
             try {
-                Double.parseDouble(purchaseCost);
+                Double.valueOf(purchaseCost);
             } catch (NumberFormatException e) {
                 return "Purchase Cost must be a valid number";
             }
@@ -350,7 +353,7 @@ public class UIUtils {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error loading devices: " + e.getMessage());
         }
     }
@@ -361,8 +364,8 @@ public class UIUtils {
             for (HashMap<String, String> device : devices) {
                 sb.append(mapToString(device)).append("\n");
             }
-            Files.writeString(new File(DEVICES_FILE).toPath(), sb.toString().trim());
-        } catch (Exception e) {
+            Files.write(new File(DEVICES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             System.err.println("Error saving devices: " + e.getMessage());
         }
     }
@@ -387,7 +390,7 @@ public class UIUtils {
                     cables.add(item);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error loading cables: " + e.getMessage());
         }
     }
@@ -398,8 +401,8 @@ public class UIUtils {
             for (HashMap<String, String> cable : cables) {
                 sb.append(mapToString(cable)).append("\n");
             }
-            Files.writeString(new File(CABLES_FILE).toPath(), sb.toString().trim());
-        } catch (Exception e) {
+            Files.write(new File(CABLES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             System.err.println("Error saving cables: " + e.getMessage());
         }
     }
@@ -424,7 +427,7 @@ public class UIUtils {
                     accessories.add(item);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error loading accessories: " + e.getMessage());
         }
     }
@@ -435,8 +438,8 @@ public class UIUtils {
             for (HashMap<String, String> accessory : accessories) {
                 sb.append(mapToString(accessory)).append("\n");
             }
-            Files.writeString(new File(ACCESSORIES_FILE).toPath(), sb.toString().trim());
-        } catch (Exception e) {
+            Files.write(new File(ACCESSORIES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             System.err.println("Error saving accessories: " + e.getMessage());
         }
     }
@@ -461,7 +464,7 @@ public class UIUtils {
                     templates.add(template);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error loading templates: " + e.getMessage());
         }
     }
@@ -472,8 +475,8 @@ public class UIUtils {
             for (HashMap<String, String> template : templates) {
                 sb.append(mapToString(template)).append("\n");
             }
-            Files.writeString(new File(TEMPLATES_FILE).toPath(), sb.toString().trim());
-        } catch (Exception e) {
+            Files.write(new File(TEMPLATES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             System.err.println("Error saving templates: " + e.getMessage());
         }
     }

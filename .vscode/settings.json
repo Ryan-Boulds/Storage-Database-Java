@@ -1,6 +1,14 @@
 {
-    "java.project.referencedLibraries": [
-  "lib/*.jar" // Assuming your JAR files are in the "lib" folder
-]
-
+  "java.home": "C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/Storage-Database-Java/zulu8.86.0.25-ca-jdk8.0.452-win_x64",
+  "java.project.referencedLibraries": [
+    "JavaLib/UCanAccess/**/*.jar"
+  ],
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-1.8",
+      "path": "C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/Storage-Database-Java/zulu8.86.0.25-ca-jdk8.0.452-win_x64",
+      "default": true
+    }
+  ],
+  "java.configuration.maven.enabled": false
 }

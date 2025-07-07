@@ -5,8 +5,8 @@ import java.util.HashMap;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-public class ViewInventoryTab extends JPanel {
-    private DefaultTableModel tableModel;
+public final class ViewInventoryTab extends JPanel {
+    private final DefaultTableModel tableModel;
     private JTable table;
 
     public ViewInventoryTab() {
@@ -141,25 +141,9 @@ public class ViewInventoryTab extends JPanel {
         for (HashMap<String, String> device : UIUtils.getDevices()) {
             String deviceName = device.getOrDefault("Device_Name", "");
             String deviceType = device.getOrDefault("Device_Type", "");
-            String brand = device.getOrDefault("Brand", "");
-            String model = device.getOrDefault("Model", "");
             String serial = device.getOrDefault("Serial_Number", "");
             String status = device.getOrDefault("Status", "");
             String dept = device.getOrDefault("Department", "");
-            String warranty = device.getOrDefault("Warranty_Expiry_Date", "");
-            String network = device.getOrDefault("Network_Address", "");
-            String cost = device.getOrDefault("Purchase_Cost", "");
-            String vendor = device.getOrDefault("Vendor", "");
-            String os = device.getOrDefault("OS_Version", "");
-            String user = device.getOrDefault("Assigned_User", "");
-            String building = device.getOrDefault("Building_Location", "");
-            String room = device.getOrDefault("Room_Desk", "");
-            String spec = device.getOrDefault("Specification", "");
-            String addedMem = device.getOrDefault("Added_Memory", "");
-            String addedStor = device.getOrDefault("Added_Storage", "");
-            String lastMaint = device.getOrDefault("Last_Maintenance", "");
-            String maintDue = device.getOrDefault("Maintenance_Due", "");
-            String memoryRAM = device.getOrDefault("Memory_RAM", "");
 
             if ((searchText == null || deviceName.toLowerCase().contains(searchText) || serial.toLowerCase().contains(searchText)) &&
                 (typeFilter.equals("All") || deviceType.equals(typeFilter)) &&

@@ -1,1 +1,2 @@
 Peripheral_Type=Hdmi, Count=4
+Peripheral_Type=hdmi, Count=0
