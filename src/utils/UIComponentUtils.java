@@ -193,8 +193,8 @@ public class UIComponentUtils {
 
     public static String getDateFromPicker(JPanel datePicker) {
         for (Component comp : datePicker.getComponents()) {
-            if (comp instanceof JTextField) {
-                return ((JTextField) comp).getText();
+            if (comp instanceof JTextField jTextField) {
+                return jTextField.getText();
             }
         }
         return "";
