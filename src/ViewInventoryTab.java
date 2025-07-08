@@ -4,12 +4,14 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import utils.DataUtils;
@@ -30,7 +32,9 @@ public final class ViewInventoryTab extends JPanel {
         JTextField searchField = UIComponentUtils.createFormattedTextField();
         searchField.setPreferredSize(new Dimension(200, 30));
         JComboBox<String> statusFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All", "Deployed", "In Storage", "Needs Repair"});
+        statusFilter.setPreferredSize(new Dimension(100, 30)); // Skinnier width
         JComboBox<String> deptFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All"});
+        deptFilter.setPreferredSize(new Dimension(100, 30)); // Skinnier width
         JButton filterButton = UIComponentUtils.createFormattedButton("Filter");
         JButton refreshButton = UIComponentUtils.createFormattedButton("Refresh");
 
@@ -92,11 +96,13 @@ public final class ViewInventoryTab extends JPanel {
             uniqueTypes.add(type);
         }
 
-        // Determine dynamic columns
+        // Determine dynamic columns with data
         Set<String> allKeys = new HashSet<>();
         for (HashMap<String, String> device : InventoryData.getDevices()) {
             for (String key : device.keySet()) {
-                allKeys.add(key);
+                // Normalize keys by replacing special characters (e.g., "/" with "_")
+                String normalizedKey = key.replace("/", "_");
+                allKeys.add(normalizedKey);
             }
         }
         Set<String> activeColumns = new HashSet<>();
@@ -105,6 +111,13 @@ public final class ViewInventoryTab extends JPanel {
                 String value = device.getOrDefault(key, "").trim();
                 if (!value.isEmpty()) {
                     activeColumns.add(key);
+                    break;
+                }
+                // Check normalized version if original key has special characters
+                String originalKey = key.contains("_") ? key.replace("_", "/") : key.replace("/", "_");
+                value = device.getOrDefault(originalKey, "").trim();
+                if (!value.isEmpty()) {
+                    activeColumns.add(originalKey);
                     break;
                 }
             }
@@ -240,9 +253,21 @@ public final class ViewInventoryTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        // Determine dynamic fields based on device data
+        // Define default categories for editing
+        List<String> defaultCategories = Arrays.asList(
+            "Device Name", "Device Type", "Serial Number", "Status", "Department", "Added Memory",
+            "Added Storage", "Purchase Date", "Warranty Expiry", "Purchase Cost", "Vendor", "Assigned User",
+            "OS Version", "Room", "Desk", "Maintenance Due", "Storage Capacity", "Memory Space",
+            "Warranty Guarantee", "Acquisition Cost", "Supplier", "Operating System", "Specification Details",
+            "Purchase Expense", "Storage Expansion", "Brand", "Manufacturer", "Building Location",
+            "Site", "Division", "Team", "Unit", "Test", "Trial", "Experiment", "Evaluation", "Check",
+            "Review", "Assessment"
+        );
+
+        // Determine dynamic fields based on device data and default categories
         List<String> columnNames = new ArrayList<>();
-        Set<String> allKeys = device.keySet();
+        Set<String> allKeys = new HashSet<>(device.keySet());
+        allKeys.addAll(defaultCategories.stream().map(s -> s.replace(" ", "_")).collect(Collectors.toSet()));
         for (String key : allKeys) {
             columnNames.add(key.replace("_", " "));
         }
@@ -284,12 +309,12 @@ public final class ViewInventoryTab extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        JDialog dialog = new JDialog(); // Default constructor as per VS Code recommendation
-        dialog.setTitle("Modify Device"); // Set the title
-        dialog.setModal(true); // Ensure modality
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Modify Device");
+        dialog.setModal(true);
         dialog.setLayout(new BorderLayout());
         dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.setSize(500, Math.min(600, 50 + 40 * columnNames.size())); // Dynamic size based on fields
+        dialog.setSize(500, Math.min(600, 50 + 40 * columnNames.size()));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(this);
 
