@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import utils.DataUtils;
 import utils.FileUtils;
 import utils.InventoryData;
