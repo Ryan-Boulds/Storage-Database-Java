@@ -11,7 +11,7 @@ public class DataUtils {
                 .collect(Collectors.joining(" "));
     }
 
-    public static String validateDevice(Map<String, String> data) {
+    public static String validateDevice(Map<String, String> data, String originalSerialNumber) {
         String deviceName = data.get("Device_Name");
         String serialNumber = data.get("Serial_Number");
         String purchaseCost = data.get("Purchase_Cost");
@@ -24,11 +24,15 @@ public class DataUtils {
             return "Serial Number is required";
         }
         for (HashMap<String, String> device : InventoryData.getDevices()) {
-            if (device.get("Device_Name").equals(deviceName)) {
-                return "Device Name '" + deviceName + "' already exists";
-            }
-            if (device.get("Serial_Number").equals(serialNumber)) {
-                return "Serial Number '" + serialNumber + "' already exists";
+            String existingSerial = device.getOrDefault("Serial_Number", "");
+            // Skip the current device if originalSerialNumber is provided and matches
+            if (originalSerialNumber == null || !existingSerial.equals(originalSerialNumber)) {
+                if (device.get("Device_Name").equals(deviceName)) {
+                    return "Device Name '" + deviceName + "' already exists";
+                }
+                if (device.get("Serial_Number").equals(serialNumber)) {
+                    return "Serial Number '" + serialNumber + "' already exists";
+                }
             }
         }
         if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
@@ -44,6 +48,11 @@ public class DataUtils {
             }
         }
         return null;
+    }
+
+    public static String validateDevice(Map<String, String> data) {
+        // Call the overloaded method with null originalSerialNumber for adding new devices
+        return validateDevice(data, null);
     }
 
     public static String validatePeripheral(Map<String, String> data) {

@@ -20,7 +20,7 @@ public class ComputerPanel extends JPanel {
     private JComboBox<String> addedMemoryCombo, addedStorageCombo, statusCombo;
     private JPanel warrantyExpiryDatePicker_div, maintenanceDatesPicker_div, lastMaintenancePicker_div,
                    dateOfPurchasePicker_div;
-    private JLabel statusLabel;
+    private final JLabel statusLabel;
 
     public ComputerPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;

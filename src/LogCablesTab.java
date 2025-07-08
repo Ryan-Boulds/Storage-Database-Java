@@ -3,7 +3,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.*;
-
 import utils.DataUtils;
 import utils.FileUtils;
 import utils.InventoryData;
