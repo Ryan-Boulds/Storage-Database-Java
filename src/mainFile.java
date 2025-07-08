@@ -3,11 +3,6 @@ import javax.swing.*;
 public class mainFile {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Inventory Management");
-            frame.setSize(1200, 600);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-            JTabbedPane tabbedPane = new JTabbedPane();
             ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
             LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
             LogCablesTab logCablesTab = new LogCablesTab();
@@ -15,13 +10,17 @@ public class mainFile {
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
             ImportDataTab importDataTab = new ImportDataTab();
 
-            tabbedPane.addTab("ViewInventory", viewInventoryTab);
-            tabbedPane.addTab("LogNewDevice", logNewDeviceTab);
-            tabbedPane.addTab("LogCables", logCablesTab);
-            tabbedPane.addTab("LogAccessories", logAccessoriesTab);
-            tabbedPane.addTab("AccessoriesCount", accessoriesCountTab);
-            tabbedPane.addTab("ImportData", importDataTab);
+            JFrame frame = UIComponentUtils.createMainFrame(
+                "Inventory Management",
+                viewInventoryTab,
+                logNewDeviceTab,
+                logCablesTab,
+                logAccessoriesTab,
+                accessoriesCountTab,
+                importDataTab
+            );
 
+            JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
                     viewInventoryTab.refreshData();
@@ -32,14 +31,13 @@ public class mainFile {
                 }
             });
 
-            frame.add(tabbedPane);
             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosing(java.awt.event.WindowEvent e) {
-                    UIUtils.saveDevices();
-                    UIUtils.saveCables();
-                    UIUtils.saveAccessories();
-                    UIUtils.saveTemplates();
+                    FileUtils.saveDevices();
+                    FileUtils.saveCables();
+                    FileUtils.saveAccessories();
+                    FileUtils.saveTemplates();
                     System.exit(0);
                 }
             });

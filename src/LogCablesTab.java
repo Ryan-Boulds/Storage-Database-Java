@@ -17,7 +17,7 @@ public class LogCablesTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        ArrayList<String> existingTypes = UIUtils.getPeripheralTypes(UIUtils.getCables());
+        ArrayList<String> existingTypes = PeripheralUtils.getPeripheralTypes(InventoryData.getCables());
         String[] initialItems;
         if (existingTypes.isEmpty()) {
             initialItems = new String[]{"Add New Cable Type"};
@@ -32,29 +32,27 @@ public class LogCablesTab extends JPanel {
         cableTypeCombo.setPreferredSize(new Dimension(450, 30));
         cableTypeCombo.setMaximumSize(new Dimension(450, 30));
         cableTypeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
-        // Set no initial selection if there are existing types
         if (!existingTypes.isEmpty()) {
             cableTypeCombo.setSelectedIndex(-1);
         }
 
         newTypePanel = new JPanel();
         newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        newTypeField = UIUtils.createFormattedTextField();
+        newTypeField = UIComponentUtils.createFormattedTextField();
         newTypeField.setVisible(false);
-        newTypePanel.setVisible(false); // Ensure panel is hidden initially
-        JButton addNewTypeButton = UIUtils.createFormattedButton("Add New Type");
-        newTypePanel.add(UIUtils.createAlignedLabel("New Cable Type:"));
+        newTypePanel.setVisible(false);
+        JButton addNewTypeButton = UIComponentUtils.createFormattedButton("Add New Type");
+        newTypePanel.add(UIComponentUtils.createAlignedLabel("New Cable Type:"));
         newTypePanel.add(newTypeField);
         newTypePanel.add(addNewTypeButton);
         newTypePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        countField = UIUtils.createFormattedTextField();
-        countField.setText("1"); // Default to 1
-        JButton addButton = UIUtils.createFormattedButton("Add Cable");
-        JButton removeButton = UIUtils.createFormattedButton("Remove Cable");
-        statusLabel = UIUtils.createAlignedLabel("");
+        countField = UIComponentUtils.createFormattedTextField();
+        countField.setText("1");
+        JButton addButton = UIComponentUtils.createFormattedButton("Add Cable");
+        JButton removeButton = UIComponentUtils.createFormattedButton("Remove Cable");
+        statusLabel = UIComponentUtils.createAlignedLabel("");
 
-        // Temporarily disable ActionListener during initialization
         ActionListener[] listeners = cableTypeCombo.getActionListeners();
         for (ActionListener listener : listeners) {
             cableTypeCombo.removeActionListener(listener);
@@ -73,7 +71,6 @@ public class LogCablesTab extends JPanel {
             panel.repaint();
         });
 
-        // Re-add listeners after setting initial state
         for (ActionListener listener : listeners) {
             cableTypeCombo.addActionListener(listener);
         }
@@ -84,19 +81,19 @@ public class LogCablesTab extends JPanel {
                 statusLabel.setText("Error: Enter a new cable type");
                 return;
             }
-            newType = UIUtils.capitalizeWords(newType);
+            newType = DataUtils.capitalizeWords(newType);
             HashMap<String, String> newCable = new HashMap<>();
             newCable.put("Peripheral_Type", newType);
             newCable.put("Count", "0");
-            UIUtils.getCables().add(newCable);
-            UIUtils.saveCables();
+            InventoryData.getCables().add(newCable);
+            FileUtils.saveCables();
             cableTypeCombo.removeItem("Add New Cable Type");
             cableTypeCombo.addItem(newType);
             cableTypeCombo.addItem("Add New Cable Type");
-            cableTypeCombo.setSelectedItem(newType); // Safely set the new type
+            cableTypeCombo.setSelectedItem(newType);
             newTypeField.setText("");
             newTypeField.setVisible(false);
-            newTypePanel.setVisible(false); // Hide panel after adding
+            newTypePanel.setVisible(false);
             statusLabel.setText(newType + " added with count 0");
             panel.revalidate();
             panel.repaint();
@@ -120,7 +117,7 @@ public class LogCablesTab extends JPanel {
                 statusLabel.setText("Error: Invalid count");
                 return;
             }
-            UIUtils.updatePeripheralCount(type, count, UIUtils.getCables(), statusLabel);
+            PeripheralUtils.updatePeripheralCount(type, count, InventoryData.getCables(), statusLabel);
         });
 
         removeButton.addActionListener(e -> {
@@ -141,18 +138,18 @@ public class LogCablesTab extends JPanel {
                 statusLabel.setText("Error: Invalid count");
                 return;
             }
-            UIUtils.updatePeripheralCount(type, -count, UIUtils.getCables(), statusLabel);
+            PeripheralUtils.updatePeripheralCount(type, -count, InventoryData.getCables(), statusLabel);
         });
 
-        panel.add(UIUtils.createAlignedLabel("Cable Type:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Cable Type:"));
         panel.add(cableTypeCombo);
         panel.add(newTypePanel);
-        panel.add(UIUtils.createAlignedLabel("Count:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Count:"));
         panel.add(countField);
         panel.add(addButton);
         panel.add(removeButton);
 
-        JScrollPane scrollPane = UIUtils.createScrollableContentPanel(panel);
+        JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
         add(scrollPane, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
     }

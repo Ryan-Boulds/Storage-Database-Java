@@ -7,28 +7,28 @@ import javax.swing.table.DefaultTableModel;
 
 public final class ViewInventoryTab extends JPanel {
     private final DefaultTableModel tableModel;
-    private JTable table;
+    private final JTable table;
 
     public ViewInventoryTab() {
         setLayout(new BorderLayout(10, 10));
         refreshData();
 
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField searchField = UIUtils.createFormattedTextField();
+        JTextField searchField = UIComponentUtils.createFormattedTextField();
         searchField.setPreferredSize(new Dimension(200, 30));
-        JComboBox<String> typeFilter = new JComboBox<>(new String[]{"All", "Computer", "Printer", "Router", "Switch"});
-        JComboBox<String> statusFilter = new JComboBox<>(new String[]{"All", "Deployed", "In Storage", "Needs Repair"});
-        JComboBox<String> deptFilter = new JComboBox<>(new String[]{"All"});
-        JButton filterButton = UIUtils.createFormattedButton("Filter");
-        JButton refreshButton = UIUtils.createFormattedButton("Refresh");
+        JComboBox<String> typeFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All", "Computer", "Printer", "Router", "Switch"});
+        JComboBox<String> statusFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All", "Deployed", "In Storage", "Needs Repair"});
+        JComboBox<String> deptFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All"});
+        JButton filterButton = UIComponentUtils.createFormattedButton("Filter");
+        JButton refreshButton = UIComponentUtils.createFormattedButton("Refresh");
 
-        filterPanel.add(UIUtils.createAlignedLabel("Search:"));
+        filterPanel.add(UIComponentUtils.createAlignedLabel("Search:"));
         filterPanel.add(searchField);
-        filterPanel.add(UIUtils.createAlignedLabel("Device Type:"));
+        filterPanel.add(UIComponentUtils.createAlignedLabel("Device Type:"));
         filterPanel.add(typeFilter);
-        filterPanel.add(UIUtils.createAlignedLabel("Status:"));
+        filterPanel.add(UIComponentUtils.createAlignedLabel("Status:"));
         filterPanel.add(statusFilter);
-        filterPanel.add(UIUtils.createAlignedLabel("Department:"));
+        filterPanel.add(UIComponentUtils.createAlignedLabel("Department:"));
         filterPanel.add(deptFilter);
         filterPanel.add(filterButton);
         filterPanel.add(refreshButton);
@@ -37,7 +37,7 @@ public final class ViewInventoryTab extends JPanel {
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make all cells non-editable
+                return false;
             }
         };
         table = new JTable(tableModel);
@@ -64,7 +64,7 @@ public final class ViewInventoryTab extends JPanel {
         table.getColumnModel().getColumn(19).setPreferredWidth(100);
         table.getColumnModel().getColumn(20).setPreferredWidth(100);
 
-        JScrollPane tableScrollPane = new JScrollPane(table);
+        JScrollPane tableScrollPane = UIComponentUtils.createScrollableContentPanel(table);
         tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         tableScrollPane.getVerticalScrollBar().setUnitIncrement(20);
         tableScrollPane.getVerticalScrollBar().setBlockIncrement(60);
@@ -87,15 +87,14 @@ public final class ViewInventoryTab extends JPanel {
 
         ArrayList<String> departments = new ArrayList<>();
         departments.add("All");
-        for (HashMap<String, String> device : UIUtils.getDevices()) {
+        for (HashMap<String, String> device : InventoryData.getDevices()) {
             String dept = device.getOrDefault("Department", "");
             if (!dept.isEmpty() && !departments.contains(dept)) {
                 departments.add(dept);
             }
         }
-        deptFilter.setModel(new DefaultComboBoxModel<>(departments.toArray(new String[0])));
+        deptFilter.setModel(new DefaultComboBoxModel<>(departments.toArray(new String[departments.size()])));
 
-        // Add right-click menu
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem modifyItem = new JMenuItem("Change/Modify");
         popupMenu.add(modifyItem);
@@ -105,7 +104,7 @@ public final class ViewInventoryTab extends JPanel {
             if (row >= 0) {
                 HashMap<String, String> device = new HashMap<>();
                 for (int col = 0; col < table.getColumnCount(); col++) {
-                    device.put(table.getColumnName(col), (String) table.getValueAt(row, col));
+                    device.put(table.getColumnName(col).replace(" ", "_"), (String) table.getValueAt(row, col));
                 }
                 showModifyDialog(device);
             }
@@ -124,7 +123,6 @@ public final class ViewInventoryTab extends JPanel {
             }
         });
 
-        // Add column sorting
         table.setAutoCreateRowSorter(true);
 
         add(filterPanel, BorderLayout.NORTH);
@@ -132,13 +130,13 @@ public final class ViewInventoryTab extends JPanel {
     }
 
     public void refreshData() {
-        UIUtils.loadDevices();
+        FileUtils.loadDevices();
     }
 
     public void updateTable(String searchText, String typeFilter, String statusFilter, String deptFilter) {
         tableModel.setRowCount(0);
         ArrayList<HashMap<String, String>> filteredDevices = new ArrayList<>();
-        for (HashMap<String, String> device : UIUtils.getDevices()) {
+        for (HashMap<String, String> device : InventoryData.getDevices()) {
             String deviceName = device.getOrDefault("Device_Name", "");
             String deviceType = device.getOrDefault("Device_Type", "");
             String serial = device.getOrDefault("Serial_Number", "");
@@ -186,14 +184,14 @@ public final class ViewInventoryTab extends JPanel {
         JTextField[] fields = new JTextField[21];
         String[] columnNames = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)"};
         for (int i = 0; i < columnNames.length; i++) {
-            JTextField field = UIUtils.createFormattedTextField();
-            field.setText(device.getOrDefault(columnNames[i], ""));
-            panel.add(UIUtils.createAlignedLabel(columnNames[i] + ":"));
+            JTextField field = UIComponentUtils.createFormattedTextField();
+            field.setText(device.getOrDefault(columnNames[i].replace(" ", "_"), ""));
+            panel.add(UIComponentUtils.createAlignedLabel(columnNames[i] + ":"));
             panel.add(field);
             fields[i] = field;
         }
 
-        JScrollPane scrollPane = new JScrollPane(panel);
+        JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -205,21 +203,26 @@ public final class ViewInventoryTab extends JPanel {
         dialog.setLocationRelativeTo(this);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton okButton = new JButton("OK");
-        JButton cancelButton = new JButton("Cancel");
+        JButton okButton = UIComponentUtils.createFormattedButton("OK");
+        JButton cancelButton = UIComponentUtils.createFormattedButton("Cancel");
         okButton.addActionListener(e -> {
             HashMap<String, String> updatedDevice = new HashMap<>();
             for (int i = 0; i < columnNames.length; i++) {
-                updatedDevice.put(columnNames[i], fields[i].getText());
+                updatedDevice.put(columnNames[i].replace(" ", "_"), fields[i].getText());
             }
-            for (int i = 0; i < UIUtils.getDevices().size(); i++) {
-                HashMap<String, String> d = UIUtils.getDevices().get(i);
+            String error = DataUtils.validateDevice(updatedDevice);
+            if (error != null) {
+                JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            for (int i = 0; i < InventoryData.getDevices().size(); i++) {
+                HashMap<String, String> d = InventoryData.getDevices().get(i);
                 if (d.get("Serial_Number").equals(device.get("Serial_Number"))) {
-                    UIUtils.getDevices().set(i, updatedDevice);
+                    InventoryData.getDevices().set(i, updatedDevice);
                     break;
                 }
             }
-            UIUtils.saveDevices();
+            FileUtils.saveDevices();
             refreshData();
             updateTable(null, "All", "All", "All");
             dialog.dispose();

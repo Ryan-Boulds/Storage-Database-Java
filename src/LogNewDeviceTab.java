@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +19,9 @@ public class LogNewDeviceTab extends JPanel {
     public LogNewDeviceTab() {
         setLayout(new BorderLayout(10, 10));
 
-        JComboBox<String> deviceTypeCombo = UIUtils.createFormattedComboBox(new String[]{"Computer", "Printer", "Router", "Switch"});
+        JComboBox<String> deviceTypeCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Computer", "Printer", "Router", "Switch"});
         JPanel topPanel = new JPanel();
-        topPanel.add(UIUtils.createAlignedLabel("Select Device Type:"));
+        topPanel.add(UIComponentUtils.createAlignedLabel("Select Device Type:"));
         topPanel.add(deviceTypeCombo);
 
         computerPanel = createComputerPanel();
@@ -29,9 +30,9 @@ public class LogNewDeviceTab extends JPanel {
         switchPanel = createSwitchPanel();
 
         JPanel contentPanel = new JPanel();
-        JScrollPane scrollPane = UIUtils.createScrollableContentPanel(contentPanel);
+        JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(contentPanel);
         contentPanel.add(computerPanel);
-        statusLabel = UIUtils.createAlignedLabel("");
+        statusLabel = UIComponentUtils.createAlignedLabel("");
         add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
@@ -57,64 +58,71 @@ public class LogNewDeviceTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        deviceNameField = UIUtils.createFormattedTextField();
-        deviceTypeField = UIUtils.createFormattedTextField();
-        brandField = UIUtils.createFormattedTextField();
-        modelField = UIUtils.createFormattedTextField();
-        serialNumberField = UIUtils.createFormattedTextField();
-        processorTypeField = UIUtils.createFormattedTextField();
-        storageCapacityField = UIUtils.createFormattedTextField();
-        networkAddressField = UIUtils.createFormattedTextField();
-        departmentField = UIUtils.createFormattedTextField();
-        purchaseCostField = UIUtils.createFormattedTextField();
-        vendorField = UIUtils.createFormattedTextField();
-        osVersionField = UIUtils.createFormattedTextField();
-        roomDeskField = UIUtils.createFormattedTextField();
-        specificationField = UIUtils.createFormattedTextField();
-        assignedUserField = UIUtils.createFormattedTextField();
-        buildingLocationField = UIUtils.createFormattedTextField();
-        memoryRAMField = UIUtils.createFormattedTextField();
-        addedMemoryCombo = UIUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
-        addedStorageCombo = UIUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
-        statusCombo = UIUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-        warrantyExpiryDatePicker_div = UIUtils.createFormattedDatePicker();
-        lastMaintenancePicker_div = UIUtils.createFormattedDatePicker();
-        maintenanceDatesPicker_div = UIUtils.createFormattedDatePicker();
-        dateOfPurchasePicker_div = UIUtils.createFormattedDatePicker();
+        deviceNameField = UIComponentUtils.createFormattedTextField();
+        deviceTypeField = UIComponentUtils.createFormattedTextField();
+        brandField = UIComponentUtils.createFormattedTextField();
+        modelField = UIComponentUtils.createFormattedTextField();
+        serialNumberField = UIComponentUtils.createFormattedTextField();
+        processorTypeField = UIComponentUtils.createFormattedTextField();
+        storageCapacityField = UIComponentUtils.createFormattedTextField();
+        networkAddressField = UIComponentUtils.createFormattedTextField();
+        departmentField = UIComponentUtils.createFormattedTextField();
+        purchaseCostField = UIComponentUtils.createFormattedTextField();
+        vendorField = UIComponentUtils.createFormattedTextField();
+        osVersionField = UIComponentUtils.createFormattedTextField();
+        roomDeskField = UIComponentUtils.createFormattedTextField();
+        specificationField = UIComponentUtils.createFormattedTextField();
+        assignedUserField = UIComponentUtils.createFormattedTextField();
+        buildingLocationField = UIComponentUtils.createFormattedTextField();
+        memoryRAMField = UIComponentUtils.createFormattedTextField();
+        addedMemoryCombo = UIComponentUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
+        addedStorageCombo = UIComponentUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
+        statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
+        warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
+        lastMaintenancePicker_div = UIComponentUtils.createFormattedDatePicker();
+        maintenanceDatesPicker_div = UIComponentUtils.createFormattedDatePicker();
+        dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
 
-        JButton enterButton = UIUtils.createFormattedButton("Enter");
-        JButton saveTemplateButton = UIUtils.createFormattedButton("Save Template");
-        JButton loadTemplateButton = UIUtils.createFormattedButton("Load Template");
-        JButton clearButton = UIUtils.createFormattedButton("Clear Form");
+        JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
+        JButton saveTemplateButton = UIComponentUtils.createFormattedButton("Save Template");
+        JButton loadTemplateButton = UIComponentUtils.createFormattedButton("Load Template");
+        JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
 
         enterButton.addActionListener(e -> {
             Map<String, String> data = collectData();
-            String error = UIUtils.validateDevice(data);
+            String error = DataUtils.validateDevice(data);
             if (error != null) {
                 statusLabel.setText("Error: " + error);
                 return;
             }
             String sql = SQLGenerator.formatDeviceSQL(data);
             System.out.println("[LogNewDeviceTab - Computer] " + sql);
-            UIUtils.saveDevice(data);
+            InventoryData.saveDevice(data);
+            FileUtils.saveDevices();
             statusLabel.setText("Device saved successfully");
         });
 
         saveTemplateButton.addActionListener(e -> {
             Map<String, String> data = collectData();
-            UIUtils.saveTemplate(data);
+            InventoryData.saveTemplate(data);
+            FileUtils.saveTemplates();
             statusLabel.setText("Template saved successfully");
         });
 
         loadTemplateButton.addActionListener(e -> {
-            JComboBox<String> templateCombo = new JComboBox<>();
-            for (HashMap<String, String> template : UIUtils.getTemplates()) {
+            JComboBox<String> templateCombo = UIComponentUtils.createFormattedComboBox(new String[]{});
+            ArrayList<HashMap<String, String>> templates = InventoryData.getTemplates();
+            if (templates.isEmpty()) {
+                statusLabel.setText("No templates available");
+                return;
+            }
+            for (HashMap<String, String> template : templates) {
                 templateCombo.addItem(template.getOrDefault("Device_Name", ""));
             }
             int result = JOptionPane.showConfirmDialog(null, templateCombo, "Select Template", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
                 String selected = (String) templateCombo.getSelectedItem();
-                for (HashMap<String, String> template : UIUtils.getTemplates()) {
+                for (HashMap<String, String> template : templates) {
                     if (template.getOrDefault("Device_Name", "").equals(selected)) {
                         loadTemplateData(template);
                         statusLabel.setText("Template loaded");
@@ -152,53 +160,53 @@ public class LogNewDeviceTab extends JPanel {
             statusLabel.setText("Form cleared");
         });
 
-        panel.add(UIUtils.createAlignedLabel("Device Name:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Device Name:"));
         panel.add(deviceNameField);
-        panel.add(UIUtils.createAlignedLabel("Device Type:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Device Type:"));
         panel.add(deviceTypeField);
-        panel.add(UIUtils.createAlignedLabel("Brand:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Brand:"));
         panel.add(brandField);
-        panel.add(UIUtils.createAlignedLabel("Model:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Model:"));
         panel.add(modelField);
-        panel.add(UIUtils.createAlignedLabel("Serial Number:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Serial Number:"));
         panel.add(serialNumberField);
-        panel.add(UIUtils.createAlignedLabel("Processor Type:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Processor Type:"));
         panel.add(processorTypeField);
-        panel.add(UIUtils.createAlignedLabel("Storage Capacity:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Storage Capacity:"));
         panel.add(storageCapacityField);
-        panel.add(UIUtils.createAlignedLabel("Network Address:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Network Address:"));
         panel.add(networkAddressField);
-        panel.add(UIUtils.createAlignedLabel("Department:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Department:"));
         panel.add(departmentField);
-        panel.add(UIUtils.createAlignedLabel("Building Location:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Building Location:"));
         panel.add(buildingLocationField);
-        panel.add(UIUtils.createAlignedLabel("Room/Desk:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Room/Desk:"));
         panel.add(roomDeskField);
-        panel.add(UIUtils.createAlignedLabel("Specification:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Specification:"));
         panel.add(specificationField);
-        panel.add(UIUtils.createAlignedLabel("OS Version:"));
+        panel.add(UIComponentUtils.createAlignedLabel("OS Version:"));
         panel.add(osVersionField);
-        panel.add(UIUtils.createAlignedLabel("Assigned User:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Assigned User:"));
         panel.add(assignedUserField);
-        panel.add(UIUtils.createAlignedLabel("Memory (RAM):"));
+        panel.add(UIComponentUtils.createAlignedLabel("Memory (RAM):"));
         panel.add(memoryRAMField);
-        panel.add(UIUtils.createAlignedLabel("Added Memory:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Added Memory:"));
         panel.add(addedMemoryCombo);
-        panel.add(UIUtils.createAlignedLabel("Added Storage:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Added Storage:"));
         panel.add(addedStorageCombo);
-        panel.add(UIUtils.createAlignedLabel("Status:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Status:"));
         panel.add(statusCombo);
-        panel.add(UIUtils.createAlignedLabel("Purchase Cost:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Purchase Cost:"));
         panel.add(purchaseCostField);
-        panel.add(UIUtils.createAlignedLabel("Vendor:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Vendor:"));
         panel.add(vendorField);
-        panel.add(UIUtils.createAlignedLabel("Warranty Expiry Date:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
         panel.add(warrantyExpiryDatePicker_div);
-        panel.add(UIUtils.createAlignedLabel("Last Maintenance:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Last Maintenance:"));
         panel.add(lastMaintenancePicker_div);
-        panel.add(UIUtils.createAlignedLabel("Maintenance Due:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Maintenance Due:"));
         panel.add(maintenanceDatesPicker_div);
-        panel.add(UIUtils.createAlignedLabel("Date of Purchase:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
         panel.add(dateOfPurchasePicker_div);
         panel.add(enterButton);
         panel.add(saveTemplateButton);
@@ -212,22 +220,22 @@ public class LogNewDeviceTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JTextField deviceNameField = UIUtils.createFormattedTextField();
-        JTextField brandField = UIUtils.createFormattedTextField();
-        JTextField modelField = UIUtils.createFormattedTextField();
-        JTextField serialNumberField = UIUtils.createFormattedTextField();
-        JTextField purchaseCostField = UIUtils.createFormattedTextField();
-        JTextField vendorField = UIUtils.createFormattedTextField();
-        JTextField specificationField = UIUtils.createFormattedTextField();
-        JTextField departmentField = UIUtils.createFormattedTextField();
-        JTextField buildingLocationField = UIUtils.createFormattedTextField();
-        JTextField roomDeskField = UIUtils.createFormattedTextField();
-        JComboBox<String> statusCombo = UIUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-        JPanel warrantyExpiryDatePicker_div = UIUtils.createFormattedDatePicker();
-        JPanel dateOfPurchasePicker_div = UIUtils.createFormattedDatePicker();
+        JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
+        JTextField brandField = UIComponentUtils.createFormattedTextField();
+        JTextField modelField = UIComponentUtils.createFormattedTextField();
+        JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
+        JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+        JTextField vendorField = UIComponentUtils.createFormattedTextField();
+        JTextField specificationField = UIComponentUtils.createFormattedTextField();
+        JTextField departmentField = UIComponentUtils.createFormattedTextField();
+        JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
+        JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+        JComboBox<String> statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
+        JPanel warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
+        JPanel dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
 
-        JButton enterButton = UIUtils.createFormattedButton("Enter");
-        JButton clearButton = UIUtils.createFormattedButton("Clear Form");
+        JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
+        JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
 
         enterButton.addActionListener(e -> {
             Map<String, String> data = new HashMap<>();
@@ -243,17 +251,18 @@ public class LogNewDeviceTab extends JPanel {
             data.put("Status", (String) statusCombo.getSelectedItem());
             data.put("Purchase_Cost", purchaseCostField.getText());
             data.put("Vendor", vendorField.getText());
-            data.put("Warranty_Expiry_Date", UIUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-            data.put("Date_Of_Purchase", UIUtils.getDateFromPicker(dateOfPurchasePicker_div));
+            data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
+            data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
 
-            String error = UIUtils.validateDevice(data);
+            String error = DataUtils.validateDevice(data);
             if (error != null) {
                 statusLabel.setText("Error: " + error);
                 return;
             }
             String sql = SQLGenerator.formatDeviceSQL(data);
             System.out.println("[LogNewDeviceTab - Printer] " + sql);
-            UIUtils.saveDevice(data);
+            InventoryData.saveDevice(data);
+            FileUtils.saveDevices();
             statusLabel.setText("Device saved successfully");
         });
 
@@ -274,31 +283,31 @@ public class LogNewDeviceTab extends JPanel {
             statusLabel.setText("Form cleared");
         });
 
-        panel.add(UIUtils.createAlignedLabel("Device Name:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Device Name:"));
         panel.add(deviceNameField);
-        panel.add(UIUtils.createAlignedLabel("Brand:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Brand:"));
         panel.add(brandField);
-        panel.add(UIUtils.createAlignedLabel("Model:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Model:"));
         panel.add(modelField);
-        panel.add(UIUtils.createAlignedLabel("Serial Number:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Serial Number:"));
         panel.add(serialNumberField);
-        panel.add(UIUtils.createAlignedLabel("Specification:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Specification:"));
         panel.add(specificationField);
-        panel.add(UIUtils.createAlignedLabel("Department:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Department:"));
         panel.add(departmentField);
-        panel.add(UIUtils.createAlignedLabel("Building Location:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Building Location:"));
         panel.add(buildingLocationField);
-        panel.add(UIUtils.createAlignedLabel("Room/Desk:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Room/Desk:"));
         panel.add(roomDeskField);
-        panel.add(UIUtils.createAlignedLabel("Status:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Status:"));
         panel.add(statusCombo);
-        panel.add(UIUtils.createAlignedLabel("Purchase Cost:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Purchase Cost:"));
         panel.add(purchaseCostField);
-        panel.add(UIUtils.createAlignedLabel("Vendor:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Vendor:"));
         panel.add(vendorField);
-        panel.add(UIUtils.createAlignedLabel("Warranty Expiry Date:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
         panel.add(warrantyExpiryDatePicker_div);
-        panel.add(UIUtils.createAlignedLabel("Date of Purchase:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
         panel.add(dateOfPurchasePicker_div);
         panel.add(enterButton);
         panel.add(clearButton);
@@ -310,22 +319,22 @@ public class LogNewDeviceTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JTextField deviceNameField = UIUtils.createFormattedTextField();
-        JTextField modelField = UIUtils.createFormattedTextField();
-        JTextField serialNumberField = UIUtils.createFormattedTextField();
-        JTextField networkAddressField = UIUtils.createFormattedTextField();
-        JTextField purchaseCostField = UIUtils.createFormattedTextField();
-        JTextField vendorField = UIUtils.createFormattedTextField();
-        JTextField specificationField = UIUtils.createFormattedTextField();
-        JTextField departmentField = UIUtils.createFormattedTextField();
-        JTextField buildingLocationField = UIUtils.createFormattedTextField();
-        JTextField roomDeskField = UIUtils.createFormattedTextField();
-        JComboBox<String> statusCombo = UIUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-        JPanel warrantyExpiryDatePicker_div = UIUtils.createFormattedDatePicker();
-        JPanel dateOfPurchasePicker_div = UIUtils.createFormattedDatePicker();
+        JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
+        JTextField modelField = UIComponentUtils.createFormattedTextField();
+        JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
+        JTextField networkAddressField = UIComponentUtils.createFormattedTextField();
+        JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+        JTextField vendorField = UIComponentUtils.createFormattedTextField();
+        JTextField specificationField = UIComponentUtils.createFormattedTextField();
+        JTextField departmentField = UIComponentUtils.createFormattedTextField();
+        JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
+        JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+        JComboBox<String> statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
+        JPanel warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
+        JPanel dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
 
-        JButton enterButton = UIUtils.createFormattedButton("Enter");
-        JButton clearButton = UIUtils.createFormattedButton("Clear Form");
+        JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
+        JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
 
         enterButton.addActionListener(e -> {
             Map<String, String> data = new HashMap<>();
@@ -341,17 +350,18 @@ public class LogNewDeviceTab extends JPanel {
             data.put("Status", (String) statusCombo.getSelectedItem());
             data.put("Purchase_Cost", purchaseCostField.getText());
             data.put("Vendor", vendorField.getText());
-            data.put("Warranty_Expiry_Date", UIUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-            data.put("Date_Of_Purchase", UIUtils.getDateFromPicker(dateOfPurchasePicker_div));
+            data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
+            data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
 
-            String error = UIUtils.validateDevice(data);
+            String error = DataUtils.validateDevice(data);
             if (error != null) {
                 statusLabel.setText("Error: " + error);
                 return;
             }
             String sql = SQLGenerator.formatDeviceSQL(data);
             System.out.println("[LogNewDeviceTab - Router] " + sql);
-            UIUtils.saveDevice(data);
+            InventoryData.saveDevice(data);
+            FileUtils.saveDevices();
             statusLabel.setText("Device saved successfully");
         });
 
@@ -372,31 +382,31 @@ public class LogNewDeviceTab extends JPanel {
             statusLabel.setText("Form cleared");
         });
 
-        panel.add(UIUtils.createAlignedLabel("Device Name:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Device Name:"));
         panel.add(deviceNameField);
-        panel.add(UIUtils.createAlignedLabel("Model:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Model:"));
         panel.add(modelField);
-        panel.add(UIUtils.createAlignedLabel("Serial Number:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Serial Number:"));
         panel.add(serialNumberField);
-        panel.add(UIUtils.createAlignedLabel("Network Address:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Network Address:"));
         panel.add(networkAddressField);
-        panel.add(UIUtils.createAlignedLabel("Specification:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Specification:"));
         panel.add(specificationField);
-        panel.add(UIUtils.createAlignedLabel("Department:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Department:"));
         panel.add(departmentField);
-        panel.add(UIUtils.createAlignedLabel("Building Location:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Building Location:"));
         panel.add(buildingLocationField);
-        panel.add(UIUtils.createAlignedLabel("Room/Desk:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Room/Desk:"));
         panel.add(roomDeskField);
-        panel.add(UIUtils.createAlignedLabel("Status:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Status:"));
         panel.add(statusCombo);
-        panel.add(UIUtils.createAlignedLabel("Purchase Cost:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Purchase Cost:"));
         panel.add(purchaseCostField);
-        panel.add(UIUtils.createAlignedLabel("Vendor:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Vendor:"));
         panel.add(vendorField);
-        panel.add(UIUtils.createAlignedLabel("Warranty Expiry Date:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
         panel.add(warrantyExpiryDatePicker_div);
-        panel.add(UIUtils.createAlignedLabel("Date of Purchase:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
         panel.add(dateOfPurchasePicker_div);
         panel.add(enterButton);
         panel.add(clearButton);
@@ -408,22 +418,22 @@ public class LogNewDeviceTab extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JTextField deviceNameField = UIUtils.createFormattedTextField();
-        JTextField modelField = UIUtils.createFormattedTextField();
-        JTextField serialNumberField = UIUtils.createFormattedTextField();
-        JTextField networkAddressField = UIUtils.createFormattedTextField();
-        JTextField purchaseCostField = UIUtils.createFormattedTextField();
-        JTextField vendorField = UIUtils.createFormattedTextField();
-        JTextField specificationField = UIUtils.createFormattedTextField();
-        JTextField departmentField = UIUtils.createFormattedTextField();
-        JTextField buildingLocationField = UIUtils.createFormattedTextField();
-        JTextField roomDeskField = UIUtils.createFormattedTextField();
-        JComboBox<String> statusCombo = UIUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-        JPanel warrantyExpiryDatePicker_div = UIUtils.createFormattedDatePicker();
-        JPanel dateOfPurchasePicker_div = UIUtils.createFormattedDatePicker();
+        JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
+        JTextField modelField = UIComponentUtils.createFormattedTextField();
+        JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
+        JTextField networkAddressField = UIComponentUtils.createFormattedTextField();
+        JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+        JTextField vendorField = UIComponentUtils.createFormattedTextField();
+        JTextField specificationField = UIComponentUtils.createFormattedTextField();
+        JTextField departmentField = UIComponentUtils.createFormattedTextField();
+        JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
+        JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+        JComboBox<String> statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
+        JPanel warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
+        JPanel dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
 
-        JButton enterButton = UIUtils.createFormattedButton("Enter");
-        JButton clearButton = UIUtils.createFormattedButton("Clear Form");
+        JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
+        JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
 
         enterButton.addActionListener(e -> {
             Map<String, String> data = new HashMap<>();
@@ -439,17 +449,18 @@ public class LogNewDeviceTab extends JPanel {
             data.put("Status", (String) statusCombo.getSelectedItem());
             data.put("Purchase_Cost", purchaseCostField.getText());
             data.put("Vendor", vendorField.getText());
-            data.put("Warranty_Expiry_Date", UIUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-            data.put("Date_Of_Purchase", UIUtils.getDateFromPicker(dateOfPurchasePicker_div));
+            data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
+            data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
 
-            String error = UIUtils.validateDevice(data);
+            String error = DataUtils.validateDevice(data);
             if (error != null) {
                 statusLabel.setText("Error: " + error);
                 return;
             }
             String sql = SQLGenerator.formatDeviceSQL(data);
             System.out.println("[LogNewDeviceTab - Switch] " + sql);
-            UIUtils.saveDevice(data);
+            InventoryData.saveDevice(data);
+            FileUtils.saveDevices();
             statusLabel.setText("Device saved successfully");
         });
 
@@ -470,31 +481,31 @@ public class LogNewDeviceTab extends JPanel {
             statusLabel.setText("Form cleared");
         });
 
-        panel.add(UIUtils.createAlignedLabel("Device Name:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Device Name:"));
         panel.add(deviceNameField);
-        panel.add(UIUtils.createAlignedLabel("Model:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Model:"));
         panel.add(modelField);
-        panel.add(UIUtils.createAlignedLabel("Serial Number:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Serial Number:"));
         panel.add(serialNumberField);
-        panel.add(UIUtils.createAlignedLabel("Network Address:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Network Address:"));
         panel.add(networkAddressField);
-        panel.add(UIUtils.createAlignedLabel("Specification:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Specification:"));
         panel.add(specificationField);
-        panel.add(UIUtils.createAlignedLabel("Department:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Department:"));
         panel.add(departmentField);
-        panel.add(UIUtils.createAlignedLabel("Building Location:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Building Location:"));
         panel.add(buildingLocationField);
-        panel.add(UIUtils.createAlignedLabel("Room/Desk:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Room/Desk:"));
         panel.add(roomDeskField);
-        panel.add(UIUtils.createAlignedLabel("Status:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Status:"));
         panel.add(statusCombo);
-        panel.add(UIUtils.createAlignedLabel("Purchase Cost:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Purchase Cost:"));
         panel.add(purchaseCostField);
-        panel.add(UIUtils.createAlignedLabel("Vendor:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Vendor:"));
         panel.add(vendorField);
-        panel.add(UIUtils.createAlignedLabel("Warranty Expiry Date:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
         panel.add(warrantyExpiryDatePicker_div);
-        panel.add(UIUtils.createAlignedLabel("Date of Purchase:"));
+        panel.add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
         panel.add(dateOfPurchasePicker_div);
         panel.add(enterButton);
         panel.add(clearButton);
@@ -524,10 +535,10 @@ public class LogNewDeviceTab extends JPanel {
         data.put("Status", (String) statusCombo.getSelectedItem());
         data.put("Purchase_Cost", purchaseCostField.getText());
         data.put("Vendor", vendorField.getText());
-        data.put("Warranty_Expiry_Date", UIUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-        data.put("Last_Maintenance", UIUtils.getDateFromPicker(lastMaintenancePicker_div));
-        data.put("Maintenance_Due", UIUtils.getDateFromPicker(maintenanceDatesPicker_div));
-        data.put("Date_Of_Purchase", UIUtils.getDateFromPicker(dateOfPurchasePicker_div));
+        data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
+        data.put("Last_Maintenance", UIComponentUtils.getDateFromPicker(lastMaintenancePicker_div));
+        data.put("Maintenance_Due", UIComponentUtils.getDateFromPicker(maintenanceDatesPicker_div));
+        data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
         return data;
     }
 
