@@ -1,3 +1,4 @@
+package utils;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -64,7 +65,9 @@ public class DataUtils {
         return null;
     }
 
-    static String normalizeColumnName(String csvColumn) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static String normalizeColumnName(String csvColumn) {
+        if (csvColumn == null) return "";
+        String normalized = csvColumn.trim().toLowerCase().replaceAll("[^a-zA-Z0-9]", "_");
+        return normalized.isEmpty() ? "unnamed_column" : normalized;
     }
 }

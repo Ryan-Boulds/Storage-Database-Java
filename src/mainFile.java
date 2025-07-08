@@ -1,4 +1,7 @@
+import device_logging.LogNewDeviceTab;
 import javax.swing.*;
+import utils.FileUtils;
+import utils.UIComponentUtils;
 
 public class mainFile {
     public static void main(String[] args) {

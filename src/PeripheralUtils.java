@@ -1,5 +1,8 @@
 import java.util.*;
 import javax.swing.*;
+import utils.DataUtils;
+import utils.FileUtils;
+import utils.InventoryData;
 
 public class PeripheralUtils {
     public static ArrayList<String> getPeripheralTypes(ArrayList<HashMap<String, String>> peripherals) {

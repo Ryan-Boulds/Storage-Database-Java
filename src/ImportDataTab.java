@@ -6,6 +6,11 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import utils.DataUtils;
+import utils.FileUtils;
+import utils.InventoryData;
+import utils.UIComponentUtils;
+
 public class ImportDataTab extends JPanel {
     private final DefaultTableModel tableModel;
     private final JTable table;

@@ -1,3 +1,5 @@
+package utils;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
@@ -154,7 +156,7 @@ public class UIComponentUtils {
 
     public static JFrame createMainFrame(String title, JPanel... tabs) {
         JFrame frame = new JFrame(title);
-        frame.setSize(600, 600);
+        frame.setSize(1280, 720);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JTabbedPane tabbedPane = new JTabbedPane();

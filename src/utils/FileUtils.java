@@ -1,3 +1,4 @@
+package utils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -166,7 +167,20 @@ public class FileUtils {
                 .collect(Collectors.joining(", "));
     }
 
-    static List<String[]> readCSVFile(File file) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static List<String[]> readCSVFile(File file) {
+        List<String[]> data = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split(",");
+                for (int i = 0; i < row.length; i++) {
+                    row[i] = row[i].trim();
+                }
+                data.add(row);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading CSV file: " + e.getMessage());
+        }
+        return data;
     }
 }

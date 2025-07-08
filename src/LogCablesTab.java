@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.*;
 
+import utils.DataUtils;
+import utils.FileUtils;
+import utils.InventoryData;
+import utils.UIComponentUtils;
+
 public class LogCablesTab extends JPanel {
     private JLabel statusLabel;
     private JComboBox<String> cableTypeCombo;

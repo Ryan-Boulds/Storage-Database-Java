@@ -2,6 +2,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.*;
+import utils.FileUtils;
+import utils.InventoryData;
+import utils.UIComponentUtils;
 
 public class AccessoriesCountTab extends JPanel {
     private JPanel panel;
