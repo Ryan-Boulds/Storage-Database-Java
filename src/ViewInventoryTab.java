@@ -1,7 +1,15 @@
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import utils.DataUtils;
@@ -10,17 +18,17 @@ import utils.InventoryData;
 import utils.UIComponentUtils;
 
 public final class ViewInventoryTab extends JPanel {
-    private final DefaultTableModel tableModel;
-    private final JTable table;
+    private final Map<String, DefaultTableModel> tableModels = new HashMap<>();
+    private final Map<String, JTable> tables = new HashMap<>();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     public ViewInventoryTab() {
         setLayout(new BorderLayout(10, 10));
-        refreshData();
+        refreshDataAndTabs();
 
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField searchField = UIComponentUtils.createFormattedTextField();
         searchField.setPreferredSize(new Dimension(200, 30));
-        JComboBox<String> typeFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All", "Computer", "Printer", "Router", "Switch"});
         JComboBox<String> statusFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All", "Deployed", "In Storage", "Needs Repair"});
         JComboBox<String> deptFilter = UIComponentUtils.createFormattedComboBox(new String[]{"All"});
         JButton filterButton = UIComponentUtils.createFormattedButton("Filter");
@@ -28,8 +36,6 @@ public final class ViewInventoryTab extends JPanel {
 
         filterPanel.add(UIComponentUtils.createAlignedLabel("Search:"));
         filterPanel.add(searchField);
-        filterPanel.add(UIComponentUtils.createAlignedLabel("Device Type:"));
-        filterPanel.add(typeFilter);
         filterPanel.add(UIComponentUtils.createAlignedLabel("Status:"));
         filterPanel.add(statusFilter);
         filterPanel.add(UIComponentUtils.createAlignedLabel("Department:"));
@@ -37,58 +43,10 @@ public final class ViewInventoryTab extends JPanel {
         filterPanel.add(filterButton);
         filterPanel.add(refreshButton);
 
-        String[] columns = {"Device Name", "Device Type", "Brand", "Model", "Serial Number", "Status", "Department", "Warranty Expiry", "Network Address", "Purchase Cost", "Vendor", "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification", "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)"};
-        tableModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        table = new JTable(tableModel);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.getColumnModel().getColumn(0).setPreferredWidth(100);
-        table.getColumnModel().getColumn(1).setPreferredWidth(80);
-        table.getColumnModel().getColumn(2).setPreferredWidth(80);
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);
-        table.getColumnModel().getColumn(4).setPreferredWidth(100);
-        table.getColumnModel().getColumn(5).setPreferredWidth(80);
-        table.getColumnModel().getColumn(6).setPreferredWidth(100);
-        table.getColumnModel().getColumn(7).setPreferredWidth(100);
-        table.getColumnModel().getColumn(8).setPreferredWidth(100);
-        table.getColumnModel().getColumn(9).setPreferredWidth(80);
-        table.getColumnModel().getColumn(10).setPreferredWidth(80);
-        table.getColumnModel().getColumn(11).setPreferredWidth(80);
-        table.getColumnModel().getColumn(12).setPreferredWidth(100);
-        table.getColumnModel().getColumn(13).setPreferredWidth(100);
-        table.getColumnModel().getColumn(14).setPreferredWidth(80);
-        table.getColumnModel().getColumn(15).setPreferredWidth(100);
-        table.getColumnModel().getColumn(16).setPreferredWidth(80);
-        table.getColumnModel().getColumn(17).setPreferredWidth(80);
-        table.getColumnModel().getColumn(18).setPreferredWidth(100);
-        table.getColumnModel().getColumn(19).setPreferredWidth(100);
-        table.getColumnModel().getColumn(20).setPreferredWidth(100);
+        add(filterPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.CENTER);
 
-        JScrollPane tableScrollPane = UIComponentUtils.createScrollableContentPanel(table);
-        tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        tableScrollPane.getVerticalScrollBar().setUnitIncrement(20);
-        tableScrollPane.getVerticalScrollBar().setBlockIncrement(60);
-        tableScrollPane.setDoubleBuffered(true);
-
-        updateTable(null, "All", "All", "All");
-
-        filterButton.addActionListener(e -> {
-            String searchText = searchField.getText().toLowerCase();
-            String type = (String) typeFilter.getSelectedItem();
-            String status = (String) statusFilter.getSelectedItem();
-            String dept = (String) deptFilter.getSelectedItem();
-            updateTable(searchText.isEmpty() ? null : searchText, type, status, dept);
-        });
-
-        refreshButton.addActionListener(e -> {
-            refreshData();
-            updateTable(null, "All", "All", "All");
-        });
-
+        // Update department filter
         ArrayList<String> departments = new ArrayList<>();
         departments.add("All");
         for (HashMap<String, String> device : InventoryData.getDevices()) {
@@ -97,8 +55,122 @@ public final class ViewInventoryTab extends JPanel {
                 departments.add(dept);
             }
         }
-        deptFilter.setModel(new DefaultComboBoxModel<>(departments.toArray(new String[departments.size()])));
+        deptFilter.setModel(new DefaultComboBoxModel<>(departments.toArray(new String[0])));
 
+        filterButton.addActionListener(e -> {
+            String searchText = searchField.getText().toLowerCase();
+            String status = (String) statusFilter.getSelectedItem();
+            String dept = (String) deptFilter.getSelectedItem();
+            updateTables(searchText, status, dept);
+        });
+
+        refreshButton.addActionListener(e -> {
+            refreshDataAndTabs();
+            updateTables("", "All", "All");
+        });
+
+        // Add right-click popup for all tables
+        for (String type : tables.keySet()) {
+            JTable table = tables.get(type);
+            addTablePopup(table);
+        }
+    }
+
+    public void refreshDataAndTabs() {
+        FileUtils.loadDevices();
+        System.out.println("[DEBUG] After refreshData, InventoryData.getDevices(): " + InventoryData.getDevices());
+
+        // Clear existing tabs
+        tabbedPane.removeAll();
+        tableModels.clear();
+        tables.clear();
+
+        // Determine unique device types
+        Set<String> uniqueTypes = new HashSet<>();
+        for (HashMap<String, String> device : InventoryData.getDevices()) {
+            String type = device.getOrDefault("Device_Type", "Other");
+            uniqueTypes.add(type);
+        }
+
+        // Determine dynamic columns
+        Set<String> allKeys = new HashSet<>();
+        for (HashMap<String, String> device : InventoryData.getDevices()) {
+            for (String key : device.keySet()) {
+                allKeys.add(key);
+            }
+        }
+        Set<String> activeColumns = new HashSet<>();
+        for (String key : allKeys) {
+            for (HashMap<String, String> device : InventoryData.getDevices()) {
+                String value = device.getOrDefault(key, "").trim();
+                if (!value.isEmpty()) {
+                    activeColumns.add(key);
+                    break;
+                }
+            }
+        }
+        String[] columns = activeColumns.stream().map(key -> key.replace("_", " ")).toArray(String[]::new);
+
+        // Create a tab for each unique device type
+        for (String type : uniqueTypes) {
+            DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            JTable table = new JTable(tableModel);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            for (int i = 0; i < columns.length; i++) {
+                table.getColumnModel().getColumn(i).setPreferredWidth(100); // Uniform width for dynamic columns
+            }
+            JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(table);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+            scrollPane.getVerticalScrollBar().setBlockIncrement(60);
+            scrollPane.setDoubleBuffered(true);
+
+            tableModels.put(type, tableModel);
+            tables.put(type, table);
+            tabbedPane.addTab(type, scrollPane);
+            addTablePopup(table);
+        }
+
+        updateTables("", "All", "All");
+    }
+
+    public void updateTables(String searchText, String statusFilter, String deptFilter) {
+        for (String type : tableModels.keySet()) {
+            DefaultTableModel tableModel = tableModels.get(type);
+            tableModel.setRowCount(0);
+            ArrayList<HashMap<String, String>> filteredDevices = new ArrayList<>();
+            for (HashMap<String, String> device : InventoryData.getDevices()) {
+                String deviceName = device.getOrDefault("Device_Name", "");
+                String deviceType = device.getOrDefault("Device_Type", "Other");
+                String serial = device.getOrDefault("Serial_Number", "");
+                String status = device.getOrDefault("Status", "");
+                String dept = device.getOrDefault("Department", "");
+
+                if ((searchText == null || searchText.isEmpty() || deviceName.toLowerCase().contains(searchText) || serial.toLowerCase().contains(searchText)) &&
+                    (statusFilter.equals("All") || status.equals(statusFilter)) &&
+                    (deptFilter.equals("All") || dept.equals(deptFilter)) &&
+                    (type.equals("Other") || deviceType.equals(type))) {
+                    filteredDevices.add(device);
+                }
+            }
+            for (HashMap<String, String> device : filteredDevices) {
+                System.out.println("[DEBUG] Adding device to table (" + type + "): " + device);
+                Object[] rowData = new Object[tableModel.getColumnCount()];
+                for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                    String columnName = tableModel.getColumnName(i).replace(" ", "_");
+                    rowData[i] = device.getOrDefault(columnName, "");
+                }
+                tableModel.addRow(rowData);
+            }
+        }
+    }
+
+    private void addTablePopup(JTable table) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem modifyItem = new JMenuItem("Change/Modify");
         JMenuItem removeItem = new JMenuItem("Remove Entry");
@@ -108,11 +180,12 @@ public final class ViewInventoryTab extends JPanel {
         modifyItem.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
+                String type = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
                 HashMap<String, String> device = new HashMap<>();
                 for (int col = 0; col < table.getColumnCount(); col++) {
                     device.put(table.getColumnName(col).replace(" ", "_"), (String) table.getValueAt(row, col));
                 }
-                showModifyDialog(device);
+                showModifyDialog(device, type);
             }
         });
 
@@ -139,8 +212,8 @@ public final class ViewInventoryTab extends JPanel {
                     }
                     if (removed) {
                         FileUtils.saveDevices();
-                        refreshData();
-                        updateTable(null, "All", "All", "All");
+                        refreshDataAndTabs();
+                        updateTables("", "All", "All");
                         JOptionPane.showMessageDialog(this, "Device removed successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(this, "Error: Device not found", "Removal Error", JOptionPane.ERROR_MESSAGE);
@@ -161,107 +234,44 @@ public final class ViewInventoryTab extends JPanel {
                 }
             }
         });
-
-        table.setAutoCreateRowSorter(true);
-
-        add(filterPanel, BorderLayout.NORTH);
-        add(tableScrollPane, BorderLayout.CENTER);
     }
 
-    public void refreshData() {
-        FileUtils.loadDevices();
-        System.out.println("[DEBUG] After refreshData, InventoryData.getDevices(): " + InventoryData.getDevices());
-    }
-
-    public void updateTable(String searchText, String typeFilter, String statusFilter, String deptFilter) {
-        tableModel.setRowCount(0);
-        ArrayList<HashMap<String, String>> filteredDevices = new ArrayList<>();
-        for (HashMap<String, String> device : InventoryData.getDevices()) {
-            String deviceName = device.getOrDefault("Device_Name", "");
-            String deviceType = device.getOrDefault("Device_Type", "");
-            String serial = device.getOrDefault("Serial_Number", "");
-            String status = device.getOrDefault("Status", "");
-            String dept = device.getOrDefault("Department", "");
-
-            if ((searchText == null || deviceName.toLowerCase().contains(searchText) || serial.toLowerCase().contains(searchText)) &&
-                (typeFilter.equals("All") || deviceType.equals(typeFilter)) &&
-                (statusFilter.equals("All") || status.equals(statusFilter)) &&
-                (deptFilter.equals("All") || dept.equals(deptFilter))) {
-                filteredDevices.add(device);
-            }
-        }
-        for (HashMap<String, String> device : filteredDevices) {
-            System.out.println("[DEBUG] Adding device to table: " + device);
-            tableModel.addRow(new Object[]{
-                device.getOrDefault("Device_Name", ""),
-                device.getOrDefault("Device_Type", ""),
-                device.getOrDefault("Brand", ""),
-                device.getOrDefault("Model", ""),
-                device.getOrDefault("Serial_Number", ""),
-                device.getOrDefault("Status", ""),
-                device.getOrDefault("Department", ""),
-                device.getOrDefault("Warranty_Expiry_Date", device.getOrDefault("Warranty_Expiry", "")),
-                device.getOrDefault("Network_Address", ""),
-                device.getOrDefault("Purchase_Cost", ""),
-                device.getOrDefault("Vendor", ""),
-                device.getOrDefault("OS_Version", ""),
-                device.getOrDefault("Assigned_User", ""),
-                device.getOrDefault("Building_Location", ""),
-                device.getOrDefault("Room_Desk", ""),
-                device.getOrDefault("Specification", ""),
-                device.getOrDefault("Added_Memory", ""),
-                device.getOrDefault("Added_Storage", ""),
-                device.getOrDefault("Last_Maintenance", ""),
-                device.getOrDefault("Maintenance_Due", ""),
-                device.getOrDefault("Memory_RAM", "")
-            });
-        }
-    }
-
-    private void showModifyDialog(HashMap<String, String> device) {
+    private void showModifyDialog(HashMap<String, String> device, String deviceType) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        String deviceType = device.getOrDefault("Device_Type", "");
-        String[] computerFields = {
-            "Device Name", "Device Type", "Brand", "Model", "Serial Number", "Processor Type",
-            "Storage Capacity", "Network Address", "Department", "Purchase Cost", "Vendor",
-            "OS Version", "Assigned User", "Building Location", "Room/Desk", "Specification",
-            "Added Memory", "Added Storage", "Last Maintenance", "Maintenance Due", "Memory (RAM)",
-            "Status", "Warranty Expiry", "Date of Purchase"
-        };
-        String[] otherFields = {
-            "Device Name", "Device Type", "Brand", "Model", "Serial Number", "Network Address",
-            "Specification", "Department", "Building Location", "Room/Desk", "Status",
-            "Purchase Cost", "Vendor", "Warranty Expiry", "Date of Purchase"
-        };
-        String[] columnNames = deviceType.equals("Computer") ? computerFields : otherFields;
+        // Determine dynamic fields based on device data
+        List<String> columnNames = new ArrayList<>();
+        Set<String> allKeys = device.keySet();
+        for (String key : allKeys) {
+            columnNames.add(key.replace("_", " "));
+        }
+        Collections.sort(columnNames); // Sort for consistent display
 
-        JComponent[] inputs = new JComponent[columnNames.length];
-        HashMap<String, String> originalValues = new HashMap<>(device); // Store original values for change detection
-        for (int i = 0; i < columnNames.length; i++) {
-            String fieldName = columnNames[i];
+        JComponent[] inputs = new JComponent[columnNames.size()];
+        HashMap<String, String> originalValues = new HashMap<>(device);
+        for (int i = 0; i < columnNames.size(); i++) {
+            String fieldName = columnNames.get(i);
             JComponent input;
+            String key = fieldName.replace(" ", "_");
             if (fieldName.equals("Status")) {
                 JComboBox<String> combo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-                combo.setSelectedItem(device.getOrDefault("Status", "Deployed"));
+                combo.setSelectedItem(device.getOrDefault(key, "Deployed"));
                 input = combo;
             } else if (fieldName.equals("Added Memory") || fieldName.equals("Added Storage")) {
                 JComboBox<String> combo = UIComponentUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
-                combo.setSelectedItem(device.getOrDefault(fieldName.replace(" ", "_"), "null"));
+                combo.setSelectedItem(device.getOrDefault(key, "null"));
                 input = combo;
-            } else if (fieldName.equals("Warranty Expiry") || fieldName.equals("Last Maintenance") ||
-                       fieldName.equals("Maintenance Due") || fieldName.equals("Date of Purchase")) {
+            } else if (fieldName.contains("Date")) {
                 JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
                 JTextField dateField = (JTextField) datePicker.getComponent(0);
-                String dateValue = device.getOrDefault(fieldName.replace(" ", "_") + "_Date", device.getOrDefault(fieldName.replace(" ", "_"), ""));
-                dateField.setText(dateValue);
+                dateField.setText(device.getOrDefault(key, ""));
                 input = datePicker;
             } else {
                 JTextField field = UIComponentUtils.createFormattedTextField();
-                field.setText(device.getOrDefault(fieldName.replace(" ", "_"), ""));
+                field.setText(device.getOrDefault(key, ""));
                 if (fieldName.equals("Serial Number") || fieldName.equals("Device Type")) {
-                    field.setEditable(false); // Make Serial Number and Device Type non-editable
+                    field.setEditable(false);
                 }
                 input = field;
             }
@@ -274,10 +284,12 @@ public final class ViewInventoryTab extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        JDialog dialog = new JDialog((Frame) null, "Modify Device", true);
+        JDialog dialog = new JDialog(); // Default constructor as per VS Code recommendation
+        dialog.setTitle("Modify Device"); // Set the title
+        dialog.setModal(true); // Ensure modality
         dialog.setLayout(new BorderLayout());
         dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.setSize(500, deviceType.equals("Computer") ? 600 : 450);
+        dialog.setSize(500, Math.min(600, 50 + 40 * columnNames.size())); // Dynamic size based on fields
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(this);
 
@@ -286,12 +298,8 @@ public final class ViewInventoryTab extends JPanel {
         JButton cancelButton = UIComponentUtils.createFormattedButton("Cancel");
         saveButton.addActionListener(e -> {
             HashMap<String, String> updatedDevice = new HashMap<>();
-            for (int i = 0; i < columnNames.length; i++) {
-                String key = columnNames[i].replace(" ", "_");
-                if (columnNames[i].equals("Warranty Expiry") || columnNames[i].equals("Last Maintenance") ||
-                    columnNames[i].equals("Maintenance Due") || columnNames[i].equals("Date of Purchase")) {
-                    key += "_Date";
-                }
+            for (int i = 0; i < columnNames.size(); i++) {
+                String key = columnNames.get(i).replace(" ", "_");
                 String value;
                 if (inputs[i] instanceof JTextField) {
                     value = ((JTextField) inputs[i]).getText();
@@ -305,10 +313,8 @@ public final class ViewInventoryTab extends JPanel {
                 updatedDevice.put(key, value);
             }
 
-            // Log the full updated device
             System.out.println("[DEBUG] Updated device before validation: " + updatedDevice);
 
-            // Check for changes
             boolean hasChanges = false;
             for (String key : updatedDevice.keySet()) {
                 String original = originalValues.getOrDefault(key, "");
@@ -320,7 +326,6 @@ public final class ViewInventoryTab extends JPanel {
                 }
             }
 
-            // Show save confirmation
             if (hasChanges) {
                 int confirm = JOptionPane.showConfirmDialog(
                     dialog,
@@ -354,19 +359,14 @@ public final class ViewInventoryTab extends JPanel {
             }
             FileUtils.saveDevices();
             System.out.println("[DEBUG] After saveDevices, InventoryData.getDevices(): " + InventoryData.getDevices());
-            refreshData();
-            updateTable(null, "All", "All", "All");
+            refreshDataAndTabs();
+            updateTables("", "All", "All");
             dialog.dispose();
         });
         cancelButton.addActionListener(e -> {
-            // Check for changes
             boolean hasChanges = false;
-            for (int i = 0; i < columnNames.length; i++) {
-                String key = columnNames[i].replace(" ", "_");
-                if (columnNames[i].equals("Warranty Expiry") || columnNames[i].equals("Last Maintenance") ||
-                    columnNames[i].equals("Maintenance Due") || columnNames[i].equals("Date of Purchase")) {
-                    key += "_Date";
-                }
+            for (int i = 0; i < columnNames.size(); i++) {
+                String key = columnNames.get(i).replace(" ", "_");
                 String currentValue;
                 if (inputs[i] instanceof JTextField) {
                     currentValue = ((JTextField) inputs[i]).getText();

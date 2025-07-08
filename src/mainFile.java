@@ -26,8 +26,8 @@ public class mainFile {
             JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
-                    viewInventoryTab.refreshData();
-                    viewInventoryTab.updateTable(null, "All", "All", "All");
+                    viewInventoryTab.refreshDataAndTabs();
+                    viewInventoryTab.updateTables("", "All", "All"); // Changed null to empty string
                 } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
                     AccessoriesCountTab newTab = new AccessoriesCountTab();
                     tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);
