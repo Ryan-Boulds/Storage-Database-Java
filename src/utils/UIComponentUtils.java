@@ -8,6 +8,7 @@ import java.util.Date;
 import javax.swing.*;
 
 public class UIComponentUtils {
+
     public static JLabel createAlignedLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -184,7 +185,9 @@ public class UIComponentUtils {
         StringBuilder sb = new StringBuilder();
         for (JCheckBox port : ports) {
             if (port.isSelected()) {
-                if (sb.length() > 0) sb.append(", ");
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
                 sb.append(port.getText());
             }
         }
@@ -193,9 +196,11 @@ public class UIComponentUtils {
 
     public static String getDateFromPicker(JPanel datePicker) {
         for (Component comp : datePicker.getComponents()) {
-            if (comp instanceof JTextField jTextField) {
+            if (comp instanceof JTextField) {
+                JTextField jTextField = (JTextField) comp;
                 return jTextField.getText();
             }
+
         }
         return "";
     }
