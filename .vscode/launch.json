@@ -7,16 +7,16 @@
       "request": "launch",
       "mainClass": "mainFile"
     },
-    {
-      // "type": "java",
-      // "name": "Run AccessDBExample",
-      // "request": "launch",
-      // "mainClass": "AccessDBExample",
-      // "classPaths": [
-      //   "${workspaceFolder}/JavaLib/UCanAccess/*",
-      //   "${workspaceFolder}/target/classes"
-      // ],
-      // "cwd": "${workspaceFolder}"
-    }
+    // {
+    //   "type": "java",
+    //   "name": "Run AccessDBExample",
+    //   "request": "launch",
+    //   "mainClass": "AccessDBExample",
+    //   "classPaths": [
+    //     "${workspaceFolder}/JavaLib/UCanAccess/*",
+    //     "${workspaceFolder}/target/classes"
+    //   ],
+    //   "cwd": "${workspaceFolder}"
+    // }
   ]
 }
