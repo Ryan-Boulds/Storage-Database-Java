@@ -10,5 +10,7 @@
       "default": true
     }
   ],
-  "java.configuration.maven.enabled": false
+  "java.configuration.maven.enabled": false,
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.compile.nullAnalysis.mode": "automatic"
 }

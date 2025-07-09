@@ -1,11 +1,8 @@
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.swing.*;
-import utils.DataUtils;
-import utils.FileUtils;
 import utils.InventoryData;
+import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
 public class LogCablesTab extends JPanel {
@@ -22,23 +19,13 @@ public class LogCablesTab extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         ArrayList<String> existingTypes = PeripheralUtils.getPeripheralTypes(InventoryData.getCables());
-        String[] initialItems;
-        if (existingTypes.isEmpty()) {
-            initialItems = new String[]{"Add New Cable Type"};
-        } else {
-            initialItems = new String[existingTypes.size() + 1];
-            for (int i = 0; i < existingTypes.size(); i++) {
-                initialItems[i] = existingTypes.get(i);
-            }
-            initialItems[existingTypes.size()] = "Add New Cable Type";
+        String[] initialItems = new String[existingTypes.size() + 1];
+        for (int i = 0; i < existingTypes.size(); i++) {
+            initialItems[i] = existingTypes.get(i);
         }
-        cableTypeCombo = new JComboBox<>(initialItems);
-        cableTypeCombo.setPreferredSize(new Dimension(450, 30));
-        cableTypeCombo.setMaximumSize(new Dimension(450, 30));
-        cableTypeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
-        if (!existingTypes.isEmpty()) {
-            cableTypeCombo.setSelectedIndex(-1);
-        }
+        initialItems[existingTypes.size()] = "Add New Cable Type";
+        cableTypeCombo = UIComponentUtils.createFormattedComboBox(initialItems);
+        cableTypeCombo.setEditable(false);
 
         newTypePanel = new JPanel();
         newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -57,11 +44,6 @@ public class LogCablesTab extends JPanel {
         JButton removeButton = UIComponentUtils.createFormattedButton("Remove Cable");
         statusLabel = UIComponentUtils.createAlignedLabel("");
 
-        ActionListener[] listeners = cableTypeCombo.getActionListeners();
-        for (ActionListener listener : listeners) {
-            cableTypeCombo.removeActionListener(listener);
-        }
-
         cableTypeCombo.addActionListener(e -> {
             Object selectedItem = cableTypeCombo.getSelectedItem();
             if (selectedItem != null && selectedItem.equals("Add New Cable Type")) {
@@ -75,33 +57,8 @@ public class LogCablesTab extends JPanel {
             panel.repaint();
         });
 
-        for (ActionListener listener : listeners) {
-            cableTypeCombo.addActionListener(listener);
-        }
-
-        addNewTypeButton.addActionListener(e -> {
-            String newType = newTypeField.getText().trim();
-            if (newType.isEmpty()) {
-                statusLabel.setText("Error: Enter a new cable type");
-                return;
-            }
-            newType = DataUtils.capitalizeWords(newType);
-            HashMap<String, String> newCable = new HashMap<>();
-            newCable.put("Peripheral_Type", newType);
-            newCable.put("Count", "0");
-            InventoryData.getCables().add(newCable);
-            FileUtils.saveCables();
-            cableTypeCombo.removeItem("Add New Cable Type");
-            cableTypeCombo.addItem(newType);
-            cableTypeCombo.addItem("Add New Cable Type");
-            cableTypeCombo.setSelectedItem(newType);
-            newTypeField.setText("");
-            newTypeField.setVisible(false);
-            newTypePanel.setVisible(false);
-            statusLabel.setText(newType + " added with count 0");
-            panel.revalidate();
-            panel.repaint();
-        });
+        addNewTypeButton.addActionListener(e -> PeripheralUtils.addNewPeripheralType(
+            newTypeField, cableTypeCombo, statusLabel, InventoryData.getCables(), existingTypes));
 
         addButton.addActionListener(e -> {
             Object selectedItem = cableTypeCombo.getSelectedItem();
@@ -110,7 +67,7 @@ public class LogCablesTab extends JPanel {
                 return;
             }
             String type = selectedItem.toString();
-            int count = 1;
+            int count;
             try {
                 count = Integer.parseInt(countField.getText().trim());
                 if (count <= 0) {
@@ -131,7 +88,7 @@ public class LogCablesTab extends JPanel {
                 return;
             }
             String type = selectedItem.toString();
-            int count = 1;
+            int count;
             try {
                 count = Integer.parseInt(countField.getText().trim());
                 if (count <= 0) {

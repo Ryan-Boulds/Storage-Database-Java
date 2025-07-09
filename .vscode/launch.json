@@ -5,15 +5,17 @@
       "type": "java",
       "name": "mainFile",
       "request": "launch",
-      "mainClass": "mainFile",
-      "projectName": "Storage-Database-Java_6e6ed335"
+      "mainClass": "mainFile"
     },
     {
       // "type": "java",
       // "name": "Run AccessDBExample",
       // "request": "launch",
       // "mainClass": "AccessDBExample",
-      // "vmArgs": "-cp \"${workspaceFolder}/JavaLib/UCanAccess/*;${workspaceFolder}/src\"",
+      // "classPaths": [
+      //   "${workspaceFolder}/JavaLib/UCanAccess/*",
+      //   "${workspaceFolder}/target/classes"
+      // ],
       // "cwd": "${workspaceFolder}"
     }
   ]

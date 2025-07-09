@@ -2,6 +2,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.*;
 import utils.InventoryData;
+import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
 public class LogAccessoriesTab extends JPanel {

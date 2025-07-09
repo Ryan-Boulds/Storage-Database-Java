@@ -1,2 +1,4 @@
-Peripheral_Type=Hdmi, Count=4
+Peripheral_Type=Hdmi, Count=2
 Peripheral_Type=hdmi, Count=0
+Peripheral_Type=Usb A To Usb C, Count=3
+Peripheral_Type=usb a to usb c, Count=0
