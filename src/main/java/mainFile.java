@@ -1,7 +1,11 @@
+import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+
 import device_logging.LogNewDeviceTab;
-import javax.swing.*;
 import utils.FileUtils;
 import utils.UIComponentUtils;
+import view_inventorytab.ViewInventoryTab;
 
 public class mainFile {
     public static void main(String[] args) {
@@ -27,7 +31,7 @@ public class mainFile {
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
                     viewInventoryTab.refreshDataAndTabs();
-                    viewInventoryTab.updateTables("", "All", "All"); // Changed null to empty string
+                    viewInventoryTab.updateTables("", "All", "All");
                 } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
                     AccessoriesCountTab newTab = new AccessoriesCountTab();
                     tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);

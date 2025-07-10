@@ -1,14 +1,19 @@
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import utils.FileUtils;
 import utils.InventoryData;
 import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
-public class AccessoriesCountTab extends JPanel {
-    private JPanel panel;
+public final class AccessoriesCountTab extends JPanel {
+    private final JPanel panel;
 
     public AccessoriesCountTab() {
         setLayout(new BorderLayout(10, 10));

@@ -4,7 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import utils.DataUtils;
 import utils.FileUtils;
 import utils.InventoryData;
@@ -16,7 +23,7 @@ public class PrinterPanel extends JPanel {
                       vendorField, specificationField, departmentField, buildingLocationField, roomDeskField;
     private JComboBox<String> statusCombo;
     private JPanel warrantyExpiryDatePicker_div, dateOfPurchasePicker_div;
-    private JLabel statusLabel;
+    private final JLabel statusLabel;
 
     public PrinterPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;

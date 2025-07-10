@@ -1,13 +1,36 @@
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import javax.swing.*;
+import java.util.Map;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import utils.DataUtils;
 import utils.FileUtils;
@@ -286,7 +309,7 @@ public class ImportDataTab extends JPanel {
 
     private void displayData(List<String[]> data, List<Integer> selectedIndices, Map<String, String> columnMappings, Map<String, String> newFields) {
         tableModel.setRowCount(0);
-        List<String[]> tableData = new ArrayList<>();
+        
 
         for (int i = 1; i < data.size(); i++) {
             String[] csvRow = data.get(i);
@@ -306,7 +329,7 @@ public class ImportDataTab extends JPanel {
                     }
                 }
             }
-            tableData.add(tableRow);
+           
             tableModel.addRow(tableRow);
         }
 
