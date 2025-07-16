@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import database_creator.Table_Editor.TableEditor;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
