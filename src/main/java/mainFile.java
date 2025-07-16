@@ -3,6 +3,7 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import database_creator.DatabaseCreatorTab;
 import device_logging.ImportDataTab;
 import device_logging.LogNewDeviceTab;
 import utils.UIComponentUtils;
@@ -12,6 +13,10 @@ import view_inventorytab.ViewInventoryTab;
 public class mainFile {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            // Initialize DatabaseCreatorTab first
+            DatabaseCreatorTab databaseCreatorTab = new DatabaseCreatorTab();
+            databaseCreatorTab.createMissingTables(); // Ensure tables exist on startup
+
             JLabel statusLabel = new JLabel("Ready");
             ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
             LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
@@ -20,6 +25,7 @@ public class mainFile {
 
             JFrame frame = UIComponentUtils.createMainFrame(
                 "Inventory Management",
+                databaseCreatorTab, // First tab
                 viewInventoryTab,
                 logNewDeviceTab,
                 accessoriesCountTab,
