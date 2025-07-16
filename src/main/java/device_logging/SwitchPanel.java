@@ -1,14 +1,23 @@
 package device_logging;
 
 import java.awt.GridLayout;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.NumberFormatter;
 
 import utils.DataUtils;
 import utils.InventoryData;
@@ -16,16 +25,16 @@ import utils.SQLGenerator;
 import utils.UIComponentUtils;
 
 public class SwitchPanel extends JPanel {
-    private final JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
-    private final JTextField modelField = UIComponentUtils.createFormattedTextField();
+    private final JTextField deviceNameField = createAutoCompleteTextField("Device_Name");
+    private final JTextField modelField = createAutoCompleteTextField("Model");
     private final JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
     private final JTextField networkAddressField = UIComponentUtils.createFormattedTextField();
-    private final JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+    private final JFormattedTextField purchaseCostField = new JFormattedTextField(createNumberFormatter());
     private final JTextField vendorField = UIComponentUtils.createFormattedTextField();
     private final JTextField specificationField = UIComponentUtils.createFormattedTextField();
-    private final JTextField departmentField = UIComponentUtils.createFormattedTextField();
-    private final JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
-    private final JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+    private final JTextField departmentField = createAutoCompleteTextField("Department");
+    private final JTextField buildingLocationField = createAutoCompleteTextField("Building_Location");
+    private final JTextField roomDeskField = createAutoCompleteTextField("Room_Desk");
     private final JComboBox<String> statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
     private final JPanel warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
     private final JPanel dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
@@ -37,12 +46,71 @@ public class SwitchPanel extends JPanel {
         addComponents();
     }
 
+    private JTextField createAutoCompleteTextField(String fieldName) {
+        JTextField textField = UIComponentUtils.createFormattedTextField();
+        JPopupMenu popup = new JPopupMenu();
+        textField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+        });
+        textField.setComponentPopupMenu(popup);
+        return textField;
+    }
+
+    private void updateSuggestions(String fieldName, JTextField textField, JPopupMenu popup) {
+        popup.removeAll();
+        String text = textField.getText().trim().toLowerCase();
+        if (!text.isEmpty()) {
+            List<String> suggestions = getUniqueValues(fieldName); // Use fieldName
+            for (String suggestion : suggestions) {
+                if (suggestion.toLowerCase().startsWith(text)) {
+                    JMenuItem item = new JMenuItem(suggestion);
+                    item.addActionListener(e -> textField.setText(suggestion));
+                    popup.add(item);
+                }
+            }
+            if (popup.getComponentCount() > 0) {
+                popup.show(textField, 0, textField.getHeight());
+            }
+        }
+    }
+
+    private List<String> getUniqueValues(String fieldName) {
+        // Placeholder: Replace with actual database query
+        return new ArrayList<>(); // Return empty list or implement with InventoryData.query
+    }
+
+    private NumberFormatter createNumberFormatter() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        NumberFormatter formatter = new NumberFormatter(format);
+        formatter.setValueClass(Double.class);
+        formatter.setAllowsInvalid(false);
+        formatter.setMinimum(0.0);
+        return formatter;
+    }
+
     private void addComponents() {
         JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
         JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
 
         enterButton.addActionListener(e -> {
             HashMap<String, String> data = collectData();
+            String validationError = validateFieldTypes(data);
+            if (validationError != null) {
+                statusLabel.setText("Error: " + validationError);
+                JOptionPane.showMessageDialog(this, validationError, "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             String error = DataUtils.validateDevice(data);
             if (error != null) {
                 statusLabel.setText("Error: " + error);
@@ -96,21 +164,57 @@ public class SwitchPanel extends JPanel {
 
     private HashMap<String, String> collectData() {
         HashMap<String, String> data = new HashMap<>();
-        data.put("Device_Name", DataUtils.capitalizeWords(deviceNameField.getText()));
+        String deviceName = deviceNameField.getText().trim();
+        data.put("Device_Name", deviceName.isEmpty() ? null : DataUtils.capitalizeWords(deviceName));
         data.put("Device_Type", "Switch");
-        data.put("Model", DataUtils.capitalizeWords(modelField.getText()));
-        data.put("Serial_Number", serialNumberField.getText());
-        data.put("Network_Address", networkAddressField.getText());
-        data.put("Specification", specificationField.getText());
-        data.put("Department", DataUtils.capitalizeWords(departmentField.getText()));
-        data.put("Building_Location", DataUtils.capitalizeWords(buildingLocationField.getText()));
-        data.put("Room_Desk", DataUtils.capitalizeWords(roomDeskField.getText()));
+        String model = modelField.getText().trim();
+        data.put("Model", model.isEmpty() ? null : DataUtils.capitalizeWords(model));
+        String serialNumber = serialNumberField.getText().trim();
+        data.put("Serial_Number", serialNumber.isEmpty() ? null : serialNumber);
+        String networkAddress = networkAddressField.getText().trim();
+        data.put("Network_Address", networkAddress.isEmpty() ? null : networkAddress);
+        String specification = specificationField.getText().trim();
+        data.put("Specification", specification.isEmpty() ? null : specification);
+        String department = departmentField.getText().trim();
+        data.put("Department", department.isEmpty() ? null : DataUtils.capitalizeWords(department));
+        String buildingLocation = buildingLocationField.getText().trim();
+        data.put("Building_Location", buildingLocation.isEmpty() ? null : DataUtils.capitalizeWords(buildingLocation));
+        String roomDesk = roomDeskField.getText().trim();
+        data.put("Room_Desk", roomDesk.isEmpty() ? null : DataUtils.capitalizeWords(roomDesk));
         data.put("Status", (String) statusCombo.getSelectedItem());
-        data.put("Purchase_Cost", purchaseCostField.getText());
-        data.put("Vendor", DataUtils.capitalizeWords(vendorField.getText()));
-        data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-        data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
+        String purchaseCost = purchaseCostField.getText().trim();
+        data.put("Purchase_Cost", purchaseCost.isEmpty() ? null : purchaseCost);
+        String vendor = vendorField.getText().trim();
+        data.put("Vendor", vendor.isEmpty() ? null : DataUtils.capitalizeWords(vendor));
+        String warrantyExpiry = UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div);
+        data.put("Warranty_Expiry_Date", warrantyExpiry == null || warrantyExpiry.trim().isEmpty() ? null : convertDateFormat(warrantyExpiry));
+        String dateOfPurchase = UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div);
+        data.put("Date_Of_Purchase", dateOfPurchase == null || dateOfPurchase.trim().isEmpty() ? null : convertDateFormat(dateOfPurchase));
         return data;
+    }
+
+    private String convertDateFormat(String date) {
+        if (date == null || !date.matches("\\d{2}-\\d{2}-\\d{4}")) return date;
+        String[] parts = date.split("-");
+        return parts[2] + "-" + parts[0] + "-" + parts[1]; // YYYY-MM-DD
+    }
+
+    private String validateFieldTypes(HashMap<String, String> data) {
+        try {
+            String purchaseCost = data.get("Purchase_Cost");
+            if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
+                Double.parseDouble(purchaseCost);
+            }
+            for (String dateField : new String[]{"Warranty_Expiry_Date", "Date_Of_Purchase"}) {
+                String date = data.get(dateField);
+                if (date != null && !date.trim().isEmpty() && !date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    return "Invalid date format for " + dateField + ". Use YYYY-MM-DD.";
+                }
+            }
+        } catch (NumberFormatException e) {
+            return "Numeric fields (e.g., Purchase Cost) must contain valid numbers.";
+        }
+        return null;
     }
 
     private void clearForm() {

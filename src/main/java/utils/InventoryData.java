@@ -21,20 +21,20 @@ public class InventoryData {
 
     public static ArrayList<HashMap<String, String>> getDevices() {
         try {
-            devices = FileUtils.loadDevices();
+            devices = FileUtils.loadDevices(); // Ensure this returns consistent date format
+            return new ArrayList<>(devices); // Return a copy to avoid modification issues
         } catch (SQLException e) {
             throw new RuntimeException("Error loading devices: " + e.getMessage());
         }
-        return devices;
     }
 
     public static ArrayList<HashMap<String, String>> getCables() {
         try {
-            cables = FileUtils.loadCables();
+            cables = FileUtils.loadCables(); // Assume this now returns count by type
+            return new ArrayList<>(cables); // Return a copy
         } catch (SQLException e) {
             throw new RuntimeException("Error loading cables: " + e.getMessage());
         }
-        return cables;
     }
 
     public static ArrayList<HashMap<String, String>> getAccessories() {

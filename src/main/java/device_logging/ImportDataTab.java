@@ -128,7 +128,7 @@ public class ImportDataTab extends JPanel {
 
         // Extract headers from the first row
         HashMap<String, String> firstRow = csvData.get(0);
-        String[] headers = firstRow.keySet().toArray(new String[0]);
+        String[] headers = firstRow.keySet().toArray(new String[0]); // Reverted to original
         result.add(headers);
 
         // Convert each HashMap to a String array

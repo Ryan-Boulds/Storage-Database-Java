@@ -1,15 +1,23 @@
 package device_logging;
 
 import java.awt.GridLayout;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.NumberFormatter;
 
 import utils.DataUtils;
 import utils.InventoryData;
@@ -18,25 +26,25 @@ import utils.UIComponentUtils;
 public class ComputerPanel extends JPanel {
 
     private final JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
-    private final JTextField brandField = UIComponentUtils.createFormattedTextField();
-    private final JTextField modelField = UIComponentUtils.createFormattedTextField();
+    private final JTextField brandField = createAutoCompleteTextField("Brand");
+    private final JTextField modelField = createAutoCompleteTextField("Model");
     private final JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
-    private final JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
-    private final JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+    private final JTextField buildingLocationField = createAutoCompleteTextField("Building_Location");
+    private final JTextField roomDeskField = createAutoCompleteTextField("Room_Desk");
     private final JTextField specificationField = UIComponentUtils.createFormattedTextField();
-    private final JTextField processorTypeField = UIComponentUtils.createFormattedTextField();
-    private final JTextField storageCapacityField = UIComponentUtils.createFormattedTextField();
-    private final JTextField networkAddressField = UIComponentUtils.createFormattedTextField();
-    private final JTextField osVersionField = UIComponentUtils.createFormattedTextField();
-    private final JTextField departmentField = UIComponentUtils.createFormattedTextField();
+    private final JTextField processorTypeField = createAutoCompleteTextField("Processor_Type");
+    private final JTextField storageCapacityField = createAutoCompleteTextField("Storage_Capacity");
+    private final JTextField networkAddressField = createAutoCompleteTextField("Network_Address");
+    private final JTextField osVersionField = createAutoCompleteTextField("OS_Version");
+    private final JTextField departmentField = createAutoCompleteTextField("Department");
     private final JComboBox<String> addedMemoryField = UIComponentUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
     private final JComboBox<String> statusField = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-    private final JTextField assignedUserField = UIComponentUtils.createFormattedTextField();
-    private final JTextField warrantyExpiryField = UIComponentUtils.createFormattedTextField();
-    private final JTextField lastMaintenanceField = UIComponentUtils.createFormattedTextField();
-    private final JTextField maintenanceDueField = UIComponentUtils.createFormattedTextField();
-    private final JTextField dateOfPurchaseField = UIComponentUtils.createFormattedTextField();
-    private final JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+    private final JTextField assignedUserField = createAutoCompleteTextField("Assigned_User");
+    private final JPanel warrantyExpiryField = UIComponentUtils.createFormattedDatePicker();
+    private final JPanel lastMaintenanceField = UIComponentUtils.createFormattedDatePicker();
+    private final JPanel maintenanceDueField = UIComponentUtils.createFormattedDatePicker();
+    private final JPanel dateOfPurchaseField = UIComponentUtils.createFormattedDatePicker();
+    private final JFormattedTextField purchaseCostField = new JFormattedTextField(createNumberFormatter());
     private final JTextField vendorField = UIComponentUtils.createFormattedTextField();
     private final JTextField memoryRamField = UIComponentUtils.createFormattedTextField();
     private final JLabel statusLabel;
@@ -126,31 +134,111 @@ public class ComputerPanel extends JPanel {
         add(loadTemplateButton);
     }
 
+    private JTextField createAutoCompleteTextField(String fieldName) {
+        JTextField textField = UIComponentUtils.createFormattedTextField();
+        JPopupMenu popup = new JPopupMenu();
+        textField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateSuggestions(fieldName, textField, popup);
+            }
+        });
+        textField.setComponentPopupMenu(popup);
+        return textField;
+    }
+
+    private void updateSuggestions(String fieldName, JTextField textField, JPopupMenu popup) {
+        popup.removeAll();
+        String text = textField.getText().trim().toLowerCase();
+        if (!text.isEmpty()) {
+            List<String> suggestions = getUniqueValues(fieldName);
+            for (String suggestion : suggestions) {
+                if (suggestion.toLowerCase().startsWith(text)) {
+                    JMenuItem item = new JMenuItem(suggestion);
+                    item.addActionListener(e -> textField.setText(suggestion));
+                    popup.add(item);
+                }
+            }
+            if (popup.getComponentCount() > 0) {
+                popup.show(textField, 0, textField.getHeight());
+            }
+        }
+    }
+
+    private List<String> getUniqueValues(String fieldName) {
+        // Placeholder: Replace with actual database query
+        return new ArrayList<>(); // Return empty list or implement with InventoryData.query
+    }
+
+    private NumberFormatter createNumberFormatter() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        NumberFormatter formatter = new NumberFormatter(format);
+        formatter.setValueClass(Double.class);
+        formatter.setAllowsInvalid(false);
+        formatter.setMinimum(0.0);
+        return formatter;
+    }
+
     private void saveDevice() {
         HashMap<String, String> deviceData = new HashMap<>();
-        deviceData.put("Device_Name", DataUtils.capitalizeWords(deviceNameField.getText()));
+        String deviceName = deviceNameField.getText().trim();
+        deviceData.put("Device_Name", deviceName.isEmpty() ? null : DataUtils.capitalizeWords(deviceName));
         deviceData.put("Device_Type", "Computer");
-        deviceData.put("Brand", DataUtils.capitalizeWords(brandField.getText()));
-        deviceData.put("Model", DataUtils.capitalizeWords(modelField.getText()));
-        deviceData.put("Serial_Number", serialNumberField.getText());
-        deviceData.put("Building_Location", DataUtils.capitalizeWords(buildingLocationField.getText()));
-        deviceData.put("Room_Desk", DataUtils.capitalizeWords(roomDeskField.getText()));
-        deviceData.put("Specification", specificationField.getText());
-        deviceData.put("Processor_Type", processorTypeField.getText());
-        deviceData.put("Storage_Capacity", storageCapacityField.getText());
-        deviceData.put("Network_Address", networkAddressField.getText());
-        deviceData.put("OS_Version", osVersionField.getText());
-        deviceData.put("Department", DataUtils.capitalizeWords(departmentField.getText()));
+        String brand = brandField.getText().trim();
+        deviceData.put("Brand", brand.isEmpty() ? null : DataUtils.capitalizeWords(brand));
+        String model = modelField.getText().trim();
+        deviceData.put("Model", model.isEmpty() ? null : DataUtils.capitalizeWords(model));
+        String serialNumber = serialNumberField.getText().trim();
+        deviceData.put("Serial_Number", serialNumber.isEmpty() ? null : serialNumber);
+        String buildingLocation = buildingLocationField.getText().trim();
+        deviceData.put("Building_Location", buildingLocation.isEmpty() ? null : DataUtils.capitalizeWords(buildingLocation));
+        String roomDesk = roomDeskField.getText().trim();
+        deviceData.put("Room_Desk", roomDesk.isEmpty() ? null : DataUtils.capitalizeWords(roomDesk));
+        String specification = specificationField.getText().trim();
+        deviceData.put("Specification", specification.isEmpty() ? null : specification);
+        String processorType = processorTypeField.getText().trim();
+        deviceData.put("Processor_Type", processorType.isEmpty() ? null : processorType);
+        String storageCapacity = storageCapacityField.getText().trim();
+        deviceData.put("Storage_Capacity", storageCapacity.isEmpty() ? null : storageCapacity);
+        String networkAddress = networkAddressField.getText().trim();
+        deviceData.put("Network_Address", networkAddress.isEmpty() ? null : networkAddress);
+        String osVersion = osVersionField.getText().trim();
+        deviceData.put("OS_Version", osVersion.isEmpty() ? null : osVersion);
+        String department = departmentField.getText().trim();
+        deviceData.put("Department", department.isEmpty() ? null : DataUtils.capitalizeWords(department));
         deviceData.put("Added_Memory", (String) addedMemoryField.getSelectedItem());
         deviceData.put("Status", (String) statusField.getSelectedItem());
-        deviceData.put("Assigned_User", DataUtils.capitalizeWords(assignedUserField.getText()));
-        deviceData.put("Warranty_Expiry_Date", warrantyExpiryField.getText());
-        deviceData.put("Last_Maintenance", lastMaintenanceField.getText());
-        deviceData.put("Maintenance_Due", maintenanceDueField.getText());
-        deviceData.put("Date_Of_Purchase", dateOfPurchaseField.getText());
-        deviceData.put("Purchase_Cost", purchaseCostField.getText());
-        deviceData.put("Vendor", DataUtils.capitalizeWords(vendorField.getText()));
-        deviceData.put("Memory_RAM", memoryRamField.getText());
+        String assignedUser = assignedUserField.getText().trim();
+        deviceData.put("Assigned_User", assignedUser.isEmpty() ? null : DataUtils.capitalizeWords(assignedUser));
+        String warrantyExpiry = UIComponentUtils.getDateFromPicker(warrantyExpiryField);
+        deviceData.put("Warranty_Expiry_Date", warrantyExpiry == null || warrantyExpiry.trim().isEmpty() ? null : convertDateFormat(warrantyExpiry));
+        String lastMaintenance = UIComponentUtils.getDateFromPicker(lastMaintenanceField);
+        deviceData.put("Last_Maintenance", lastMaintenance == null || lastMaintenance.trim().isEmpty() ? null : convertDateFormat(lastMaintenance));
+        String maintenanceDue = UIComponentUtils.getDateFromPicker(maintenanceDueField);
+        deviceData.put("Maintenance_Due", maintenanceDue == null || maintenanceDue.trim().isEmpty() ? null : convertDateFormat(maintenanceDue));
+        String dateOfPurchase = UIComponentUtils.getDateFromPicker(dateOfPurchaseField);
+        deviceData.put("Date_Of_Purchase", dateOfPurchase == null || dateOfPurchase.trim().isEmpty() ? null : convertDateFormat(dateOfPurchase));
+        String purchaseCost = purchaseCostField.getText().trim();
+        deviceData.put("Purchase_Cost", purchaseCost.isEmpty() ? null : purchaseCost);
+        String vendor = vendorField.getText().trim();
+        deviceData.put("Vendor", vendor.isEmpty() ? null : DataUtils.capitalizeWords(vendor));
+        String memoryRam = memoryRamField.getText().trim();
+        deviceData.put("Memory_RAM", memoryRam.isEmpty() ? null : memoryRam);
+
+        String validationError = validateFieldTypes(deviceData);
+        if (validationError != null) {
+            statusLabel.setText(validationError);
+            JOptionPane.showMessageDialog(this, validationError, "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         String error = DataUtils.validateDevice(deviceData);
         if (error != null) {
@@ -170,6 +258,39 @@ public class ComputerPanel extends JPanel {
         }
     }
 
+    private String convertDateFormat(String date) {
+        if (date == null || !date.matches("\\d{2}-\\d{2}-\\d{4}")) return date;
+        String[] parts = date.split("-");
+        return parts[2] + "-" + parts[0] + "-" + parts[1]; // YYYY-MM-DD
+    }
+
+    private String validateFieldTypes(HashMap<String, String> deviceData) {
+        try {
+            String purchaseCost = deviceData.get("Purchase_Cost");
+            if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
+                Double.parseDouble(purchaseCost);
+            }
+            String memoryRam = deviceData.get("Memory_RAM");
+            if (memoryRam != null && !memoryRam.trim().isEmpty()) {
+                if (memoryRam.toUpperCase().endsWith("GB")) {
+                    String numericPart = memoryRam.replaceAll("[^0-9.]", "");
+                    Double.parseDouble(numericPart);
+                } else {
+                    Double.parseDouble(memoryRam);
+                }
+            }
+            for (String dateField : new String[]{"Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase"}) {
+                String date = deviceData.get(dateField);
+                if (date != null && !date.trim().isEmpty() && !date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    return "Invalid date format for " + dateField + ". Use YYYY-MM-DD.";
+                }
+            }
+        } catch (NumberFormatException e) {
+            return "Numeric fields (e.g., Purchase Cost, Memory RAM) must contain valid numbers.";
+        }
+        return null;
+    }
+
     private void saveTemplate() {
         String templateName = JOptionPane.showInputDialog(this, "Enter template name:");
         if (templateName == null || templateName.trim().isEmpty()) {
@@ -179,29 +300,49 @@ public class ComputerPanel extends JPanel {
         }
 
         HashMap<String, String> templateData = new HashMap<>();
-        templateData.put("Device_Name", DataUtils.capitalizeWords(deviceNameField.getText()));
+        String deviceName = deviceNameField.getText().trim();
+        templateData.put("Device_Name", deviceName.isEmpty() ? null : DataUtils.capitalizeWords(deviceName));
         templateData.put("Device_Type", "Computer");
-        templateData.put("Brand", DataUtils.capitalizeWords(brandField.getText()));
-        templateData.put("Model", DataUtils.capitalizeWords(modelField.getText()));
-        templateData.put("Serial_Number", serialNumberField.getText());
-        templateData.put("Building_Location", DataUtils.capitalizeWords(buildingLocationField.getText()));
-        templateData.put("Room_Desk", DataUtils.capitalizeWords(roomDeskField.getText()));
-        templateData.put("Specification", specificationField.getText());
-        templateData.put("Processor_Type", processorTypeField.getText());
-        templateData.put("Storage_Capacity", storageCapacityField.getText());
-        templateData.put("Network_Address", networkAddressField.getText());
-        templateData.put("OS_Version", osVersionField.getText());
-        templateData.put("Department", DataUtils.capitalizeWords(departmentField.getText()));
+        String brand = brandField.getText().trim();
+        templateData.put("Brand", brand.isEmpty() ? null : DataUtils.capitalizeWords(brand));
+        String model = modelField.getText().trim();
+        templateData.put("Model", model.isEmpty() ? null : DataUtils.capitalizeWords(model));
+        String serialNumber = serialNumberField.getText().trim();
+        templateData.put("Serial_Number", serialNumber.isEmpty() ? null : serialNumber);
+        String buildingLocation = buildingLocationField.getText().trim();
+        templateData.put("Building_Location", buildingLocation.isEmpty() ? null : DataUtils.capitalizeWords(buildingLocation));
+        String roomDesk = roomDeskField.getText().trim();
+        templateData.put("Room_Desk", roomDesk.isEmpty() ? null : DataUtils.capitalizeWords(roomDesk));
+        String specification = specificationField.getText().trim();
+        templateData.put("Specification", specification.isEmpty() ? null : specification);
+        String processorType = processorTypeField.getText().trim();
+        templateData.put("Processor_Type", processorType.isEmpty() ? null : processorType);
+        String storageCapacity = storageCapacityField.getText().trim();
+        templateData.put("Storage_Capacity", storageCapacity.isEmpty() ? null : storageCapacity);
+        String networkAddress = networkAddressField.getText().trim();
+        templateData.put("Network_Address", networkAddress.isEmpty() ? null : networkAddress);
+        String osVersion = osVersionField.getText().trim();
+        templateData.put("OS_Version", osVersion.isEmpty() ? null : osVersion);
+        String department = departmentField.getText().trim();
+        templateData.put("Department", department.isEmpty() ? null : DataUtils.capitalizeWords(department));
         templateData.put("Added_Memory", (String) addedMemoryField.getSelectedItem());
         templateData.put("Status", (String) statusField.getSelectedItem());
-        templateData.put("Assigned_User", DataUtils.capitalizeWords(assignedUserField.getText()));
-        templateData.put("Warranty_Expiry_Date", warrantyExpiryField.getText());
-        templateData.put("Last_Maintenance", lastMaintenanceField.getText());
-        templateData.put("Maintenance_Due", maintenanceDueField.getText());
-        templateData.put("Date_Of_Purchase", dateOfPurchaseField.getText());
-        templateData.put("Purchase_Cost", purchaseCostField.getText());
-        templateData.put("Vendor", DataUtils.capitalizeWords(vendorField.getText()));
-        templateData.put("Memory_RAM", memoryRamField.getText());
+        String assignedUser = assignedUserField.getText().trim();
+        templateData.put("Assigned_User", assignedUser.isEmpty() ? null : DataUtils.capitalizeWords(assignedUser));
+        String warrantyExpiry = UIComponentUtils.getDateFromPicker(warrantyExpiryField);
+        templateData.put("Warranty_Expiry_Date", warrantyExpiry == null || warrantyExpiry.trim().isEmpty() ? null : convertDateFormat(warrantyExpiry));
+        String lastMaintenance = UIComponentUtils.getDateFromPicker(lastMaintenanceField);
+        templateData.put("Last_Maintenance", lastMaintenance == null || lastMaintenance.trim().isEmpty() ? null : convertDateFormat(lastMaintenance));
+        String maintenanceDue = UIComponentUtils.getDateFromPicker(maintenanceDueField);
+        templateData.put("Maintenance_Due", maintenanceDue == null || maintenanceDue.trim().isEmpty() ? null : convertDateFormat(maintenanceDue));
+        String dateOfPurchase = UIComponentUtils.getDateFromPicker(dateOfPurchaseField);
+        templateData.put("Date_Of_Purchase", dateOfPurchase == null || dateOfPurchase.trim().isEmpty() ? null : convertDateFormat(dateOfPurchase));
+        String purchaseCost = purchaseCostField.getText().trim();
+        templateData.put("Purchase_Cost", purchaseCost.isEmpty() ? null : purchaseCost);
+        String vendor = vendorField.getText().trim();
+        templateData.put("Vendor", vendor.isEmpty() ? null : DataUtils.capitalizeWords(vendor));
+        String memoryRam = memoryRamField.getText().trim();
+        templateData.put("Memory_RAM", memoryRam.isEmpty() ? null : memoryRam);
 
         try {
             InventoryData.saveTemplate(templateData, templateName);
@@ -236,10 +377,10 @@ public class ComputerPanel extends JPanel {
                 addedMemoryField.setSelectedItem(template.getOrDefault("Added_Memory", "null"));
                 statusField.setSelectedItem(template.getOrDefault("Status", "Deployed"));
                 assignedUserField.setText(template.getOrDefault("Assigned_User", ""));
-                warrantyExpiryField.setText(template.getOrDefault("Warranty_Expiry_Date", ""));
-                lastMaintenanceField.setText(template.getOrDefault("Last_Maintenance", ""));
-                maintenanceDueField.setText(template.getOrDefault("Maintenance_Due", ""));
-                dateOfPurchaseField.setText(template.getOrDefault("Date_Of_Purchase", ""));
+                ((JTextField) warrantyExpiryField.getComponent(0)).setText(template.getOrDefault("Warranty_Expiry_Date", ""));
+                ((JTextField) lastMaintenanceField.getComponent(0)).setText(template.getOrDefault("Last_Maintenance", ""));
+                ((JTextField) maintenanceDueField.getComponent(0)).setText(template.getOrDefault("Maintenance_Due", ""));
+                ((JTextField) dateOfPurchaseField.getComponent(0)).setText(template.getOrDefault("Date_Of_Purchase", ""));
                 purchaseCostField.setText(template.getOrDefault("Purchase_Cost", ""));
                 vendorField.setText(template.getOrDefault("Vendor", ""));
                 memoryRamField.setText(template.getOrDefault("Memory_RAM", ""));
@@ -270,10 +411,10 @@ public class ComputerPanel extends JPanel {
         addedMemoryField.setSelectedItem("null");
         statusField.setSelectedItem("Deployed");
         assignedUserField.setText("");
-        warrantyExpiryField.setText("");
-        lastMaintenanceField.setText("");
-        maintenanceDueField.setText("");
-        dateOfPurchaseField.setText("");
+        ((JTextField) warrantyExpiryField.getComponent(0)).setText("");
+        ((JTextField) lastMaintenanceField.getComponent(0)).setText("");
+        ((JTextField) maintenanceDueField.getComponent(0)).setText("");
+        ((JTextField) dateOfPurchaseField.getComponent(0)).setText("");
         purchaseCostField.setText("");
         vendorField.setText("");
         memoryRamField.setText("");

@@ -36,7 +36,7 @@ public class mainFile {
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
                     viewInventoryTab.refreshDataAndTabs();
-                    viewInventoryTab.updateTables("", "All", "All");
+                    // Remove undefined call to updateTables
                 } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
                     AccessoriesCountTab newTab = new AccessoriesCountTab();
                     tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);

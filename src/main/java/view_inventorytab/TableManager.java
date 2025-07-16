@@ -1,137 +1,133 @@
 package view_inventorytab;
 
-import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
-import utils.FileUtils;
 import utils.InventoryData;
-import utils.UIComponentUtils;
 
 public class TableManager {
-    private final Map<String, DefaultTableModel> tableModels = new HashMap<>();
-    private final Map<String, JTable> tables = new HashMap<>();
-    private final JTabbedPane tabbedPane = new JTabbedPane();
+    private final JTable table;
+    private final DefaultTableModel model;
 
-    public TableManager() {
-        // No method reference needed; PopupHandler is stateless
+    public TableManager(JTable table) {
+        this.table = table;
+        this.model = new DefaultTableModel();
+        if (table != null) {
+            table.setModel(model);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Disable auto-resize for fixed columns
+            adjustColumnWidths(); // Set fixed column widths
+        }
+        initializeColumns();
     }
 
-    public JTabbedPane getTabbedPane() {
-        return tabbedPane;
+    private void initializeColumns() {
+        if (model != null) {
+            model.addColumn("Device Name");
+            model.addColumn("Brand");
+            model.addColumn("Model");
+            model.addColumn("Serial Number");
+            model.addColumn("Building Location");
+            model.addColumn("Room/Desk");
+            model.addColumn("Specification");
+            model.addColumn("Processor Type");
+            model.addColumn("Storage Capacity");
+            model.addColumn("Network Address");
+            model.addColumn("OS Version");
+            model.addColumn("Department");
+            model.addColumn("Added Memory");
+            model.addColumn("Status");
+            model.addColumn("Assigned User");
+            model.addColumn("Warranty Expiry Date");
+            model.addColumn("Last Maintenance");
+            model.addColumn("Maintenance Due");
+            model.addColumn("Date of Purchase");
+            model.addColumn("Purchase Cost");
+            model.addColumn("Vendor");
+            model.addColumn("Memory (RAM)");
+        }
+    }
+
+    private void adjustColumnWidths() {
+        if (table != null && table.getColumnModel() != null) {
+            DefaultTableColumnModel columnModel = (DefaultTableColumnModel) table.getColumnModel();
+            String[] columnNames = {"Device Name", "Brand", "Model", "Serial Number", "Building Location", "Room/Desk",
+                    "Specification", "Processor Type", "Storage Capacity", "Network Address", "OS Version", "Department",
+                    "Added Memory", "Status", "Assigned User", "Warranty Expiry Date", "Last Maintenance",
+                    "Maintenance Due", "Date of Purchase", "Purchase Cost", "Vendor", "Memory (RAM)"};
+            int[] columnWidths = {150, 100, 100, 150, 120, 100, 120, 120, 100, 120, 100, 100, 100, 100, 120, 130, 130, 130, 130, 100, 100, 100};
+            for (int i = 0; i < columnModel.getColumnCount() && i < columnNames.length; i++) {
+                TableColumn column = columnModel.getColumn(i);
+                column.setPreferredWidth(columnWidths[i]); // Set fixed width
+                column.setMinWidth(columnWidths[i]); // Ensure minimum width
+                column.setMaxWidth(columnWidths[i]); // Ensure maximum width matches preferred
+            }
+        }
     }
 
     public void refreshDataAndTabs() {
-        try {
-            FileUtils.loadDevices();
-            System.out.println("[DEBUG] After refreshData, InventoryData.getDevices(): " + InventoryData.getDevices());
-        } catch (SQLException e) {
-            System.err.println("[ERROR] Failed to load devices: " + e.getMessage());
+        if (table == null || model == null) {
+            System.err.println("Table or model is null during refresh");
             return;
         }
-
-        // Clear existing tabs
-        tabbedPane.removeAll();
-        tableModels.clear();
-        tables.clear();
-
-        // Determine unique device types
-        Set<String> uniqueTypes = new HashSet<>();
-        for (HashMap<String, String> device : InventoryData.getDevices()) {
-            String type = device.getOrDefault("Device_Type", "Other");
-            uniqueTypes.add(type);
+        model.setRowCount(0); // Clear existing rows
+        ArrayList<HashMap<String, String>> devices = InventoryData.getDevices();
+        if (devices == null) {
+            System.err.println("No devices retrieved from InventoryData");
+            return;
         }
-
-        // Determine dynamic columns with data
-        Set<String> allKeys = new HashSet<>();
-        for (HashMap<String, String> device : InventoryData.getDevices()) {
-            for (String key : device.keySet()) {
-                String normalizedKey = key.replace("/", "_");
-                allKeys.add(normalizedKey);
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+        inputFormat.setLenient(false);
+        for (Map<String, String> device : devices) {
+            if (device == null) continue;
+            Object[] row = new Object[22];
+            row[0] = device.getOrDefault("Device_Name", "");
+            row[1] = device.getOrDefault("Brand", "");
+            row[2] = device.getOrDefault("Model", "");
+            row[3] = device.getOrDefault("Serial_Number", "");
+            row[4] = device.getOrDefault("Building_Location", "");
+            row[5] = device.getOrDefault("Room_Desk", "");
+            row[6] = device.getOrDefault("Specification", "");
+            row[7] = device.getOrDefault("Processor_Type", "");
+            row[8] = device.getOrDefault("Storage_Capacity", "");
+            row[9] = device.getOrDefault("Network_Address", "");
+            row[10] = device.getOrDefault("OS_Version", "");
+            row[11] = device.getOrDefault("Department", "");
+            row[12] = device.getOrDefault("Added_Memory", "");
+            row[13] = device.getOrDefault("Status", "");
+            row[14] = device.getOrDefault("Assigned_User", "");
+            try {
+                row[15] = device.get("Warranty_Expiry_Date") != null ? outputFormat.format(inputFormat.parse(device.get("Warranty_Expiry_Date"))) : "";
+            } catch (Exception e) {
+                row[15] = device.getOrDefault("Warranty_Expiry_Date", "");
             }
+            try {
+                row[16] = device.get("Last_Maintenance") != null ? outputFormat.format(inputFormat.parse(device.get("Last_Maintenance"))) : "";
+            } catch (Exception e) {
+                row[16] = device.getOrDefault("Last_Maintenance", "");
+            }
+            try {
+                row[17] = device.get("Maintenance_Due") != null ? outputFormat.format(inputFormat.parse(device.get("Maintenance_Due"))) : "";
+            } catch (Exception e) {
+                row[17] = device.getOrDefault("Maintenance_Due", "");
+            }
+            try {
+                row[18] = device.get("Date_Of_Purchase") != null ? outputFormat.format(inputFormat.parse(device.get("Date_Of_Purchase"))) : "";
+            } catch (Exception e) {
+                row[18] = device.getOrDefault("Date_Of_Purchase", "");
+            }
+            row[19] = device.getOrDefault("Purchase_Cost", "");
+            row[20] = device.getOrDefault("Vendor", "");
+            row[21] = device.getOrDefault("Memory_RAM", "");
+            model.addRow(row);
         }
-        Set<String> activeColumns = new HashSet<>();
-        for (String key : allKeys) {
-            for (HashMap<String, String> device : InventoryData.getDevices()) {
-                String value = device.getOrDefault(key, "").trim();
-                if (!value.isEmpty()) {
-                    activeColumns.add(key);
-                    break;
-                }
-                String originalKey = key.contains("_") ? key.replace("_", "/") : key.replace("/", "_");
-                value = device.getOrDefault(originalKey, "").trim();
-                if (!value.isEmpty()) {
-                    activeColumns.add(originalKey);
-                    break;
-                }
-            }
-        }
-        String[] columns = activeColumns.stream().map(key -> key.replace("_", " ")).toArray(String[]::new);
-
-        // Create a tab for each unique device type
-        for (String type : uniqueTypes) {
-            DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-            JTable table = new JTable(tableModel);
-            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            for (int i = 0; i < columns.length; i++) {
-                table.getColumnModel().getColumn(i).setPreferredWidth(100);
-            }
-            JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(table);
-            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-            scrollPane.getVerticalScrollBar().setUnitIncrement(20);
-            scrollPane.getVerticalScrollBar().setBlockIncrement(60);
-            scrollPane.setDoubleBuffered(true);
-
-            tableModels.put(type, tableModel);
-            tables.put(type, table);
-            tabbedPane.addTab(type, scrollPane);
-            PopupHandler.addTablePopup(table, tabbedPane);
-        }
-
-        updateTables("", "All", "All");
-    }
-
-    public void updateTables(String searchText, String statusFilter, String deptFilter) {
-        for (String type : tableModels.keySet()) {
-            DefaultTableModel tableModel = tableModels.get(type);
-            tableModel.setRowCount(0);
-            ArrayList<HashMap<String, String>> filteredDevices = new ArrayList<>();
-            for (HashMap<String, String> device : InventoryData.getDevices()) {
-                String deviceName = device.getOrDefault("Device_Name", "");
-                String deviceType = device.getOrDefault("Device_Type", "Other");
-                String serial = device.getOrDefault("Serial_Number", "");
-                String status = device.getOrDefault("Status", "");
-                String dept = device.getOrDefault("Department", "");
-
-                if ((searchText == null || searchText.isEmpty() || deviceName.toLowerCase().contains(searchText.toLowerCase()) || serial.toLowerCase().contains(searchText.toLowerCase())) &&
-                    (statusFilter.equals("All") || status.equals(statusFilter)) &&
-                    (deptFilter.equals("All") || dept.equals(deptFilter)) &&
-                    (type.equals("Other") || deviceType.equals(type))) {
-                    filteredDevices.add(device);
-                }
-            }
-            for (HashMap<String, String> device : filteredDevices) {
-                System.out.println("[DEBUG] Adding device to table (" + type + "): " + device);
-                Object[] rowData = new Object[tableModel.getColumnCount()];
-                for (int i = 0; i < tableModel.getColumnCount(); i++) {
-                    String columnName = tableModel.getColumnName(i).replace(" ", "_");
-                    rowData[i] = device.getOrDefault(columnName, "");
-                }
-                tableModel.addRow(rowData);
-            }
-        }
+        adjustColumnWidths(); // Re-adjust after data load
     }
 }

@@ -3,32 +3,32 @@ package view_inventorytab;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
-public final class ViewInventoryTab extends JPanel {
+public class ViewInventoryTab extends JPanel {
+    private final JTable table;
     private final TableManager tableManager;
-    private final FilterPanel filterPanel;
 
     public ViewInventoryTab() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
+        table = new JTable();
+        tableManager = new TableManager(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane, BorderLayout.CENTER);
+        initialize();
+    }
 
-        // Initialize table manager for handling tables and tabs
-        tableManager = new TableManager();
-        add(tableManager.getTabbedPane(), BorderLayout.CENTER);
-
-        // Initialize filter panel
-        filterPanel = new FilterPanel(this::updateTables, this::refreshDataAndTabs);
-        add(filterPanel.getPanel(), BorderLayout.NORTH);
-
-        // Initial data load and table update
+    private void initialize() {
         refreshDataAndTabs();
     }
 
     public void refreshDataAndTabs() {
         tableManager.refreshDataAndTabs();
-        updateTables("", "All", "All");
     }
 
-    public void updateTables(String searchText, String statusFilter, String deptFilter) {
-        tableManager.updateTables(searchText, statusFilter, deptFilter);
+    public void updateTables(String searchTerm, String deviceType, String status) {
+        refreshDataAndTabs();
+        // TODO: Add filtering logic based on searchTerm, deviceType, and status if required
     }
 }
