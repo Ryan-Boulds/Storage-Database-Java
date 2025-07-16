@@ -37,10 +37,13 @@ public class DatabaseCreatorTab extends JPanel {
         browseButton.addActionListener(e -> browseDatabaseFile());
         JButton createButton = UIComponentUtils.createFormattedButton("Create Tables");
         createButton.addActionListener(e -> createMissingTables());
+        JButton designButton = UIComponentUtils.createFormattedButton("Design Database");
+        designButton.addActionListener(e -> designDatabase());
         inputPanel.add(new JLabel("Database Path:"));
         inputPanel.add(dbPathField);
         inputPanel.add(browseButton);
         inputPanel.add(createButton);
+        inputPanel.add(designButton);
 
         // Status panel
         statusLabel = new JLabel("Checking database...");
@@ -88,7 +91,6 @@ public class DatabaseCreatorTab extends JPanel {
     }
 
     public void createMissingTables() {
-        String dbPath = dbPathField.getText().trim();
         if (!validateDatabasePath()) {
             statusLabel.setText("Invalid database path.");
             JOptionPane.showMessageDialog(this, "Please enter a valid .accdb file path.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -184,9 +186,10 @@ public class DatabaseCreatorTab extends JPanel {
         }
     }
 
-    // Placeholder for future database designer features
+    // Database designer feature
     public void designDatabase() {
-        // TODO: Implement database designer (e.g., add/edit tables, fields, relationships)
-        JOptionPane.showMessageDialog(this, "Database designer feature not yet implemented.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        // TODO: Extend with additional designer features (e.g., edit relationships)
+        TableEditor editor = new TableEditor();
+        JOptionPane.showMessageDialog(this, editor, "Table Editor", JOptionPane.PLAIN_MESSAGE);
     }
 }
