@@ -1,3 +1,5 @@
+package device_logging;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -5,6 +7,7 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,8 +37,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import utils.DataUtils;
+import utils.DatabaseUtils;
 import utils.FileUtils;
-import utils.InventoryData;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends JPanel {
@@ -56,14 +60,14 @@ public class ImportDataTab extends JPanel {
     private Map<String, String> columnMappings = new HashMap<>();
     private List<String[]> importedData;
 
-    public ImportDataTab() {
+    public ImportDataTab(JLabel statusLabel) {
         setLayout(new BorderLayout(10, 10));
 
         JButton importButton = UIComponentUtils.createFormattedButton("Import Data (.csv, .xlsx, .xls)");
         importButton.addActionListener(e -> importData());
 
         JButton saveButton = UIComponentUtils.createFormattedButton("Save to Database");
-        saveButton.addActionListener(e -> saveToDatabase());
+        saveButton.addActionListener(e -> saveToDatabase(statusLabel));
 
         JButton viewMappingsButton = UIComponentUtils.createFormattedButton("View Current Mappings");
         viewMappingsButton.addActionListener(e -> showCurrentMappings());
@@ -77,7 +81,7 @@ public class ImportDataTab extends JPanel {
         tableModel = new DefaultTableModel(tableColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return true; // Allow editing of table cells
+                return true;
             }
         };
         table = new JTable(tableModel);
@@ -107,7 +111,8 @@ public class ImportDataTab extends JPanel {
         String fileName = file.getName().toLowerCase();
         try {
             if (fileName.endsWith(".csv")) {
-                return FileUtils.readCSVFile(file);
+                ArrayList<HashMap<String, String>> csvData = FileUtils.readCSVFile(file);
+                return convertCsvToArrayList(csvData);
             } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
                 return readExcelFile(file);
             }
@@ -115,6 +120,26 @@ public class ImportDataTab extends JPanel {
             JOptionPane.showMessageDialog(this, "Error reading file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         return null;
+    }
+
+    private List<String[]> convertCsvToArrayList(ArrayList<HashMap<String, String>> csvData) {
+        List<String[]> result = new ArrayList<>();
+        if (csvData.isEmpty()) return result;
+
+        // Extract headers from the first row
+        HashMap<String, String> firstRow = csvData.get(0);
+        String[] headers = firstRow.keySet().toArray(new String[0]);
+        result.add(headers);
+
+        // Convert each HashMap to a String array
+        for (HashMap<String, String> row : csvData) {
+            String[] rowData = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                rowData[i] = row.getOrDefault(headers[i], "");
+            }
+            result.add(rowData);
+        }
+        return result;
     }
 
     private List<String[]> readExcelFile(File file) throws IOException {
@@ -237,7 +262,6 @@ public class ImportDataTab extends JPanel {
 
             JComboBox<String> combo = UIComponentUtils.createFormattedComboBox(dbFieldsWithNew);
             String normalizedCsvColumn = DataUtils.normalizeColumnName(csvColumn);
-            // Auto-match similar column names
             for (String dbField : dbFields) {
                 if (dbField.toLowerCase().equals(normalizedCsvColumn) ||
                     dbField.toLowerCase().replace("_", "").equals(normalizedCsvColumn.replace(" ", ""))) {
@@ -309,7 +333,15 @@ public class ImportDataTab extends JPanel {
 
     private void displayData(List<String[]> data, List<Integer> selectedIndices, Map<String, String> columnMappings, Map<String, String> newFields) {
         tableModel.setRowCount(0);
-        
+
+        for (Map.Entry<String, String> entry : newFields.entrySet()) {
+            try {
+                DatabaseUtils.addNewField("Inventory", entry.getKey(), entry.getValue());
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error adding new field '" + entry.getKey() + "': " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
 
         for (int i = 1; i < data.size(); i++) {
             String[] csvRow = data.get(i);
@@ -329,12 +361,11 @@ public class ImportDataTab extends JPanel {
                     }
                 }
             }
-           
             tableModel.addRow(tableRow);
         }
 
         if (!newFields.isEmpty()) {
-            StringBuilder newFieldsMessage = new StringBuilder("New fields added (update database schema):\n");
+            StringBuilder newFieldsMessage = new StringBuilder("New fields added to database schema:\n");
             for (Map.Entry<String, String> entry : newFields.entrySet()) {
                 newFieldsMessage.append(entry.getKey()).append(" (").append(entry.getValue()).append(")\n");
             }
@@ -344,8 +375,9 @@ public class ImportDataTab extends JPanel {
         JOptionPane.showMessageDialog(this, "Data loaded for review. Edit as needed and click 'Save to Database'.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void saveToDatabase() {
+    private void saveToDatabase(JLabel statusLabel) {
         if (importedData == null || importedData.isEmpty()) {
+            statusLabel.setText("No data to save.");
             JOptionPane.showMessageDialog(this, "No data to save.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -361,20 +393,26 @@ public class ImportDataTab extends JPanel {
                 }
             }
 
-            String error = DataUtils.validateDevice(device);
+            String serialNumber = device.get("Serial_Number");
+            String error = DataUtils.validateDevice(device, serialNumber);
             if (error != null) {
+                statusLabel.setText("Error in row " + (i + 1) + ": " + error);
                 JOptionPane.showMessageDialog(this, "Error in row " + (i + 1) + ": " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             devicesToSave.add(device);
         }
 
-        for (HashMap<String, String> device : devicesToSave) {
-            InventoryData.saveDevice(device);
+        try {
+            for (HashMap<String, String> device : devicesToSave) {
+                DatabaseUtils.saveDevice(device);
+            }
+            statusLabel.setText("Data saved to database successfully!");
+            JOptionPane.showMessageDialog(this, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException e) {
+            statusLabel.setText("Error saving to database: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error saving to database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        FileUtils.saveDevices();
-        JOptionPane.showMessageDialog(this, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showCurrentMappings() {

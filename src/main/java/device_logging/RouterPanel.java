@@ -1,137 +1,130 @@
 package device_logging;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.awt.GridLayout;
 import java.util.HashMap;
-import java.util.Map;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import utils.DataUtils;
-import utils.FileUtils;
 import utils.InventoryData;
-import utils.SQLGenerator;
 import utils.UIComponentUtils;
 
 public class RouterPanel extends JPanel {
-    private JTextField deviceNameField, modelField, serialNumberField, networkAddressField,
-                      purchaseCostField, vendorField, specificationField, departmentField,
-                      buildingLocationField, roomDeskField;
-    private JComboBox<String> statusCombo;
-    private JPanel warrantyExpiryDatePicker_div, dateOfPurchasePicker_div;
+    private final JTextField deviceNameField = UIComponentUtils.createFormattedTextField();
+    private final JTextField brandField = UIComponentUtils.createFormattedTextField();
+    private final JTextField modelField = UIComponentUtils.createFormattedTextField();
+    private final JTextField serialNumberField = UIComponentUtils.createFormattedTextField();
+    private final JTextField buildingLocationField = UIComponentUtils.createFormattedTextField();
+    private final JTextField roomDeskField = UIComponentUtils.createFormattedTextField();
+    private final JTextField networkAddressField = UIComponentUtils.createFormattedTextField();
+    private final JTextField statusField = UIComponentUtils.createFormattedTextField();
+    private final JTextField assignedUserField = UIComponentUtils.createFormattedTextField();
+    private final JTextField warrantyExpiryField = UIComponentUtils.createFormattedTextField();
+    private final JTextField lastMaintenanceField = UIComponentUtils.createFormattedTextField();
+    private final JTextField maintenanceDueField = UIComponentUtils.createFormattedTextField();
+    private final JTextField dateOfPurchaseField = UIComponentUtils.createFormattedTextField();
+    private final JTextField purchaseCostField = UIComponentUtils.createFormattedTextField();
+    private final JTextField vendorField = UIComponentUtils.createFormattedTextField();
     private final JLabel statusLabel;
 
     public RouterPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        initializeComponents();
-        addComponents();
-    }
-
-    private void initializeComponents() {
-        deviceNameField = UIComponentUtils.createFormattedTextField();
-        modelField = UIComponentUtils.createFormattedTextField();
-        serialNumberField = UIComponentUtils.createFormattedTextField();
-        networkAddressField = UIComponentUtils.createFormattedTextField();
-        purchaseCostField = UIComponentUtils.createFormattedTextField();
-        vendorField = UIComponentUtils.createFormattedTextField();
-        specificationField = UIComponentUtils.createFormattedTextField();
-        departmentField = UIComponentUtils.createFormattedTextField();
-        buildingLocationField = UIComponentUtils.createFormattedTextField();
-        roomDeskField = UIComponentUtils.createFormattedTextField();
-        statusCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-        warrantyExpiryDatePicker_div = UIComponentUtils.createFormattedDatePicker();
-        dateOfPurchasePicker_div = UIComponentUtils.createFormattedDatePicker();
-    }
-
-    private void addComponents() {
-        JButton enterButton = UIComponentUtils.createFormattedButton("Enter");
-        JButton clearButton = UIComponentUtils.createFormattedButton("Clear Form");
-
-        enterButton.addActionListener(e -> {
-            Map<String, String> data = collectData();
-            String error = DataUtils.validateDevice(data);
-            if (error != null) {
-                statusLabel.setText("Error: " + error);
-                return;
-            }
-            String sql = SQLGenerator.formatDeviceSQL(data);
-            System.out.println("[RouterPanel] " + sql);
-            InventoryData.saveDevice(data);
-            FileUtils.saveDevices();
-            statusLabel.setText("Device saved successfully");
-        });
-
-        clearButton.addActionListener(e -> clearForm());
+        setLayout(new GridLayout(0, 2, 5, 5));
 
         add(UIComponentUtils.createAlignedLabel("Device Name:"));
         add(deviceNameField);
+        add(UIComponentUtils.createAlignedLabel("Brand:"));
+        add(brandField);
         add(UIComponentUtils.createAlignedLabel("Model:"));
         add(modelField);
         add(UIComponentUtils.createAlignedLabel("Serial Number:"));
         add(serialNumberField);
-        add(UIComponentUtils.createAlignedLabel("Network Address:"));
-        add(networkAddressField);
-        add(UIComponentUtils.createAlignedLabel("Specification:"));
-        add(specificationField);
-        add(UIComponentUtils.createAlignedLabel("Department:"));
-        add(departmentField);
         add(UIComponentUtils.createAlignedLabel("Building Location:"));
         add(buildingLocationField);
         add(UIComponentUtils.createAlignedLabel("Room/Desk:"));
         add(roomDeskField);
+        add(UIComponentUtils.createAlignedLabel("Network Address:"));
+        add(networkAddressField);
         add(UIComponentUtils.createAlignedLabel("Status:"));
-        add(statusCombo);
+        add(statusField);
+        add(UIComponentUtils.createAlignedLabel("Assigned User:"));
+        add(assignedUserField);
+        add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
+        add(warrantyExpiryField);
+        add(UIComponentUtils.createAlignedLabel("Last Maintenance:"));
+        add(lastMaintenanceField);
+        add(UIComponentUtils.createAlignedLabel("Maintenance Due:"));
+        add(maintenanceDueField);
+        add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
+        add(dateOfPurchaseField);
         add(UIComponentUtils.createAlignedLabel("Purchase Cost:"));
         add(purchaseCostField);
         add(UIComponentUtils.createAlignedLabel("Vendor:"));
         add(vendorField);
-        add(UIComponentUtils.createAlignedLabel("Warranty Expiry Date:"));
-        add(warrantyExpiryDatePicker_div);
-        add(UIComponentUtils.createAlignedLabel("Date of Purchase:"));
-        add(dateOfPurchasePicker_div);
-        add(enterButton);
-        add(clearButton);
+
+        JButton saveButton = UIComponentUtils.createFormattedButton("Save Device");
+        saveButton.addActionListener(e -> saveDevice());
+
+        add(saveButton);
+        add(new JPanel()); // Placeholder for alignment
     }
 
-    private Map<String, String> collectData() {
-        Map<String, String> data = new HashMap<>();
-        data.put("Device_Name", deviceNameField.getText());
-        data.put("Device_Type", "Router");
-        data.put("Model", modelField.getText());
-        data.put("Serial_Number", serialNumberField.getText());
-        data.put("Network_Address", networkAddressField.getText());
-        data.put("Specification", specificationField.getText());
-        data.put("Department", departmentField.getText());
-        data.put("Building_Location", buildingLocationField.getText());
-        data.put("Room_Desk", roomDeskField.getText());
-        data.put("Status", (String) statusCombo.getSelectedItem());
-        data.put("Purchase_Cost", purchaseCostField.getText());
-        data.put("Vendor", vendorField.getText());
-        data.put("Warranty_Expiry_Date", UIComponentUtils.getDateFromPicker(warrantyExpiryDatePicker_div));
-        data.put("Date_Of_Purchase", UIComponentUtils.getDateFromPicker(dateOfPurchasePicker_div));
-        return data;
+    private void saveDevice() {
+        HashMap<String, String> deviceData = new HashMap<>();
+        deviceData.put("Device_Name", DataUtils.capitalizeWords(deviceNameField.getText()));
+        deviceData.put("Device_Type", "Router");
+        deviceData.put("Brand", DataUtils.capitalizeWords(brandField.getText()));
+        deviceData.put("Model", DataUtils.capitalizeWords(modelField.getText()));
+        deviceData.put("Serial_Number", serialNumberField.getText());
+        deviceData.put("Building_Location", DataUtils.capitalizeWords(buildingLocationField.getText()));
+        deviceData.put("Room_Desk", DataUtils.capitalizeWords(roomDeskField.getText()));
+        deviceData.put("Network_Address", networkAddressField.getText());
+        deviceData.put("Status", DataUtils.capitalizeWords(statusField.getText()));
+        deviceData.put("Assigned_User", DataUtils.capitalizeWords(assignedUserField.getText()));
+        deviceData.put("Warranty_Expiry_Date", warrantyExpiryField.getText());
+        deviceData.put("Last_Maintenance", lastMaintenanceField.getText());
+        deviceData.put("Maintenance_Due", maintenanceDueField.getText());
+        deviceData.put("Date_Of_Purchase", dateOfPurchaseField.getText());
+        deviceData.put("Purchase_Cost", purchaseCostField.getText());
+        deviceData.put("Vendor", DataUtils.capitalizeWords(vendorField.getText()));
+
+        String error = DataUtils.validateDevice(deviceData);
+        if (error != null) {
+            statusLabel.setText(error);
+            JOptionPane.showMessageDialog(this, error, "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            InventoryData.saveDevice(deviceData);
+            statusLabel.setText("Device saved successfully!");
+            JOptionPane.showMessageDialog(this, "Device saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            clearFields();
+        } catch (RuntimeException e) {
+            statusLabel.setText("Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    private void clearForm() {
+    private void clearFields() {
         deviceNameField.setText("");
+        brandField.setText("");
         modelField.setText("");
         serialNumberField.setText("");
-        networkAddressField.setText("");
-        specificationField.setText("");
-        departmentField.setText("");
         buildingLocationField.setText("");
         roomDeskField.setText("");
-        statusCombo.setSelectedItem("Deployed");
+        networkAddressField.setText("");
+        statusField.setText("");
+        assignedUserField.setText("");
+        warrantyExpiryField.setText("");
+        lastMaintenanceField.setText("");
+        maintenanceDueField.setText("");
+        dateOfPurchaseField.setText("");
         purchaseCostField.setText("");
         vendorField.setText("");
-        ((JTextField) warrantyExpiryDatePicker_div.getComponent(0)).setText(new SimpleDateFormat("MM-dd-yyyy").format(new Date()));
-        ((JTextField) dateOfPurchasePicker_div.getComponent(0)).setText(new SimpleDateFormat("MM-dd-yyyy").format(new Date()));
-        statusLabel.setText("Form cleared");
     }
 }

@@ -1,16 +1,24 @@
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
-import javax.swing.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
 import utils.InventoryData;
 import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
 public class LogAccessoriesTab extends JPanel {
-    private JLabel statusLabel;
     private JComboBox<String> accessoryTypeCombo;
     private JTextField countField;
     private JTextField newTypeField;
     private JPanel newTypePanel;
+    private final JLabel statusLabel;
 
     public LogAccessoriesTab() {
         setLayout(new BorderLayout(10, 10));
@@ -28,37 +36,17 @@ public class LogAccessoriesTab extends JPanel {
         accessoryTypeCombo.setEditable(false);
 
         newTypePanel = new JPanel();
-        newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         newTypeField = UIComponentUtils.createFormattedTextField();
         newTypeField.setVisible(false);
-        newTypePanel.setVisible(false);
         JButton addNewTypeButton = UIComponentUtils.createFormattedButton("Add New Type");
         newTypePanel.add(UIComponentUtils.createAlignedLabel("New Accessory Type:"));
         newTypePanel.add(newTypeField);
         newTypePanel.add(addNewTypeButton);
-        newTypePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         countField = UIComponentUtils.createFormattedTextField();
-        countField.setText("1");
-        JButton addButton = UIComponentUtils.createFormattedButton("Add Accessory");
-        JButton removeButton = UIComponentUtils.createFormattedButton("Remove Accessory");
+        JButton addButton = UIComponentUtils.createFormattedButton("Add");
+        JButton removeButton = UIComponentUtils.createFormattedButton("Remove");
         statusLabel = UIComponentUtils.createAlignedLabel("");
-
-        accessoryTypeCombo.addActionListener(e -> {
-            Object selectedItem = accessoryTypeCombo.getSelectedItem();
-            if (selectedItem != null && selectedItem.equals("Add New Accessory Type")) {
-                newTypeField.setVisible(true);
-                newTypePanel.setVisible(true);
-            } else {
-                newTypeField.setVisible(false);
-                newTypePanel.setVisible(false);
-            }
-            panel.revalidate();
-            panel.repaint();
-        });
-
-        addNewTypeButton.addActionListener(e -> PeripheralUtils.addNewPeripheralType(
-            newTypeField, accessoryTypeCombo, statusLabel, InventoryData.getAccessories(), existingTypes));
 
         addButton.addActionListener(e -> {
             Object selectedItem = accessoryTypeCombo.getSelectedItem();
@@ -102,6 +90,23 @@ public class LogAccessoriesTab extends JPanel {
             PeripheralUtils.updatePeripheralCount(type, -count, InventoryData.getAccessories(), statusLabel);
         });
 
+        addNewTypeButton.addActionListener(e -> {
+            newTypeField.setVisible(true);
+            newTypePanel.revalidate();
+            PeripheralUtils.addNewPeripheralType(newTypeField, accessoryTypeCombo, statusLabel, InventoryData.getAccessories(), existingTypes);
+        });
+
+        accessoryTypeCombo.addActionListener(e -> {
+            Object selectedItem = accessoryTypeCombo.getSelectedItem();
+            if (selectedItem != null && selectedItem.equals("Add New Accessory Type")) {
+                newTypeField.setVisible(true);
+            } else {
+                newTypeField.setVisible(false);
+            }
+            newTypePanel.revalidate();
+            statusLabel.setText("");
+        });
+
         panel.add(UIComponentUtils.createAlignedLabel("Accessory Type:"));
         panel.add(accessoryTypeCombo);
         panel.add(newTypePanel);
@@ -109,9 +114,9 @@ public class LogAccessoriesTab extends JPanel {
         panel.add(countField);
         panel.add(addButton);
         panel.add(removeButton);
+        panel.add(statusLabel);
 
         JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
         add(scrollPane, BorderLayout.CENTER);
-        add(statusLabel, BorderLayout.SOUTH);
     }
 }

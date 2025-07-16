@@ -1,11 +1,28 @@
 package utils;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 public class UIComponentUtils {
 
@@ -167,17 +184,7 @@ public class UIComponentUtils {
         }
 
         frame.add(tabbedPane);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                FileUtils.saveDevices();
-                FileUtils.saveCables();
-                FileUtils.saveAccessories();
-                FileUtils.saveTemplates();
-                System.exit(0);
-            }
-        });
-
+        frame.setLocationRelativeTo(null);
         return frame;
     }
 
@@ -200,7 +207,6 @@ public class UIComponentUtils {
                 JTextField jTextField = (JTextField) comp;
                 return jTextField.getText();
             }
-
         }
         return "";
     }

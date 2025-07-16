@@ -1,89 +1,104 @@
 package view_inventorytab;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.function.BiConsumer;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
-import utils.FileUtils;
-import utils.InventoryData;
+import utils.DatabaseUtils;
 
 public class PopupHandler {
-    private final JPopupMenu popupMenu;
+    public static void showDetailsPopup(JFrame parent, HashMap<String, String> device) {
+        JDialog dialog = new JDialog(parent, "Device Details", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setSize(400, 300);
 
-    public PopupHandler(BiConsumer<HashMap<String, String>, String> modifyAction) {
-        popupMenu = new JPopupMenu();
-        JMenuItem modifyItem = new JMenuItem("Change/Modify");
-        JMenuItem removeItem = new JMenuItem("Remove Entry");
-        popupMenu.add(modifyItem);
-        popupMenu.add(removeItem);
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 
-        modifyItem.addActionListener(e -> {
-            JTable table = (JTable) ((JPopupMenu) e.getSource()).getInvoker();
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                JTabbedPane tabbedPane = (JTabbedPane) SwingUtilities.getAncestorOfClass(JTabbedPane.class, table);
-                String type = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
-                HashMap<String, String> device = new HashMap<>();
-                for (int col = 0; col < table.getColumnCount(); col++) {
-                    device.put(table.getColumnName(col).replace(" ", "_"), (String) table.getValueAt(row, col));
-                }
-                modifyAction.accept(device, type);
+        for (String key : device.keySet()) {
+            String value = device.get(key);
+            if (value != null && !value.isEmpty()) {
+                JLabel label = new JLabel(key + ": " + value);
+                label.setAlignmentX(Component.LEFT_ALIGNMENT);
+                detailsPanel.add(label);
             }
-        });
+        }
 
-        removeItem.addActionListener(e -> {
-            JTable table = (JTable) ((JPopupMenu) e.getSource()).getInvoker();
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                String serialNumber = (String) table.getValueAt(row, table.getColumnModel().getColumnIndex("Serial Number"));
-                String deviceName = (String) table.getValueAt(row, table.getColumnModel().getColumnIndex("Device Name"));
+        JButton deleteButton = new JButton("Delete Device");
+        deleteButton.addActionListener(e -> {
+            String serialNumber = device.get("Serial_Number");
+            if (serialNumber != null) {
                 int confirm = JOptionPane.showConfirmDialog(
-                    table,
-                    "Are you sure you want to remove device '" + deviceName + "' (Serial: " + serialNumber + ")?",
-                    "Confirm Removal",
+                    dialog,
+                    "Are you sure you want to delete device with Serial Number: " + serialNumber + "?",
+                    "Confirm Delete",
                     JOptionPane.YES_NO_OPTION
                 );
                 if (confirm == JOptionPane.YES_OPTION) {
-                    boolean removed = false;
-                    for (int i = 0; i < InventoryData.getDevices().size(); i++) {
-                        HashMap<String, String> device = InventoryData.getDevices().get(i);
-                        if (device.get("Serial_Number").equals(serialNumber)) {
-                            InventoryData.getDevices().remove(i);
-                            removed = true;
-                            break;
-                        }
-                    }
-                    if (removed) {
-                        FileUtils.saveDevices();
-                        JOptionPane.showMessageDialog(table, "Device removed successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(table, "Error: Device not found", "Removal Error", JOptionPane.ERROR_MESSAGE);
+                    try {
+                        DatabaseUtils.deleteDevice(serialNumber);
+                        JOptionPane.showMessageDialog(dialog, "Device deleted successfully");
+                        dialog.dispose();
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Error deleting device: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         });
+
+        JScrollPane scrollPane = new JScrollPane(detailsPanel);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+        dialog.add(deleteButton, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
     }
 
-    public void addTablePopup(JTable table, JTabbedPane tabbedPane) {
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    int row = table.rowAtPoint(e.getPoint());
-                    if (row >= 0) {
-                        table.setRowSelectionInterval(row, row);
-                        popupMenu.show(table, e.getX(), e.getY());
-                    }
+    public static void addTablePopup(JTable table, JTabbedPane tabbedPane) {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem detailsItem = new JMenuItem("View Details");
+        JMenuItem modifyItem = new JMenuItem("Modify Device");
+
+        detailsItem.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow >= 0) {
+                HashMap<String, String> device = new HashMap<>();
+                for (int i = 0; i < table.getColumnCount(); i++) {
+                    String columnName = table.getColumnName(i).replace(" ", "_");
+                    device.put(columnName, table.getValueAt(selectedRow, i).toString());
                 }
+                showDetailsPopup((JFrame) SwingUtilities.getWindowAncestor(table), device);
             }
         });
+
+        modifyItem.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow >= 0) {
+                HashMap<String, String> device = new HashMap<>();
+                for (int i = 0; i < table.getColumnCount(); i++) {
+                    String columnName = table.getColumnName(i).replace(" ", "_");
+                    device.put(columnName, table.getValueAt(selectedRow, i).toString());
+                }
+                ModifyDialog.showModifyDialog((JFrame) SwingUtilities.getWindowAncestor(table), device);
+            }
+        });
+
+        popupMenu.add(detailsItem);
+        popupMenu.add(modifyItem);
+        table.setComponentPopupMenu(popupMenu);
     }
 }

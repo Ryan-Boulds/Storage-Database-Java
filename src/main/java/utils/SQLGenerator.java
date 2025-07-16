@@ -1,48 +1,49 @@
 package utils;
+
 import java.util.Map;
 
 public class SQLGenerator {
-    public static String formatDeviceSQL(Map<String, String> data) {
-        StringBuilder sql = new StringBuilder("INSERT INTO Inventory (Device_Name, Device_Type, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM) VALUES (");
-        String[] fields = {"Device_Name", "Device_Type", "Brand", "Model", "Serial_Number", "Building_Location", "Room_Desk", "Specification", "Processor_Type", "Storage_Capacity", "Network_Address", "OS_Version", "Department", "Added_Memory", "Status", "Assigned_User", "Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase", "Purchase_Cost", "Vendor", "Memory_RAM"};
-        for (int i = 0; i < fields.length; i++) {
-            String value = data.get(fields[i]);
-            if (value == null || value.trim().isEmpty()) {
-                sql.append("NULL");
-            } else if (fields[i].contains("Date")) {
-                sql.append("TO_DATE('").append(value).append("', 'MM-DD-YYYY')");
-            } else if (fields[i].equals("Added_Memory")) {
-                sql.append(value.equals("TRUE") ? "1" : "0");
-            } else if (fields[i].equals("Purchase_Cost")) {
-                sql.append(value);
-            } else {
-                sql.append("'").append(value.replace("'", "''")).append("'");
+    public static String generateInsertSQL(String tableName, Map<String, String> data) {
+        StringBuilder columns = new StringBuilder();
+        StringBuilder placeholders = new StringBuilder();
+        for (String column : data.keySet()) {
+            if (columns.length() > 0) {
+                columns.append(", ");
+                placeholders.append(", ");
             }
-            if (i < fields.length - 1) {
-                sql.append(", ");
-            }
+            columns.append(column);
+            placeholders.append("?");
         }
-        sql.append(");");
-        return sql.toString();
+        return String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, columns, placeholders);
+    }
+
+    public static String formatDeviceSQL(Map<String, String> data) {
+        StringBuilder columns = new StringBuilder();
+        StringBuilder placeholders = new StringBuilder();
+        String[] fields = {"Device_Name", "Device_Type", "Brand", "Model", "Serial_Number", "Building_Location", "Room_Desk", "Specification", "Processor_Type", "Storage_Capacity", "Network_Address", "OS_Version", "Department", "Added_Memory", "Status", "Assigned_User", "Warranty_Expiry_Date", "Last_Maintenance", "Maintenance_Due", "Date_Of_Purchase", "Purchase_Cost", "Vendor", "Memory_RAM"};
+        for (String field : fields) {
+            if (columns.length() > 0) {
+                columns.append(", ");
+                placeholders.append(", ");
+            }
+            columns.append(field);
+            placeholders.append("?");
+        }
+        return String.format("INSERT INTO Inventory (%s) VALUES (%s)", columns, placeholders);
     }
 
     public static String formatPeripheralSQL(Map<String, String> data) {
-        StringBuilder sql = new StringBuilder("INSERT INTO PeripheralInventory (Peripheral_Name, Peripheral_Type, Brand, Model, Serial_Number, Associated_PC, Status, Date_Of_Purchase, Warranty_Expiry_Date, Maintenance_Due) VALUES (");
+        StringBuilder columns = new StringBuilder();
+        StringBuilder placeholders = new StringBuilder();
         String[] fields = {"Peripheral_Name", "Peripheral_Type", "Brand", "Model", "Serial_Number", "Associated_PC", "Status", "Date_Of_Purchase", "Warranty_Expiry_Date", "Maintenance_Due"};
-        for (int i = 0; i < fields.length; i++) {
-            String value = data.get(fields[i]);
-            if (value == null || value.trim().isEmpty()) {
-                sql.append("NULL");
-            } else if (fields[i].contains("Date")) {
-                sql.append("TO_DATE('").append(value).append("', 'MM-DD-YYYY')");
-            } else {
-                sql.append("'").append(value.replace("'", "''")).append("'");
+        for (String field : fields) {
+            if (columns.length() > 0) {
+                columns.append(", ");
+                placeholders.append(", ");
             }
-            if (i < fields.length - 1) {
-                sql.append(", ");
-            }
+            columns.append(field);
+            placeholders.append("?");
         }
-        sql.append(");");
-        return sql.toString();
+        return String.format("INSERT INTO PeripheralInventory (%s) VALUES (%s)", columns, placeholders);
     }
 }

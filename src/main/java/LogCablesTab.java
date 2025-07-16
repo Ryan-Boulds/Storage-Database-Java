@@ -1,16 +1,24 @@
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
-import javax.swing.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
 import utils.InventoryData;
 import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
 public class LogCablesTab extends JPanel {
-    private JLabel statusLabel;
     private JComboBox<String> cableTypeCombo;
     private JTextField countField;
     private JTextField newTypeField;
     private JPanel newTypePanel;
+    private final JLabel statusLabel;
 
     public LogCablesTab() {
         setLayout(new BorderLayout(10, 10));
@@ -28,37 +36,17 @@ public class LogCablesTab extends JPanel {
         cableTypeCombo.setEditable(false);
 
         newTypePanel = new JPanel();
-        newTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         newTypeField = UIComponentUtils.createFormattedTextField();
         newTypeField.setVisible(false);
-        newTypePanel.setVisible(false);
         JButton addNewTypeButton = UIComponentUtils.createFormattedButton("Add New Type");
         newTypePanel.add(UIComponentUtils.createAlignedLabel("New Cable Type:"));
         newTypePanel.add(newTypeField);
         newTypePanel.add(addNewTypeButton);
-        newTypePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         countField = UIComponentUtils.createFormattedTextField();
-        countField.setText("1");
-        JButton addButton = UIComponentUtils.createFormattedButton("Add Cable");
-        JButton removeButton = UIComponentUtils.createFormattedButton("Remove Cable");
+        JButton addButton = UIComponentUtils.createFormattedButton("Add");
+        JButton removeButton = UIComponentUtils.createFormattedButton("Remove");
         statusLabel = UIComponentUtils.createAlignedLabel("");
-
-        cableTypeCombo.addActionListener(e -> {
-            Object selectedItem = cableTypeCombo.getSelectedItem();
-            if (selectedItem != null && selectedItem.equals("Add New Cable Type")) {
-                newTypeField.setVisible(true);
-                newTypePanel.setVisible(true);
-            } else {
-                newTypeField.setVisible(false);
-                newTypePanel.setVisible(false);
-            }
-            panel.revalidate();
-            panel.repaint();
-        });
-
-        addNewTypeButton.addActionListener(e -> PeripheralUtils.addNewPeripheralType(
-            newTypeField, cableTypeCombo, statusLabel, InventoryData.getCables(), existingTypes));
 
         addButton.addActionListener(e -> {
             Object selectedItem = cableTypeCombo.getSelectedItem();
@@ -102,6 +90,23 @@ public class LogCablesTab extends JPanel {
             PeripheralUtils.updatePeripheralCount(type, -count, InventoryData.getCables(), statusLabel);
         });
 
+        addNewTypeButton.addActionListener(e -> {
+            newTypeField.setVisible(true);
+            newTypePanel.revalidate();
+            PeripheralUtils.addNewPeripheralType(newTypeField, cableTypeCombo, statusLabel, InventoryData.getCables(), existingTypes);
+        });
+
+        cableTypeCombo.addActionListener(e -> {
+            Object selectedItem = cableTypeCombo.getSelectedItem();
+            if (selectedItem != null && selectedItem.equals("Add New Cable Type")) {
+                newTypeField.setVisible(true);
+            } else {
+                newTypeField.setVisible(false);
+            }
+            newTypePanel.revalidate();
+            statusLabel.setText("");
+        });
+
         panel.add(UIComponentUtils.createAlignedLabel("Cable Type:"));
         panel.add(cableTypeCombo);
         panel.add(newTypePanel);
@@ -109,9 +114,9 @@ public class LogCablesTab extends JPanel {
         panel.add(countField);
         panel.add(addButton);
         panel.add(removeButton);
+        panel.add(statusLabel);
 
         JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
         add(scrollPane, BorderLayout.CENTER);
-        add(statusLabel, BorderLayout.SOUTH);
     }
 }

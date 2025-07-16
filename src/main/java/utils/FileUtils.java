@@ -1,186 +1,57 @@
 package utils;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FileUtils {
-    private static final String DEVICES_FILE = "inventory.txt";
-    private static final String CABLES_FILE = "cables.txt";
-    private static final String ACCESSORIES_FILE = "accessories.txt";
-    private static final String TEMPLATES_FILE = "templates.txt";
-
-    public static void loadDevices() {
-        try {
-            File file = new File(DEVICES_FILE);
-            if (file.exists()) {
-                String content = new String(Files.readAllBytes(file.toPath()));
-                String[] lines = content.split("\n");
-                InventoryData.getDevices().clear();
-                for (String line : lines) {
-                    if (line.trim().isEmpty()) continue;
-                    HashMap<String, String> item = new HashMap<>();
-                    String[] pairs = line.split(", ");
-                    for (String pair : pairs) {
-                        String[] keyValue = pair.split("=", 2);
-                        if (keyValue.length == 2) {
-                            item.put(keyValue[0], keyValue[1]);
-                        }
-                    }
-                    if (item.containsKey("Device_Name")) {
-                        InventoryData.getDevices().add(item);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading devices: " + e.getMessage());
-        }
-    }
-
-    public static void saveDevices() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (HashMap<String, String> device : InventoryData.getDevices()) {
-                sb.append(mapToString(device)).append("\n");
-            }
-            Files.write(new File(DEVICES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("Error saving devices: " + e.getMessage());
-        }
-    }
-
-    public static void loadCables() {
-        try {
-            File file = new File(CABLES_FILE);
-            if (file.exists()) {
-                String content = new String(Files.readAllBytes(file.toPath()));
-                String[] lines = content.split("\n");
-                InventoryData.getCables().clear();
-                for (String line : lines) {
-                    if (line.trim().isEmpty()) continue;
-                    HashMap<String, String> item = new HashMap<>();
-                    String[] pairs = line.split(", ");
-                    for (String pair : pairs) {
-                        String[] keyValue = pair.split("=", 2);
-                        if (keyValue.length == 2) {
-                            item.put(keyValue[0], keyValue[1]);
-                        }
-                    }
-                    InventoryData.getCables().add(item);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading cables: " + e.getMessage());
-        }
-    }
-
-    public static void saveCables() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (HashMap<String, String> cable : InventoryData.getCables()) {
-                sb.append(mapToString(cable)).append("\n");
-            }
-            Files.write(new File(CABLES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("Error saving cables: " + e.getMessage());
-        }
-    }
-
-    public static void loadAccessories() {
-        try {
-            File file = new File(ACCESSORIES_FILE);
-            if (file.exists()) {
-                String content = new String(Files.readAllBytes(file.toPath()));
-                String[] lines = content.split("\n");
-                InventoryData.getAccessories().clear();
-                for (String line : lines) {
-                    if (line.trim().isEmpty()) continue;
-                    HashMap<String, String> item = new HashMap<>();
-                    String[] pairs = line.split(", ");
-                    for (String pair : pairs) {
-                        String[] keyValue = pair.split("=", 2);
-                        if (keyValue.length == 2) {
-                            item.put(keyValue[0], keyValue[1]);
-                        }
-                    }
-                    InventoryData.getAccessories().add(item);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading accessories: " + e.getMessage());
-        }
-    }
-
-    public static void saveAccessories() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (HashMap<String, String> accessory : InventoryData.getAccessories()) {
-                sb.append(mapToString(accessory)).append("\n");
-            }
-            Files.write(new File(ACCESSORIES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("Error saving accessories: " + e.getMessage());
-        }
-    }
-
-    public static void loadTemplates() {
-        try {
-            File file = new File(TEMPLATES_FILE);
-            if (file.exists()) {
-                String content = new String(Files.readAllBytes(file.toPath()));
-                String[] lines = content.split("\n");
-                InventoryData.getTemplates().clear();
-                for (String line : lines) {
-                    if (line.trim().isEmpty()) continue;
-                    HashMap<String, String> template = new HashMap<>();
-                    String[] pairs = line.split(", ");
-                    for (String pair : pairs) {
-                        String[] keyValue = pair.split("=", 2);
-                        if (keyValue.length == 2) {
-                            template.put(keyValue[0], keyValue[1]);
-                        }
-                    }
-                    InventoryData.getTemplates().add(template);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading templates: " + e.getMessage());
-        }
-    }
-
-    public static void saveTemplates() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (HashMap<String, String> template : InventoryData.getTemplates()) {
-                sb.append(mapToString(template)).append("\n");
-            }
-            Files.write(new File(TEMPLATES_FILE).toPath(), sb.toString().trim().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("Error saving templates: " + e.getMessage());
-        }
-    }
-
-    private static String mapToString(HashMap<String, String> map) {
-        return map.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining(", "));
-    }
-
-    public static List<String[]> readCSVFile(File file) {
-        List<String[]> data = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+    public static ArrayList<HashMap<String, String>> readCSVFile(java.io.File file) throws IOException {
+        ArrayList<HashMap<String, String>> data = new ArrayList<>();
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(file.getPath()), StandardCharsets.UTF_8)) {
+            String[] headers = br.readLine().split(",");
             String line;
             while ((line = br.readLine()) != null) {
-                String[] row = line.split(",");
-                for (int i = 0; i < row.length; i++) {
-                    row[i] = row[i].trim();
+                String[] values = line.split(",");
+                HashMap<String, String> row = new HashMap<>();
+                for (int i = 0; i < headers.length; i++) {
+                    row.put(headers[i], i < values.length ? values[i] : "");
                 }
                 data.add(row);
             }
-        } catch (IOException e) {
-            System.err.println("Error reading CSV file: " + e.getMessage());
         }
         return data;
+    }
+
+    public static ArrayList<HashMap<String, String>> loadDevices() throws SQLException {
+        return DatabaseUtils.loadDevices();
+    }
+
+    public static ArrayList<HashMap<String, String>> loadCables() throws SQLException {
+        return DatabaseUtils.loadPeripherals("Cable");
+    }
+
+    public static ArrayList<HashMap<String, String>> loadAccessories() throws SQLException {
+        return DatabaseUtils.loadPeripherals("Accessory");
+    }
+
+    public static ArrayList<String> loadTemplates() throws SQLException {
+        ArrayList<HashMap<String, String>> templateData = DatabaseUtils.loadTemplates();
+        ArrayList<String> templateNames = new ArrayList<>();
+        for (HashMap<String, String> template : templateData) {
+            String templateName = template.get("Template_Name");
+            if (templateName != null && !templateName.isEmpty()) {
+                templateNames.add(templateName);
+            }
+        }
+        return templateNames;
+    }
+
+    public static HashMap<String, String> loadTemplateDetails(String templateName) throws SQLException {
+        return DatabaseUtils.loadTemplateDetails(templateName);
     }
 }

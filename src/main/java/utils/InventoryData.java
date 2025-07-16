@@ -1,67 +1,85 @@
 package utils;
-import java.util.*;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InventoryData {
-    private static final ArrayList<HashMap<String, String>> devices = new ArrayList<>();
-    private static final ArrayList<HashMap<String, String>> cables = new ArrayList<>();
-    private static final ArrayList<HashMap<String, String>> accessories = new ArrayList<>();
-    private static final ArrayList<HashMap<String, String>> templates = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> devices = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> cables = new ArrayList<>();
+    private static ArrayList<HashMap<String, String>> accessories = new ArrayList<>();
+    private static ArrayList<String> templates = new ArrayList<>();
 
-    static {
-        FileUtils.loadDevices();
-        FileUtils.loadCables();
-        FileUtils.loadAccessories();
-        FileUtils.loadTemplates();
+    public static void saveDevice(HashMap<String, String> device) {
+        try {
+            DatabaseUtils.saveDevice(device);
+            devices.add(device);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error saving device to database: " + e.getMessage());
+        }
     }
 
     public static ArrayList<HashMap<String, String>> getDevices() {
+        try {
+            devices = FileUtils.loadDevices();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading devices: " + e.getMessage());
+        }
         return devices;
     }
 
     public static ArrayList<HashMap<String, String>> getCables() {
+        try {
+            cables = FileUtils.loadCables();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading cables: " + e.getMessage());
+        }
         return cables;
     }
 
     public static ArrayList<HashMap<String, String>> getAccessories() {
+        try {
+            accessories = FileUtils.loadAccessories();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading accessories: " + e.getMessage());
+        }
         return accessories;
     }
 
-    public static ArrayList<HashMap<String, String>> getTemplates() {
+    public static ArrayList<String> getTemplates() {
+        try {
+            templates = FileUtils.loadTemplates();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading templates: " + e.getMessage());
+        }
         return templates;
     }
 
-    public static void saveDevice(Map<String, String> data) {
-        if (data.containsKey("Device_Name")) {
-            data.put("Device_Name", DataUtils.capitalizeWords(data.get("Device_Name")));
+    public static void saveTemplate(HashMap<String, String> template, String templateName) {
+        try {
+            DatabaseUtils.saveTemplate(template, templateName);
+            if (!templates.contains(templateName)) {
+                templates.add(templateName);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error saving template: " + e.getMessage());
         }
-        if (data.containsKey("Peripheral_Type")) {
-            data.put("Peripheral_Type", DataUtils.capitalizeWords(data.get("Peripheral_Type")));
-        }
-        if (data.containsKey("Device_Type")) {
-            data.put("Device_Type", DataUtils.capitalizeWords(data.get("Device_Type")));
-        }
-        if (data.containsKey("Brand")) {
-            data.put("Brand", DataUtils.capitalizeWords(data.get("Brand")));
-        }
-        if (data.containsKey("Model")) {
-            data.put("Model", DataUtils.capitalizeWords(data.get("Model")));
-        }
-        devices.add(new HashMap<>(data));
-        FileUtils.saveDevices();
     }
 
-    public static void saveCable(Map<String, String> data) {
-        cables.add(new HashMap<>(data));
-        FileUtils.saveCables();
+    public static HashMap<String, String> getTemplateDetails(String templateName) {
+        try {
+            return FileUtils.loadTemplateDetails(templateName);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading template details: " + e.getMessage());
+        }
     }
 
-    public static void saveAccessory(Map<String, String> data) {
-        accessories.add(new HashMap<>(data));
-        FileUtils.saveAccessories();
-    }
-
-    public static void saveTemplate(Map<String, String> data) {
-        templates.add(new HashMap<>(data));
-        FileUtils.saveTemplates();
+    public static void deleteDevice(String serialNumber) {
+        try {
+            DatabaseUtils.deleteDevice(serialNumber);
+            devices.removeIf(device -> serialNumber.equals(device.get("Serial_Number")));
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting device: " + e.getMessage());
+        }
     }
 }

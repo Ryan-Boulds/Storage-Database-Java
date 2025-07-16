@@ -1,28 +1,27 @@
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import device_logging.ImportDataTab;
 import device_logging.LogNewDeviceTab;
-import utils.FileUtils;
 import utils.UIComponentUtils;
+import view_inventorytab.AccessoriesCountTab;
 import view_inventorytab.ViewInventoryTab;
 
 public class mainFile {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            JLabel statusLabel = new JLabel("Ready");
             ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
             LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
-            LogCablesTab logCablesTab = new LogCablesTab();
-            LogAccessoriesTab logAccessoriesTab = new LogAccessoriesTab();
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
-            ImportDataTab importDataTab = new ImportDataTab();
+            ImportDataTab importDataTab = new ImportDataTab(statusLabel);
 
             JFrame frame = UIComponentUtils.createMainFrame(
                 "Inventory Management",
                 viewInventoryTab,
                 logNewDeviceTab,
-                logCablesTab,
-                logAccessoriesTab,
                 accessoriesCountTab,
                 importDataTab
             );
@@ -41,10 +40,6 @@ public class mainFile {
             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosing(java.awt.event.WindowEvent e) {
-                    FileUtils.saveDevices();
-                    FileUtils.saveCables();
-                    FileUtils.saveAccessories();
-                    FileUtils.saveTemplates();
                     System.exit(0);
                 }
             });

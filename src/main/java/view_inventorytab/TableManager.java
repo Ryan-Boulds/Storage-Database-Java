@@ -1,5 +1,6 @@
 package view_inventorytab;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,10 +20,9 @@ public class TableManager {
     private final Map<String, DefaultTableModel> tableModels = new HashMap<>();
     private final Map<String, JTable> tables = new HashMap<>();
     private final JTabbedPane tabbedPane = new JTabbedPane();
-    private final PopupHandler popupHandler;
 
     public TableManager() {
-        popupHandler = new PopupHandler(this::showModifyDialog);
+        // No method reference needed; PopupHandler is stateless
     }
 
     public JTabbedPane getTabbedPane() {
@@ -30,8 +30,13 @@ public class TableManager {
     }
 
     public void refreshDataAndTabs() {
-        FileUtils.loadDevices();
-        System.out.println("[DEBUG] After refreshData, InventoryData.getDevices(): " + InventoryData.getDevices());
+        try {
+            FileUtils.loadDevices();
+            System.out.println("[DEBUG] After refreshData, InventoryData.getDevices(): " + InventoryData.getDevices());
+        } catch (SQLException e) {
+            System.err.println("[ERROR] Failed to load devices: " + e.getMessage());
+            return;
+        }
 
         // Clear existing tabs
         tabbedPane.removeAll();
@@ -93,7 +98,7 @@ public class TableManager {
             tableModels.put(type, tableModel);
             tables.put(type, table);
             tabbedPane.addTab(type, scrollPane);
-            popupHandler.addTablePopup(table, tabbedPane);
+            PopupHandler.addTablePopup(table, tabbedPane);
         }
 
         updateTables("", "All", "All");
@@ -111,7 +116,7 @@ public class TableManager {
                 String status = device.getOrDefault("Status", "");
                 String dept = device.getOrDefault("Department", "");
 
-                if ((searchText == null || searchText.isEmpty() || deviceName.toLowerCase().contains(searchText) || serial.toLowerCase().contains(searchText)) &&
+                if ((searchText == null || searchText.isEmpty() || deviceName.toLowerCase().contains(searchText.toLowerCase()) || serial.toLowerCase().contains(searchText.toLowerCase())) &&
                     (statusFilter.equals("All") || status.equals(statusFilter)) &&
                     (deptFilter.equals("All") || dept.equals(deptFilter)) &&
                     (type.equals("Other") || deviceType.equals(type))) {
@@ -128,11 +133,5 @@ public class TableManager {
                 tableModel.addRow(rowData);
             }
         }
-    }
-
-    private void showModifyDialog(HashMap<String, String> device, String deviceType) {
-        ModifyDialog modifyDialog = new ModifyDialog(device, deviceType);
-        modifyDialog.showDialog();
-        refreshDataAndTabs();
     }
 }

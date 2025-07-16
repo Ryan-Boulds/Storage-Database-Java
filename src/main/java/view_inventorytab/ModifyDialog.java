@@ -2,6 +2,7 @@ package view_inventorytab;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,13 +16,14 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import utils.DataUtils;
-import utils.FileUtils;
+import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
 public class ModifyDialog {
@@ -35,7 +37,6 @@ public class ModifyDialog {
         this.device = device;
         this.originalValues = new HashMap<>(device);
 
-        // Define default categories
         java.util.List<String> defaultCategories = Arrays.asList(
             "Device Name", "Device Type", "Serial Number", "Status", "Department", "Added Memory",
             "Added Storage", "Purchase Date", "Warranty Expiry", "Purchase Cost", "Vendor", "Assigned User",
@@ -46,7 +47,6 @@ public class ModifyDialog {
             "Review", "Assessment"
         );
 
-        // Determine dynamic fields
         this.columnNames = new ArrayList<>();
         Set<String> allKeys = new HashSet<>(device.keySet());
         allKeys.addAll(defaultCategories.stream().map(s -> s.replace(" ", "_")).collect(Collectors.toSet()));
@@ -55,7 +55,6 @@ public class ModifyDialog {
         }
         Collections.sort(columnNames);
 
-        // Create dialog
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         this.inputs = new JComponent[columnNames.size()];
@@ -118,6 +117,13 @@ public class ModifyDialog {
         dialog.setVisible(true);
     }
 
+    public static void showModifyDialog(JFrame parent, HashMap<String, String> device) {
+        String deviceType = device.getOrDefault("Device_Type", "Unknown");
+        ModifyDialog modifyDialog = new ModifyDialog(device, deviceType);
+        modifyDialog.dialog.setLocationRelativeTo(parent);
+        modifyDialog.showDialog();
+    }
+
     private void saveAction() {
         HashMap<String, String> updatedDevice = new HashMap<>();
         for (int i = 0; i < columnNames.size(); i++) {
@@ -128,14 +134,10 @@ public class ModifyDialog {
             } else if (inputs[i] instanceof JComboBox) {
                 value = (String) ((JComboBox<?>) inputs[i]).getSelectedItem();
             } else {
-                JTextField dateField = (JTextField) ((JPanel) inputs[i]).getComponent(0);
-                value = dateField.getText();
-                System.out.println("[DEBUG] Saving " + key + ": " + value);
+                value = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
             }
             updatedDevice.put(key, value);
         }
-
-        System.out.println("[DEBUG] Updated device before validation: " + updatedDevice);
 
         boolean hasChanges = false;
         for (String key : updatedDevice.keySet()) {
@@ -143,7 +145,6 @@ public class ModifyDialog {
             String updated = updatedDevice.getOrDefault(key, "");
             if (!original.equals(updated)) {
                 hasChanges = true;
-                System.out.println("[DEBUG] Change detected in " + key + ": " + original + " -> " + updated);
                 break;
             }
         }
@@ -158,30 +159,30 @@ public class ModifyDialog {
             if (confirm != JOptionPane.YES_OPTION) {
                 return;
             }
+        } else {
+            dialog.dispose();
+            return;
         }
 
-        String error = DataUtils.validateDevice(updatedDevice, device.get("Serial_Number"));
+        String serialNumber = device.get("Serial_Number");
+        String error = DataUtils.validateDevice(updatedDevice, serialNumber);
         if (error != null) {
             JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        boolean updated = false;
-        for (int i = 0; i < utils.InventoryData.getDevices().size(); i++) {
-            HashMap<String, String> d = utils.InventoryData.getDevices().get(i);
-            if (d.get("Serial_Number").equals(device.get("Serial_Number"))) {
-                utils.InventoryData.getDevices().set(i, updatedDevice);
-                updated = true;
-                System.out.println("[DEBUG] Updated device in InventoryData: " + updatedDevice);
-                break;
+
+        try {
+            if (serialNumber != null) {
+                DatabaseUtils.deleteDevice(serialNumber);
+                DatabaseUtils.saveDevice(updatedDevice);
+                JOptionPane.showMessageDialog(dialog, "Device updated successfully");
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Error: Serial Number not found", "Update Error", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(dialog, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
         }
-        if (!updated) {
-            JOptionPane.showMessageDialog(dialog, "Error: Device not found for update", "Update Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        FileUtils.saveDevices();
-        System.out.println("[DEBUG] After saveDevices, InventoryData.getDevices(): " + utils.InventoryData.getDevices());
-        dialog.dispose();
     }
 
     private void cancelAction() {
@@ -194,12 +195,11 @@ public class ModifyDialog {
             } else if (inputs[i] instanceof JComboBox) {
                 currentValue = (String) ((JComboBox<?>) inputs[i]).getSelectedItem();
             } else {
-                currentValue = ((JTextField) ((JPanel) inputs[i]).getComponent(0)).getText();
+                currentValue = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
             }
             String originalValue = originalValues.getOrDefault(key, "");
             if (!currentValue.equals(originalValue)) {
                 hasChanges = true;
-                System.out.println("[DEBUG] Cancel change detected in " + key + ": " + originalValue + " -> " + currentValue);
                 break;
             }
         }

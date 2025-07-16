@@ -1,7 +1,12 @@
 package device_logging;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import utils.UIComponentUtils;
 
 public class LogNewDeviceTab extends JPanel {
