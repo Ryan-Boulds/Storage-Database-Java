@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DatabaseUtils {
-    private static final String DB_URL = "jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb";
+    private static String DB_URL = "jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb";
+
+    public static void setDatabasePath(String path) {
+        DB_URL = "jdbc:ucanaccess://" + path.replace("\\", "/");
+    }
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL);

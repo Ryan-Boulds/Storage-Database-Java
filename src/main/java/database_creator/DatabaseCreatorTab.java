@@ -103,6 +103,7 @@ public class DatabaseCreatorTab extends JPanel {
             createInventoryTable(conn, metaData);
             createAccessoriesTable(conn, metaData);
             createCablesTable(conn, metaData);
+            createAdaptersTable(conn, metaData); // Added to create Adapters table
             createTemplatesTable(conn, metaData);
             statusLabel.setText("Tables checked/created successfully.");
             JOptionPane.showMessageDialog(this, "Database tables checked and created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -169,6 +170,18 @@ public class DatabaseCreatorTab extends JPanel {
                 stmt.executeUpdate(
                     "CREATE TABLE Cables (" +
                     "Cable_Type VARCHAR(255) PRIMARY KEY, " +
+                    "[Count] INTEGER)"
+                );
+            }
+        }
+    }
+
+    private void createAdaptersTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+        if (!tableExists(metaData, "Adapters")) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                    "CREATE TABLE Adapters (" +
+                    "Adapter_Type VARCHAR(255) PRIMARY KEY, " +
                     "[Count] INTEGER)"
                 );
             }

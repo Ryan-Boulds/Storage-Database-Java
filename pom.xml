@@ -1,8 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.aisin</groupId>
@@ -18,7 +15,7 @@
     </properties>
 
     <dependencies>
-        <!-- Apache POI -->
+        <!-- Apache POI for Excel handling -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -29,14 +26,13 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.3</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
             <version>5.1.1</version>
         </dependency>
 
-        <!-- Logging with Log4j2 -->
+        <!-- Logging dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -58,7 +54,7 @@
             <version>2.20.0</version>
         </dependency>
 
-        <!-- UCanAccess (for Access DB support) -->
+        <!-- UCanAccess for MS Access database -->
         <dependency>
             <groupId>net.sf.ucanaccess</groupId>
             <artifactId>ucanaccess</artifactId>
@@ -68,8 +64,8 @@
 
     <build>
         <plugins>
-            <!-- Compiler Plugin -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
@@ -77,8 +73,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
-            <!-- Add additional source folders -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -94,6 +88,7 @@
                             <sources>
                                 <source>src/utils</source>
                                 <source>src/device_logging</source>
+                                <source>src/data_import</source>
                             </sources>
                         </configuration>
                     </execution>

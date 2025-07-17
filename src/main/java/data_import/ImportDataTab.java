@@ -1,4 +1,4 @@
-package device_logging;
+package data_import;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
