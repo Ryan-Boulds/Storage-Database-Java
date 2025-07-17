@@ -8,6 +8,7 @@ import device_logging.ImportDataTab;
 import device_logging.LogNewDeviceTab;
 import utils.UIComponentUtils;
 import view_inventorytab.AccessoriesCountTab;
+import view_inventorytab.LogCablesTab;
 import view_inventorytab.ViewInventoryTab;
 
 public class mainFile {
@@ -21,6 +22,7 @@ public class mainFile {
             ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
             LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
+            LogCablesTab logCablesTab = new LogCablesTab();
             ImportDataTab importDataTab = new ImportDataTab(statusLabel);
 
             JFrame frame = UIComponentUtils.createMainFrame(
@@ -29,6 +31,7 @@ public class mainFile {
                 viewInventoryTab,
                 logNewDeviceTab,
                 accessoriesCountTab,
+                logCablesTab,
                 importDataTab
             );
 
@@ -36,10 +39,12 @@ public class mainFile {
             tabbedPane.addChangeListener(e -> {
                 if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
                     viewInventoryTab.refreshDataAndTabs();
-                    // Remove undefined call to updateTables
                 } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
                     AccessoriesCountTab newTab = new AccessoriesCountTab();
                     tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);
+                } else if (tabbedPane.getSelectedComponent() instanceof LogCablesTab) {
+                    LogCablesTab newTab = new LogCablesTab();
+                    tabbedPane.setComponentAt(tabbedPane.indexOfTab("LogCables"), newTab);
                 }
             });
 

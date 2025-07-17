@@ -23,106 +23,96 @@ import javax.swing.table.DefaultTableModel;
 
 import utils.DatabaseUtils;
 import utils.FileUtils;
-import utils.PeripheralUtils;
 import utils.UIComponentUtils;
 
-public final class AccessoriesCountTab extends JPanel {
-    private final DefaultTableModel accessoryTableModel;
-    private final JTable accessoryTable;
-    private final JPanel mainPanel;
+public class LogCablesTab extends JPanel {
+    private final JTable cableTable;
+    private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
 
-    public AccessoriesCountTab() {
+    public LogCablesTab() {
         setLayout(new BorderLayout(10, 10));
 
         // Initialize table model and table
-        accessoryTableModel = new DefaultTableModel(new String[]{"Accessory Type", "Count"}, 0);
-        accessoryTable = new JTable(accessoryTableModel);
-        accessoryTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0);
+        cableTable = new JTable(tableModel);
+        cableTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        updateTableData();
 
         // Main panel with vertical layout
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
-        // Accessories section
-        JPanel accessoriesPanel = new JPanel(new BorderLayout(10, 10));
-        accessoriesPanel.add(UIComponentUtils.createAlignedLabel("Accessories:"), BorderLayout.NORTH);
-        accessoriesPanel.add(UIComponentUtils.createScrollableContentPanel(accessoryTable), BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // Buttons panel
         JPanel buttonPanel = new JPanel();
-        JButton addAccessoryButton = UIComponentUtils.createFormattedButton("Add New Accessory Type");
+        JButton addCableButton = UIComponentUtils.createFormattedButton("Add New Cable Type");
         JButton addToStorageButton = UIComponentUtils.createFormattedButton("Add to Storage");
         JButton removeFromStorageButton = UIComponentUtils.createFormattedButton("Remove from Storage");
         statusLabel = UIComponentUtils.createAlignedLabel("");
 
-        addAccessoryButton.addActionListener(new AddAccessoryAction());
+        addCableButton.addActionListener(new AddCableAction());
         addToStorageButton.addActionListener(new AddToStorageAction());
         removeFromStorageButton.addActionListener(new RemoveFromStorageAction());
 
-        buttonPanel.add(addAccessoryButton);
+        buttonPanel.add(addCableButton);
         buttonPanel.add(addToStorageButton);
         buttonPanel.add(removeFromStorageButton);
-        accessoriesPanel.add(buttonPanel, BorderLayout.SOUTH);
-        mainPanel.add(accessoriesPanel);
+        panel.add(UIComponentUtils.createScrollableContentPanel(cableTable));
+        panel.add(buttonPanel);
+        panel.add(statusLabel);
 
-        // Refresh button at the bottom
-        JButton refreshButton = UIComponentUtils.createFormattedButton("Refresh");
-        refreshButton.addActionListener(e -> updateDisplay());
-        add(mainPanel, BorderLayout.CENTER);
-        add(refreshButton, BorderLayout.SOUTH);
-
-        updateDisplay();
+        add(panel, BorderLayout.CENTER);
     }
 
-    private void updateDisplay() {
-        // Clear existing data
-        accessoryTableModel.setRowCount(0);
-
-        // Update Accessories
+    private void updateTableData() {
+        tableModel.setRowCount(0);
         try {
-            ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
-            if (accessories == null || accessories.isEmpty()) {
-                accessoryTableModel.addRow(new Object[]{"No Data", 0});
+            ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
+            if (cables == null || cables.isEmpty()) {
+                tableModel.addRow(new Object[]{"No Data", 0});
             } else {
-                for (String type : PeripheralUtils.getPeripheralTypes(accessories)) {
-                    int count = PeripheralUtils.getPeripheralCount(type, accessories);
-                    accessoryTableModel.addRow(new Object[]{type, count});
+                for (HashMap<String, String> cable : cables) {
+                    String type = cable.getOrDefault("Cable_Type", "").toLowerCase();
+                    String countStr = cable.getOrDefault("Count", "0");
+                    if (!type.isEmpty()) {
+                        int count = Integer.parseInt(countStr);
+                        tableModel.addRow(new Object[]{type, count});
+                    }
                 }
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error updating accessories display: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading cables: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        mainPanel.revalidate();
-        mainPanel.repaint();
     }
 
-    private class AddAccessoryAction implements ActionListener {
+    private class AddCableAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(AccessoriesCountTab.this), "Add New Accessory Type", true);
+            JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(LogCablesTab.this), "Add New Cable Type", true);
             dialog.setLayout(new BorderLayout(10, 10));
             dialog.setSize(300, 150);
-            dialog.setLocationRelativeTo(AccessoriesCountTab.this);
+            dialog.setLocationRelativeTo(LogCablesTab.this);
 
             JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
             JTextField typeField = UIComponentUtils.createFormattedTextField();
             typeField.setToolTipText("Start typing to see existing types");
-            inputPanel.add(UIComponentUtils.createAlignedLabel("Accessory Type:"), BorderLayout.NORTH);
+            inputPanel.add(UIComponentUtils.createAlignedLabel("Cable Type:"), BorderLayout.NORTH);
             inputPanel.add(typeField, BorderLayout.CENTER);
 
             // Autofill suggestion
             Set<String> existingTypes = new HashSet<>();
             try {
-                ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
-                if (accessories != null) {
-                    for (String type : PeripheralUtils.getPeripheralTypes(accessories)) {
-                        existingTypes.add(type.toLowerCase());
+                ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
+                if (cables != null) {
+                    for (HashMap<String, String> cable : cables) {
+                        String type = cable.getOrDefault("Cable_Type", "").toLowerCase();
+                        if (!type.isEmpty()) {
+                            existingTypes.add(type);
+                        }
                     }
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(dialog, "Error loading existing accessory types: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Error loading existing cable types: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
 
             typeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -150,17 +140,17 @@ public final class AccessoriesCountTab extends JPanel {
             addButton.addActionListener(ev -> {
                 String newType = typeField.getText().trim();
                 if (newType.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Accessory type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Cable type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (existingTypes.contains(newType.toLowerCase())) {
-                    JOptionPane.showMessageDialog(dialog, "Accessory type already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Cable type already exists", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        DatabaseUtils.updatePeripheralCount(newType, 0, "Accessory");
-                        JOptionPane.showMessageDialog(dialog, "Accessory type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        DatabaseUtils.updatePeripheralCount(newType, 0, "Cable");
+                        JOptionPane.showMessageDialog(dialog, "Cable type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
-                        updateDisplay();
+                        updateTableData();
                     } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(dialog, "Error adding accessory type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(dialog, "Error adding cable type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -174,16 +164,16 @@ public final class AccessoriesCountTab extends JPanel {
     private class AddToStorageAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int selectedRow = accessoryTable.getSelectedRow();
+            int selectedRow = cableTable.getSelectedRow();
             if (selectedRow == -1) {
-                statusLabel.setText("Error: Select an accessory type first");
+                statusLabel.setText("Error: Select a cable type first");
                 return;
             }
-            String type = (String) accessoryTableModel.getValueAt(selectedRow, 0);
-            int currentCount = (int) accessoryTableModel.getValueAt(selectedRow, 1);
+            String type = (String) tableModel.getValueAt(selectedRow, 0);
+            int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
             try {
-                DatabaseUtils.updatePeripheralCount(type, 1, "Accessory");
-                accessoryTableModel.setValueAt(currentCount + 1, selectedRow, 1);
+                DatabaseUtils.updatePeripheralCount(type, 1, "Cable");
+                tableModel.setValueAt(currentCount + 1, selectedRow, 1);
                 statusLabel.setText("Successfully added 1 to " + type);
             } catch (SQLException ex) {
                 statusLabel.setText("Error: " + ex.getMessage());
@@ -194,20 +184,20 @@ public final class AccessoriesCountTab extends JPanel {
     private class RemoveFromStorageAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int selectedRow = accessoryTable.getSelectedRow();
+            int selectedRow = cableTable.getSelectedRow();
             if (selectedRow == -1) {
-                statusLabel.setText("Error: Select an accessory type first");
+                statusLabel.setText("Error: Select a cable type first");
                 return;
             }
-            String type = (String) accessoryTableModel.getValueAt(selectedRow, 0);
-            int currentCount = (int) accessoryTableModel.getValueAt(selectedRow, 1);
+            String type = (String) tableModel.getValueAt(selectedRow, 0);
+            int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
             if (currentCount <= 0) {
                 statusLabel.setText("Error: Count cannot go below 0");
                 return;
             }
             try {
-                DatabaseUtils.updatePeripheralCount(type, -1, "Accessory");
-                accessoryTableModel.setValueAt(currentCount - 1, selectedRow, 1);
+                DatabaseUtils.updatePeripheralCount(type, -1, "Cable");
+                tableModel.setValueAt(currentCount - 1, selectedRow, 1);
                 statusLabel.setText("Successfully removed 1 from " + type);
             } catch (SQLException ex) {
                 statusLabel.setText("Error: " + ex.getMessage());

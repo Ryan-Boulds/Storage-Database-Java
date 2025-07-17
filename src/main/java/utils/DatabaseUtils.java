@@ -59,13 +59,14 @@ public class DatabaseUtils {
 
     public static void updatePeripheralCount(String peripheralType, int countDelta, String category) throws SQLException {
         String table = category.equals("Cable") ? "Cables" : "Accessories";
-        String sql = "UPDATE " + table + " SET Count = Count + ? WHERE Peripheral_Type = ?";
+        String typeColumn = category.equals("Cable") ? "Cable_Type" : "Peripheral_Type";
+        String sql = "UPDATE " + table + " SET Count = Count + ? WHERE " + typeColumn + " = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, countDelta);
             stmt.setString(2, peripheralType);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
-                sql = "INSERT INTO " + table + " (Peripheral_Type, Count) VALUES (?, ?)";
+                sql = "INSERT INTO " + table + " (" + typeColumn + ", Count) VALUES (?, ?)";
                 try (PreparedStatement insertStmt = conn.prepareStatement(sql)) {
                     insertStmt.setString(1, peripheralType);
                     insertStmt.setInt(2, countDelta);
@@ -143,7 +144,7 @@ public class DatabaseUtils {
                 template.put("Warranty_Expiry_Date", rs.getString("Warranty_Expiry_Date"));
                 template.put("Last_Maintenance", rs.getString("Last_Maintenance"));
                 template.put("Maintenance_Due", rs.getString("Maintenance_Due"));
-                template.put("Date_Of_Purchase", rs.getString("Purchase_Cost"));
+                template.put("Date_Of_Purchase", rs.getString("Date_Of_Purchase")); // Fixed typo
                 template.put("Purchase_Cost", rs.getString("Purchase_Cost"));
                 template.put("Vendor", rs.getString("Vendor"));
                 template.put("Memory_RAM", rs.getString("Memory_RAM"));
@@ -191,11 +192,12 @@ public class DatabaseUtils {
     public static ArrayList<HashMap<String, String>> loadPeripherals(String category) throws SQLException {
         ArrayList<HashMap<String, String>> peripherals = new ArrayList<>();
         String table = category.equals("Cable") ? "Cables" : "Accessories";
-        String sql = "SELECT Peripheral_Type, Count FROM " + table;
+        String typeColumn = category.equals("Cable") ? "Cable_Type" : "Peripheral_Type";
+        String sql = "SELECT " + typeColumn + ", Count FROM " + table;
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 HashMap<String, String> peripheral = new HashMap<>();
-                peripheral.put("Peripheral_Type", rs.getString("Peripheral_Type"));
+                peripheral.put(typeColumn, rs.getString(typeColumn));
                 peripheral.put("Count", String.valueOf(rs.getInt("Count")));
                 peripherals.add(peripheral);
             }
