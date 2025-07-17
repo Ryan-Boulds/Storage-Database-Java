@@ -42,6 +42,10 @@ public class FileUtils {
         return DatabaseUtils.loadPeripherals("Accessory");
     }
 
+    public static ArrayList<HashMap<String, String>> loadAdapters() throws SQLException {
+        return DatabaseUtils.loadPeripherals("Adapter");
+    }
+
     public static ArrayList<String> loadTemplates() throws SQLException {
         ArrayList<String> templateNames = new ArrayList<>();
         for (HashMap<String, String> template : DatabaseUtils.loadTemplates()) {

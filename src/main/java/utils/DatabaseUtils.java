@@ -58,8 +58,24 @@ public class DatabaseUtils {
     }
 
     public static void updatePeripheralCount(String peripheralType, int countDelta, String category) throws SQLException {
-        String table = category.equals("Cable") ? "Cables" : "Accessories";
-        String typeColumn = category.equals("Cable") ? "Cable_Type" : "Peripheral_Type";
+        String table;
+        String typeColumn;
+        switch (category) {
+            case "Cable":
+                table = "Cables";
+                typeColumn = "Cable_Type";
+                break;
+            case "Accessory":
+                table = "Accessories";
+                typeColumn = "Peripheral_Type";
+                break;
+            case "Adapter":
+                table = "Adapters";
+                typeColumn = "Adapter_Type";
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown category: " + category);
+        }
         String sql = "UPDATE " + table + " SET Count = Count + ? WHERE " + typeColumn + " = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, countDelta);
@@ -191,8 +207,24 @@ public class DatabaseUtils {
 
     public static ArrayList<HashMap<String, String>> loadPeripherals(String category) throws SQLException {
         ArrayList<HashMap<String, String>> peripherals = new ArrayList<>();
-        String table = category.equals("Cable") ? "Cables" : "Accessories";
-        String typeColumn = category.equals("Cable") ? "Cable_Type" : "Peripheral_Type";
+        String table;
+        String typeColumn;
+        switch (category) {
+            case "Cable":
+                table = "Cables";
+                typeColumn = "Cable_Type";
+                break;
+            case "Accessory":
+                table = "Accessories";
+                typeColumn = "Peripheral_Type";
+                break;
+            case "Adapter":
+                table = "Adapters";
+                typeColumn = "Adapter_Type";
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown category: " + category);
+        }
         String sql = "SELECT " + typeColumn + ", Count FROM " + table;
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

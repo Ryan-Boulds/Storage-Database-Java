@@ -8,6 +8,7 @@ import device_logging.ImportDataTab;
 import device_logging.LogNewDeviceTab;
 import utils.UIComponentUtils;
 import view_inventorytab.AccessoriesCountTab;
+import view_inventorytab.LogAdaptersTab;
 import view_inventorytab.LogCablesTab;
 import view_inventorytab.ViewInventoryTab;
 
@@ -23,6 +24,7 @@ public class mainFile {
             LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
             AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
             LogCablesTab logCablesTab = new LogCablesTab();
+            LogAdaptersTab logAdaptersTab = new LogAdaptersTab(); // Add LogAdaptersTab instance
             ImportDataTab importDataTab = new ImportDataTab(statusLabel);
 
             JFrame frame = UIComponentUtils.createMainFrame(
@@ -32,6 +34,7 @@ public class mainFile {
                 logNewDeviceTab,
                 accessoriesCountTab,
                 logCablesTab,
+                logAdaptersTab, // Add LogAdaptersTab to the tabs
                 importDataTab
             );
 
