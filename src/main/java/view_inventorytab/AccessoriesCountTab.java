@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
+import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.FileUtils;
 import utils.PeripheralUtils;
@@ -108,7 +109,7 @@ public final class AccessoriesCountTab extends JPanel {
 
             JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
             JTextField typeField = UIComponentUtils.createFormattedTextField();
-            typeField.setToolTipText("Start typing to see existing types");
+            typeField.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
             inputPanel.add(UIComponentUtils.createAlignedLabel("Accessory Type:"), BorderLayout.NORTH);
             inputPanel.add(typeField, BorderLayout.CENTER);
 
@@ -118,7 +119,7 @@ public final class AccessoriesCountTab extends JPanel {
                 ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
                 if (accessories != null) {
                     for (String type : PeripheralUtils.getPeripheralTypes(accessories)) {
-                        existingTypes.add(type.toLowerCase());
+                        existingTypes.add(DataUtils.capitalizeWords(type)); // Normalize to title case
                     }
                 }
             } catch (SQLException ex) {
@@ -133,7 +134,7 @@ public final class AccessoriesCountTab extends JPanel {
                 @Override
                 public void changedUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
                 private void updateSuggestion(JTextField field, Set<String> types) {
-                    String text = field.getText().toLowerCase();
+                    String text = field.getText();
                     if (text.length() > 0) {
                         for (String type : types) {
                             if (type.startsWith(text) && !type.equals(text)) {
@@ -142,7 +143,7 @@ public final class AccessoriesCountTab extends JPanel {
                             }
                         }
                     }
-                    field.setToolTipText("Start typing to see existing types");
+                    field.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
                 }
             });
 
@@ -151,16 +152,21 @@ public final class AccessoriesCountTab extends JPanel {
                 String newType = typeField.getText().trim();
                 if (newType.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "Accessory type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (existingTypes.contains(newType.toLowerCase())) {
-                    JOptionPane.showMessageDialog(dialog, "Accessory type already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!newType.matches("[a-zA-Z0-9-_]+")) {
+                    JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    try {
-                        DatabaseUtils.updatePeripheralCount(newType, 0, "Accessory");
-                        JOptionPane.showMessageDialog(dialog, "Accessory type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        dialog.dispose();
-                        updateDisplay();
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(dialog, "Error adding accessory type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    String normalizedType = DataUtils.capitalizeWords(newType); // Normalize to title case
+                    if (existingTypes.contains(normalizedType)) {
+                        JOptionPane.showMessageDialog(dialog, "Accessory type already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        try {
+                            DatabaseUtils.updatePeripheralCount(normalizedType, 0, "Accessory");
+                            JOptionPane.showMessageDialog(dialog, "Accessory type '" + normalizedType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                            dialog.dispose();
+                            updateDisplay();
+                        } catch (SQLException ex) {
+                            JOptionPane.showMessageDialog(dialog, "Error adding accessory type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             });

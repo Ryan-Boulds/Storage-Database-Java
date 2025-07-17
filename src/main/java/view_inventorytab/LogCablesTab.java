@@ -72,7 +72,7 @@ public class LogCablesTab extends JPanel {
                 tableModel.addRow(new Object[]{"No Data", 0});
             } else {
                 for (HashMap<String, String> cable : cables) {
-                    String type = cable.getOrDefault("Cable_Type", "").toLowerCase();
+                    String type = cable.getOrDefault("Cable_Type", "");
                     String countStr = cable.getOrDefault("Count", "0");
                     if (!type.isEmpty()) {
                         int count = Integer.parseInt(countStr);
@@ -95,7 +95,7 @@ public class LogCablesTab extends JPanel {
 
             JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
             JTextField typeField = UIComponentUtils.createFormattedTextField();
-            typeField.setToolTipText("Start typing to see existing types");
+            typeField.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
             inputPanel.add(UIComponentUtils.createAlignedLabel("Cable Type:"), BorderLayout.NORTH);
             inputPanel.add(typeField, BorderLayout.CENTER);
 
@@ -105,9 +105,9 @@ public class LogCablesTab extends JPanel {
                 ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
                 if (cables != null) {
                     for (HashMap<String, String> cable : cables) {
-                        String type = cable.getOrDefault("Cable_Type", "").toLowerCase();
+                        String type = cable.getOrDefault("Cable_Type", "");
                         if (!type.isEmpty()) {
-                            existingTypes.add(type);
+                            existingTypes.add(type); // Preserve original case
                         }
                     }
                 }
@@ -123,7 +123,7 @@ public class LogCablesTab extends JPanel {
                 @Override
                 public void changedUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
                 private void updateSuggestion(JTextField field, Set<String> types) {
-                    String text = field.getText().toLowerCase();
+                    String text = field.getText();
                     if (text.length() > 0) {
                         for (String type : types) {
                             if (type.startsWith(text) && !type.equals(text)) {
@@ -132,7 +132,7 @@ public class LogCablesTab extends JPanel {
                             }
                         }
                     }
-                    field.setToolTipText("Start typing to see existing types");
+                    field.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
                 }
             });
 
@@ -141,7 +141,9 @@ public class LogCablesTab extends JPanel {
                 String newType = typeField.getText().trim();
                 if (newType.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "Cable type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (existingTypes.contains(newType.toLowerCase())) {
+                } else if (!newType.matches("[a-zA-Z0-9-_]+")) {
+                    JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (existingTypes.contains(newType)) {
                     JOptionPane.showMessageDialog(dialog, "Cable type already exists", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
