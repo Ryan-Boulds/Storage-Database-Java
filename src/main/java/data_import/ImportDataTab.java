@@ -3,10 +3,13 @@ package data_import;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +24,9 @@ import javax.swing.table.DefaultTableModel;
 
 import data_import.ui.MappingDialog;
 import data_import.ui.PreviewDialog;
-import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.DefaultColumns;
+import utils.SQLGenerator;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends JPanel {
@@ -32,15 +35,17 @@ public class ImportDataTab extends JPanel {
     private final String[] tableColumns = DefaultColumns.getInventoryColumns();
     private Map<String, String> columnMappings = new HashMap<>();
     private List<String[]> importedData;
+    private final JLabel statusLabel;
 
     public ImportDataTab(JLabel statusLabel) {
+        this.statusLabel = statusLabel;
         setLayout(new BorderLayout(10, 10));
 
         JButton importButton = UIComponentUtils.createFormattedButton("Import Data (.csv, .xlsx, .xls)");
-        importButton.addActionListener(e -> importData(statusLabel));
+        importButton.addActionListener(e -> importData());
 
         JButton saveButton = UIComponentUtils.createFormattedButton("Save to Database");
-        saveButton.addActionListener(e -> saveToDatabase(statusLabel));
+        saveButton.addActionListener(e -> saveToDatabase());
 
         JButton viewMappingsButton = UIComponentUtils.createFormattedButton("View Current Mappings");
         viewMappingsButton.addActionListener(e -> showCurrentMappings());
@@ -64,16 +69,15 @@ public class ImportDataTab extends JPanel {
         add(tableScrollPane, BorderLayout.CENTER);
     }
 
-    private void importData(JLabel statusLabel) {
+    private void importData() {
         PreviewDialog previewDialog = new PreviewDialog(this);
         List<String[]> data = previewDialog.showDialog();
         if (data != null) {
             statusLabel.setText("Data loaded for mapping.");
             importedData = data;
-            // Debug: Print importedData
-            System.out.println("Imported Data Headers: " + Arrays.toString(importedData.get(0)));
+            System.out.println("Imported Data Headers: " + java.util.Arrays.toString(importedData.get(0)));
             for (int i = 1; i < Math.min(importedData.size(), 6); i++) {
-                System.out.println("Row " + i + ": " + Arrays.toString(importedData.get(i)));
+                System.out.println("Row " + i + ": " + java.util.Arrays.toString(importedData.get(i)));
             }
             MappingDialog mappingDialog = new MappingDialog(this, data);
             statusLabel.setText("Mapping dialog opened.");
@@ -94,13 +98,11 @@ public class ImportDataTab extends JPanel {
         tableModel.setRowCount(0);
         this.columnMappings = columnMappings;
 
-        // Debug: Print tableColumns and columnMappings
-        System.out.println("DefaultColumns Inventory Columns: " + Arrays.toString(DefaultColumns.getInventoryColumns()));
-        System.out.println("Table Columns: " + Arrays.toString(tableColumns));
+        System.out.println("DefaultColumns Inventory Columns: " + java.util.Arrays.toString(DefaultColumns.getInventoryColumns()));
+        System.out.println("Table Columns: " + java.util.Arrays.toString(tableColumns));
         System.out.println("Column Mappings: " + columnMappings);
         System.out.println("Device Type Mappings: " + deviceTypeMappings);
 
-        // Add new fields to the database
         for (Map.Entry<String, String> entry : newFields.entrySet()) {
             try {
                 DatabaseUtils.addNewField("Inventory", entry.getKey(), entry.getValue());
@@ -110,28 +112,35 @@ public class ImportDataTab extends JPanel {
             }
         }
 
-        // Normalize function to match MappingDialog
         final java.util.function.Function<String, String> normalize = s -> s.replaceAll("[\\s_-]", "").toLowerCase();
 
-        // Create a map of normalized CSV headers to their original indices
         Map<String, Integer> normalizedHeaderMap = new HashMap<>();
         String[] headers = importedData.get(0);
         for (int i = 0; i < headers.length; i++) {
             normalizedHeaderMap.put(normalize.apply(headers[i]), i);
         }
 
+        // Define date formats to try parsing (date-only)
+        SimpleDateFormat[] dateFormats = {
+            new SimpleDateFormat("yyyy-MM-dd"),          // e.g., 2025-07-21
+            new SimpleDateFormat("MM/dd/yyyy"),          // e.g., 07/21/2025
+            new SimpleDateFormat("dd-MM-yyyy")           // e.g., 21-07-2025
+        };
+        for (SimpleDateFormat df : dateFormats) {
+            df.setLenient(false); // Strict parsing
+        }
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MM/dd/yyyy");
+
         for (int i = 1; i < importedData.size(); i++) {
             String[] csvRow = importedData.get(i);
             String[] tableRow = new String[tableColumns.length];
-            Arrays.fill(tableRow, "");
+            java.util.Arrays.fill(tableRow, "");
 
             for (Map.Entry<String, String> mapping : columnMappings.entrySet()) {
                 String csvColumn = mapping.getKey();
                 String dbField = mapping.getValue();
-                // Normalize the csvColumn to match the header
                 String normalizedCsvColumn = normalize.apply(csvColumn);
                 Integer csvIndex = normalizedHeaderMap.get(normalizedCsvColumn);
-                // Debug: Log mapping details
                 System.out.println("Mapping: " + csvColumn + " -> " + dbField + ", normalized: " + normalizedCsvColumn + ", csvIndex: " + csvIndex);
                 if (csvIndex != null && csvIndex < csvRow.length) {
                     String value = csvRow[csvIndex];
@@ -139,7 +148,23 @@ public class ImportDataTab extends JPanel {
                     if (dbField.equals("Device_Type") && deviceTypeMappings.containsKey(value)) {
                         value = deviceTypeMappings.get(value);
                     }
-                    // Match dbField to tableColumns with space-to-underscore replacement
+                    if ((dbField.equals("Created_at") || dbField.equals("Last_Successful_Scan")) && !value.trim().isEmpty()) {
+                        boolean parsed = false;
+                        for (SimpleDateFormat df : dateFormats) {
+                            try {
+                                java.util.Date date = df.parse(value);
+                                value = outputFormat.format(date);
+                                parsed = true;
+                                break;
+                            } catch (ParseException e) {
+                                System.out.println("Failed to parse " + value + " with format " + df.toPattern() + " at row " + i + ": " + e.getMessage());
+                            }
+                        }
+                        if (!parsed) {
+                            System.out.println("Unparseable date for " + dbField + " at row " + i + ": " + value + ". Using empty string.");
+                            value = ""; // Default to empty if unparseable
+                        }
+                    }
                     for (int k = 0; k < tableColumns.length; k++) {
                         String normalizedTableColumn = tableColumns[k].replace(" ", "_");
                         if (normalizedTableColumn.equals(dbField)) {
@@ -152,8 +177,7 @@ public class ImportDataTab extends JPanel {
                 }
             }
             tableModel.addRow(tableRow);
-            // Debug: Print tableRow to verify data
-            System.out.println("Table Row " + i + ": " + Arrays.toString(tableRow));
+            System.out.println("Table Row " + i + ": " + java.util.Arrays.toString(tableRow));
         }
 
         if (!newFields.isEmpty()) {
@@ -172,10 +196,148 @@ public class ImportDataTab extends JPanel {
             JOptionPane.showMessageDialog(this, newTypesMessage.toString(), "New Device Types Added", JOptionPane.INFORMATION_MESSAGE);
         }
 
-        JOptionPane.showMessageDialog(this, "Data loaded for review. Edit as needed and click 'Save to Database'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        checkDuplicates();
     }
 
-    private void saveToDatabase(JLabel statusLabel) {
+    private void checkDuplicates() {
+        List<HashMap<String, String>> devicesToCheck = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            HashMap<String, String> device = new HashMap<>();
+            for (int j = 0; j < tableColumns.length; j++) {
+                String dbField = tableColumns[j].replace(" ", "_");
+                String value = (String) tableModel.getValueAt(i, j);
+                if (value != null && !value.trim().isEmpty()) {
+                    device.put(dbField, value);
+                }
+            }
+            devicesToCheck.add(device);
+        }
+
+        List<String> duplicates = new ArrayList<>();
+        for (HashMap<String, String> device : devicesToCheck) {
+            String assetName = device.get("AssetName");
+            if (assetName != null && !assetName.trim().isEmpty()) {
+                try {
+                    HashMap<String, String> existingDevice = getDeviceByAssetNameFromDB(assetName);
+                    if (existingDevice != null) {
+                        duplicates.add(assetName);
+                    }
+                } catch (SQLException e) {
+                    System.out.println("Error checking duplicate for " + assetName + ": " + e.getMessage());
+                }
+            }
+        }
+
+        if (!duplicates.isEmpty()) {
+            StringBuilder message = new StringBuilder("The following duplicate entries were not added automatically:\n");
+            for (String duplicate : duplicates) {
+                message.append(duplicate).append("\n");
+            }
+            Object[] options = {"Skip", "Update Missing Data", "Replace Old Entries"};
+            int choice = JOptionPane.showOptionDialog(this, message.toString(), "Duplicate Entries Found",
+                    JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+
+            switch (choice) {
+                case 0: // Skip
+                    statusLabel.setText("Duplicates skipped.");
+                    break;
+                case 1: // Update Missing Data
+                    updateMissingData(devicesToCheck, duplicates);
+                    break;
+                case 2: // Replace Old Entries
+                    replaceOldEntries(devicesToCheck, duplicates);
+                    break;
+                default: // Cancel or close
+                    statusLabel.setText("Duplicate handling cancelled.");
+                    break;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No duplicates found. Data loaded for review.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void updateMissingData(List<HashMap<String, String>> devicesToCheck, List<String> duplicates) {
+        try {
+            for (HashMap<String, String> device : devicesToCheck) {
+                String assetName = device.get("AssetName");
+                if (duplicates.contains(assetName)) {
+                    HashMap<String, String> existingDevice = getDeviceByAssetNameFromDB(assetName);
+                    if (existingDevice != null) {
+                        boolean updated = false;
+                        for (Map.Entry<String, String> entry : device.entrySet()) {
+                            String field = entry.getKey();
+                            String newValue = entry.getValue();
+                            if (newValue != null && !newValue.trim().isEmpty() && 
+                                (existingDevice.get(field) == null || existingDevice.get(field).trim().isEmpty())) {
+                                existingDevice.put(field, newValue);
+                                updated = true;
+                            }
+                        }
+                        if (updated) {
+                            updateDeviceInDB(existingDevice);
+                        }
+                    }
+                }
+            }
+            statusLabel.setText("Missing data updated for duplicates.");
+            JOptionPane.showMessageDialog(this, "Missing data updated for duplicates.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException e) {
+            statusLabel.setText("Error updating missing data: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error updating missing data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void replaceOldEntries(List<HashMap<String, String>> devicesToCheck, List<String> duplicates) {
+        try {
+            for (HashMap<String, String> device : devicesToCheck) {
+                String assetName = device.get("AssetName");
+                if (duplicates.contains(assetName)) {
+                    DatabaseUtils.deleteDevice(assetName);
+                    DatabaseUtils.saveDevice(device);
+                }
+            }
+            statusLabel.setText("Old entries replaced with new data.");
+            JOptionPane.showMessageDialog(this, "Old entries replaced with new data.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException e) {
+            statusLabel.setText("Error replacing old entries: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error replacing old entries: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private HashMap<String, String> getDeviceByAssetNameFromDB(String assetName) throws SQLException {
+        String sql = "SELECT * FROM Inventory WHERE AssetName = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, assetName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    HashMap<String, String> device = new HashMap<>();
+                    for (String column : DefaultColumns.getInventoryColumns()) {
+                        device.put(column, rs.getString(column));
+                    }
+                    return device;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void updateDeviceInDB(HashMap<String, String> device) throws SQLException {
+        String sql = SQLGenerator.generateInsertSQL("Inventory", device);
+        sql = sql.replace("INSERT INTO", "UPDATE").replace("VALUES", "SET") + " WHERE AssetName = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int index = 1;
+            String assetName = device.get("AssetName");
+            for (Map.Entry<String, String> entry : device.entrySet()) {
+                if (!entry.getKey().equals("AssetName")) {
+                    stmt.setString(index++, entry.getValue() != null ? entry.getValue() : "");
+                }
+            }
+            stmt.setString(index, assetName);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void saveToDatabase() {
         if (importedData == null || importedData.isEmpty()) {
             statusLabel.setText("No data to save.");
             JOptionPane.showMessageDialog(this, "No data to save.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -183,36 +345,14 @@ public class ImportDataTab extends JPanel {
         }
 
         List<HashMap<String, String>> devicesToSave = new ArrayList<>();
-        SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        SimpleDateFormat outputFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        inputFormat.setLenient(true); // Handle parsing flexibility
-
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             HashMap<String, String> device = new HashMap<>();
             for (int j = 0; j < tableColumns.length; j++) {
                 String dbField = tableColumns[j].replace(" ", "_");
                 String value = (String) tableModel.getValueAt(i, j);
                 if (value != null && !value.trim().isEmpty()) {
-                    // Format date fields if applicable
-                    if (dbField.equals("Created_at") || dbField.equals("Last_Successful_Scan")) {
-                        try {
-                            java.util.Date date = inputFormat.parse(value);
-                            value = outputFormat.format(date); // Convert to MM/dd/yyyy HH:mm:ss
-                        } catch (java.text.ParseException e) {
-                            System.out.println("Error parsing date for " + dbField + " at row " + (i + 1) + ": " + value + " - " + e.getMessage());
-                            value = ""; // Set to empty if parsing fails, or handle differently
-                        }
-                    }
                     device.put(dbField, value);
                 }
-            }
-
-            String assetName = device.get("AssetName");
-            String error = DataUtils.validateDevice(device, assetName);
-            if (error != null) {
-                statusLabel.setText("Error in row " + (i + 1) + ": " + error);
-                JOptionPane.showMessageDialog(this, "Error in row " + (i + 1) + ": " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
             }
             devicesToSave.add(device);
         }

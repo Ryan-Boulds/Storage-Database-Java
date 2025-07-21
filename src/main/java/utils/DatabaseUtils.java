@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DatabaseUtils {
@@ -186,5 +187,45 @@ public class DatabaseUtils {
             }
         }
         return template;
+    }
+
+    // New method for duplicate checking
+    public static HashMap<String, String> getDeviceByAssetName(String assetName) throws SQLException {
+        String sql = "SELECT * FROM Inventory WHERE AssetName = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, assetName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    HashMap<String, String> device = new HashMap<>();
+                    for (String column : DefaultColumns.getInventoryColumns()) {
+                        device.put(column, rs.getString(column));
+                    }
+                    return device;
+                }
+            }
+        }
+        return null;
+    }
+
+    // New method for updating device
+    public static void updateDevice(HashMap<String, String> device) throws SQLException {
+        String sql = SQLGenerator.generateInsertSQL("Inventory", device);
+        sql = sql.replace("INSERT INTO", "UPDATE").replace("VALUES", "SET") + " WHERE AssetName = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int index = 1;
+            String assetName = device.get("AssetName");
+            for (Map.Entry<String, String> entry : device.entrySet()) {
+                if (!entry.getKey().equals("AssetName")) {
+                    stmt.setString(index++, entry.getValue() != null ? entry.getValue() : "");
+                }
+            }
+            stmt.setString(index, assetName);
+            stmt.executeUpdate();
+        }
+    }
+
+    // Existing deleteDevice renamed to match expected signature
+    public static void deleteDeviceByAssetName(String assetName) throws SQLException {
+        deleteDevice(assetName);
     }
 }
