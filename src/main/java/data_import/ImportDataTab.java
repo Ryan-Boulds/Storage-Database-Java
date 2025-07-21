@@ -37,11 +37,13 @@ public class ImportDataTab extends JPanel {
     private final DataProcessor dataProcessor;
     private final DatabaseHandler databaseHandler;
     private List<utils.DataEntry> originalData;
+    private Map<String, String> fieldTypes; // Store field types from newFields
 
     public ImportDataTab(JLabel statusLabel) {
         this.statusLabel = statusLabel;
         this.dataProcessor = new DataProcessor();
         this.databaseHandler = new DatabaseHandler();
+        this.fieldTypes = new HashMap<>(); // Initialize field types map
         setLayout(new BorderLayout(10, 10));
 
         JButton importButton = UIComponentUtils.createFormattedButton("Import Data (.csv, .xlsx, .xls)");
@@ -84,8 +86,7 @@ public class ImportDataTab extends JPanel {
         compareItem.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
-                TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
-                if (renderer.isYellowOrOrange(selectedRow)) {
+                if (((TableColorRenderer) table.getDefaultRenderer(Object.class)).isYellowOrOrange(selectedRow)) {
                     ComparisonDialog dialog = new ComparisonDialog(this, originalData.get(selectedRow), tableColumns);
                     utils.DataEntry resolvedEntry = dialog.showDialog();
                     if (resolvedEntry != null) {
@@ -93,7 +94,7 @@ public class ImportDataTab extends JPanel {
                         originalData.set(selectedRow, resolvedEntry);
                         tableModel.setRowCount(0);
                         for (utils.DataEntry entry : originalData) {
-                            if (showDuplicates || !renderer.isExactDuplicate(tableModel.getRowCount())) {
+                            if (showDuplicates || !((TableColorRenderer) table.getDefaultRenderer(Object.class)).isExactDuplicate(tableModel.getRowCount())) {
                                 tableModel.addRow(entry.getValues());
                             }
                         }
@@ -177,6 +178,7 @@ public class ImportDataTab extends JPanel {
     private void displayData(Map<String, String> columnMappings, Map<String, String> newFields, Map<String, String> deviceTypeMappings) {
         tableModel.setRowCount(0);
         this.columnMappings = columnMappings;
+        this.fieldTypes.putAll(newFields); // Store field types for validation
         java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "DefaultColumns Inventory Columns: {0}", java.util.Arrays.toString(tableColumns));
         java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Column Mappings: {0}", columnMappings);
         java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Device Type Mappings: {0}", deviceTypeMappings);
@@ -254,7 +256,6 @@ public class ImportDataTab extends JPanel {
             return;
         }
 
-        TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
         boolean allGreen = true;
         List<utils.DataEntry> redRows = new ArrayList<>();
         List<utils.DataEntry> orangeRows = new ArrayList<>();
@@ -303,7 +304,7 @@ public class ImportDataTab extends JPanel {
                         greenRows.add(entry);
                     }
                 } catch (SQLException e) {
-                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Error checking row status: {0}", e.getMessage());
+                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Error checking row status for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
                 }
             } else {
                 greenRows.add(entry);
@@ -312,16 +313,19 @@ public class ImportDataTab extends JPanel {
 
         if (allGreen) {
             // All rows are green or resolved, save directly
-            try {
-                for (utils.DataEntry entry : greenRows) {
-                    databaseHandler.saveDevice(entry.getData());
+            for (utils.DataEntry entry : greenRows) {
+                try {
+                    HashMap<String, String> cleanedDevice = cleanDeviceData(entry.getData());
+                    databaseHandler.saveDevice(cleanedDevice);
+                } catch (SQLException e) {
+                    String errorMessage = "Error saving to database for AssetName " + entry.getData().get("AssetName") + ": " + e.getMessage();
+                    statusLabel.setText(errorMessage);
+                    JOptionPane.showMessageDialog(this, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-                statusLabel.setText("Data saved to database successfully!");
-                JOptionPane.showMessageDialog(this, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (SQLException e) {
-                statusLabel.setText("Error saving to database: " + e.getMessage());
-                JOptionPane.showMessageDialog(this, "Error saving to database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
+            statusLabel.setText("Data saved to database successfully!");
+            JOptionPane.showMessageDialog(this, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
@@ -397,23 +401,44 @@ public class ImportDataTab extends JPanel {
                                     mergedDevice.put(key, value);
                                 }
                             }
-                            databaseHandler.updateDeviceInDB(mergedDevice);
+                            HashMap<String, String> cleanedDevice = cleanDeviceData(mergedDevice);
+                            databaseHandler.updateDeviceInDB(cleanedDevice);
                         } else {
                             // Overwrite for orange or yellow (if not merging)
-                            databaseHandler.updateDeviceInDB(device);
+                            HashMap<String, String> cleanedDevice = cleanDeviceData(device);
+                            databaseHandler.updateDeviceInDB(cleanedDevice);
                         }
                     } else {
                         // Insert new (green) rows
-                        databaseHandler.saveDevice(device);
+                        HashMap<String, String> cleanedDevice = cleanDeviceData(device);
+                        databaseHandler.saveDevice(cleanedDevice);
                     }
                 }
             }
             statusLabel.setText("Data saved to database successfully!");
             JOptionPane.showMessageDialog(this, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
-            statusLabel.setText("Error saving to database: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error saving to database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            String errorMessage = "Error saving to database: " + e.getMessage();
+            statusLabel.setText(errorMessage);
+            JOptionPane.showMessageDialog(this, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // Clean datetime fields by replacing empty strings with null
+    private HashMap<String, String> cleanDeviceData(HashMap<String, String> device) {
+        HashMap<String, String> cleanedDevice = new HashMap<>(device);
+        for (Map.Entry<String, String> entry : cleanedDevice.entrySet()) {
+            String field = entry.getKey();
+            String value = entry.getValue();
+            String fieldType = fieldTypes.getOrDefault(field, "");
+            if (fieldType.equalsIgnoreCase("DATETIME") && (value == null || value.trim().isEmpty())) {
+                cleanedDevice.put(field, null); // Replace empty string with null for DATETIME fields
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, 
+                    "Cleaned DATETIME field {0} for AssetName {1}: set to null", 
+                    new Object[]{field, device.get("AssetName")});
+            }
+        }
+        return cleanedDevice;
     }
 
     private void showCurrentMappings() {
