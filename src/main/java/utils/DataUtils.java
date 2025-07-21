@@ -1,5 +1,8 @@
 package utils;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -11,47 +14,30 @@ public class DataUtils {
                 .collect(Collectors.joining(" "));
     }
 
-    public static String validateDevice(Map<String, String> data, String originalSerialNumber) {
-        String deviceName = data.get("Device_Name");
-        String serialNumber = data.get("Serial_Number");
-        String purchaseCost = data.get("Purchase_Cost");
-        String networkAddress = data.get("Network_Address");
+    public static String validateDevice(Map<String, String> data, String originalAssetName) {
+        String assetName = data.get("AssetName");
+        String ipAddress = data.get("IP Address");
 
-        if (deviceName == null || deviceName.trim().isEmpty()) {
-            return "Device Name is required";
-        }
-        if (serialNumber == null || serialNumber.trim().isEmpty()) {
-            return "Serial Number is required";
+        if (assetName == null || assetName.trim().isEmpty()) {
+            return "Asset Name is required";
         }
         for (HashMap<String, String> device : InventoryData.getDevices()) {
-            String existingSerial = device.getOrDefault("Serial_Number", "");
-            // Skip the current device if originalSerialNumber is provided and matches
-            if (originalSerialNumber == null || !existingSerial.equals(originalSerialNumber)) {
-                if (device.get("Device_Name").equals(deviceName)) {
-                    return "Device Name '" + deviceName + "' already exists";
-                }
-                if (device.get("Serial_Number").equals(serialNumber)) {
-                    return "Serial Number '" + serialNumber + "' already exists";
+            String existingAssetName = device.getOrDefault("AssetName", "");
+            if (originalAssetName == null || !existingAssetName.equals(originalAssetName)) {
+                if (existingAssetName.equals(assetName)) {
+                    return "Asset Name '" + assetName + "' already exists";
                 }
             }
         }
-        if (purchaseCost != null && !purchaseCost.trim().isEmpty()) {
-            try {
-                Double.valueOf(purchaseCost);
-            } catch (NumberFormatException e) {
-                return "Purchase Cost must be a valid number";
-            }
-        }
-        if (networkAddress != null && !networkAddress.trim().isEmpty()) {
-            if (!Pattern.matches("^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|([0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}))$", networkAddress)) {
-                return "Network Address must be a valid IP or MAC address";
+        if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+            if (!Pattern.matches("^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|([0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}))$", ipAddress)) {
+                return "IP Address must be a valid IP or MAC address";
             }
         }
         return null;
     }
 
     public static String validateDevice(Map<String, String> data) {
-        // Call the overloaded method with null originalSerialNumber for adding new devices
         return validateDevice(data, null);
     }
 

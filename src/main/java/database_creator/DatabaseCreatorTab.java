@@ -8,6 +8,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -19,6 +20,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import database_creator.Table_Editor.TableEditor;
 import utils.DatabaseUtils;
+import utils.DefaultColumns;
 import utils.UIComponentUtils;
 
 public class DatabaseCreatorTab extends JPanel {
@@ -61,6 +63,7 @@ public class DatabaseCreatorTab extends JPanel {
 
     private void initializeDatabase() {
         if (validateDatabasePath()) {
+            DatabaseUtils.setDatabasePath(dbPathField.getText().trim());
             createMissingTables();
         } else {
             statusLabel.setText("Invalid database path. Please select a valid .accdb file.");
@@ -86,6 +89,7 @@ public class DatabaseCreatorTab extends JPanel {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             dbPathField.setText(selectedFile.getAbsolutePath());
+            DatabaseUtils.setDatabasePath(selectedFile.getAbsolutePath());
             statusLabel.setText("Selected database: " + selectedFile.getName());
             createMissingTables();
         }
@@ -103,7 +107,7 @@ public class DatabaseCreatorTab extends JPanel {
             createInventoryTable(conn, metaData);
             createAccessoriesTable(conn, metaData);
             createCablesTable(conn, metaData);
-            createAdaptersTable(conn, metaData); // Added to create Adapters table
+            createAdaptersTable(conn, metaData);
             createTemplatesTable(conn, metaData);
             statusLabel.setText("Tables checked/created successfully.");
             JOptionPane.showMessageDialog(this, "Database tables checked and created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -121,33 +125,25 @@ public class DatabaseCreatorTab extends JPanel {
 
     private void createInventoryTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
         if (!tableExists(metaData, "Inventory")) {
+            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
+            StringBuilder sql = new StringBuilder("CREATE TABLE Inventory (");
+            int i = 0;
+            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
+                String column = entry.getKey().equals("IP Address") || entry.getKey().equals("Created at") || 
+                               entry.getKey().equals("Last Successful Scan") || entry.getKey().equals("Device Type") ? 
+                               "[" + entry.getKey() + "]" : entry.getKey();
+                sql.append(column).append(" ").append(entry.getValue());
+                if (entry.getKey().equals("AssetName")) {
+                    sql.append(" PRIMARY KEY");
+                }
+                if (i < columnDefs.size() - 1) {
+                    sql.append(", ");
+                }
+                i++;
+            }
+            sql.append(")");
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(
-                    "CREATE TABLE Inventory (" +
-                    "Device_Name VARCHAR(255), " +
-                    "Device_Type VARCHAR(255), " +
-                    "Brand VARCHAR(255), " +
-                    "Model VARCHAR(255), " +
-                    "Serial_Number VARCHAR(255) PRIMARY KEY, " +
-                    "Building_Location VARCHAR(255), " +
-                    "Room_Desk VARCHAR(255), " +
-                    "Specification VARCHAR(255), " +
-                    "Processor_Type VARCHAR(255), " +
-                    "Storage_Capacity VARCHAR(255), " +
-                    "Network_Address VARCHAR(255), " +
-                    "OS_Version VARCHAR(255), " +
-                    "Department VARCHAR(255), " +
-                    "Added_Memory VARCHAR(255), " +
-                    "Status VARCHAR(255), " +
-                    "Assigned_User VARCHAR(255), " +
-                    "Warranty_Expiry_Date DATE, " +
-                    "Last_Maintenance DATE, " +
-                    "Maintenance_Due DATE, " +
-                    "Date_Of_Purchase DATE, " +
-                    "Purchase_Cost DOUBLE, " +
-                    "Vendor VARCHAR(255), " +
-                    "Memory_RAM VARCHAR(255))"
-                );
+                stmt.executeUpdate(sql.toString());
             }
         }
     }
@@ -157,7 +153,7 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Accessories (" +
-                    "Peripheral_Type VARCHAR(255) PRIMARY KEY, " +
+                    "Peripheral_Type TEXT PRIMARY KEY, " +
                     "[Count] INTEGER)"
                 );
             }
@@ -169,7 +165,7 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Cables (" +
-                    "Cable_Type VARCHAR(255) PRIMARY KEY, " +
+                    "Cable_Type TEXT PRIMARY KEY, " +
                     "[Count] INTEGER)"
                 );
             }
@@ -181,7 +177,7 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Adapters (" +
-                    "Adapter_Type VARCHAR(255) PRIMARY KEY, " +
+                    "Adapter_Type TEXT PRIMARY KEY, " +
                     "[Count] INTEGER)"
                 );
             }
@@ -190,19 +186,27 @@ public class DatabaseCreatorTab extends JPanel {
 
     private void createTemplatesTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
         if (!tableExists(metaData, "Templates")) {
+            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
+            StringBuilder sql = new StringBuilder("CREATE TABLE Templates (Template_Name TEXT PRIMARY KEY, ");
+            int i = 0;
+            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
+                String column = entry.getKey().equals("IP Address") || entry.getKey().equals("Created at") || 
+                               entry.getKey().equals("Last Successful Scan") || entry.getKey().equals("Device Type") ? 
+                               "[" + entry.getKey() + "]" : entry.getKey();
+                sql.append(column).append(" ").append(entry.getValue());
+                if (i < columnDefs.size() - 1) {
+                    sql.append(", ");
+                }
+                i++;
+            }
+            sql.append(")");
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(
-                    "CREATE TABLE Templates (" +
-                    "Template_Name VARCHAR(255) PRIMARY KEY, " +
-                    "Description VARCHAR(255))"
-                );
+                stmt.executeUpdate(sql.toString());
             }
         }
     }
 
-    // Database designer feature
     public void designDatabase() {
-        // TODO: Extend with additional designer features (e.g., edit relationships)
         TableEditor editor = new TableEditor();
         JOptionPane.showMessageDialog(this, editor, "Table Editor", JOptionPane.PLAIN_MESSAGE);
     }

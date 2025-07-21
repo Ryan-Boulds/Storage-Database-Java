@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -55,6 +55,19 @@ public class FileUtils {
     }
 
     public static HashMap<String, String> loadTemplateDetails(String templateName) throws SQLException {
-        return DatabaseUtils.loadTemplateDetails(templateName);
+        HashMap<String, String> template = new HashMap<>();
+        String sql = "SELECT * FROM Templates WHERE Template_Name = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, templateName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    for (String column : DefaultColumns.getInventoryColumns()) {
+                        template.put(column, rs.getString(column));
+                    }
+                    template.put("Template_Name", rs.getString("Template_Name"));
+                }
+            }
+        }
+        return template;
     }
 }

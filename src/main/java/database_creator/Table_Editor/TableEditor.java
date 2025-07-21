@@ -1,10 +1,11 @@
 package database_creator.Table_Editor;
 
 import java.awt.BorderLayout;
+import java.sql.SQLException;
 
 import javax.swing.JPanel;
 
-public class TableEditor extends JPanel {
+public final class TableEditor extends JPanel {
     private final TableUIComponents uiComponents;
     private final TableSchemaManager schemaManager;
     private final TableOperationHandler operationHandler;
@@ -14,7 +15,7 @@ public class TableEditor extends JPanel {
 
         // Initialize components
         uiComponents = new TableUIComponents(this);
-        schemaManager = new TableSchemaManager(this, uiComponents.getTableComboBox());
+        schemaManager = new TableSchemaManager(uiComponents.getTableComboBox());
         operationHandler = new TableOperationHandler(this, uiComponents.getTableComboBox(), uiComponents.getFieldsTable(), uiComponents.getTableModel(), uiComponents.getFields(), schemaManager);
 
         // Set operation handler in UI components
@@ -25,7 +26,11 @@ public class TableEditor extends JPanel {
         add(uiComponents.getTableScrollPane(), BorderLayout.CENTER);
 
         // Load initial table list
-        schemaManager.loadTableList();
+        try {
+            schemaManager.loadTableList();
+        } catch (SQLException e) {
+            showMessageDialog("Error", "Failed to load table list: " + e.getMessage(), 0);
+        }
     }
 
     public void showMessageDialog(String title, String message, int messageType) {

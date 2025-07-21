@@ -31,7 +31,7 @@ public class FieldDialog extends JDialog {
         
         // Field Type
         add(new JLabel("Field Type:"));
-        fieldTypeCombo = new JComboBox<>(new String[]{"VARCHAR", "INTEGER", "BOOLEAN"});
+        fieldTypeCombo = new JComboBox<>(new String[]{"TEXT", "INTEGER", "DATE", "BOOLEAN"});
         add(fieldTypeCombo);
         
         // Buttons

@@ -5,17 +5,19 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import utils.DatabaseUtils;
+import utils.DefaultColumns;
 
 public class TableOperationHandler {
     private final TableEditor editor;
@@ -25,7 +27,8 @@ public class TableOperationHandler {
     private final List<Map<String, String>> fields;
     private final TableSchemaManager schemaManager;
 
-    public TableOperationHandler(TableEditor editor, JComboBox<String> tableComboBox, JTable fieldsTable, DefaultTableModel tableModel, List<Map<String, String>> fields, TableSchemaManager schemaManager) {
+    public TableOperationHandler(TableEditor editor, JComboBox<String> tableComboBox, JTable fieldsTable, 
+            DefaultTableModel tableModel, List<Map<String, String>> fields, TableSchemaManager schemaManager) {
         this.editor = editor;
         this.tableComboBox = tableComboBox;
         this.fieldsTable = fieldsTable;
@@ -42,452 +45,383 @@ public class TableOperationHandler {
         }
         fields.clear();
         tableModel.setRowCount(0);
-        editor.showMessageDialog("Status", "New table definition started. Add fields and create table.", 1);
 
-        String fieldName = javax.swing.JOptionPane.showInputDialog(editor, "Enter first field name for '" + tableName + "':");
-        if (fieldName == null || fieldName.trim().isEmpty()) {
-            editor.showMessageDialog("Error", "At least one field is required.", 0);
+        // Pre-populate fields for Inventory or Templates
+        if (tableName.equalsIgnoreCase("Inventory") || tableName.equalsIgnoreCase("Templates")) {
+            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
+            if (tableName.equalsIgnoreCase("Templates")) {
+                Map<String, String> field = new HashMap<>();
+                field.put("name", "Template_Name");
+                field.put("type", "TEXT");
+                field.put("primaryKey", "Yes");
+                fields.add(field);
+                tableModel.addRow(new Object[]{"Template_Name", "TEXT", "Yes"});
+            }
+            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
+                Map<String, String> field = new HashMap<>();
+                field.put("name", entry.getKey());
+                field.put("type", entry.getValue());
+                field.put("primaryKey", tableName.equalsIgnoreCase("Inventory") && entry.getKey().equals("AssetName") ? "Yes" : "No");
+                fields.add(field);
+                tableModel.addRow(new Object[]{entry.getKey(), entry.getValue(), field.get("primaryKey")});
+            }
+            editor.showMessageDialog("Status", "Default fields for " + tableName + " loaded. Click 'Create New Table' to confirm.", 1);
             return;
         }
-        String fieldType = javax.swing.JOptionPane.showInputDialog(editor, "Enter field type for '" + fieldName + "' (e.g., VARCHAR(255), INTEGER):");
-        if (fieldType == null || fieldType.trim().isEmpty() || !isValidDataType(fieldType)) {
-            editor.showMessageDialog("Error", "Invalid or empty field type. Use VARCHAR(255), INTEGER, DATE, DOUBLE, etc.", 0);
+
+        tableComboBox.addItem(tableName);
+        tableComboBox.setSelectedItem(tableName);
+        editor.showMessageDialog("Status", "Enter fields for table: " + tableName, 1);
+    }
+
+    public void saveTable() throws SQLException {
+        String tableName = (String) tableComboBox.getSelectedItem();
+        if (tableName == null || tableName.isEmpty()) {
+            editor.showMessageDialog("Error", "No table selected.", 0);
             return;
         }
+        if (fields.isEmpty()) {
+            editor.showMessageDialog("Error", "No fields defined for the table.", 0);
+            return;
+        }
+
+        StringBuilder sql = new StringBuilder("CREATE TABLE " + tableName + " (");
+        for (int i = 0; i < fields.size(); i++) {
+            Map<String, String> field = fields.get(i);
+            String name = field.get("name");
+            String type = field.get("type");
+            String primaryKey = field.get("primaryKey");
+
+            sql.append(name).append(" ").append(type);
+            if ("Yes".equals(primaryKey)) {
+                sql.append(" PRIMARY KEY");
+            }
+            if (i < fields.size() - 1) {
+                sql.append(", ");
+            }
+        }
+        sql.append(")");
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql.toString());
+            editor.showMessageDialog("Success", "Table " + tableName + " created successfully.", 1);
+            schemaManager.loadTableList();
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to create table: " + e.getMessage(), 0);
+            throw e;
+        }
+    }
+
+    public void addField(JTextField fieldNameField, JComboBox<String> fieldTypeComboBox, JComboBox<String> primaryKeyComboBox) {
+        String fieldName = fieldNameField.getText().trim();
+        String fieldType = (String) fieldTypeComboBox.getSelectedItem();
+        String primaryKey = (String) primaryKeyComboBox.getSelectedItem();
+
+        if (fieldName.isEmpty() || fieldType == null) {
+            editor.showMessageDialog("Error", "Field name and type must be specified.", 0);
+            return;
+        }
+
         Map<String, String> field = new HashMap<>();
         field.put("name", fieldName);
         field.put("type", fieldType);
-        field.put("primaryKey", "No");
+        field.put("primaryKey", primaryKey != null ? primaryKey : "No");
         fields.add(field);
-        tableModel.addRow(new Object[]{fieldName, fieldType, "No"});
-
-        StringBuilder createTableSQL = new StringBuilder("CREATE TABLE " + tableName + " (");
-        for (int i = 0; i < fields.size(); i++) {
-            field = fields.get(i);
-            String name = field.get("name");
-            String type = field.get("type");
-            createTableSQL.append(name).append(" ").append(type);
-            if (field.get("primaryKey").equals("Yes")) {
-                createTableSQL.append(" PRIMARY KEY");
-            }
-            if (i < fields.size() - 1) {
-                createTableSQL.append(", ");
-            }
-        }
-        createTableSQL.append(")");
-
-        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(createTableSQL.toString());
-            editor.showMessageDialog("Success", "Table '" + tableName + "' created successfully.", 1);
-            newTableNameField.setText("");
-            fields.clear();
-            tableModel.setRowCount(0);
-            schemaManager.loadTableList();
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error creating table: " + e.getMessage(), 0);
-        }
+        tableModel.addRow(new Object[]{fieldName, fieldType, primaryKey != null ? primaryKey : "No"});
+        fieldNameField.setText("");
     }
 
-    public void renameColumn() {
-        String tableName = (String) tableComboBox.getSelectedItem();
+    public void deleteField() {
         int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to rename.", 0);
-            return;
-        }
-        String oldName = (String) tableModel.getValueAt(selectedRow, 0);
-        String newName = javax.swing.JOptionPane.showInputDialog(editor, "Enter new column name for '" + oldName + "':");
-        if (newName == null || newName.trim().isEmpty()) {
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            newFields.get(selectedRow).put("name", newName);
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (field.get("primaryKey").equals("Yes")) {
-                    createSQL.append(" PRIMARY KEY");
-                }
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
+        if (selectedRow != -1) {
+            String tableName = (String) tableComboBox.getSelectedItem();
+            String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+            if (isProtectedColumn(tableName, columnName)) {
+                editor.showMessageDialog("Error", "Cannot delete protected column: " + columnName, 0);
+                return;
             }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                StringBuilder newColumns = new StringBuilder();
-                for (int i = 0; i < fields.size(); i++) {
-                    columns.append(fields.get(i).get("name"));
-                    newColumns.append(i == selectedRow ? newName : fields.get(i).get("name"));
-                    if (i < fields.size() - 1) {
-                        columns.append(", ");
-                        newColumns.append(", ");
-                    }
-                }
-                stmt.executeUpdate("INSERT INTO " + tempTable + " (" + newColumns + ") SELECT " + columns + " FROM " + tableName);
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Column renamed to: " + newName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error renaming column: " + e.getMessage(), 0);
-        }
-    }
-
-    public void changeColumnType() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to change type.", 0);
-            return;
-        }
-        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
-        String newType = javax.swing.JOptionPane.showInputDialog(editor, "Enter new type for '" + columnName + "' (e.g., VARCHAR(255), INTEGER):");
-        if (newType == null || newType.trim().isEmpty() || !isValidDataType(newType)) {
-            editor.showMessageDialog("Error", "Invalid or empty field type. Use VARCHAR(255), INTEGER, DATE, DOUBLE, etc.", 0);
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            newFields.get(selectedRow).put("type", newType);
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (field.get("primaryKey").equals("Yes")) {
-                    createSQL.append(" PRIMARY KEY");
-                }
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
-            }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                for (int i = 0; i < fields.size(); i++) {
-                    columns.append(fields.get(i).get("name"));
-                    if (i < fields.size() - 1) {
-                        columns.append(", ");
-                    }
-                }
-                stmt.executeUpdate("INSERT INTO " + tempTable + " (" + columns + ") SELECT " + columns + " FROM " + tableName);
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Column type changed for: " + columnName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error changing column type: " + e.getMessage(), 0);
-        }
-    }
-
-    public void moveColumn(int direction) {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to move.", 0);
-            return;
-        }
-        int newIndex = selectedRow + direction;
-        if (newIndex < 0 || newIndex >= fields.size()) {
-            editor.showMessageDialog("Error", "Cannot move column beyond table bounds.", 0);
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            Map<String, String> temp = newFields.get(selectedRow);
-            newFields.set(selectedRow, newFields.get(newIndex));
-            newFields.set(newIndex, temp);
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (field.get("primaryKey").equals("Yes")) {
-                    createSQL.append(" PRIMARY KEY");
-                }
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
-            }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                for (int i = 0; i < fields.size(); i++) {
-                    columns.append(fields.get(i).get("name"));
-                    if (i < fields.size() - 1) {
-                        columns.append(", ");
-                    }
-                }
-                stmt.executeUpdate("INSERT INTO " + tempTable + " (" + columns + ") SELECT " + columns + " FROM " + tableName);
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Column moved successfully.", 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error moving column: " + e.getMessage(), 0);
-        }
-    }
-
-    public void setPrimaryKey() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to set as primary key.", 0);
-            return;
-        }
-        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            for (Map<String, String> field : newFields) {
-                field.put("primaryKey", field.get("name").equals(columnName) ? "Yes" : "No");
-            }
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (field.get("primaryKey").equals("Yes")) {
-                    createSQL.append(" PRIMARY KEY");
-                }
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
-            }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                for (int i = 0; i < fields.size(); i++) {
-                    columns.append(fields.get(i).get("name"));
-                    if (i < fields.size() - 1) {
-                        columns.append(", ");
-                    }
-                }
-                stmt.executeUpdate("INSERT INTO " + tempTable + " (" + columns + ") SELECT " + columns + " FROM " + tableName);
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Primary key set on: " + columnName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error setting primary key: " + e.getMessage(), 0);
-        }
-    }
-
-    public void removePrimaryKey() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to remove primary key.", 0);
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            for (Map<String, String> field : newFields) {
-                field.put("primaryKey", "No");
-            }
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
-            }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                for (int i = 0; i < fields.size(); i++) {
-                    columns.append(fields.get(i).get("name"));
-                    if (i < fields.size() - 1) {
-                        columns.append(", ");
-                    }
-                }
-                stmt.executeUpdate("INSERT INTO " + tempTable + " (" + columns + ") SELECT " + columns + " FROM " + tableName);
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Primary key removed.", 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error removing primary key: " + e.getMessage(), 0);
-        }
-    }
-
-    public void addColumn() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        if (tableName == null) {
-            editor.showMessageDialog("Error", "Select a table to add a column.", 0);
-            return;
-        }
-        String columnName = javax.swing.JOptionPane.showInputDialog(editor, "Enter new column name:");
-        if (columnName == null || columnName.trim().isEmpty()) {
-            return;
-        }
-        String columnType = javax.swing.JOptionPane.showInputDialog(editor, "Enter column type (e.g., VARCHAR(255), INTEGER):");
-        if (columnType == null || columnType.trim().isEmpty() || !isValidDataType(columnType)) {
-            editor.showMessageDialog("Error", "Invalid or empty field type. Use VARCHAR(255), INTEGER, DATE, DOUBLE, etc.", 0);
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnType);
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Column added: " + columnName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error adding column: " + e.getMessage(), 0);
-        }
-    }
-
-    public void deleteColumn() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (tableName == null || selectedRow == -1) {
-            editor.showMessageDialog("Error", "Select a table and column to delete.", 0);
-            return;
-        }
-        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(editor, "Delete column '" + columnName + "'? This cannot be undone.", "Confirm Delete", javax.swing.JOptionPane.YES_NO_OPTION);
-        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            List<Map<String, String>> newFields = new ArrayList<>(fields);
-            newFields.remove(selectedRow);
-            String tempTable = tableName + "_temp_" + System.currentTimeMillis();
-            StringBuilder createSQL = new StringBuilder("CREATE TABLE " + tempTable + " (");
-            for (int i = 0; i < newFields.size(); i++) {
-                Map<String, String> field = newFields.get(i);
-                createSQL.append(field.get("name")).append(" ").append(field.get("type"));
-                if (field.get("primaryKey").equals("Yes")) {
-                    createSQL.append(" PRIMARY KEY");
-                }
-                if (i < newFields.size() - 1) {
-                    createSQL.append(", ");
-                }
-            }
-            createSQL.append(")");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSQL.toString());
-                StringBuilder columns = new StringBuilder();
-                for (int i = 0; i < newFields.size(); i++) {
-                    columns.append(newFields.get(i).get("name"));
-                    if (i < newFields.size() - 1) {
-                        columns.append(", ");
-                    }
-                }
-                if (!newFields.isEmpty()) {
-                    stmt.executeUpdate("INSERT INTO " + tempTable + " (" + columns + ") SELECT " + columns + " FROM " + tableName);
-                }
-                stmt.executeUpdate("DROP TABLE " + tableName);
-                stmt.executeUpdate("ALTER TABLE " + tempTable + " RENAME TO " + tableName);
-            }
-            loadTableSchema();
-            schemaManager.loadTableList();
-            editor.showMessageDialog("Status", "Column deleted: " + columnName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error deleting column: " + e.getMessage(), 0);
-        }
-    }
-
-    public void deleteTable() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        if (tableName == null) {
-            editor.showMessageDialog("Error", "Select a table to delete.", 0);
-            return;
-        }
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(editor, "Delete table '" + tableName + "'? This cannot be undone.", "Confirm Delete", javax.swing.JOptionPane.YES_NO_OPTION);
-        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
-        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DROP TABLE " + tableName);
-            schemaManager.loadTableList();
-            tableModel.setRowCount(0);
-            fields.clear();
-            editor.showMessageDialog("Status", "Table deleted: " + tableName, 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error deleting table: " + e.getMessage(), 0);
+            fields.remove(selectedRow);
+            tableModel.removeRow(selectedRow);
+        } else {
+            editor.showMessageDialog("Error", "No field selected.", 0);
         }
     }
 
     public void loadTableSchema() {
         String tableName = (String) tableComboBox.getSelectedItem();
         if (tableName == null) {
-            tableModel.setRowCount(0);
-            fields.clear();
-            editor.showMessageDialog("Status", "No table selected.", 1);
             return;
         }
-
         fields.clear();
         tableModel.setRowCount(0);
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet rs = metaData.getColumns(null, null, tableName, null)) {
-                while (rs.next()) {
-                    Map<String, String> field = new HashMap<>();
-                    String columnName = rs.getString("COLUMN_NAME");
-                    String columnType = rs.getString("TYPE_NAME");
-                    field.put("name", columnName);
-                    field.put("type", columnType);
-                    field.put("primaryKey", "No");
-                    fields.add(field);
-                    tableModel.addRow(new Object[]{columnName, columnType, "No"});
-                }
+            ResultSet rs = metaData.getColumns(null, null, tableName, null);
+            while (rs.next()) {
+                Map<String, String> field = new HashMap<>();
+                String columnName = rs.getString("COLUMN_NAME");
+                String columnType = rs.getString("TYPE_NAME");
+                field.put("name", columnName);
+                field.put("type", columnType);
+                field.put("primaryKey", isPrimaryKey(tableName, columnName) ? "Yes" : "No");
+                fields.add(field);
+                tableModel.addRow(new Object[]{columnName, columnType, field.get("primaryKey")});
             }
-            try (ResultSet rs = metaData.getPrimaryKeys(null, null, tableName)) {
-                while (rs.next()) {
-                    String pkColumn = rs.getString("COLUMN_NAME");
-                    for (Map<String, String> field : fields) {
-                        if (field.get("name").equals(pkColumn)) {
-                            field.put("primaryKey", "Yes");
-                            int row = fields.indexOf(field);
-                            tableModel.setValueAt("Yes", row, 2);
-                        }
-                    }
-                }
-            }
-            editor.showMessageDialog("Status", "Schema loaded for table: " + tableName, 1);
         } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Error loading schema: " + e.getMessage(), 0);
+            editor.showMessageDialog("Error", "Failed to load table schema: " + e.getMessage(), 0);
         }
     }
 
-    public boolean isValidDataType(String type) {
-        String normalizedType = type.toUpperCase().trim();
-        return normalizedType.startsWith("VARCHAR") ||
-               normalizedType.equals("INTEGER") ||
-               normalizedType.equals("DATE") ||
-               normalizedType.equals("DOUBLE") ||
-               normalizedType.equals("TEXT") ||
-               normalizedType.equals("BOOLEAN") ||
-               normalizedType.equals("LONG") ||
-               normalizedType.equals("MEMO") ||
-               normalizedType.equals("CURRENCY");
+    public boolean isValidDataType(String dataType) {
+        List<String> validTypes = Arrays.asList("TEXT", "INTEGER", "DOUBLE", "DATE", "VARCHAR(255)");
+        return validTypes.contains(dataType.toUpperCase());
+    }
+
+    public void addColumn() {
+        String tableName = (String) tableComboBox.getSelectedItem();
+        if (tableName == null) {
+            editor.showMessageDialog("Error", "No table selected.", 0);
+            return;
+        }
+        String newColumnName = JOptionPane.showInputDialog(editor, "Enter new column name:");
+        if (newColumnName == null || newColumnName.trim().isEmpty()) {
+            editor.showMessageDialog("Error", "Column name cannot be empty.", 0);
+            return;
+        }
+        String dataType = JOptionPane.showInputDialog(editor, "Enter data type (TEXT, INTEGER, DOUBLE, DATE):", "TEXT");
+        if (dataType == null || !isValidDataType(dataType)) {
+            editor.showMessageDialog("Error", "Invalid data type.", 0);
+            return;
+        }
+        try {
+            DatabaseUtils.addNewField(tableName, newColumnName, dataType);
+            loadTableSchema();
+            editor.showMessageDialog("Success", "Column " + newColumnName + " added successfully.", 1);
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to add column: " + e.getMessage(), 0);
+        }
+    }
+
+    public void deleteTable() {
+        String tableName = (String) tableComboBox.getSelectedItem();
+        if (tableName == null) {
+            editor.showMessageDialog("Error", "No table selected.", 0);
+            return;
+        }
+        if (isProtectedTable(tableName)) {
+            editor.showMessageDialog("Error", "Cannot delete protected table: " + tableName, 0);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(editor, "Are you sure you want to delete table " + tableName + "?", 
+                "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DROP TABLE " + tableName);
+            schemaManager.loadTableList();
+            fields.clear();
+            tableModel.setRowCount(0);
+            editor.showMessageDialog("Success", "Table " + tableName + " deleted successfully.", 1);
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to delete table: " + e.getMessage(), 0);
+        }
+    }
+
+    public void renameColumn() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String oldName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, oldName)) {
+            editor.showMessageDialog("Error", "Cannot rename protected column: " + oldName, 0);
+            return;
+        }
+        String newName = JOptionPane.showInputDialog(editor, "Enter new column name:", oldName);
+        if (newName == null || newName.trim().isEmpty()) {
+            editor.showMessageDialog("Error", "New column name cannot be empty.", 0);
+            return;
+        }
+        try {
+            String sql = String.format("ALTER TABLE %s RENAME COLUMN %s TO %s", tableName, oldName, newName);
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                loadTableSchema();
+                editor.showMessageDialog("Success", "Column renamed successfully.", 1);
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to rename column: " + e.getMessage(), 0);
+        }
+    }
+
+    public void changeColumnType() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot change type of protected column: " + columnName, 0);
+            return;
+        }
+        String newType = JOptionPane.showInputDialog(editor, "Enter new data type (TEXT, INTEGER, DOUBLE, DATE):", 
+                tableModel.getValueAt(selectedRow, 1));
+        if (newType == null || !isValidDataType(newType)) {
+            editor.showMessageDialog("Error", "Invalid data type.", 0);
+            return;
+        }
+        try {
+            String sql = String.format("ALTER TABLE %s ALTER COLUMN %s %s", tableName, columnName, newType);
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                loadTableSchema();
+                editor.showMessageDialog("Success", "Column type changed successfully.", 1);
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to change column type: " + e.getMessage(), 0);
+        }
+    }
+
+    public void moveColumn(int direction) {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        if ((direction == -1 && selectedRow == 0) || (direction == 1 && selectedRow == fields.size() - 1)) {
+            return;
+        }
+        int newIndex = selectedRow + direction;
+        Map<String, String> field = fields.remove(selectedRow);
+        fields.add(newIndex, field);
+        tableModel.removeRow(selectedRow);
+        tableModel.insertRow(newIndex, new Object[]{field.get("name"), field.get("type"), field.get("primaryKey")});
+        fieldsTable.setRowSelectionInterval(newIndex, newIndex);
+        // Note: Actual column reordering in the database may require recreating the table
+    }
+
+    public void setPrimaryKey() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot modify protected column: " + columnName, 0);
+            return;
+        }
+        try {
+            String sql = String.format("ALTER TABLE %s ADD PRIMARY KEY (%s)", tableName, columnName);
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                fields.get(selectedRow).put("primaryKey", "Yes");
+                tableModel.setValueAt("Yes", selectedRow, 2);
+                editor.showMessageDialog("Success", "Primary key set successfully.", 1);
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to set primary key: " + e.getMessage(), 0);
+        }
+    }
+
+    public void removePrimaryKey() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (!isPrimaryKey(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Column is not a primary key.", 0);
+            return;
+        }
+        try {
+            String sql = String.format("ALTER TABLE %s DROP PRIMARY KEY", tableName);
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                fields.get(selectedRow).put("primaryKey", "No");
+                tableModel.setValueAt("No", selectedRow, 2);
+                editor.showMessageDialog("Success", "Primary key removed successfully.", 1);
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to remove primary key: " + e.getMessage(), 0);
+        }
+    }
+
+    public void deleteColumn() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            editor.showMessageDialog("Error", "No column selected.", 0);
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot delete protected column: " + columnName, 0);
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(editor, "Are you sure you want to delete column " + columnName + "?", 
+                "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            String sql = String.format("ALTER TABLE %s DROP COLUMN %s", tableName, columnName);
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                fields.remove(selectedRow);
+                tableModel.removeRow(selectedRow);
+                editor.showMessageDialog("Success", "Column deleted successfully.", 1);
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to delete column: " + e.getMessage(), 0);
+        }
+    }
+
+    private boolean isProtectedColumn(String tableName, String columnName) {
+        if (tableName == null) return false;
+        if (tableName.equalsIgnoreCase("Inventory") && columnName.equals("AssetName")) return true;
+        if (tableName.equalsIgnoreCase("Templates") && (columnName.equals("Template_Name") || columnName.equals("AssetName"))) return true;
+        if (tableName.equalsIgnoreCase("Accessories") && columnName.equals("Peripheral_Type")) return true;
+        if (tableName.equalsIgnoreCase("Cables") && columnName.equals("Cable_Type")) return true;
+        if (tableName.equalsIgnoreCase("Adapters") && columnName.equals("Adapter_Type")) return true;
+        return false;
+    }
+
+    private boolean isProtectedTable(String tableName) {
+        return tableName.equalsIgnoreCase("Inventory") || 
+               tableName.equalsIgnoreCase("Templates") || 
+               tableName.equalsIgnoreCase("Accessories") || 
+               tableName.equalsIgnoreCase("Cables") || 
+               tableName.equalsIgnoreCase("Adapters");
+    }
+
+    private boolean isPrimaryKey(String tableName, String columnName) {
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            ResultSet rs = metaData.getPrimaryKeys(null, null, tableName);
+            while (rs.next()) {
+                if (rs.getString("COLUMN_NAME").equals(columnName)) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to check primary key: " + e.getMessage(), 0);
+        }
+        return false;
     }
 }

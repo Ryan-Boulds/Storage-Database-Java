@@ -20,6 +20,7 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import utils.DatabaseUtils;
+import utils.DefaultColumns;
 
 public class PopupHandler {
     public static void showDetailsPopup(JFrame parent, HashMap<String, String> device) {
@@ -30,9 +31,9 @@ public class PopupHandler {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 
-        for (String key : device.keySet()) {
-            String value = device.get(key);
-            if (value != null && !value.isEmpty()) {
+        for (String key : DefaultColumns.getInventoryColumns()) {
+            String value = device.getOrDefault(key, "");
+            if (!value.isEmpty()) {
                 JLabel label = new JLabel(key + ": " + value);
                 label.setAlignmentX(Component.LEFT_ALIGNMENT);
                 detailsPanel.add(label);
@@ -41,17 +42,17 @@ public class PopupHandler {
 
         JButton deleteButton = new JButton("Delete Device");
         deleteButton.addActionListener(e -> {
-            String serialNumber = device.get("Serial_Number");
-            if (serialNumber != null) {
+            String assetName = device.get("AssetName");
+            if (assetName != null) {
                 int confirm = JOptionPane.showConfirmDialog(
                     dialog,
-                    "Are you sure you want to delete device with Serial Number: " + serialNumber + "?",
+                    "Are you sure you want to delete device with Asset Name: " + assetName + "?",
                     "Confirm Delete",
                     JOptionPane.YES_NO_OPTION
                 );
                 if (confirm == JOptionPane.YES_OPTION) {
                     try {
-                        DatabaseUtils.deleteDevice(serialNumber);
+                        DatabaseUtils.deleteDevice(assetName);
                         JOptionPane.showMessageDialog(dialog, "Device deleted successfully");
                         dialog.dispose();
                     } catch (SQLException ex) {
@@ -78,7 +79,7 @@ public class PopupHandler {
             if (selectedRow >= 0) {
                 HashMap<String, String> device = new HashMap<>();
                 for (int i = 0; i < table.getColumnCount(); i++) {
-                    String columnName = table.getColumnName(i).replace(" ", "_");
+                    String columnName = table.getColumnName(i);
                     device.put(columnName, table.getValueAt(selectedRow, i).toString());
                 }
                 showDetailsPopup((JFrame) SwingUtilities.getWindowAncestor(table), device);
@@ -90,7 +91,7 @@ public class PopupHandler {
             if (selectedRow >= 0) {
                 HashMap<String, String> device = new HashMap<>();
                 for (int i = 0; i < table.getColumnCount(); i++) {
-                    String columnName = table.getColumnName(i).replace(" ", "_");
+                    String columnName = table.getColumnName(i);
                     device.put(columnName, table.getValueAt(selectedRow, i).toString());
                 }
                 ModifyDialog.showModifyDialog((JFrame) SwingUtilities.getWindowAncestor(table), device);

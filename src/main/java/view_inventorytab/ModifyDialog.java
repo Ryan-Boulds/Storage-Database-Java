@@ -3,17 +3,10 @@ package view_inventorytab;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -24,12 +17,13 @@ import javax.swing.JTextField;
 
 import utils.DataUtils;
 import utils.DatabaseUtils;
+import utils.DefaultColumns;
 import utils.UIComponentUtils;
 
 public class ModifyDialog {
     private final JDialog dialog;
     private final HashMap<String, String> device;
-    private final java.util.List<String> columnNames;
+    private final String[] columnNames = DefaultColumns.getInventoryColumns();
     private final JComponent[] inputs;
     private final HashMap<String, String> originalValues;
 
@@ -37,52 +31,36 @@ public class ModifyDialog {
         this.device = device;
         this.originalValues = new HashMap<>(device);
 
-        java.util.List<String> defaultCategories = Arrays.asList(
-            "Device Name", "Device Type", "Serial Number", "Status", "Department", "Added Memory",
-            "Added Storage", "Purchase Date", "Warranty Expiry", "Purchase Cost", "Vendor", "Assigned User",
-            "OS Version", "Room", "Desk", "Maintenance Due", "Storage Capacity", "Memory Space",
-            "Warranty Guarantee", "Acquisition Cost", "Supplier", "Operating System", "Specification Details",
-            "Purchase Expense", "Storage Expansion", "Brand", "Manufacturer", "Building Location",
-            "Site", "Division", "Team", "Unit", "Test", "Trial", "Experiment", "Evaluation", "Check",
-            "Review", "Assessment"
-        );
-
-        this.columnNames = new ArrayList<>();
-        Set<String> allKeys = new HashSet<>(device.keySet());
-        allKeys.addAll(defaultCategories.stream().map(s -> s.replace(" ", "_")).collect(Collectors.toSet()));
-        for (String key : allKeys) {
-            columnNames.add(key.replace("_", " "));
-        }
-        Collections.sort(columnNames);
-
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        this.inputs = new JComponent[columnNames.size()];
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        this.inputs = new JComponent[columnNames.length];
 
-        for (int i = 0; i < columnNames.size(); i++) {
-            String fieldName = columnNames.get(i);
+        Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
+        for (int i = 0; i < columnNames.length; i++) {
+            String fieldName = columnNames[i];
             JComponent input;
-            String key = fieldName.replace(" ", "_");
-            if (fieldName.equals("Status")) {
-                JComboBox<String> combo = UIComponentUtils.createFormattedComboBox(new String[]{"Deployed", "In Storage", "Needs Repair"});
-                combo.setSelectedItem(device.getOrDefault(key, "Deployed"));
-                input = combo;
-            } else if (fieldName.equals("Added Memory") || fieldName.equals("Added Storage")) {
-                JComboBox<String> combo = UIComponentUtils.createFormattedComboBox(new String[]{"TRUE", "FALSE", "null"});
-                combo.setSelectedItem(device.getOrDefault(key, "null"));
-                input = combo;
-            } else if (fieldName.contains("Date")) {
-                JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
-                JTextField dateField = (JTextField) datePicker.getComponent(0);
-                dateField.setText(device.getOrDefault(key, ""));
-                input = datePicker;
-            } else {
-                JTextField field = UIComponentUtils.createFormattedTextField();
-                field.setText(device.getOrDefault(key, ""));
-                if (fieldName.equals("Serial Number") || fieldName.equals("Device Type")) {
-                    field.setEditable(false);
-                }
-                input = field;
+            String key = fieldName;
+            String type = columnDefs.getOrDefault(key, "TEXT");
+            switch (type) {
+                case "DATE":
+                    JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
+                    JTextField dateField = (JTextField) datePicker.getComponent(0);
+                    dateField.setText(device.getOrDefault(key, ""));
+                    input = datePicker;
+                    break;
+                case "DOUBLE":
+                    JTextField doubleField = UIComponentUtils.createFormattedTextField();
+                    doubleField.setText(device.getOrDefault(key, ""));
+                    input = doubleField;
+                    break;
+                default:
+                    JTextField textField = UIComponentUtils.createFormattedTextField();
+                    textField.setText(device.getOrDefault(key, ""));
+                    if (fieldName.equals("AssetName")) {
+                        textField.setEditable(false);
+                    }
+                    input = textField;
+                    break;
             }
             panel.add(UIComponentUtils.createAlignedLabel(fieldName + ":"));
             panel.add(input);
@@ -98,7 +76,7 @@ public class ModifyDialog {
         dialog.setModal(true);
         dialog.setLayout(new BorderLayout());
         dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.setSize(500, Math.min(600, 50 + 40 * columnNames.size()));
+        dialog.setSize(500, Math.min(600, 50 + 40 * columnNames.length));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(null);
 
@@ -126,13 +104,11 @@ public class ModifyDialog {
 
     private void saveAction() {
         HashMap<String, String> updatedDevice = new HashMap<>();
-        for (int i = 0; i < columnNames.size(); i++) {
-            String key = columnNames.get(i).replace(" ", "_");
+        for (int i = 0; i < columnNames.length; i++) {
+            String key = columnNames[i];
             String value;
             if (inputs[i] instanceof JTextField) {
                 value = ((JTextField) inputs[i]).getText();
-            } else if (inputs[i] instanceof JComboBox) {
-                value = (String) ((JComboBox<?>) inputs[i]).getSelectedItem();
             } else {
                 value = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
             }
@@ -164,21 +140,21 @@ public class ModifyDialog {
             return;
         }
 
-        String serialNumber = device.get("Serial_Number");
-        String error = DataUtils.validateDevice(updatedDevice, serialNumber);
+        String assetName = device.get("AssetName");
+        String error = DataUtils.validateDevice(updatedDevice, assetName);
         if (error != null) {
             JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            if (serialNumber != null) {
-                DatabaseUtils.deleteDevice(serialNumber);
+            if (assetName != null) {
+                DatabaseUtils.deleteDevice(assetName);
                 DatabaseUtils.saveDevice(updatedDevice);
                 JOptionPane.showMessageDialog(dialog, "Device updated successfully");
                 dialog.dispose();
             } else {
-                JOptionPane.showMessageDialog(dialog, "Error: Serial Number not found", "Update Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Error: Asset Name not found", "Update Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(dialog, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
@@ -187,13 +163,11 @@ public class ModifyDialog {
 
     private void cancelAction() {
         boolean hasChanges = false;
-        for (int i = 0; i < columnNames.size(); i++) {
-            String key = columnNames.get(i).replace(" ", "_");
+        for (int i = 0; i < columnNames.length; i++) {
+            String key = columnNames[i];
             String currentValue;
             if (inputs[i] instanceof JTextField) {
                 currentValue = ((JTextField) inputs[i]).getText();
-            } else if (inputs[i] instanceof JComboBox) {
-                currentValue = (String) ((JComboBox<?>) inputs[i]).getSelectedItem();
             } else {
                 currentValue = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
             }

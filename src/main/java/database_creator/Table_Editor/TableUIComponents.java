@@ -5,7 +5,6 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,36 +55,22 @@ public class TableUIComponents {
         topPanel.add(newTableNameField);
 
         // Field input for new tables
-        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         JTextField fieldNameField = UIComponentUtils.createFormattedTextField();
-        JTextField fieldTypeField = UIComponentUtils.createFormattedTextField();
+        JComboBox<String> fieldTypeComboBox = new JComboBox<>(new String[]{"TEXT", "INTEGER", "DOUBLE", "DATE", "VARCHAR(255)"});
+        JComboBox<String> primaryKeyComboBox = new JComboBox<>(new String[]{"No", "Yes"});
         inputPanel.add(new JLabel("New Field Name:"));
         inputPanel.add(fieldNameField);
-        inputPanel.add(new JLabel("Field Type (e.g., VARCHAR(255), INTEGER):"));
-        inputPanel.add(fieldTypeField);
+        inputPanel.add(new JLabel("Field Type:"));
+        inputPanel.add(fieldTypeComboBox);
+        inputPanel.add(new JLabel("Primary Key:"));
+        inputPanel.add(primaryKeyComboBox);
 
         // Buttons
         JPanel buttonPanel = new JPanel();
         JButton addFieldButton = UIComponentUtils.createFormattedButton("Add Field");
         addFieldButton.addActionListener(e -> {
-            String fieldName = fieldNameField.getText().trim();
-            String fieldType = fieldTypeField.getText().trim();
-            if (fieldName.isEmpty() || fieldType.isEmpty()) {
-                showMessageDialog("Error", "Field name and type cannot be empty.", 0);
-                return;
-            }
-            if (!operationHandler.isValidDataType(fieldType)) {
-                showMessageDialog("Error", "Invalid data type. Use VARCHAR(255), INTEGER, DATE, DOUBLE, etc.", 0);
-                return;
-            }
-            Map<String, String> field = new HashMap<>();
-            field.put("name", fieldName);
-            field.put("type", fieldType);
-            field.put("primaryKey", "No");
-            fields.add(field);
-            tableModel.addRow(new Object[]{fieldName, fieldType, "No"});
-            fieldNameField.setText("");
-            fieldTypeField.setText("");
+            operationHandler.addField(fieldNameField, fieldTypeComboBox, primaryKeyComboBox);
             showMessageDialog("Status", "Field added to new table definition.", 1);
         });
         JButton createTableButton = UIComponentUtils.createFormattedButton("Create New Table");

@@ -21,8 +21,8 @@ public class InventoryData {
 
     public static ArrayList<HashMap<String, String>> getDevices() {
         try {
-            devices = FileUtils.loadDevices(); // Ensure this returns consistent date format
-            return new ArrayList<>(devices); // Return a copy to avoid modification issues
+            devices = FileUtils.loadDevices();
+            return new ArrayList<>(devices);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading devices: " + e.getMessage());
         }
@@ -30,8 +30,8 @@ public class InventoryData {
 
     public static ArrayList<HashMap<String, String>> getCables() {
         try {
-            cables = FileUtils.loadCables(); // Assume this now returns count by type
-            return new ArrayList<>(cables); // Return a copy
+            cables = FileUtils.loadCables();
+            return new ArrayList<>(cables);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading cables: " + e.getMessage());
         }
@@ -74,10 +74,10 @@ public class InventoryData {
         }
     }
 
-    public static void deleteDevice(String serialNumber) {
+    public static void deleteDevice(String assetName) {
         try {
-            DatabaseUtils.deleteDevice(serialNumber);
-            devices.removeIf(device -> serialNumber.equals(device.get("Serial_Number")));
+            DatabaseUtils.deleteDevice(assetName);
+            devices.removeIf(device -> assetName.equals(device.get("AssetName")));
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting device: " + e.getMessage());
         }
