@@ -7,9 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 
 import utils.DefaultColumns;
 import utils.InventoryData;
@@ -18,12 +21,15 @@ public class TableManager {
     private final JTable table;
     private final DefaultTableModel model;
     private final String[] columns = DefaultColumns.getInventoryColumns();
+    private TableRowSorter<DefaultTableModel> sorter;
 
     public TableManager(JTable table) {
         this.table = table;
         this.model = new DefaultTableModel();
         if (table != null) {
             table.setModel(model);
+            sorter = new TableRowSorter<>(model);
+            table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             adjustColumnWidths();
         }
@@ -83,5 +89,12 @@ public class TableManager {
             model.addRow(row);
         }
         adjustColumnWidths();
+    }
+
+    public void sortTable(int columnIndex) {
+        java.util.List<RowSorter.SortKey> sortKeys = new java.util.ArrayList<>();
+        sortKeys.add(new RowSorter.SortKey(columnIndex, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
     }
 }

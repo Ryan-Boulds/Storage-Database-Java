@@ -47,7 +47,6 @@ public final class AccessoriesCountTab extends JPanel {
 
         // Accessories section
         JPanel accessoriesPanel = new JPanel(new BorderLayout(10, 10));
-        accessoriesPanel.add(UIComponentUtils.createAlignedLabel("Accessories:"), BorderLayout.NORTH);
         accessoriesPanel.add(UIComponentUtils.createScrollableContentPanel(accessoryTable), BorderLayout.CENTER);
 
         // Buttons panel

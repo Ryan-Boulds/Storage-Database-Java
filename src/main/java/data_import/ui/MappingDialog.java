@@ -93,9 +93,8 @@ public class MappingDialog {
             if (!"None".equals(defaultMatch)) {
                 columnMappings.put(defaultMatch, dbField);
             }
-
             // Add ActionListener to update mappings
-            final int index = i;
+
             comboBox.addActionListener(e -> {
                 String selected = (String) comboBox.getSelectedItem();
                 if ("None".equals(selected)) {
