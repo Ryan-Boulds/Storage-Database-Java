@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DatabaseHandler {
     public void addNewField(String tableName, String fieldName, String fieldType) throws SQLException {
@@ -52,6 +53,23 @@ public class DatabaseHandler {
             }
             stmt.setString(index, assetName);
             stmt.executeUpdate();
+        }
+    }
+
+    public void mergeDeviceInDB(HashMap<String, String> device) throws SQLException {
+        HashMap<String, String> existingDevice = getDeviceByAssetNameFromDB(device.get("AssetName"));
+        if (existingDevice != null) {
+            HashMap<String, String> mergedDevice = new HashMap<>(existingDevice);
+            for (Map.Entry<String, String> entry : device.entrySet()) {
+                String key = entry.getKey();
+                String newValue = entry.getValue();
+                String oldValue = existingDevice.get(key);
+                if (newValue != null && !newValue.trim().isEmpty() && 
+                    (oldValue == null || oldValue.trim().isEmpty())) {
+                    mergedDevice.put(key, newValue);
+                }
+            }
+            updateDeviceInDB(mergedDevice);
         }
     }
 }
