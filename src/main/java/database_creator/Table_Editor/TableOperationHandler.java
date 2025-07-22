@@ -398,8 +398,7 @@ public class TableOperationHandler {
         if (tableName.equalsIgnoreCase("Templates") && (columnName.equals("Template_Name") || columnName.equals("AssetName"))) return true;
         if (tableName.equalsIgnoreCase("Accessories") && columnName.equals("Peripheral_Type")) return true;
         if (tableName.equalsIgnoreCase("Cables") && columnName.equals("Cable_Type")) return true;
-        if (tableName.equalsIgnoreCase("Adapters") && columnName.equals("Adapter_Type")) return true;
-        return false;
+        return tableName.equalsIgnoreCase("Adapters") && columnName.equals("Adapter_Type");
     }
 
     private boolean isProtectedTable(String tableName) {
