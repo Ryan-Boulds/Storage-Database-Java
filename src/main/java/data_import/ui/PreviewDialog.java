@@ -142,7 +142,7 @@ public class PreviewDialog {
         }
 
         String[] csvColumns = data.get(0);
-        List<String[]> dataRows = data.subList(1, Math.min(data.size(), 6));
+        List<String[]> dataRows = data.subList(1, data.size()); // Show all rows
 
         DefaultTableModel previewModel = new DefaultTableModel(csvColumns, 0) {
             @Override
@@ -160,7 +160,7 @@ public class PreviewDialog {
 
         JTable previewTable = new JTable(previewModel);
         JScrollPane previewScrollPane = UIComponentUtils.createScrollableContentPanel(previewTable);
-        previewScrollPane.setPreferredSize(new Dimension(600, 200));
+        previewScrollPane.setPreferredSize(new Dimension(800, 400)); // Increased size for larger datasets
 
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1));
         JCheckBox[] columnCheckboxes = new JCheckBox[csvColumns.length];
@@ -169,7 +169,7 @@ public class PreviewDialog {
             checkboxPanel.add(columnCheckboxes[i]);
         }
         JScrollPane checkboxScrollPane = UIComponentUtils.createScrollableContentPanel(checkboxPanel);
-        checkboxScrollPane.setPreferredSize(new Dimension(200, 200));
+        checkboxScrollPane.setPreferredSize(new Dimension(200, 400));
 
         JPanel dialogPanel = new JPanel(new BorderLayout());
         dialogPanel.add(previewScrollPane, BorderLayout.CENTER);
@@ -187,7 +187,26 @@ public class PreviewDialog {
             }
             if (selectedIndices.isEmpty()) {
                 JOptionPane.showMessageDialog(parent, "No columns selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (selectedIndices.size() < csvColumns.length) {
+                // Filter data to include only selected columns
+                List<String[]> filteredData = new ArrayList<>();
+                String[] headers = new String[selectedIndices.size()];
+                for (int i = 0; i < selectedIndices.size(); i++) {
+                    headers[i] = csvColumns[selectedIndices.get(i)];
+                }
+                filteredData.add(headers);
+                for (int i = 1; i < data.size(); i++) {
+                    String[] row = data.get(i);
+                    String[] filteredRow = new String[selectedIndices.size()];
+                    for (int j = 0; j < selectedIndices.size(); j++) {
+                        filteredRow[j] = row[selectedIndices.get(j)];
+                    }
+                    filteredData.add(filteredRow);
+                }
+                data = filteredData;
             }
+        } else {
+            data = null; // Cancelled
         }
     }
 }

@@ -5,12 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class DatabaseUtils {
     private static String DB_URL = "jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb";
@@ -27,8 +29,28 @@ public class DatabaseUtils {
         String sql = SQLGenerator.generateInsertSQL("Inventory", device);
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             int index = 1;
-            for (String value : device.values()) {
-                stmt.setString(index++, value != null ? value : "");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            for (Map.Entry<String, String> entry : device.entrySet()) {
+                String column = entry.getKey();
+                String value = entry.getValue();
+                if (DefaultColumns.getInventoryColumnDefinitions().containsKey(column) &&
+                    DefaultColumns.getInventoryColumnDefinitions().get(column).equals("DATE")) {
+                    if (value == null || value.trim().isEmpty()) {
+                        stmt.setNull(index++, java.sql.Types.DATE);
+                    } else {
+                        try {
+                            java.util.Date date = dateFormat.parse(value);
+                            stmt.setDate(index++, new java.sql.Date(date.getTime()));
+                        } catch (java.text.ParseException e) {
+                            java.util.logging.Logger.getLogger(DatabaseUtils.class.getName()).log(
+                                Level.SEVERE, "Failed to parse date for column {0}: {1}", 
+                                new Object[]{column, e.getMessage()});
+                            stmt.setNull(index++, java.sql.Types.DATE);
+                        }
+                    }
+                } else {
+                    stmt.setString(index++, value != null ? value : "");
+                }
             }
             stmt.executeUpdate();
         }
@@ -189,7 +211,6 @@ public class DatabaseUtils {
         return template;
     }
 
-    // New method for duplicate checking
     public static HashMap<String, String> getDeviceByAssetName(String assetName) throws SQLException {
         String sql = "SELECT * FROM Inventory WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -207,16 +228,35 @@ public class DatabaseUtils {
         return null;
     }
 
-    // New method for updating device
     public static void updateDevice(HashMap<String, String> device) throws SQLException {
         String sql = SQLGenerator.generateInsertSQL("Inventory", device);
         sql = sql.replace("INSERT INTO", "UPDATE").replace("VALUES", "SET") + " WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             int index = 1;
             String assetName = device.get("AssetName");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             for (Map.Entry<String, String> entry : device.entrySet()) {
-                if (!entry.getKey().equals("AssetName")) {
-                    stmt.setString(index++, entry.getValue() != null ? entry.getValue() : "");
+                String column = entry.getKey();
+                if (!column.equals("AssetName")) {
+                    String value = entry.getValue();
+                    if (DefaultColumns.getInventoryColumnDefinitions().containsKey(column) &&
+                        DefaultColumns.getInventoryColumnDefinitions().get(column).equals("DATE")) {
+                        if (value == null || value.trim().isEmpty()) {
+                            stmt.setNull(index++, java.sql.Types.DATE);
+                        } else {
+                            try {
+                                java.util.Date date = dateFormat.parse(value);
+                                stmt.setDate(index++, new java.sql.Date(date.getTime()));
+                            } catch (java.text.ParseException e) {
+                                java.util.logging.Logger.getLogger(DatabaseUtils.class.getName()).log(
+                                    Level.SEVERE, "Failed to parse date for column {0}: {1}", 
+                                    new Object[]{column, e.getMessage()});
+                                stmt.setNull(index++, java.sql.Types.DATE);
+                            }
+                        }
+                    } else {
+                        stmt.setString(index++, value != null ? value : "");
+                    }
                 }
             }
             stmt.setString(index, assetName);
@@ -224,7 +264,6 @@ public class DatabaseUtils {
         }
     }
 
-    // Existing deleteDevice renamed to match expected signature
     public static void deleteDeviceByAssetName(String assetName) throws SQLException {
         deleteDevice(assetName);
     }

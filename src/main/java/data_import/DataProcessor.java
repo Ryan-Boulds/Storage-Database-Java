@@ -3,24 +3,39 @@ package data_import;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataProcessor {
     private final List<utils.DataEntry> processedData = new ArrayList<>();
-    private final SimpleDateFormat[] dateFormats = {
-        new SimpleDateFormat("yyyy-MM-dd"),
+    private static final SimpleDateFormat[] dateFormats = {
+        new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy"),
         new SimpleDateFormat("MM/dd/yyyy"),
-        new SimpleDateFormat("dd-MM-yyyy")
+        new SimpleDateFormat("dd-MM-yyyy"),
+        new SimpleDateFormat("yyyy-MM-dd")
     };
+    private static final SimpleDateFormat accessDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+    static {
+        Logger.getLogger(DataProcessor.class.getName()).log(
+            Level.INFO, "Initializing date formats: {0}", 
+            java.util.Arrays.toString(dateFormats));
+        for (SimpleDateFormat df : dateFormats) {
+            df.setLenient(false);
+        }
+        accessDateFormat.setLenient(false);
+    }
 
     public List<utils.DataEntry> processData(List<String[]> importedData, Map<String, String> columnMappings, 
             Map<String, String> deviceTypeMappings, String[] tableColumns) {
         processedData.clear();
-        final java.util.function.Function<String, String> normalize = s -> s.replaceAll("[\\s_-]", "").toLowerCase();
-
+        Logger.getLogger(DataProcessor.class.getName()).log(
+            Level.INFO, "Date formats in use: {0}", 
+            java.util.Arrays.toString(dateFormats));
         Map<String, Integer> normalizedHeaderMap = new HashMap<>();
         String[] headers = importedData.get(0);
         for (int i = 0; i < headers.length; i++) {
@@ -40,31 +55,44 @@ public class DataProcessor {
                 Integer csvIndex = normalizedHeaderMap.get(normalizedCsvColumn);
                 if (csvIndex != null && csvIndex < csvRow.length) {
                     String value = csvRow[csvIndex];
+                    if (value == null) {
+                        value = ""; // Handle null values from CSV
+                    }
                     if (dbField.equals("Device_Type") && deviceTypeMappings.containsKey(value)) {
                         value = deviceTypeMappings.get(value);
                     }
-                    if ((dbField.equals("Created_at") || dbField.equals("Last_Successful_Scan")) && !value.trim().isEmpty()) {
-                        boolean parsed = false;
-                        for (SimpleDateFormat df : dateFormats) {
-                            df.setLenient(false);
-                            try {
-                                java.util.Date date = df.parse(value);
-                                value = new SimpleDateFormat("MM/dd/yyyy").format(date);
-                                parsed = true;
-                                break;
-                            } catch (ParseException e) {
-                                java.util.logging.Logger.getLogger(DataProcessor.class.getName()).log(Level.INFO, "Failed to parse {0} with format {1} at row {2}: {3}", new Object[]{value, df.toPattern(), i, e.getMessage()});
+                    if (dbField.equals("Created_at") || dbField.equals("Last_Successful_Scan")) {
+                        if (value.trim().isEmpty()) {
+                            value = null; // Set to null for empty date fields
+                            Logger.getLogger(DataProcessor.class.getName()).log(
+                                Level.INFO, "Empty date for {0} at row {1}. Setting to null.", 
+                                new Object[]{dbField, i});
+                        } else {
+                            boolean parsed = false;
+                            for (SimpleDateFormat df : dateFormats) {
+                                try {
+                                    Date date = df.parse(value);
+                                    value = accessDateFormat.format(date); // Extract date only in MM/dd/yyyy
+                                    parsed = true;
+                                    break;
+                                } catch (ParseException e) {
+                                    Logger.getLogger(DataProcessor.class.getName()).log(
+                                        Level.FINE, "Failed to parse {0} with format {1} at row {2}: {3}", 
+                                        new Object[]{value, df.toPattern(), i, e.getMessage()});
+                                }
                             }
-                        }
-                        if (!parsed) {
-                            java.util.logging.Logger.getLogger(DataProcessor.class.getName()).log(Level.INFO, "Unparseable date for {0} at row {1}: {2}. Using empty string.", new Object[]{dbField, i, value});
-                            value = "";
+                            if (!parsed) {
+                                Logger.getLogger(DataProcessor.class.getName()).log(
+                                    Level.WARNING, "Unparseable date for {0} at row {1}: {2}. Setting to null.", 
+                                    new Object[]{dbField, i, value});
+                                value = null; // Set to null for unparseable dates
+                            }
                         }
                     }
                     for (int k = 0; k < tableColumns.length; k++) {
                         String normalizedTableColumn = tableColumns[k].replace(" ", "_");
                         if (normalizedTableColumn.equals(dbField)) {
-                            tableRow[k] = value;
+                            tableRow[k] = value != null ? value : "";
                             device.put(normalizedTableColumn, value);
                             break;
                         }
@@ -76,7 +104,5 @@ public class DataProcessor {
         return processedData;
     }
 
-    public List<utils.DataEntry> getProcessedData() {
-        return processedData;
-    }
+    private final java.util.function.Function<String, String> normalize = s -> s.replaceAll("[\\s_-]", "").toLowerCase();
 }

@@ -2,166 +2,104 @@ package data_import;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class TableColorRenderer extends DefaultTableCellRenderer {
-    private final ImportDataTab tab;
+import utils.DataEntry;
 
-    public TableColorRenderer(ImportDataTab tab) {
-        this.tab = tab;
+public class TableColorRenderer extends DefaultTableCellRenderer {
+    private final ImportDataTab parent;
+    private HashMap<Integer, String> rowStatus; // Maps row index to status (red, yellow, orange, green)
+
+    public TableColorRenderer(ImportDataTab parent) {
+        this.parent = parent;
+        this.rowStatus = new HashMap<>();
+    }
+
+    public void setRowStatus(HashMap<Integer, String> status) {
+        this.rowStatus = status;
+    }
+
+    public boolean isExactDuplicate(int row) {
+        return "red".equals(rowStatus.get(row));
+    }
+
+    public boolean isYellowOrOrange(int row) {
+        String status = rowStatus.get(row);
+        return "yellow".equals(status) || "orange".equals(status);
     }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        
-        if (!tab.isShowDuplicates() && isExactDuplicate(row)) {
-            c.setBackground(table.getBackground());
-            c.setForeground(table.getForeground());
-        } else {
-            HashMap<String, String> device = new HashMap<>();
-            String[] columns = tab.getTableColumns();
-            for (int j = 0; j < columns.length; j++) {
-                String dbField = columns[j].replace(" ", "_");
-                String valueStr = (String) tab.getTableModel().getValueAt(row, j);
-                if (valueStr != null && !valueStr.trim().isEmpty()) {
-                    device.put(dbField, valueStr);
-                }
-            }
-            try {
-                String assetName = device.get("AssetName");
-                // Check if the row is resolved
-                boolean isResolved = tab.getOriginalData().get(row).isResolved();
-                if (isResolved) {
-                    c.setBackground(Color.GREEN); // Resolved rows are green
-                    c.setForeground(Color.BLACK);
-                } else if (assetName != null && !assetName.trim().isEmpty()) {
-                    HashMap<String, String> existingDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
+        String status = rowStatus.getOrDefault(row, "green");
+
+        // Set row background color
+        switch (status) {
+            case "red":
+                c.setBackground(Color.RED);
+                c.setForeground(Color.BLACK);
+                c.setFont(c.getFont().deriveFont(Font.PLAIN)); // No bold for exact duplicates
+                break;
+            case "yellow":
+                c.setBackground(Color.YELLOW);
+                c.setForeground(Color.BLACK);
+                break;
+            case "orange":
+                c.setBackground(Color.ORANGE);
+                c.setForeground(Color.BLACK);
+                break;
+            default: // green
+                c.setBackground(Color.GREEN);
+                c.setForeground(Color.BLACK);
+                c.setFont(c.getFont().deriveFont(Font.PLAIN));
+                break;
+        }
+
+        // Bold conflicting/new cells for yellow/orange rows
+        if ("yellow".equals(status) || "orange".equals(status)) {
+            List<DataEntry> originalData = parent.getOriginalData();
+            if (row < originalData.size()) {
+                DataEntry entry = originalData.get(row);
+                String assetName = entry.getData().get("AssetName");
+                try {
+                    HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(assetName);
                     if (existingDevice != null) {
-                        boolean isExactMatch = true;
-                        boolean hasNewData = false;
-                        boolean hasConflict = false;
-                        for (java.util.Map.Entry<String, String> entry : device.entrySet()) {
-                            String field = entry.getKey();
-                            String newValue = entry.getValue();
-                            String oldValue = existingDevice.get(field);
-                            String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                            String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
-                            if (!newVal.equals(oldVal)) {
-                                isExactMatch = false;
-                                if (oldVal.isEmpty()) {
-                                    hasNewData = true;
-                                } else {
-                                    hasConflict = true;
-                                }
-                            }
-                        }
-                        if (isExactMatch) {
-                            c.setBackground(Color.RED); // Exact duplicate
-                            c.setForeground(Color.BLACK);
-                        } else if (hasConflict) {
-                            c.setBackground(Color.ORANGE); // Conflicting data
-                            c.setForeground(Color.BLACK);
-                        } else if (hasNewData) {
-                            c.setBackground(Color.YELLOW); // New data for blank fields
-                            c.setForeground(Color.BLACK);
+                        String dbColumn = parent.getTableColumns()[column];
+                        String importedValue = value != null ? value.toString().trim() : "";
+                        String dbValue = existingDevice.getOrDefault(dbColumn, "");
+                        dbValue = dbValue != null ? dbValue.trim() : "";
+                        // Bold if imported value is non-empty and differs from database
+                        if (!importedValue.isEmpty() && !importedValue.equals(dbValue)) {
+                            c.setFont(c.getFont().deriveFont(Font.BOLD));
                         } else {
-                            c.setBackground(table.getBackground()); // Should not occur (fallback)
-                            c.setForeground(table.getForeground());
+                            c.setFont(c.getFont().deriveFont(Font.PLAIN));
                         }
                     } else {
-                        c.setBackground(table.getBackground()); // New entry, use default (white)
-                        c.setForeground(table.getForeground());
+                        c.setFont(c.getFont().deriveFont(Font.PLAIN));
                     }
-                } else {
-                    c.setBackground(table.getBackground()); // No AssetName, treat as new (white)
-                    c.setForeground(table.getForeground());
+                } catch (SQLException e) {
+                    java.util.logging.Logger.getLogger(TableColorRenderer.class.getName()).log(
+                        Level.SEVERE, "Error checking database for row {0}, column {1}: {2}",
+                        new Object[]{row, column, e.getMessage()});
+                    c.setFont(c.getFont().deriveFont(Font.PLAIN));
                 }
-            } catch (SQLException e) {
-                java.util.logging.Logger.getLogger(TableColorRenderer.class.getName()).log(Level.INFO, "Error rendering row color: {0}", e.getMessage());
-                c.setBackground(table.getBackground());
-                c.setForeground(table.getForeground());
             }
+        } else {
+            c.setFont(c.getFont().deriveFont(Font.PLAIN));
         }
+
+        if (isSelected) {
+            c.setBackground(table.getSelectionBackground());
+            c.setForeground(table.getSelectionForeground());
+        }
+
         return c;
-    }
-
-    public boolean isExactDuplicate(int row) {
-        HashMap<String, String> device = new HashMap<>();
-        String[] columns = tab.getTableColumns();
-        for (int j = 0; j < columns.length; j++) {
-            String dbField = columns[j].replace(" ", "_");
-            String value = (String) tab.getTableModel().getValueAt(row, j);
-            if (value != null && !value.trim().isEmpty()) {
-                device.put(dbField, value);
-            }
-        }
-        try {
-            String assetName = device.get("AssetName");
-            if (assetName != null && !assetName.trim().isEmpty()) {
-                HashMap<String, String> existingDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
-                if (existingDevice != null) {
-                    for (java.util.Map.Entry<String, String> entry : device.entrySet()) {
-                        String field = entry.getKey();
-                        String newValue = entry.getValue();
-                        String oldValue = existingDevice.get(field);
-                        String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                        String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
-                        if (!newVal.equals(oldVal)) {
-                            return false;
-                        }
-                    }
-                    return true; // Exact match
-                }
-            }
-        } catch (SQLException e) {
-            java.util.logging.Logger.getLogger(TableColorRenderer.class.getName()).log(Level.INFO, "Error checking duplicate status: {0}", e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean isYellowOrOrange(int row) {
-        HashMap<String, String> device = new HashMap<>();
-        String[] columns = tab.getTableColumns();
-        for (int j = 0; j < columns.length; j++) {
-            String dbField = columns[j].replace(" ", "_");
-            String value = (String) tab.getTableModel().getValueAt(row, j);
-            if (value != null && !value.trim().isEmpty()) {
-                device.put(dbField, value);
-            }
-        }
-        try {
-            String assetName = device.get("AssetName");
-            if (assetName != null && !assetName.trim().isEmpty()) {
-                HashMap<String, String> existingDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
-                if (existingDevice != null) {
-                    boolean hasNewData = false;
-                    boolean hasConflict = false;
-                    for (java.util.Map.Entry<String, String> entry : device.entrySet()) {
-                        String field = entry.getKey();
-                        String newValue = entry.getValue();
-                        String oldValue = existingDevice.get(field);
-                        String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                        String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
-                        if (!newVal.equals(oldVal)) {
-                            if (oldVal.isEmpty()) {
-                                hasNewData = true;
-                            } else {
-                                hasConflict = true;
-                            }
-                        }
-                    }
-                    return hasNewData || hasConflict; // Yellow or orange
-                }
-            }
-        } catch (SQLException e) {
-            java.util.logging.Logger.getLogger(TableColorRenderer.class.getName()).log(Level.INFO, "Error checking row status: {0}", e.getMessage());
-        }
-        return false;
     }
 }

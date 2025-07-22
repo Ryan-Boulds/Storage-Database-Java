@@ -1,4 +1,0 @@
-Peripheral_Type=Keyboard, Count=0
-Peripheral_Type=Mouse, Count=4
-Peripheral_Type=keyboard, Count=3
-Peripheral_Type=Mousepad, Count=1

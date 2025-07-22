@@ -38,7 +38,7 @@ public class MappingDialog {
     public void showDialog() {
         // Preview Table
         String[] csvColumns = data.get(0);
-        String[][] previewData = data.subList(1, Math.min(data.size(), 6)).toArray(new String[0][]);
+        List<String[]> previewData = data.subList(1, data.size()); // Show all rows
         DefaultTableModel previewModel = new DefaultTableModel(csvColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -51,7 +51,7 @@ public class MappingDialog {
         JTable previewTable = new JTable(previewModel);
         previewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane previewScrollPane = UIComponentUtils.createScrollableContentPanel(previewTable);
-        previewScrollPane.setPreferredSize(new Dimension(400, 300));
+        previewScrollPane.setPreferredSize(new Dimension(800, 400)); // Increased size for larger datasets
 
         // Mapping Panel
         JPanel mappingPanel = new JPanel(new GridBagLayout());
@@ -94,7 +94,6 @@ public class MappingDialog {
                 columnMappings.put(defaultMatch, dbField);
             }
             // Add ActionListener to update mappings
-
             comboBox.addActionListener(e -> {
                 String selected = (String) comboBox.getSelectedItem();
                 if ("None".equals(selected)) {
@@ -135,7 +134,7 @@ public class MappingDialog {
 
         // Wrap mappingPanel in a JScrollPane for vertical scrolling
         JScrollPane mappingScrollPane = UIComponentUtils.createScrollableContentPanel(mappingPanel);
-        mappingScrollPane.setPreferredSize(new Dimension(400, 300));
+        mappingScrollPane.setPreferredSize(new Dimension(400, 400)); // Increased size for consistency
 
         // Combine Preview and Mapping
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -153,8 +152,8 @@ public class MappingDialog {
         JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Map Columns to Database Fields", true);
         dialog.setLayout(new BorderLayout());
         dialog.add(mainPanel, BorderLayout.CENTER);
-        dialog.setSize(800, 400);
-        dialog.setMinimumSize(new Dimension(600, 300));
+        dialog.setSize(1200, 600); // Increased size for larger datasets
+        dialog.setMinimumSize(new Dimension(800, 400));
         dialog.setLocationRelativeTo(parent);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 

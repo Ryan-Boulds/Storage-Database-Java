@@ -24,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
 import data_import.ui.ComparisonDialog;
 import data_import.ui.MappingDialog;
 import data_import.ui.PreviewDialog;
+import utils.DataEntry;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends JPanel {
@@ -38,12 +39,14 @@ public class ImportDataTab extends JPanel {
     private final DatabaseHandler databaseHandler;
     private List<utils.DataEntry> originalData;
     private Map<String, String> fieldTypes; // Store field types from newFields
+    private HashMap<Integer, String> rowStatus; // Maps row index to status (red, yellow, orange, green)
 
     public ImportDataTab(JLabel statusLabel) {
         this.statusLabel = statusLabel;
         this.dataProcessor = new DataProcessor();
         this.databaseHandler = new DatabaseHandler();
-        this.fieldTypes = new HashMap<>(); // Initialize field types map
+        this.fieldTypes = new HashMap<>();
+        this.rowStatus = new HashMap<>();
         setLayout(new BorderLayout(10, 10));
 
         JButton importButton = UIComponentUtils.createFormattedButton("Import Data (.csv, .xlsx, .xls)");
@@ -77,7 +80,8 @@ public class ImportDataTab extends JPanel {
         };
         table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.setDefaultRenderer(Object.class, new TableColorRenderer(this));
+        TableColorRenderer renderer = new TableColorRenderer(this);
+        table.setDefaultRenderer(Object.class, renderer);
         table.getColumnModel().getColumn(0).setPreferredWidth(150); // Adjust AssetName column width
 
         // Add right-click context menu
@@ -86,21 +90,17 @@ public class ImportDataTab extends JPanel {
         compareItem.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
-                if (((TableColorRenderer) table.getDefaultRenderer(Object.class)).isYellowOrOrange(selectedRow)) {
+                if (renderer.isYellowOrOrange(selectedRow)) {
                     ComparisonDialog dialog = new ComparisonDialog(this, originalData.get(selectedRow), tableColumns);
                     utils.DataEntry resolvedEntry = dialog.showDialog();
                     if (resolvedEntry != null) {
-                        resolvedEntry.setResolved(true); // Mark as resolved
+                        resolvedEntry.setResolved(true);
                         originalData.set(selectedRow, resolvedEntry);
-                        tableModel.setRowCount(0);
-                        for (utils.DataEntry entry : originalData) {
-                            if (showDuplicates || !((TableColorRenderer) table.getDefaultRenderer(Object.class)).isExactDuplicate(tableModel.getRowCount())) {
-                                tableModel.addRow(entry.getValues());
-                            }
-                        }
-                        table.repaint();
+                        updateTableDisplay();
                         statusLabel.setText("Row " + (selectedRow + 1) + " resolved.");
-                        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Resolved row {0} for AssetName: {1}", new Object[]{selectedRow, resolvedEntry.getData().get("AssetName")});
+                        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                            Level.INFO, "Resolved row {0} for AssetName: {1}",
+                            new Object[]{selectedRow, resolvedEntry.getData().get("AssetName")});
                     }
                 }
             }
@@ -113,7 +113,6 @@ public class ImportDataTab extends JPanel {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row >= 0) {
                         table.setRowSelectionInterval(row, row);
-                        TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
                         compareItem.setEnabled(renderer.isYellowOrOrange(row));
                         popupMenu.show(e.getComponent(), e.getX(), e.getY());
                     }
@@ -125,7 +124,6 @@ public class ImportDataTab extends JPanel {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row >= 0) {
                         table.setRowSelectionInterval(row, row);
-                        TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
                         compareItem.setEnabled(renderer.isYellowOrOrange(row));
                         popupMenu.show(e.getComponent(), e.getX(), e.getY());
                     }
@@ -137,8 +135,12 @@ public class ImportDataTab extends JPanel {
         add(tableScrollPane, BorderLayout.CENTER);
     }
 
+    // Getter for databaseHandler
+    public DatabaseHandler getDatabaseHandler() {
+        return databaseHandler;
+    }
+
     private void importData() {
-        // Check if data is already loaded
         if (importedData != null && !importedData.isEmpty()) {
             int result = JOptionPane.showConfirmDialog(this,
                     "Are you sure that you want to import a different file? Any changes made here will be lost unless you save to database.",
@@ -156,10 +158,14 @@ public class ImportDataTab extends JPanel {
         if (data != null) {
             statusLabel.setText("Data loaded for mapping.");
             importedData = data;
-            java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Imported Data Headers: {0}", java.util.Arrays.toString(importedData.get(0)));
-            for (int i = 1; i < Math.min(importedData.size(), 6); i++) {
-                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Row {0}: {1}", new Object[]{i, java.util.Arrays.toString(importedData.get(i))});
+            java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                Level.INFO, "Imported Data Headers: {0}", new Object[]{java.util.Arrays.toString(importedData.get(0))});
+            for (int i = 1; i < importedData.size(); i++) {
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    Level.INFO, "Row {0}: {1}", new Object[]{i, java.util.Arrays.toString(importedData.get(i))});
             }
+            java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                Level.INFO, "Total rows imported: {0}", new Object[]{importedData.size() - 1});
             MappingDialog mappingDialog = new MappingDialog(this, data);
             statusLabel.setText("Mapping dialog opened.");
             mappingDialog.showDialog();
@@ -175,27 +181,93 @@ public class ImportDataTab extends JPanel {
         displayData(columnMappings, newFields, deviceTypeMappings);
     }
 
+    private void updateTableDisplay() {
+        tableModel.setRowCount(0);
+        TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
+        for (int i = 0; i < originalData.size(); i++) {
+            DataEntry entry = originalData.get(i);
+            if (showDuplicates || !renderer.isExactDuplicate(i)) {
+                tableModel.addRow(entry.getValues());
+            }
+        }
+        table.repaint();
+    }
+
     private void displayData(Map<String, String> columnMappings, Map<String, String> newFields, Map<String, String> deviceTypeMappings) {
         tableModel.setRowCount(0);
         this.columnMappings = columnMappings;
-        this.fieldTypes.putAll(newFields); // Store field types for validation
-        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "DefaultColumns Inventory Columns: {0}", java.util.Arrays.toString(tableColumns));
-        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Column Mappings: {0}", columnMappings);
-        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Device Type Mappings: {0}", deviceTypeMappings);
+        this.fieldTypes.putAll(newFields);
+        rowStatus.clear();
+
+        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+            Level.INFO, "DefaultColumns Inventory Columns: {0}", new Object[]{java.util.Arrays.toString(tableColumns)});
+        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+            Level.INFO, "Column Mappings: {0}", new Object[]{columnMappings});
+        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+            Level.INFO, "Device Type Mappings: {0}", new Object[]{deviceTypeMappings});
 
         for (Map.Entry<String, String> entry : newFields.entrySet()) {
             try {
                 databaseHandler.addNewField("Inventory", entry.getKey(), entry.getValue());
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error adding new field '" + entry.getKey() + "': " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error adding new field '" + entry.getKey() + "': " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
         originalData = dataProcessor.processData(importedData, columnMappings, deviceTypeMappings, tableColumns);
-        for (utils.DataEntry entry : originalData) {
-            tableModel.addRow(entry.getValues());
+        for (int i = 0; i < originalData.size(); i++) {
+            DataEntry entry = originalData.get(i);
+            String assetName = entry.getData().get("AssetName");
+            String status = "green";
+            if (assetName != null && !assetName.trim().isEmpty()) {
+                try {
+                    HashMap<String, String> existingDevice = databaseHandler.getDeviceByAssetNameFromDB(assetName);
+                    if (existingDevice != null) {
+                        boolean isExactMatch = true;
+                        boolean hasNewData = false;
+                        boolean hasConflict = false;
+                        for (Map.Entry<String, String> field : entry.getData().entrySet()) {
+                            String key = field.getKey();
+                            String newValue = field.getValue();
+                            String oldValue = existingDevice.get(key);
+                            String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
+                            String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
+                            if (!newVal.equals(oldVal)) {
+                                isExactMatch = false;
+                                if (newVal.isEmpty()) {
+                                    // Empty imported value, prioritize database
+                                    entry.getData().put(key, oldVal);
+                                } else if (oldVal.isEmpty()) {
+                                    hasNewData = true;
+                                } else {
+                                    hasConflict = true;
+                                }
+                            }
+                        }
+                        if (isExactMatch) {
+                            status = "red";
+                        } else if (hasConflict) {
+                            status = "orange";
+                        } else if (hasNewData) {
+                            status = "yellow";
+                        }
+                    }
+                } catch (SQLException e) {
+                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                        Level.INFO, "Error checking row status for AssetName {0}: {1}",
+                        new Object[]{assetName, e.getMessage()});
+                }
+            }
+            rowStatus.put(i, status);
+            if (showDuplicates || !status.equals("red")) {
+                tableModel.addRow(entry.getValues());
+            }
         }
+        ((TableColorRenderer) table.getDefaultRenderer(Object.class)).setRowStatus(rowStatus);
+        java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+            Level.INFO, "Displayed {0} rows in table.", new Object[]{tableModel.getRowCount()});
 
         if (!newFields.isEmpty()) {
             StringBuilder newFieldsMessage = new StringBuilder("New fields added to database schema:\n");
@@ -216,36 +288,67 @@ public class ImportDataTab extends JPanel {
 
     private void toggleDuplicates() {
         showDuplicates = !showDuplicates;
-        tableModel.setRowCount(0);
-        TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
-        for (utils.DataEntry entry : originalData) {
-            if (showDuplicates || !renderer.isExactDuplicate(tableModel.getRowCount())) {
-                tableModel.addRow(entry.getValues());
-            }
-        }
-        table.repaint();
+        updateTableDisplay();
         statusLabel.setText("Duplicates " + (showDuplicates ? "shown" : "hidden") + ".");
     }
 
     private void removeDuplicates() {
         List<utils.DataEntry> nonDuplicates = new ArrayList<>();
         TableColorRenderer renderer = (TableColorRenderer) table.getDefaultRenderer(Object.class);
-        for (utils.DataEntry entry : originalData) {
-            tableModel.setRowCount(0);
-            tableModel.addRow(entry.getValues());
-            if (!renderer.isExactDuplicate(0)) {
-                nonDuplicates.add(entry);
+        for (int i = 0; i < originalData.size(); i++) {
+            if (!renderer.isExactDuplicate(i)) {
+                nonDuplicates.add(originalData.get(i));
             } else {
-                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Removed exact duplicate: {0}", entry.getData().get("AssetName"));
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    Level.INFO, "Removed exact duplicate: {0}",
+                    new Object[]{originalData.get(i).getData().get("AssetName")});
             }
         }
         originalData = nonDuplicates;
-        tableModel.setRowCount(0);
-        for (utils.DataEntry entry : originalData) {
-            if (showDuplicates || !renderer.isExactDuplicate(tableModel.getRowCount())) {
-                tableModel.addRow(entry.getValues());
+        rowStatus.clear();
+        for (int i = 0; i < originalData.size(); i++) {
+            String assetName = originalData.get(i).getData().get("AssetName");
+            String status = "green";
+            try {
+                HashMap<String, String> existingDevice = databaseHandler.getDeviceByAssetNameFromDB(assetName);
+                if (existingDevice != null) {
+                    boolean isExactMatch = true;
+                    boolean hasNewData = false;
+                    boolean hasConflict = false;
+                    for (Map.Entry<String, String> field : originalData.get(i).getData().entrySet()) {
+                        String key = field.getKey();
+                        String newValue = field.getValue();
+                        String oldValue = existingDevice.get(key);
+                        String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
+                        String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
+                        if (!newVal.equals(oldVal)) {
+                            isExactMatch = false;
+                            if (newVal.isEmpty()) {
+                                // Empty imported value, prioritize database
+                                originalData.get(i).getData().put(key, oldVal);
+                            } else if (oldVal.isEmpty()) {
+                                hasNewData = true;
+                            } else {
+                                hasConflict = true;
+                            }
+                        }
+                    }
+                    if (isExactMatch) {
+                        status = "red";
+                    } else if (hasConflict) {
+                        status = "orange";
+                    } else if (hasNewData) {
+                        status = "yellow";
+                    }
+                }
+            } catch (SQLException e) {
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    Level.INFO, "Error checking row status for AssetName {0}: {1}",
+                    new Object[]{assetName, e.getMessage()});
             }
+            rowStatus.put(i, status);
         }
+        updateTableDisplay();
         statusLabel.setText("Exact duplicates removed from import list.");
     }
 
@@ -263,11 +366,12 @@ public class ImportDataTab extends JPanel {
         List<utils.DataEntry> greenRows = new ArrayList<>();
 
         // Categorize rows
-        for (utils.DataEntry entry : originalData) {
+        for (int i = 0; i < originalData.size(); i++) {
+            DataEntry entry = originalData.get(i);
             HashMap<String, String> device = entry.getData();
             String assetName = device.get("AssetName");
             if (entry.isResolved()) {
-                greenRows.add(entry); // Resolved rows treated as green
+                greenRows.add(entry);
             } else if (assetName != null && !assetName.trim().isEmpty()) {
                 try {
                     HashMap<String, String> existingDevice = databaseHandler.getDeviceByAssetNameFromDB(assetName);
@@ -283,7 +387,9 @@ public class ImportDataTab extends JPanel {
                             String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
                             if (!newVal.equals(oldVal)) {
                                 isExactMatch = false;
-                                if (oldVal.isEmpty()) {
+                                if (newVal.isEmpty()) {
+                                    device.put(key, oldVal); // Prioritize database value
+                                } else if (oldVal.isEmpty()) {
                                     hasNewData = true;
                                 } else {
                                     hasConflict = true;
@@ -292,24 +398,34 @@ public class ImportDataTab extends JPanel {
                         }
                         if (isExactMatch) {
                             redRows.add(entry);
+                            rowStatus.put(i, "red");
                             allGreen = false;
                         } else if (hasConflict) {
                             orangeRows.add(entry);
+                            rowStatus.put(i, "orange");
                             allGreen = false;
                         } else if (hasNewData) {
                             yellowRows.add(entry);
+                            rowStatus.put(i, "yellow");
                             allGreen = false;
                         }
                     } else {
                         greenRows.add(entry);
+                        rowStatus.put(i, "green");
                     }
                 } catch (SQLException e) {
-                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, "Error checking row status for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                        Level.INFO, "Error checking row status for AssetName {0}: {1}",
+                        new Object[]{assetName, e.getMessage()});
                 }
             } else {
                 greenRows.add(entry);
+                rowStatus.put(i, "green");
             }
         }
+
+        ((TableColorRenderer) table.getDefaultRenderer(Object.class)).setRowStatus(rowStatus);
+        updateTableDisplay();
 
         if (allGreen) {
             // All rows are green or resolved, save directly
@@ -432,9 +548,9 @@ public class ImportDataTab extends JPanel {
             String value = entry.getValue();
             String fieldType = fieldTypes.getOrDefault(field, "");
             if (fieldType.equalsIgnoreCase("DATETIME") && (value == null || value.trim().isEmpty())) {
-                cleanedDevice.put(field, null); // Replace empty string with null for DATETIME fields
-                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(Level.INFO, 
-                    "Cleaned DATETIME field {0} for AssetName {1}: set to null", 
+                cleanedDevice.put(field, null);
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    Level.INFO, "Cleaned DATETIME field {0} for AssetName {1}: set to null",
                     new Object[]{field, device.get("AssetName")});
             }
         }
