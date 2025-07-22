@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import utils.UIComponentUtils;
 public class PreviewDialog {
     private final ImportDataTab parent;
     private List<String[]> data;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public PreviewDialog(ImportDataTab parent) {
         this.parent = parent;
@@ -125,7 +127,7 @@ public class PreviewDialog {
                 return cell.getStringCellValue();
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
+                    return dateFormat.format(cell.getDateCellValue());
                 }
                 return String.valueOf(cell.getNumericCellValue());
             case BOOLEAN:

@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import data_import.ui.ComparisonDialog;
 import data_import.ui.MappingDialog;
 import data_import.ui.PreviewDialog;
 import utils.DataEntry;
+import utils.DefaultColumns;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends JPanel {
@@ -38,8 +40,9 @@ public class ImportDataTab extends JPanel {
     private final DataProcessor dataProcessor;
     private final DatabaseHandler databaseHandler;
     private List<utils.DataEntry> originalData;
-    private Map<String, String> fieldTypes; // Store field types from newFields
-    private HashMap<Integer, String> rowStatus; // Maps row index to status (red, yellow, orange, green)
+    private Map<String, String> fieldTypes;
+    private HashMap<Integer, String> rowStatus;
+    private static final SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public ImportDataTab(JLabel statusLabel) {
         this.statusLabel = statusLabel;
@@ -82,9 +85,8 @@ public class ImportDataTab extends JPanel {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         TableColorRenderer renderer = new TableColorRenderer(this);
         table.setDefaultRenderer(Object.class, renderer);
-        table.getColumnModel().getColumn(0).setPreferredWidth(150); // Adjust AssetName column width
+        table.getColumnModel().getColumn(0).setPreferredWidth(150);
 
-        // Add right-click context menu
         JPopupMenu popupMenu = new JPopupMenu();
         javax.swing.JMenuItem compareItem = new javax.swing.JMenuItem("Compare and Resolve");
         compareItem.addActionListener(e -> {
@@ -135,9 +137,12 @@ public class ImportDataTab extends JPanel {
         add(tableScrollPane, BorderLayout.CENTER);
     }
 
-    // Getter for databaseHandler
     public DatabaseHandler getDatabaseHandler() {
         return databaseHandler;
+    }
+
+    public Map<String, String> getFieldTypes() {
+        return fieldTypes;
     }
 
     private void importData() {
@@ -193,6 +198,36 @@ public class ImportDataTab extends JPanel {
         table.repaint();
     }
 
+    private String normalizeDateValue(String value, String field) {
+        if (value == null || value.trim().isEmpty()) {
+            return "";
+        }
+        if (DefaultColumns.getInventoryColumnDefinitions().getOrDefault(field, "").equals("DATE")) {
+            try {
+                // Handle database format with timestamp (e.g., 2025-07-10 00:00:00.000000)
+                if (value.contains(" ")) {
+                    value = value.split(" ")[0]; // Extract date part
+                }
+                // Parse and reformat to yyyy-MM-dd
+                for (SimpleDateFormat df : new SimpleDateFormat[]{
+                    new SimpleDateFormat("yyyy-MM-dd"),
+                    new SimpleDateFormat("MM/dd/yyyy"),
+                    new SimpleDateFormat("dd-MM-yyyy")
+                }) {
+                    try {
+                        return dbDateFormat.format(df.parse(value));
+                    } catch (java.text.ParseException e) {
+                        // Try next format
+                    }
+                }
+            } catch (Exception e) {
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    Level.WARNING, "Failed to normalize date for field {0}: {1}", new Object[]{field, value});
+            }
+        }
+        return value;
+    }
+
     private void displayData(Map<String, String> columnMappings, Map<String, String> newFields, Map<String, String> deviceTypeMappings) {
         tableModel.setRowCount(0);
         this.columnMappings = columnMappings;
@@ -216,7 +251,7 @@ public class ImportDataTab extends JPanel {
             }
         }
 
-        originalData = dataProcessor.processData(importedData, columnMappings, deviceTypeMappings, tableColumns);
+        originalData = dataProcessor.processData(importedData, columnMappings, deviceTypeMappings, tableColumns, fieldTypes);
         for (int i = 0; i < originalData.size(); i++) {
             DataEntry entry = originalData.get(i);
             String assetName = entry.getData().get("AssetName");
@@ -233,11 +268,10 @@ public class ImportDataTab extends JPanel {
                             String newValue = field.getValue();
                             String oldValue = existingDevice.get(key);
                             String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                            String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
+                            String oldVal = normalizeDateValue(oldValue != null ? oldValue : "", key);
                             if (!newVal.equals(oldVal)) {
                                 isExactMatch = false;
                                 if (newVal.isEmpty()) {
-                                    // Empty imported value, prioritize database
                                     entry.getData().put(key, oldVal);
                                 } else if (oldVal.isEmpty()) {
                                     hasNewData = true;
@@ -320,11 +354,10 @@ public class ImportDataTab extends JPanel {
                         String newValue = field.getValue();
                         String oldValue = existingDevice.get(key);
                         String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                        String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
+                        String oldVal = normalizeDateValue(oldValue != null ? oldValue : "", key);
                         if (!newVal.equals(oldVal)) {
                             isExactMatch = false;
                             if (newVal.isEmpty()) {
-                                // Empty imported value, prioritize database
                                 originalData.get(i).getData().put(key, oldVal);
                             } else if (oldVal.isEmpty()) {
                                 hasNewData = true;
@@ -365,7 +398,6 @@ public class ImportDataTab extends JPanel {
         List<utils.DataEntry> yellowRows = new ArrayList<>();
         List<utils.DataEntry> greenRows = new ArrayList<>();
 
-        // Categorize rows
         for (int i = 0; i < originalData.size(); i++) {
             DataEntry entry = originalData.get(i);
             HashMap<String, String> device = entry.getData();
@@ -384,11 +416,11 @@ public class ImportDataTab extends JPanel {
                             String newValue = field.getValue();
                             String oldValue = existingDevice.get(key);
                             String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
-                            String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
+                            String oldVal = normalizeDateValue(oldValue != null ? oldValue : "", key);
                             if (!newVal.equals(oldVal)) {
                                 isExactMatch = false;
                                 if (newVal.isEmpty()) {
-                                    device.put(key, oldVal); // Prioritize database value
+                                    device.put(key, oldVal);
                                 } else if (oldVal.isEmpty()) {
                                     hasNewData = true;
                                 } else {
@@ -428,7 +460,6 @@ public class ImportDataTab extends JPanel {
         updateTableDisplay();
 
         if (allGreen) {
-            // All rows are green or resolved, save directly
             for (utils.DataEntry entry : greenRows) {
                 try {
                     HashMap<String, String> cleanedDevice = cleanDeviceData(entry.getData());
@@ -445,7 +476,6 @@ public class ImportDataTab extends JPanel {
             return;
         }
 
-        // Prompt for conflict resolution
         StringBuilder message = new StringBuilder("Found potential issues:\n");
         if (!redRows.isEmpty()) {
             message.append("- ").append(redRows.size()).append(" exact duplicates (red)\n");
@@ -470,27 +500,25 @@ public class ImportDataTab extends JPanel {
                         HashMap<String, String> mergedDevice = new HashMap<>(entry.getData());
                         HashMap<String, String> existingDevice = databaseHandler.getDeviceByAssetNameFromDB(mergedDevice.get("AssetName"));
                         for (String key : existingDevice.keySet()) {
+                            String existingValue = normalizeDateValue(existingDevice.get(key), key);
                             if (!mergedDevice.containsKey(key) || mergedDevice.get(key).trim().isEmpty()) {
-                                mergedDevice.put(key, existingDevice.get(key));
+                                mergedDevice.put(key, existingValue);
                             }
                         }
                         dataToSave.add(new utils.DataEntry(entry.getValues(), mergedDevice));
                     }
                     for (utils.DataEntry entry : orangeRows) {
-                        dataToSave.add(entry); // Treat as overwrite
+                        dataToSave.add(entry);
                     }
-                    // Skip red rows
                     break;
                 case 1: // Overwrite Conflicts
                     dataToSave.addAll(greenRows);
                     dataToSave.addAll(yellowRows);
                     dataToSave.addAll(orangeRows);
-                    // Skip red rows
                     break;
                 case 2: // Skip Conflicts
                     dataToSave.addAll(greenRows);
                     dataToSave.addAll(yellowRows);
-                    // Skip orange and red rows
                     break;
                 case 3: // Cancel
                     statusLabel.setText("Save operation cancelled.");
@@ -500,7 +528,6 @@ public class ImportDataTab extends JPanel {
                     return;
             }
 
-            // Save the selected data
             for (utils.DataEntry entry : dataToSave) {
                 HashMap<String, String> device = entry.getData();
                 String assetName = device.get("AssetName");
@@ -508,7 +535,6 @@ public class ImportDataTab extends JPanel {
                     HashMap<String, String> existingDevice = databaseHandler.getDeviceByAssetNameFromDB(assetName);
                     if (existingDevice != null) {
                         if (yellowRows.contains(entry) && choice == 0) {
-                            // Merge for yellow rows
                             HashMap<String, String> mergedDevice = new HashMap<>(existingDevice);
                             for (Map.Entry<String, String> field : device.entrySet()) {
                                 String key = field.getKey();
@@ -520,12 +546,10 @@ public class ImportDataTab extends JPanel {
                             HashMap<String, String> cleanedDevice = cleanDeviceData(mergedDevice);
                             databaseHandler.updateDeviceInDB(cleanedDevice);
                         } else {
-                            // Overwrite for orange or yellow (if not merging)
                             HashMap<String, String> cleanedDevice = cleanDeviceData(device);
                             databaseHandler.updateDeviceInDB(cleanedDevice);
                         }
                     } else {
-                        // Insert new (green) rows
                         HashMap<String, String> cleanedDevice = cleanDeviceData(device);
                         databaseHandler.saveDevice(cleanedDevice);
                     }
@@ -540,7 +564,6 @@ public class ImportDataTab extends JPanel {
         }
     }
 
-    // Clean datetime fields by replacing empty strings with null
     private HashMap<String, String> cleanDeviceData(HashMap<String, String> device) {
         HashMap<String, String> cleanedDevice = new HashMap<>(device);
         for (Map.Entry<String, String> entry : cleanedDevice.entrySet()) {
