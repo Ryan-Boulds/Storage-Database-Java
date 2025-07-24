@@ -44,9 +44,9 @@ public class DatabaseUtils {
                         try {
                             java.util.Date date;
                             try {
-                                date = excelDateFormat.parse(value); // Try Excel format first
+                                date = excelDateFormat.parse(value);
                             } catch (java.text.ParseException e) {
-                                date = dateFormat.parse(value); // Fall back to MM/dd/yyyy
+                                date = dateFormat.parse(value);
                             }
                             stmt.setDate(index++, new java.sql.Date(date.getTime()));
                         } catch (java.text.ParseException e) {
@@ -75,7 +75,6 @@ public class DatabaseUtils {
         List<String> columns = new ArrayList<>();
         for (String column : device.keySet()) {
             if (!column.equals("AssetName")) {
-                // Normalize column names to match database (fix typos)
                 String normalizedColumn = column.replace("PROCCESSOR", "PROCESSOR")
                                                .replace("LAST_SCUCCESSFUL SCAN", "LAST_SUCCESSFUL_SCAN");
                 columns.add("[" + normalizedColumn + "] = ?");
@@ -85,6 +84,10 @@ public class DatabaseUtils {
             throw new SQLException("No columns to update for device with AssetName: " + device.get("AssetName"));
         }
         sql.append(String.join(", ", columns)).append(" WHERE AssetName = ?");
+
+        String debugSql = sql.toString();
+        LOGGER.log(Level.INFO, "Generated UPDATE SQL: {0}", new Object[]{debugSql});
+        LOGGER.log(Level.INFO, "Parameters: {0}", new Object[]{device});
 
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             int index = 1;
@@ -104,9 +107,9 @@ public class DatabaseUtils {
                             try {
                                 java.util.Date date;
                                 try {
-                                    date = excelDateFormat.parse(value); // Try Excel format first
+                                    date = excelDateFormat.parse(value);
                                 } catch (java.text.ParseException e) {
-                                    date = dateFormat.parse(value); // Fall back to MM/dd/yyyy
+                                    date = dateFormat.parse(value);
                                 }
                                 stmt.setDate(index++, new java.sql.Date(date.getTime()));
                             } catch (java.text.ParseException e) {
@@ -120,14 +123,14 @@ public class DatabaseUtils {
                 }
             }
             stmt.setString(index, assetName);
-            LOGGER.log(Level.INFO, "Executing UPDATE SQL: {0} for AssetName: {1}", new Object[]{sql.toString(), assetName});
+            LOGGER.log(Level.INFO, "Executing UPDATE SQL: {0} for AssetName: {1}", new Object[]{debugSql, assetName});
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
                 LOGGER.log(Level.WARNING, "No rows updated for AssetName: {0}", new Object[]{assetName});
                 throw new SQLException("No device found with AssetName: " + assetName);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating device with AssetName {0}: {1}", new Object[]{device.get("AssetName"), e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error updating device with AssetName {0}: {1}\nSQL: {2}", new Object[]{device.get("AssetName"), e.getMessage(), debugSql});
             throw e;
         }
     }

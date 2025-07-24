@@ -15,7 +15,7 @@ public class TableColorRenderer extends DefaultTableCellRenderer {
     }
 
     public void setRowStatus(HashMap<Integer, String> rowStatus) {
-        this.rowStatus = rowStatus;
+        this.rowStatus = rowStatus != null ? new HashMap<>(rowStatus) : new HashMap<>();
     }
 
     public boolean isYellowOrOrange(int row) {

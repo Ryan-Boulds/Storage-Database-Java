@@ -37,19 +37,15 @@ public class DataImporter {
             }
         }
 
-        // Use PreviewDialog to read the file and allow column selection
         PreviewDialog previewDialog = new PreviewDialog(parent);
         importedData = previewDialog.showDialog();
         if (importedData == null || importedData.isEmpty()) {
             statusLabel.setText("No data loaded or import cancelled.");
-            LOGGER.warning("No data loaded or import cancelled.");
+            LOGGER.log(Level.WARNING, "No data loaded or import cancelled.");
             return;
         }
 
         statusLabel.setText("Data loaded for mapping: " + importedData.size() + " rows.");
-        LOGGER.log(Level.INFO, "Imported Data Headers: {0}", new Object[]{java.util.Arrays.toString(importedData.get(0))});
-
-        // Use MappingDialog for column mapping
         MappingDialog mappingDialog = new MappingDialog(parent, importedData);
         mappingDialog.showDialog();
         Map<String, String> columnMappings = mappingDialog.getColumnMappings();
@@ -58,15 +54,15 @@ public class DataImporter {
 
         if (columnMappings.isEmpty()) {
             statusLabel.setText("Mapping cancelled or no columns mapped.");
-            LOGGER.warning("Mapping cancelled or no columns mapped.");
+            LOGGER.log(Level.WARNING, "Mapping cancelled or no columns mapped.");
             importedData = null;
             return;
         }
 
-        statusLabel.setText("Mapping completed.");
-        LOGGER.log(Level.INFO, "Column Mappings: {0}", new Object[]{columnMappings});
+        statusLabel.setText("Import and mapping completed successfully.");
+        LOGGER.log(Level.INFO, "Successfully imported and mapped data with {0} headers and {1} mappings.", 
+                   new Object[]{importedData.get(0).length, columnMappings.size()});
 
-        // Process and display data
         try {
             parent.getOriginalData().clear();
             parent.getRowStatus().clear();
@@ -83,7 +79,7 @@ public class DataImporter {
         } catch (Exception e) {
             String errorMessage = "Error processing data: " + e.getMessage();
             statusLabel.setText(errorMessage);
-            LOGGER.log(Level.SEVERE, "Error processing data", e);
+            LOGGER.log(Level.SEVERE, "Error processing data: {0}", e.getMessage());
             JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
         }
     }

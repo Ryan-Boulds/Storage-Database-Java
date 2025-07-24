@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219800</millis>
+  <sequence>1644</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Executing UPDATE SQL for AssetName: MSF-RI-PC2</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219805</millis>
+  <sequence>1645</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219805</millis>
+  <sequence>1646</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Parameters: {Processor=Intel Core i5-8500 CPU @ 3.00GHz, Description=, OS=Win 10, Memory=8192.0, Device_Type=, Last_Successful_Scan=2025-07-19, AssetName=MSF-SHIP-OLT, IP_Address=10.241.100.29, Proc=1.0, Username=ami2224, Manufacturer=Hewlett-Packard, Model=HP EliteDesk 800 G4 SFF, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2021-02-17}</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219806</millis>
+  <sequence>1647</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Executing UPDATE SQL for AssetName: MSF-SHIP-OLT</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219811</millis>
+  <sequence>1648</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219811</millis>
+  <sequence>1649</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Parameters: {Processor=Intel Core i5-10500 CPU @ 3.10GHz, Description=, OS=Win 10, Memory=8192.0, Device_Type=, Last_Successful_Scan=2025-07-18, AssetName=MSF-SVC-KITTIN2, IP_Address=10.241.100.67, Proc=1.0, Username=ami0884, Manufacturer=Hewlett-Packard, Model=HP ProDesk 400 G7 SFF, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2023-08-24}</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219812</millis>
+  <sequence>1650</sequence>
+  <logger>data_import.DatabaseHandler</logger>
+  <level>INFO</level>
+  <class>data_import.DatabaseHandler</class>
+  <method>updateDeviceInDB</method>
+  <thread>16</thread>
+  <message>Executing UPDATE SQL for AssetName: MSF-SVC-KITTIN2</message>
+</record>
+<record>
+  <date>2025-07-24T11:40:19</date>
+  <millis>1753375219815</millis>
+  <sequence>1651</sequence>
+  <logger>data_import.DataSaver</logger>
+  <level>INFO</level>
+  <class>data_import.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Successfully saved 138 devices to database after conflict resolution.</message>
+</record>
+<record>
+  <date>2025-07-24T11:42:00</date>
+  <millis>1753375320984</millis>
+  <sequence>1652</sequence>
+  <logger>data_import.ui.MappingDialog</logger>
+  <level>INFO</level>
+  <class>data_import.ui.MappingDialog</class>
+  <method>lambda$4</method>
+  <thread>16</thread>
+  <message>Mapping cancelled, mappings cleared.</message>
+</record>
+<record>
+  <date>2025-07-24T11:42:00</date>
+  <millis>1753375320995</millis>
+  <sequence>1653</sequence>
+  <logger>data_import.DataImporter</logger>
+  <level>WARNING</level>
+  <class>data_import.DataImporter</class>
+  <method>importData</method>
+  <thread>16</thread>
+  <message>Mapping cancelled or no columns mapped.</message>
+</record>
+</log>

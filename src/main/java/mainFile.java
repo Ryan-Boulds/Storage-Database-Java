@@ -1,3 +1,5 @@
+import java.util.logging.LogManager;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,6 +20,14 @@ import view_inventorytab.ViewInventoryTab;
 
 public class mainFile {
     public static void main(String[] args) {
+        // Load logging configuration from resources
+        System.setProperty("java.util.logging.config.file", "src/main/resources/logging.properties");
+        try {
+            LogManager.getLogManager().readConfiguration();
+        } catch (Exception e) {
+            System.err.println("Could not load logging properties: " + e.getMessage());
+        }
+
         SwingUtilities.invokeLater(() -> {
             // Prompt for database path
             JFileChooser fileChooser = new JFileChooser();

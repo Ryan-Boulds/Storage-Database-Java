@@ -39,17 +39,13 @@ public class ImportDataTab extends javax.swing.JPanel {
         javax.swing.JButton viewMappingsButton = UIComponentUtils.createFormattedButton("View Current Mappings");
         viewMappingsButton.addActionListener(e -> mappingViewer.showCurrentMappings());
 
-        javax.swing.JButton toggleDuplicatesButton = UIComponentUtils.createFormattedButton("Toggle Duplicates");
-        toggleDuplicatesButton.addActionListener(e -> duplicateManager.toggleDuplicates());
-
         javax.swing.JButton removeDuplicatesButton = UIComponentUtils.createFormattedButton("Remove Duplicates from Import List");
         removeDuplicatesButton.addActionListener(e -> duplicateManager.removeDuplicates());
 
-        javax.swing.JPanel buttonPanel = new javax.swing.JPanel(new java.awt.GridLayout(1, 5, 10, 10));
+        javax.swing.JPanel buttonPanel = new javax.swing.JPanel(new java.awt.GridLayout(1, 4, 10, 10));
         buttonPanel.add(importButton);
         buttonPanel.add(saveButton);
         buttonPanel.add(viewMappingsButton);
-        buttonPanel.add(toggleDuplicatesButton);
         buttonPanel.add(removeDuplicatesButton);
         add(buttonPanel, BorderLayout.NORTH);
 

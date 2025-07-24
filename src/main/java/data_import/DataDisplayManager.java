@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -18,6 +19,7 @@ public class DataDisplayManager {
     private final Map<String, String> fieldTypes;
     private final HashMap<Integer, String> rowStatus;
     private static final SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final Logger LOGGER = Logger.getLogger(DataDisplayManager.class.getName());
 
     public DataDisplayManager(ImportDataTab parent, javax.swing.JLabel statusLabel) {
         this.parent = parent;
@@ -34,19 +36,13 @@ public class DataDisplayManager {
         fieldTypes.putAll(newFields);
         rowStatus.clear();
 
-        java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-            Level.INFO, "DefaultColumns Inventory Columns: {0}", new Object[]{java.util.Arrays.toString(parent.getTableColumns())});
-        java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-            Level.INFO, "Column Mappings: {0}", new Object[]{columnMappings});
-        java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-            Level.INFO, "Device Type Mappings: {0}", new Object[]{deviceTypeMappings});
-
         for (Map.Entry<String, String> entry : newFields.entrySet()) {
             try {
                 parent.getDatabaseHandler().addNewField("Inventory", entry.getKey(), entry.getValue());
             } catch (SQLException e) {
                 String errorMessage = "Error adding new field '" + entry.getKey() + "': " + e.getMessage();
                 statusLabel.setText(errorMessage);
+                LOGGER.log(Level.SEVERE, "Error adding new field {0}: {1}", new Object[]{entry.getKey(), e.getMessage()});
                 JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -56,13 +52,12 @@ public class DataDisplayManager {
         originalData.addAll(new DataProcessor().processData(importedData, columnMappings, deviceTypeMappings, parent.getTableColumns(), fieldTypes));
         for (int i = 0; i < originalData.size(); i++) {
             rowStatus.put(i, computeRowStatus(i, originalData.get(i)));
-            if (parent.isShowDuplicates() || !rowStatus.get(i).equals("red")) {
-                tableModel.addRow(originalData.get(i).getValues());
-            }
+            LOGGER.log(Level.INFO, "Row {0} status computed as: {1}", new Object[]{i, rowStatus.get(i)});
         }
-        ((TableColorRenderer) parent.getTable().getDefaultRenderer(Object.class)).setRowStatus(rowStatus);
-        java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-            Level.INFO, "Displayed {0} rows in table.", new Object[]{tableModel.getRowCount()});
+        updateTableDisplay();
+
+        statusLabel.setText("Data displayed for review with " + originalData.size() + " rows.");
+        LOGGER.log(Level.INFO, "Successfully displayed {0} rows for review.", new Object[]{originalData.size()});
 
         if (!newFields.isEmpty()) {
             StringBuilder newFieldsMessage = new StringBuilder("New fields added to database schema:\n");
@@ -104,8 +99,7 @@ public class DataDisplayManager {
                     }
                 }
             } catch (Exception e) {
-                java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-                    Level.WARNING, "Failed to normalize date for field {0}: {1}", new Object[]{field, value});
+                LOGGER.log(Level.WARNING, "Failed to normalize date for field {0}: {1}", new Object[]{field, value});
             }
         }
         return value;
@@ -147,9 +141,7 @@ public class DataDisplayManager {
                     }
                 }
             } catch (SQLException e) {
-                java.util.logging.Logger.getLogger(DataDisplayManager.class.getName()).log(
-                    Level.INFO, "Error checking row status for AssetName {0}: {1}",
-                    new Object[]{assetName, e.getMessage()});
+                LOGGER.log(Level.SEVERE, "Error checking row status for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
             }
         }
         if (entry.isResolved()) {
@@ -162,6 +154,7 @@ public class DataDisplayManager {
         DefaultTableModel tableModel = parent.getTableModel();
         tableModel.setRowCount(0);
         TableColorRenderer renderer = (TableColorRenderer) parent.getTable().getDefaultRenderer(Object.class);
+        renderer.setRowStatus(rowStatus); // Ensure renderer has the latest status
         for (int i = 0; i < originalData.size(); i++) {
             utils.DataEntry entry = originalData.get(i);
             if (parent.isShowDuplicates() || !renderer.isExactDuplicate(i)) {
