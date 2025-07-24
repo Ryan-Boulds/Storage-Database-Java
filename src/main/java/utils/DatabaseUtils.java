@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseUtils {
     private static String DB_URL = "jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb";
+    private static final Logger LOGGER = Logger.getLogger(DatabaseUtils.class.getName());
 
     public static void setDatabasePath(String path) {
         DB_URL = "jdbc:ucanaccess://" + path.replace("\\", "/");
@@ -30,6 +32,7 @@ public class DatabaseUtils {
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             int index = 1;
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            SimpleDateFormat excelDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             for (Map.Entry<String, String> entry : device.entrySet()) {
                 String column = entry.getKey();
                 String value = entry.getValue();
@@ -39,12 +42,15 @@ public class DatabaseUtils {
                         stmt.setNull(index++, java.sql.Types.DATE);
                     } else {
                         try {
-                            java.util.Date date = dateFormat.parse(value);
+                            java.util.Date date;
+                            try {
+                                date = excelDateFormat.parse(value); // Try Excel format first
+                            } catch (java.text.ParseException e) {
+                                date = dateFormat.parse(value); // Fall back to MM/dd/yyyy
+                            }
                             stmt.setDate(index++, new java.sql.Date(date.getTime()));
                         } catch (java.text.ParseException e) {
-                            java.util.logging.Logger.getLogger(DatabaseUtils.class.getName()).log(
-                                Level.SEVERE, "Failed to parse date for column {0}: {1}", 
-                                new Object[]{column, e.getMessage()});
+                            LOGGER.log(Level.SEVERE, "Failed to parse date for column {0}: {1}", new Object[]{column, value});
                             stmt.setNull(index++, java.sql.Types.DATE);
                         }
                     }
@@ -52,7 +58,77 @@ public class DatabaseUtils {
                     stmt.setString(index++, value != null ? value : "");
                 }
             }
+            LOGGER.log(Level.INFO, "Executing INSERT SQL: {0}", new Object[]{sql});
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error inserting device: {0}", new Object[]{e.getMessage()});
+            throw e;
+        }
+    }
+
+    public static void updateDevice(HashMap<String, String> device) throws SQLException {
+        if (!device.containsKey("AssetName") || device.get("AssetName") == null || device.get("AssetName").trim().isEmpty()) {
+            throw new SQLException("AssetName is required for update");
+        }
+
+        StringBuilder sql = new StringBuilder("UPDATE Inventory SET ");
+        List<String> columns = new ArrayList<>();
+        for (String column : device.keySet()) {
+            if (!column.equals("AssetName")) {
+                // Normalize column names to match database (fix typos)
+                String normalizedColumn = column.replace("PROCCESSOR", "PROCESSOR")
+                                               .replace("LAST_SCUCCESSFUL SCAN", "LAST_SUCCESSFUL_SCAN");
+                columns.add("[" + normalizedColumn + "] = ?");
+            }
+        }
+        if (columns.isEmpty()) {
+            throw new SQLException("No columns to update for device with AssetName: " + device.get("AssetName"));
+        }
+        sql.append(String.join(", ", columns)).append(" WHERE AssetName = ?");
+
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            int index = 1;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            SimpleDateFormat excelDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String assetName = device.get("AssetName");
+
+            for (Map.Entry<String, String> entry : device.entrySet()) {
+                String column = entry.getKey();
+                if (!column.equals("AssetName")) {
+                    String value = entry.getValue();
+                    if (DefaultColumns.getInventoryColumnDefinitions().containsKey(column) &&
+                        DefaultColumns.getInventoryColumnDefinitions().get(column).equals("DATE")) {
+                        if (value == null || value.trim().isEmpty()) {
+                            stmt.setNull(index++, java.sql.Types.DATE);
+                        } else {
+                            try {
+                                java.util.Date date;
+                                try {
+                                    date = excelDateFormat.parse(value); // Try Excel format first
+                                } catch (java.text.ParseException e) {
+                                    date = dateFormat.parse(value); // Fall back to MM/dd/yyyy
+                                }
+                                stmt.setDate(index++, new java.sql.Date(date.getTime()));
+                            } catch (java.text.ParseException e) {
+                                LOGGER.log(Level.SEVERE, "Failed to parse date for column {0}: {1}", new Object[]{column, value});
+                                stmt.setNull(index++, java.sql.Types.DATE);
+                            }
+                        }
+                    } else {
+                        stmt.setString(index++, value != null ? value : "");
+                    }
+                }
+            }
+            stmt.setString(index, assetName);
+            LOGGER.log(Level.INFO, "Executing UPDATE SQL: {0} for AssetName: {1}", new Object[]{sql.toString(), assetName});
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                LOGGER.log(Level.WARNING, "No rows updated for AssetName: {0}", new Object[]{assetName});
+                throw new SQLException("No device found with AssetName: " + assetName);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating device with AssetName {0}: {1}", new Object[]{device.get("AssetName"), e.getMessage()});
+            throw e;
         }
     }
 
@@ -60,7 +136,11 @@ public class DatabaseUtils {
         String sql = "DELETE FROM Inventory WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, assetName);
+            LOGGER.log(Level.INFO, "Executing DELETE SQL: {0}", new Object[]{sql});
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error deleting device with AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+            throw e;
         }
     }
 
@@ -87,22 +167,31 @@ public class DatabaseUtils {
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, countDelta);
             stmt.setString(2, peripheralType);
+            LOGGER.log(Level.INFO, "Executing UPDATE peripheral SQL: {0}", new Object[]{sql});
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
                 sql = "INSERT INTO " + table + " (" + typeColumn + ", Count) VALUES (?, ?)";
                 try (PreparedStatement insertStmt = conn.prepareStatement(sql)) {
                     insertStmt.setString(1, peripheralType);
                     insertStmt.setInt(2, countDelta);
+                    LOGGER.log(Level.INFO, "Executing INSERT peripheral SQL: {0}", new Object[]{sql});
                     insertStmt.executeUpdate();
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating peripheral {0}: {1}", new Object[]{peripheralType, e.getMessage()});
+            throw e;
         }
     }
 
     public static void addNewField(String tableName, String fieldName, String fieldType) throws SQLException {
         String sql = "ALTER TABLE " + tableName + " ADD COLUMN [" + fieldName + "] " + fieldType;
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            LOGGER.log(Level.INFO, "Executing ALTER TABLE SQL: {0}", new Object[]{sql});
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error adding new field {0}: {1}", new Object[]{fieldName, e.getMessage()});
+            throw e;
         }
     }
 
@@ -116,6 +205,9 @@ public class DatabaseUtils {
                     deviceTypes.add(type);
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving device types: {0}", new Object[]{e.getMessage()});
+            throw e;
         }
         return new ArrayList<>(deviceTypes);
     }
@@ -127,7 +219,11 @@ public class DatabaseUtils {
             for (String value : template.values()) {
                 stmt.setString(index++, value != null ? value : "");
             }
+            LOGGER.log(Level.INFO, "Executing INSERT template SQL: {0}", new Object[]{sql});
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error saving template {0}: {1}", new Object[]{templateName, e.getMessage()});
+            throw e;
         }
     }
 
@@ -143,6 +239,9 @@ public class DatabaseUtils {
                 template.put("Template_Name", rs.getString("Template_Name"));
                 templates.add(template);
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error loading templates: {0}", new Object[]{e.getMessage()});
+            throw e;
         }
         return templates;
     }
@@ -158,6 +257,9 @@ public class DatabaseUtils {
                 }
                 devices.add(device);
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error loading devices: {0}", new Object[]{e.getMessage()});
+            throw e;
         }
         return devices;
     }
@@ -190,6 +292,9 @@ public class DatabaseUtils {
                 peripheral.put("Count", String.valueOf(rs.getInt("Count")));
                 peripherals.add(peripheral);
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error loading peripherals for category {0}: {1}", new Object[]{category, e.getMessage()});
+            throw e;
         }
         return peripherals;
     }
@@ -207,6 +312,9 @@ public class DatabaseUtils {
                     template.put("Template_Name", rs.getString("Template_Name"));
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error loading template details for {0}: {1}", new Object[]{templateName, e.getMessage()});
+            throw e;
         }
         return template;
     }
@@ -224,44 +332,11 @@ public class DatabaseUtils {
                     return device;
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving device with AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+            throw e;
         }
         return null;
-    }
-
-    public static void updateDevice(HashMap<String, String> device) throws SQLException {
-        String sql = SQLGenerator.generateInsertSQL("Inventory", device);
-        sql = sql.replace("INSERT INTO", "UPDATE").replace("VALUES", "SET") + " WHERE AssetName = ?";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            int index = 1;
-            String assetName = device.get("AssetName");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-            for (Map.Entry<String, String> entry : device.entrySet()) {
-                String column = entry.getKey();
-                if (!column.equals("AssetName")) {
-                    String value = entry.getValue();
-                    if (DefaultColumns.getInventoryColumnDefinitions().containsKey(column) &&
-                        DefaultColumns.getInventoryColumnDefinitions().get(column).equals("DATE")) {
-                        if (value == null || value.trim().isEmpty()) {
-                            stmt.setNull(index++, java.sql.Types.DATE);
-                        } else {
-                            try {
-                                java.util.Date date = dateFormat.parse(value);
-                                stmt.setDate(index++, new java.sql.Date(date.getTime()));
-                            } catch (java.text.ParseException e) {
-                                java.util.logging.Logger.getLogger(DatabaseUtils.class.getName()).log(
-                                    Level.SEVERE, "Failed to parse date for column {0}: {1}", 
-                                    new Object[]{column, e.getMessage()});
-                                stmt.setNull(index++, java.sql.Types.DATE);
-                            }
-                        }
-                    } else {
-                        stmt.setString(index++, value != null ? value : "");
-                    }
-                }
-            }
-            stmt.setString(index, assetName);
-            stmt.executeUpdate();
-        }
     }
 
     public static void deleteDeviceByAssetName(String assetName) throws SQLException {

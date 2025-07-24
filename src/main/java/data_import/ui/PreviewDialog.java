@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -37,6 +39,7 @@ public class PreviewDialog {
     private final ImportDataTab parent;
     private List<String[]> data;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final Logger LOGGER = Logger.getLogger(PreviewDialog.class.getName());
 
     public PreviewDialog(ImportDataTab parent) {
         this.parent = parent;
@@ -69,7 +72,9 @@ public class PreviewDialog {
                 return readExcelFile(file);
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(parent, "Error reading file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            String errorMessage = "Error reading file " + fileName + ": " + e.getMessage();
+            LOGGER.log(Level.SEVERE, errorMessage, e);
+            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
@@ -79,7 +84,7 @@ public class PreviewDialog {
         if (csvData.isEmpty()) return result;
 
         HashMap<String, String> firstRow = csvData.get(0);
-        String[] headers = firstRow.keySet().toArray(new String[0]);
+        String[] headers = firstRow.keySet().toArray(new String[firstRow.size()]);
         result.add(headers);
 
         for (HashMap<String, String> row : csvData) {
@@ -93,12 +98,12 @@ public class PreviewDialog {
     }
 
     private List<String[]> readExcelFile(File file) throws IOException {
-        List<String[]> data = new ArrayList<>();
+        List<String[]> excelData = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(file);
              Workbook workbook = file.getName().endsWith(".xlsx") ? new XSSFWorkbook(fis) : new HSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.iterator();
-            if (!rowIterator.hasNext()) return data;
+            if (!rowIterator.hasNext()) return excelData;
 
             Row headerRow = rowIterator.next();
             int colCount = headerRow.getPhysicalNumberOfCells();
@@ -106,7 +111,7 @@ public class PreviewDialog {
             for (int i = 0; i < colCount; i++) {
                 headers[i] = getCellValue(headerRow.getCell(i));
             }
-            data.add(headers);
+            excelData.add(headers);
 
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
@@ -114,10 +119,10 @@ public class PreviewDialog {
                 for (int i = 0; i < colCount; i++) {
                     rowData[i] = getCellValue(row.getCell(i));
                 }
-                data.add(rowData);
+                excelData.add(rowData);
             }
         }
-        return data;
+        return excelData;
     }
 
     private String getCellValue(Cell cell) {
@@ -144,7 +149,7 @@ public class PreviewDialog {
         }
 
         String[] csvColumns = data.get(0);
-        List<String[]> dataRows = data.subList(1, data.size()); // Show all rows
+        List<String[]> dataRows = data.subList(1, data.size());
 
         DefaultTableModel previewModel = new DefaultTableModel(csvColumns, 0) {
             @Override
@@ -162,7 +167,7 @@ public class PreviewDialog {
 
         JTable previewTable = new JTable(previewModel);
         JScrollPane previewScrollPane = UIComponentUtils.createScrollableContentPanel(previewTable);
-        previewScrollPane.setPreferredSize(new Dimension(800, 400)); // Increased size for larger datasets
+        previewScrollPane.setPreferredSize(new Dimension(800, 400));
 
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1));
         JCheckBox[] columnCheckboxes = new JCheckBox[csvColumns.length];
@@ -190,7 +195,6 @@ public class PreviewDialog {
             if (selectedIndices.isEmpty()) {
                 JOptionPane.showMessageDialog(parent, "No columns selected.", "Error", JOptionPane.ERROR_MESSAGE);
             } else if (selectedIndices.size() < csvColumns.length) {
-                // Filter data to include only selected columns
                 List<String[]> filteredData = new ArrayList<>();
                 String[] headers = new String[selectedIndices.size()];
                 for (int i = 0; i < selectedIndices.size(); i++) {
@@ -208,7 +212,7 @@ public class PreviewDialog {
                 data = filteredData;
             }
         } else {
-            data = null; // Cancelled
+            data = null;
         }
     }
 }

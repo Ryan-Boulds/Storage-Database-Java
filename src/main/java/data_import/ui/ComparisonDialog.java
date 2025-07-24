@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -28,6 +30,7 @@ public class ComparisonDialog {
     private JDialog dialog;
     private HashMap<String, String> resolvedDevice;
     private String[] resolvedValues;
+    private static final Logger LOGGER = Logger.getLogger(ComparisonDialog.class.getName());
 
     public ComparisonDialog(ImportDataTab parent, DataEntry entry, String[] tableColumns) {
         this.parent = parent;
@@ -40,14 +43,16 @@ public class ComparisonDialog {
         try {
             HashMap<String, String> oldDevice = new data_import.DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
             if (oldDevice == null) {
-                JOptionPane.showMessageDialog(parent, "No existing device found for AssetName: " + assetName, "Error", JOptionPane.ERROR_MESSAGE);
+                String errorMessage = "No existing device found for AssetName: " + assetName;
+                LOGGER.warning(errorMessage);
+                JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
 
             // Create dialog
             dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Compare and Resolve: " + assetName, true);
             dialog.setLayout(new BorderLayout());
-            dialog.setSize(800, 400); // Increased width for better visibility
+            dialog.setSize(800, 400);
             dialog.setMinimumSize(new Dimension(400, 300));
             dialog.setResizable(true);
 
@@ -67,10 +72,9 @@ public class ComparisonDialog {
                 String oldVal = (oldValue == null || oldValue.trim().isEmpty()) ? "" : oldValue;
                 String newVal = (newValue == null || newValue.trim().isEmpty()) ? "" : newValue;
 
-                // Show AssetName or non-identical fields
                 if (dbField.equals("AssetName") || !oldVal.equals(newVal)) {
-                    String displayOld = (oldVal.isEmpty()) ? "(empty)" : oldVal;
-                    String displayNew = (newVal.isEmpty()) ? "(empty)" : newVal;
+                    String displayOld = oldVal.isEmpty() ? "(empty)" : oldVal;
+                    String displayNew = newVal.isEmpty() ? "(empty)" : newVal;
 
                     panel.add(new JLabel(field));
                     panel.add(new JLabel(displayOld));
@@ -84,7 +88,7 @@ public class ComparisonDialog {
                         newRadio.setEnabled(false);
                         newRadio.setSelected(true);
                     } else {
-                        newRadio.setSelected(true); // Default to new value
+                        newRadio.setSelected(true);
                     }
                     ButtonGroup group = new ButtonGroup();
                     group.add(oldRadio);
@@ -119,13 +123,13 @@ public class ComparisonDialog {
                     if (newButtons.containsKey(dbField) && oldButtons.containsKey(dbField)) {
                         value = newButtons.get(dbField).isSelected() ? newDevice.get(dbField) : oldDevice.get(dbField);
                     } else {
-                        // For hidden (identical) fields, use the common value
                         value = newDevice.get(dbField) != null ? newDevice.get(dbField) : oldDevice.get(dbField);
                     }
                     value = (value == null || value.trim().isEmpty()) ? "" : value;
                     resolvedDevice.put(dbField, value);
                     resolvedValues[i] = value;
                 }
+                LOGGER.log(Level.INFO, "Resolved device for AssetName: {0}, Data: {1}", new Object[]{assetName, resolvedDevice});
                 dialog.dispose();
             });
 
@@ -139,12 +143,12 @@ public class ComparisonDialog {
             dialog.setVisible(true);
 
             if (resolvedDevice != null && resolvedValues != null) {
-                java.util.logging.Logger.getLogger(ComparisonDialog.class.getName()).log(java.util.logging.Level.INFO, "Resolved row for AssetName: {0}", assetName);
                 return new DataEntry(resolvedValues, resolvedDevice);
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(parent, "Error comparing data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            java.util.logging.Logger.getLogger(ComparisonDialog.class.getName()).log(java.util.logging.Level.INFO, "Error comparing row for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+            String errorMessage = "Error comparing data for AssetName " + assetName + ": " + e.getMessage();
+            LOGGER.log(Level.SEVERE, errorMessage, e);
+            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }

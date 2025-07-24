@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -29,16 +31,18 @@ public class MappingDialog {
     private final Map<String, String> columnMappings = new HashMap<>();
     private final Map<String, String> newFields = new HashMap<>();
     private final Map<String, String> deviceTypeMappings = new HashMap<>();
+    private static final Logger LOGGER = Logger.getLogger(MappingDialog.class.getName());
 
     public MappingDialog(ImportDataTab parent, List<String[]> data) {
         this.parent = parent;
         this.data = data;
     }
 
+    @SuppressWarnings("unchecked")
     public void showDialog() {
         // Preview Table
         String[] csvColumns = data.get(0);
-        List<String[]> previewData = data.subList(1, data.size()); // Show all rows
+        List<String[]> previewData = data.subList(1, data.size());
         DefaultTableModel previewModel = new DefaultTableModel(csvColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -51,7 +55,7 @@ public class MappingDialog {
         JTable previewTable = new JTable(previewModel);
         previewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JScrollPane previewScrollPane = UIComponentUtils.createScrollableContentPanel(previewTable);
-        previewScrollPane.setPreferredSize(new Dimension(800, 400)); // Increased size for larger datasets
+        previewScrollPane.setPreferredSize(new Dimension(800, 400));
 
         // Mapping Panel
         JPanel mappingPanel = new JPanel(new GridBagLayout());
@@ -61,10 +65,7 @@ public class MappingDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
 
-        // Normalize function to ignore case, spaces, hyphens, and underscores
         java.util.function.Function<String, String> normalize = s -> s.replaceAll("[\\s_-]", "").toLowerCase();
-
-        // Auto-map based on normalized names with "None" option
         String[] comboOptions = Arrays.copyOf(csvColumns, csvColumns.length + 1);
         comboOptions[comboOptions.length - 1] = "None";
         String[] dbFields = DefaultColumns.getInventoryColumns();
@@ -89,11 +90,9 @@ public class MappingDialog {
             gbc.gridy++;
             comboBoxes[i] = comboBox;
 
-            // Initialize columnMappings with auto-mapped values
             if (!"None".equals(defaultMatch)) {
                 columnMappings.put(defaultMatch, dbField);
             }
-            // Add ActionListener to update mappings
             comboBox.addActionListener(e -> {
                 String selected = (String) comboBox.getSelectedItem();
                 if ("None".equals(selected)) {
@@ -106,8 +105,7 @@ public class MappingDialog {
                 } else if (selected != null) {
                     columnMappings.put(selected, dbField);
                 }
-                // Debug: Log current mappings
-                System.out.println("Updated Column Mappings: " + columnMappings);
+                LOGGER.log(Level.INFO, "Updated Column Mappings: {0}", new Object[]{columnMappings});
             });
         }
 
@@ -127,21 +125,22 @@ public class MappingDialog {
                         new String[]{"VARCHAR(255)", "INTEGER", "DATE", "BOOLEAN"}, "VARCHAR(255)");
                 if (type != null) {
                     newFields.put(newFieldName, type);
+                    LOGGER.log(Level.INFO, "Added new field: {0} ({1})", new Object[]{newFieldName, type});
                     JOptionPane.showMessageDialog(parent, "New column '" + newFieldName + "' added.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
 
-        // Wrap mappingPanel in a JScrollPane for vertical scrolling
+        // Wrap mappingPanel in a JScrollPane
         JScrollPane mappingScrollPane = UIComponentUtils.createScrollableContentPanel(mappingPanel);
-        mappingScrollPane.setPreferredSize(new Dimension(400, 400)); // Increased size for consistency
+        mappingScrollPane.setPreferredSize(new Dimension(400, 400));
 
         // Combine Preview and Mapping
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(previewScrollPane, BorderLayout.WEST);
         mainPanel.add(mappingScrollPane, BorderLayout.CENTER);
 
-        // Create resizable dialog with OK and Cancel buttons
+        // Create dialog with OK and Cancel buttons
         JButton okButton = new JButton("Save Mappings");
         JButton cancelButton = new JButton("Cancel");
         JPanel buttonPanel = new JPanel();
@@ -152,19 +151,19 @@ public class MappingDialog {
         JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Map Columns to Database Fields", true);
         dialog.setLayout(new BorderLayout());
         dialog.add(mainPanel, BorderLayout.CENTER);
-        dialog.setSize(1200, 600); // Increased size for larger datasets
+        dialog.setSize(1200, 600);
         dialog.setMinimumSize(new Dimension(800, 400));
         dialog.setLocationRelativeTo(parent);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        // Handle button actions
         okButton.addActionListener(e -> {
-            // Save mappings and close
+            LOGGER.log(Level.INFO, "Mappings saved: {0}", new Object[]{columnMappings});
             dialog.dispose();
         });
 
         cancelButton.addActionListener(e -> {
-            columnMappings.clear(); // Reset mappings on cancel
+            columnMappings.clear();
+            LOGGER.info("Mapping cancelled, mappings cleared.");
             dialog.dispose();
         });
 
@@ -173,9 +172,10 @@ public class MappingDialog {
             public void windowClosing(java.awt.event.WindowEvent e) {
                 if (JOptionPane.showConfirmDialog(dialog, "Do you want to save the mappings?", "Confirm Close",
                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    // Mappings are already updated via ActionListener
+                    LOGGER.log(Level.INFO, "Mappings saved on window close: {0}", new Object[]{columnMappings});
                 } else {
-                    columnMappings.clear(); // Reset if cancelled
+                    columnMappings.clear();
+                    LOGGER.info("Mappings cleared on window close.");
                 }
                 dialog.dispose();
             }
