@@ -1,15 +1,13 @@
 package data_import;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
+
+import data_import.ui.MappingDialog;
+import data_import.ui.PreviewDialog;
 
 public class DataImporter {
     private final ImportDataTab parent;
@@ -36,67 +34,48 @@ public class DataImporter {
             }
         }
 
-        // File selection
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV, Excel files", "csv", "xlsx", "xls"));
-        int result = fileChooser.showOpenDialog(parent);
-        if (result != JFileChooser.APPROVE_OPTION) {
-            statusLabel.setText("No file selected.");
+        // Use PreviewDialog to read the file and allow column selection
+        PreviewDialog previewDialog = new PreviewDialog(parent);
+        importedData = previewDialog.showDialog();
+        if (importedData == null || importedData.isEmpty()) {
+            statusLabel.setText("No data loaded or import cancelled.");
             return;
         }
 
-        // Simulate file reading (replace with actual file parsing logic)
-        List<String[]> data = new ArrayList<>();
-        // Placeholder: Assume file is read into data (headers in data.get(0), rows follow)
-        data.add(parent.getTableColumns()); // Example headers
-        for (int i = 0; i < 10; i++) { // Example data
-            String[] row = new String[parent.getTableColumns().length];
-            for (int j = 0; j < row.length; j++) {
-                row[j] = "Sample" + i + "_" + j;
-            }
-            data.add(row);
-        }
-        importedData = data;
         statusLabel.setText("Data loaded for mapping.");
         java.util.logging.Logger.getLogger(DataImporter.class.getName()).log(
             Level.INFO, "Imported Data Headers: {0}", new Object[]{java.util.Arrays.toString(importedData.get(0))});
 
-        // Mapping dialog
-        Map<String, String> columnMappings = new HashMap<>();
-        Map<String, String> deviceTypeMappings = new HashMap<>();
-        Map<String, String> newFields = new HashMap<>();
-        JPanel mappingPanel = new JPanel(new java.awt.GridLayout(0, 2, 5, 5));
-        for (String header : data.get(0)) {
-            mappingPanel.add(new javax.swing.JLabel("Source: " + header));
-            javax.swing.JComboBox<String> comboBox = new javax.swing.JComboBox<>(parent.getTableColumns());
-            mappingPanel.add(comboBox);
-        }
-        int mappingResult = JOptionPane.showConfirmDialog(parent, mappingPanel, "Map Columns", JOptionPane.OK_CANCEL_OPTION);
-        if (mappingResult == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < data.get(0).length; i++) {
-                javax.swing.JComboBox<?> comboBox = (javax.swing.JComboBox<?>) mappingPanel.getComponent(2 * i + 1);
-                columnMappings.put(data.get(0)[i], (String) comboBox.getSelectedItem());
-            }
-            statusLabel.setText("Mapping completed.");
-            java.util.logging.Logger.getLogger(DataImporter.class.getName()).log(
-                Level.INFO, "Column Mappings: {0}", new Object[]{columnMappings});
+        // Use MappingDialog for column mapping
+        MappingDialog mappingDialog = new MappingDialog(parent, importedData);
+        mappingDialog.showDialog();
+        Map<String, String> columnMappings = mappingDialog.getColumnMappings();
+        Map<String, String> newFields = mappingDialog.getNewFields();
+        Map<String, String> deviceTypeMappings = mappingDialog.getDeviceTypeMappings();
 
-            // Process and display data
-            parent.getOriginalData().clear();
-            parent.getRowStatus().clear();
-            parent.getFieldTypes().clear();
-            parent.getFieldTypes().putAll(newFields);
-            parent.getOriginalData().addAll(new DataProcessor().processData(data, columnMappings, deviceTypeMappings, parent.getTableColumns(), parent.getFieldTypes()));
-            for (int i = 0; i < parent.getOriginalData().size(); i++) {
-                String status = parent.dataDisplayManager.computeRowStatus(i, parent.getOriginalData().get(i));
-                parent.getRowStatus().put(i, status);
-            }
-            parent.dataDisplayManager.displayData(columnMappings, newFields, deviceTypeMappings, data);
-            statusLabel.setText("Data displayed for review.");
-        } else {
-            statusLabel.setText("Mapping cancelled.");
+        if (columnMappings.isEmpty()) {
+            statusLabel.setText("Mapping cancelled or no columns mapped.");
             importedData = null;
+            return;
         }
+
+        statusLabel.setText("Mapping completed.");
+        java.util.logging.Logger.getLogger(DataImporter.class.getName()).log(
+            Level.INFO, "Column Mappings: {0}", new Object[]{columnMappings});
+
+        // Process and display data
+        parent.getOriginalData().clear();
+        parent.getRowStatus().clear();
+        parent.getFieldTypes().clear();
+        parent.getFieldTypes().putAll(newFields);
+        parent.getOriginalData().addAll(new DataProcessor().processData(
+            importedData, columnMappings, deviceTypeMappings, parent.getTableColumns(), parent.getFieldTypes()));
+        for (int i = 0; i < parent.getOriginalData().size(); i++) {
+            String status = parent.dataDisplayManager.computeRowStatus(i, parent.getOriginalData().get(i));
+            parent.getRowStatus().put(i, status);
+        }
+        parent.dataDisplayManager.displayData(columnMappings, newFields, deviceTypeMappings, importedData);
+        statusLabel.setText("Data displayed for review.");
     }
 
     public DatabaseHandler getDatabaseHandler() {
