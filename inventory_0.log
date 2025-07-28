@@ -2,630 +2,410 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018793</millis>
-  <sequence>3161</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684779</millis>
+  <sequence>690</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMF, IP_Address=10.241.99.34, Proc=1.0, Username=ami0083, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-05-16}</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKA</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018795</millis>
-  <sequence>3162</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684784</millis>
+  <sequence>691</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMF</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018798</millis>
-  <sequence>3163</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018798</millis>
-  <sequence>3164</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684785</millis>
+  <sequence>692</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMG, IP_Address=10.241.79.150, Proc=1.0, Username=ami4261, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-05}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKC, IP_Address=10.241.76.10, Proc=1.0, Username=aeil0957, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-21 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018799</millis>
-  <sequence>3165</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684787</millis>
+  <sequence>693</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMG</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKC</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018804</millis>
-  <sequence>3166</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684791</millis>
+  <sequence>694</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018804</millis>
-  <sequence>3167</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684792</millis>
+  <sequence>695</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-16, AssetName=AMIDZ018JMH, IP_Address=10.241.79.90, Proc=1.0, Username=ami5112, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-05}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKG, IP_Address=192.168.238.55, Proc=1.0, Username=mharper, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-02-25 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018805</millis>
-  <sequence>3168</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:04</date>
+  <millis>1753720684793</millis>
+  <sequence>696</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMH</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKG</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018809</millis>
-  <sequence>3169</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690429</millis>
+  <sequence>697</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018809</millis>
-  <sequence>3170</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690430</millis>
+  <sequence>698</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMJ, IP_Address=10.241.79.183, Proc=1.0, Username=ami1878, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-10}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018810</millis>
-  <sequence>3171</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690432</millis>
+  <sequence>699</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMJ</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018815</millis>
-  <sequence>3172</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690436</millis>
+  <sequence>700</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018816</millis>
-  <sequence>3173</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690437</millis>
+  <sequence>701</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMK, IP_Address=10.241.70.39, Proc=1.0, Username=ami6805, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-07}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHY, IP_Address=10.241.82.215, Proc=1.0, Username=aeil2152, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-22 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018820</millis>
-  <sequence>3174</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690438</millis>
+  <sequence>702</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMK</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHY</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018825</millis>
-  <sequence>3175</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690442</millis>
+  <sequence>703</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018826</millis>
-  <sequence>3176</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690442</millis>
+  <sequence>704</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JML, IP_Address=10.241.78.114, Proc=1.0, Username=ami-pod, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-07}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCJ5, IP_Address=192.168.156.42, Proc=1.0, Username=aeil0900, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-21 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018827</millis>
-  <sequence>3177</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690443</millis>
+  <sequence>705</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JML</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCJ5</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018832</millis>
-  <sequence>3178</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690447</millis>
+  <sequence>706</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018833</millis>
-  <sequence>3179</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690447</millis>
+  <sequence>707</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMM, IP_Address=10.241.79.123, Proc=1.0, Username=AMI2778, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-10}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCJE, IP_Address=10.241.76.117, Proc=1.0, Username=aeil2073, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-24 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018834</millis>
-  <sequence>3180</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690448</millis>
+  <sequence>708</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMM</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCJE</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018840</millis>
-  <sequence>3181</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690452</millis>
+  <sequence>709</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018841</millis>
-  <sequence>3182</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690452</millis>
+  <sequence>710</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMN, IP_Address=192.168.199.26, Proc=1.0, Username=ami5025, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-19}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCK2, IP_Address=10.241.83.46, Proc=1.0, Username=aeil2191, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-22 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018843</millis>
-  <sequence>3183</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690454</millis>
+  <sequence>711</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMN</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCK2</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018848</millis>
-  <sequence>3184</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690459</millis>
+  <sequence>712</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018848</millis>
-  <sequence>3185</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690460</millis>
+  <sequence>713</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMP, IP_Address=10.241.100.75, Proc=1.0, Username=ami0957, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-05-08}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKA, IP_Address=10.241.76.129, Proc=1.0, Username=aeil0136, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-25 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018849</millis>
-  <sequence>3186</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690491</millis>
+  <sequence>714</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMP</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKA</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018854</millis>
-  <sequence>3187</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690500</millis>
+  <sequence>715</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018855</millis>
-  <sequence>3188</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690500</millis>
+  <sequence>716</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMQ, IP_Address=10.241.71.38, Proc=1.0, Username=ami4904, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-19}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKC, IP_Address=10.241.76.10, Proc=1.0, Username=aeil0957, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-21 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018856</millis>
-  <sequence>3189</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690503</millis>
+  <sequence>717</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMQ</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKC</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018860</millis>
-  <sequence>3190</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690509</millis>
+  <sequence>718</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018861</millis>
-  <sequence>3191</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690509</millis>
+  <sequence>719</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-15, AssetName=AMIDZ018JMR, IP_Address=10.241.100.115, Proc=1.0, Username=ami0884, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-21}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKG, IP_Address=192.168.238.55, Proc=1.0, Username=mharper, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-02-25 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018863</millis>
-  <sequence>3192</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:10</date>
+  <millis>1753720690511</millis>
+  <sequence>720</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMR</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKG</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018868</millis>
-  <sequence>3193</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:15</date>
+  <millis>1753720695092</millis>
+  <sequence>721</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018868</millis>
-  <sequence>3194</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:15</date>
+  <millis>1753720695092</millis>
+  <sequence>722</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-11, AssetName=AMIDZ018JMS, IP_Address=10.241.100.219, Proc=1.0, Username=ami3682, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-24}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018869</millis>
-  <sequence>3195</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:15</date>
+  <millis>1753720695094</millis>
+  <sequence>723</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMS</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018874</millis>
-  <sequence>3196</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:21</date>
+  <millis>1753720701026</millis>
+  <sequence>724</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
   <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018875</millis>
-  <sequence>3197</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:21</date>
+  <millis>1753720701026</millis>
+  <sequence>725</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMT, IP_Address=10.241.70.165, Proc=1.0, Username=ami3113, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-18}</message>
+  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
 </record>
 <record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018876</millis>
-  <sequence>3198</sequence>
-  <logger>data_import.DatabaseHandler</logger>
+  <date>2025-07-28T11:38:21</date>
+  <millis>1753720701027</millis>
+  <sequence>726</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
+  <class>utils.DatabaseUtils</class>
+  <method>updateDevice</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMT</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018881</millis>
-  <sequence>3199</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018881</millis>
-  <sequence>3200</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-06-30, AssetName=AMIDZ018JMV, IP_Address=10.241.78.94, Proc=1.0, Username=ami0170, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-13}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018883</millis>
-  <sequence>3201</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMV</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018887</millis>
-  <sequence>3202</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018887</millis>
-  <sequence>3203</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-16, AssetName=AMIDZ018JMW, IP_Address=10.241.70.213, Proc=1.0, Username=ami4085, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-19}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018892</millis>
-  <sequence>3204</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMW</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018896</millis>
-  <sequence>3205</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018897</millis>
-  <sequence>3206</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMX, IP_Address=10.241.70.92, Proc=1.0, Username=ami5025, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-02-28}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018898</millis>
-  <sequence>3207</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMX</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018902</millis>
-  <sequence>3208</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018902</millis>
-  <sequence>3209</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMY, IP_Address=10.241.70.144, Proc=1.0, Username=ami5038, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-18}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018903</millis>
-  <sequence>3210</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMY</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018906</millis>
-  <sequence>3211</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018907</millis>
-  <sequence>3212</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JMZ, IP_Address=10.241.78.215, Proc=1.0, Username=ami6661, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-20}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018907</millis>
-  <sequence>3213</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JMZ</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018912</millis>
-  <sequence>3214</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018913</millis>
-  <sequence>3215</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=13th Gen Intel Core i7-13700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-17, AssetName=AMIDZ018JN0, IP_Address=192.168.156.55, Proc=1.0, Username=ami0477, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-21}</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018913</millis>
-  <sequence>3216</sequence>
-  <logger>data_import.DatabaseHandler</logger>
-  <level>INFO</level>
-  <class>data_import.DatabaseHandler</class>
-  <method>updateDeviceInDB</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL for AssetName: AMIDZ018JN0</message>
-</record>
-<record>
-  <date>2025-07-28T09:30:18</date>
-  <millis>1753713018918</millis>
-  <sequence>3217</sequence>
-  <logger>data_import.DataSaver</logger>
-  <level>INFO</level>
-  <class>data_import.DataSaver</class>
-  <method>saveToDatabase</method>
-  <thread>16</thread>
-  <message>Successfully saved 468 devices to database after conflict resolution.</message>
+  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
 </record>
 </log>

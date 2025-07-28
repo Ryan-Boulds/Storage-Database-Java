@@ -1,11 +1,14 @@
 package view_inventorytab;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -20,7 +23,14 @@ public class ViewInventoryTab extends JPanel {
         setLayout(new BorderLayout());
 
         // Initialize table and manager
-        table = new JTable();
+        table = new JTable() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 0; // Only "Edit" column is editable
+            }
+        };
+        table.setCellSelectionEnabled(true);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
@@ -46,18 +56,79 @@ public class ViewInventoryTab extends JPanel {
         searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
-        // Add sorting on column header click
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
+        // Add mouse listener for selection and popup trigger
+        table.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 1 && e.getButton() == java.awt.event.MouseEvent.BUTTON1) {
-                    int columnIndex = table.columnAtPoint(e.getPoint());
+            public void mousePressed(MouseEvent e) {
+                handleMouseEvent(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                handleMouseEvent(e);
+            }
+            private void handleMouseEvent(MouseEvent e) {
+                int columnIndex = table.columnAtPoint(e.getPoint());
+                int rowIndex = table.rowAtPoint(e.getPoint());
+                if (rowIndex < 0 || columnIndex < 0) return;
+
+                // Handle right-click for popup
+                if (e.isPopupTrigger()) {
+                    if (!table.isRowSelected(rowIndex)) {
+                        table.setRowSelectionInterval(rowIndex, rowIndex);
+                        table.setColumnSelectionInterval(columnIndex, columnIndex);
+                    }
+                    return;
+                }
+
+                // Handle left-click for selection
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (e.isControlDown()) {
+                        // Ctrl + click: toggle selection (same column only)
+                        if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
+                            return; // Restrict to same column
+                        }
+                        if (table.isCellSelected(rowIndex, columnIndex)) {
+                            table.removeRowSelectionInterval(rowIndex, rowIndex);
+                        } else {
+                            table.addRowSelectionInterval(rowIndex, rowIndex);
+                            table.addColumnSelectionInterval(columnIndex, columnIndex);
+                        }
+                    } else if (e.isShiftDown()) {
+                        // Shift + click: select range (same column only)
+                        if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
+                            return; // Restrict to same column
+                        }
+                        int anchorRow = table.getSelectionModel().getAnchorSelectionIndex();
+                        if (anchorRow >= 0) {
+                            int start = Math.min(anchorRow, rowIndex);
+                            int end = Math.max(anchorRow, rowIndex);
+                            table.setRowSelectionInterval(start, end);
+                            table.setColumnSelectionInterval(columnIndex, columnIndex);
+                        }
+                    } else {
+                        // Single click: select single cell
+                        table.setRowSelectionInterval(rowIndex, rowIndex);
+                        table.setColumnSelectionInterval(columnIndex, columnIndex);
+                    }
+                }
+            }
+        });
+
+        // Add sorting on column header click
+        table.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    int columnIndex = table.getTableHeader().columnAtPoint(e.getPoint());
                     if (columnIndex >= 0) {
                         tableManager.sortTable(columnIndex);
                     }
                 }
             }
         });
+
+        // Add popup menu
+        PopupHandler.addTablePopup(table, null, tableManager);
 
         add(searchPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -74,6 +145,5 @@ public class ViewInventoryTab extends JPanel {
 
     public void updateTables(String searchTerm, String deviceType, String status) {
         refreshDataAndTabs();
-        // TODO: Add filtering logic based on searchTerm, deviceType, and status if required
     }
 }
