@@ -1,4 +1,4 @@
-package view_inventorytab;
+package accessories_count;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -68,14 +68,14 @@ public final class AccessoriesCountTab extends JPanel {
 
         // Refresh button at the bottom
         JButton refreshButton = UIComponentUtils.createFormattedButton("Refresh");
-        refreshButton.addActionListener(e -> updateDisplay());
+        refreshButton.addActionListener(e -> refresh());
         add(mainPanel, BorderLayout.CENTER);
         add(refreshButton, BorderLayout.SOUTH);
 
-        updateDisplay();
+        refresh();
     }
 
-    private void updateDisplay() {
+    public void refresh() {
         // Clear existing data
         accessoryTableModel.setRowCount(0);
 
@@ -162,7 +162,7 @@ public final class AccessoriesCountTab extends JPanel {
                             DatabaseUtils.updatePeripheralCount(normalizedType, 0, "Accessory");
                             JOptionPane.showMessageDialog(dialog, "Accessory type '" + normalizedType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                             dialog.dispose();
-                            updateDisplay();
+                            refresh();
                         } catch (SQLException ex) {
                             JOptionPane.showMessageDialog(dialog, "Error adding accessory type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                         }

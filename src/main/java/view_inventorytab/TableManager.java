@@ -1,5 +1,6 @@
 package view_inventorytab;
 
+import java.awt.FontMetrics;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,10 +31,9 @@ public class TableManager {
             table.setModel(model);
             sorter = new TableRowSorter<>(model);
             table.setRowSorter(sorter);
-            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            adjustColumnWidths();
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Allows manual resizing
+            initializeColumns();
         }
-        initializeColumns();
     }
 
     private void initializeColumns() {
@@ -45,15 +45,28 @@ public class TableManager {
     }
 
     private void adjustColumnWidths() {
-        if (table != null && table.getColumnModel() != null) {
-            DefaultTableColumnModel columnModel = (DefaultTableColumnModel) table.getColumnModel();
-            int defaultWidth = 120;
-            for (int i = 0; i < columnModel.getColumnCount() && i < columns.length; i++) {
-                TableColumn column = columnModel.getColumn(i);
-                column.setPreferredWidth(defaultWidth);
-                column.setMinWidth(defaultWidth);
-                column.setMaxWidth(defaultWidth);
+        if (table == null || table.getColumnModel() == null) {
+            return;
+        }
+        DefaultTableColumnModel columnModel = (DefaultTableColumnModel) table.getColumnModel();
+        FontMetrics fontMetrics = table.getFontMetrics(table.getFont());
+        int padding = 20; // Extra padding for readability
+
+        for (int i = 0; i < columnModel.getColumnCount() && i < columns.length; i++) {
+            TableColumn column = columnModel.getColumn(i);
+            String header = columns[i];
+            int maxWidth = fontMetrics.stringWidth(header) + padding;
+
+            // Calculate max width based on cell content
+            for (int row = 0; row < table.getRowCount(); row++) {
+                Object value = table.getValueAt(row, i);
+                String text = value != null ? value.toString() : "";
+                int textWidth = fontMetrics.stringWidth(text) + padding;
+                maxWidth = Math.max(maxWidth, textWidth);
             }
+
+            column.setPreferredWidth(maxWidth);
+            // Remove minWidth and maxWidth to allow manual resizing
         }
     }
 

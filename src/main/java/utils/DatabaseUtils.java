@@ -1,6 +1,7 @@
 package utils;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,6 +26,23 @@ public class DatabaseUtils {
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL);
+    }
+
+    public static ArrayList<String> getInventoryColumnNames() throws SQLException {
+        ArrayList<String> columns = new ArrayList<>();
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            try (ResultSet rs = metaData.getColumns(null, null, "Inventory", null)) {
+                while (rs.next()) {
+                    String columnName = rs.getString("COLUMN_NAME");
+                    columns.add(columnName);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving Inventory column names: {0}", new Object[]{e.getMessage()});
+            throw e;
+        }
+        return columns;
     }
 
     public static void saveDevice(HashMap<String, String> device) throws SQLException {

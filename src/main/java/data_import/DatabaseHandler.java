@@ -40,31 +40,33 @@ public class DatabaseHandler {
                 String value = entry.getValue();
                 String fieldType = DefaultColumns.getInventoryColumnDefinitions().getOrDefault(column, "");
 
-                if (fieldType.equals("DATE")) {
-                    if (value == null || value.trim().isEmpty()) {
-                        stmt.setNull(index++, Types.DATE);
-                    } else {
-                        try {
-                            java.util.Date date = dbDateFormat.parse(value);
-                            stmt.setDate(index++, new java.sql.Date(date.getTime()));
-                        } catch (java.text.ParseException e) {
-                            LOGGER.log(Level.SEVERE, "Failed to parse date for column {0} in save: {1}", new Object[]{column, e.getMessage()});
+                switch (fieldType) {
+                    case "DATE":
+                        if (value == null || value.trim().isEmpty()) {
                             stmt.setNull(index++, Types.DATE);
-                        }
-                    }
-                } else if (fieldType.equals("DOUBLE")) {
-                    if (value == null || value.trim().isEmpty()) {
-                        stmt.setNull(index++, Types.DOUBLE);
-                    } else {
-                        try {
-                            stmt.setDouble(index++, Double.parseDouble(value));
-                        } catch (NumberFormatException e) {
-                            LOGGER.log(Level.WARNING, "Invalid DOUBLE value for column {0}: {1}", new Object[]{column, value});
+                        } else {
+                            try {
+                                java.util.Date date = dbDateFormat.parse(value);
+                                stmt.setDate(index++, new java.sql.Date(date.getTime()));
+                            } catch (java.text.ParseException e) {
+                                LOGGER.log(Level.SEVERE, "Failed to parse date for column {0} in save: {1}", new Object[]{column, e.getMessage()});
+                                stmt.setNull(index++, Types.DATE);
+                            }
+                        }   break;
+                    case "DOUBLE":
+                        if (value == null || value.trim().isEmpty()) {
                             stmt.setNull(index++, Types.DOUBLE);
-                        }
-                    }
-                } else {
-                    stmt.setString(index++, value != null ? value : "");
+                        } else {
+                            try {
+                                stmt.setDouble(index++, Double.parseDouble(value));
+                            } catch (NumberFormatException e) {
+                                LOGGER.log(Level.WARNING, "Invalid DOUBLE value for column {0}: {1}", new Object[]{column, value});
+                                stmt.setNull(index++, Types.DOUBLE);
+                            }
+                        }   break;
+                    default:
+                        stmt.setString(index++, value != null ? value : "");
+                        break;
                 }
             }
             stmt.executeUpdate();
@@ -107,31 +109,33 @@ public class DatabaseHandler {
                     String value = entry.getValue();
                     String fieldType = DefaultColumns.getInventoryColumnDefinitions().getOrDefault(column, "");
 
-                    if (fieldType.equals("DATE")) {
-                        if (value == null || value.trim().isEmpty()) {
-                            stmt.setNull(index++, Types.DATE);
-                        } else {
-                            try {
-                                java.util.Date date = dbDateFormat.parse(value);
-                                stmt.setDate(index++, new java.sql.Date(date.getTime()));
-                            } catch (java.text.ParseException e) {
-                                LOGGER.log(Level.SEVERE, "Failed to parse date for column {0}: {1}", new Object[]{column, value});
+                    switch (fieldType) {
+                        case "DATE":
+                            if (value == null || value.trim().isEmpty()) {
                                 stmt.setNull(index++, Types.DATE);
-                            }
-                        }
-                    } else if (fieldType.equals("DOUBLE")) {
-                        if (value == null || value.trim().isEmpty()) {
-                            stmt.setNull(index++, Types.DOUBLE);
-                        } else {
-                            try {
-                                stmt.setDouble(index++, Double.parseDouble(value));
-                            } catch (NumberFormatException e) {
-                                LOGGER.log(Level.WARNING, "Invalid DOUBLE value for column {0}: {1}", new Object[]{column, value});
+                            } else {
+                                try {
+                                    java.util.Date date = dbDateFormat.parse(value);
+                                    stmt.setDate(index++, new java.sql.Date(date.getTime()));
+                                } catch (java.text.ParseException e) {
+                                    LOGGER.log(Level.SEVERE, "Failed to parse date for column {0}: {1}", new Object[]{column, value});
+                                    stmt.setNull(index++, Types.DATE);
+                                }
+                            }   break;
+                        case "DOUBLE":
+                            if (value == null || value.trim().isEmpty()) {
                                 stmt.setNull(index++, Types.DOUBLE);
-                            }
-                        }
-                    } else {
-                        stmt.setString(index++, value != null ? value : "");
+                            } else {
+                                try {
+                                    stmt.setDouble(index++, Double.parseDouble(value));
+                                } catch (NumberFormatException e) {
+                                    LOGGER.log(Level.WARNING, "Invalid DOUBLE value for column {0}: {1}", new Object[]{column, value});
+                                    stmt.setNull(index++, Types.DOUBLE);
+                                }
+                            }   break;
+                        default:
+                            stmt.setString(index++, value != null ? value : "");
+                            break;
                     }
                 }
             }

@@ -1,3 +1,7 @@
+
+
+import java.awt.Component;
+import java.io.IOException;
 import java.util.logging.LogManager;
 
 import javax.swing.JFileChooser;
@@ -8,14 +12,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import accessories_count.AccessoriesCountTab;
 import data_import.ImportDataTab;
 import database_creator.DatabaseCreatorTab;
 import device_logging.LogNewDeviceTab;
+import log_adapters.LogAdaptersTab;
+import log_cables.LogCablesTab;
+import mass_entry_modifier.MassEntryModifierTab;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
-import view_inventorytab.AccessoriesCountTab;
-import view_inventorytab.LogAdaptersTab;
-import view_inventorytab.LogCablesTab;
 import view_inventorytab.ViewInventoryTab;
 
 public class mainFile {
@@ -24,7 +29,7 @@ public class mainFile {
         System.setProperty("java.util.logging.config.file", "src/main/resources/logging.properties");
         try {
             LogManager.getLogManager().readConfiguration();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Could not load logging properties: " + e.getMessage());
         }
 
@@ -52,29 +57,43 @@ public class mainFile {
                 LogCablesTab logCablesTab = new LogCablesTab();
                 LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
                 ImportDataTab importDataTab = new ImportDataTab(statusLabel);
+                MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                 JFrame frame = UIComponentUtils.createMainFrame(
                     "Inventory Management",
-                    databaseCreatorTab, // First tab
+                    databaseCreatorTab,
                     viewInventoryTab,
                     logNewDeviceTab,
                     accessoriesCountTab,
                     logCablesTab,
                     logAdaptersTab,
-                    importDataTab
+                    importDataTab,
+                    massEntryModifierTab
                 );
 
                 JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
                 tabbedPane.addChangeListener(e -> {
-                    if (tabbedPane.getSelectedComponent() == viewInventoryTab) {
+                    Component selected = tabbedPane.getSelectedComponent();
+                    if (selected == viewInventoryTab) {
                         viewInventoryTab.refreshDataAndTabs();
-                    } else if (tabbedPane.getSelectedComponent() instanceof AccessoriesCountTab) {
-                        AccessoriesCountTab newTab = new AccessoriesCountTab();
-                        tabbedPane.setComponentAt(tabbedPane.indexOfTab("AccessoriesCount"), newTab);
-                    } else if (tabbedPane.getSelectedComponent() instanceof LogCablesTab) {
-                        LogCablesTab newTab = new LogCablesTab();
-                        tabbedPane.setComponentAt(tabbedPane.indexOfTab("LogCables"), newTab);
+                    } else if (selected == massEntryModifierTab) {
+                        massEntryModifierTab.refresh();
+                    } else if (selected == accessoriesCountTab) {
+                        accessoriesCountTab.refresh();
+                    } else if (selected == logCablesTab) {
+                        logCablesTab.refresh();
+                    } else if (selected == logAdaptersTab) {
+                        logAdaptersTab.refresh();
                     }
+                });
+
+                // Listen for updates from MassEntryModifierTab
+                massEntryModifierTab.addPropertyChangeListener("inventoryUpdated", evt -> {
+                    viewInventoryTab.refreshDataAndTabs();
+                    // Optionally refresh other tabs if they depend on Inventory data
+                    // accessoriesCountTab.refresh();
+                    // logCablesTab.refresh();
+                    // logAdaptersTab.refresh();
                 });
 
                 frame.addWindowListener(new java.awt.event.WindowAdapter() {

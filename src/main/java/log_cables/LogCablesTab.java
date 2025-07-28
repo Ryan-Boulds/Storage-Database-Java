@@ -1,4 +1,4 @@
-package view_inventorytab;
+package log_cables;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -25,7 +25,7 @@ import utils.DatabaseUtils;
 import utils.FileUtils;
 import utils.UIComponentUtils;
 
-public class LogCablesTab extends JPanel {
+public final class LogCablesTab extends JPanel {
     private final JTable cableTable;
     private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
@@ -37,7 +37,7 @@ public class LogCablesTab extends JPanel {
         tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0);
         cableTable = new JTable(tableModel);
         cableTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        updateTableData();
+        refresh();
 
         // Main panel with vertical layout
         JPanel panel = new JPanel();
@@ -64,7 +64,7 @@ public class LogCablesTab extends JPanel {
         add(panel, BorderLayout.CENTER);
     }
 
-    private void updateTableData() {
+    public void refresh() {
         tableModel.setRowCount(0);
         try {
             ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
@@ -150,7 +150,7 @@ public class LogCablesTab extends JPanel {
                         DatabaseUtils.updatePeripheralCount(newType, 0, "Cable");
                         JOptionPane.showMessageDialog(dialog, "Cable type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
-                        updateTableData();
+                        refresh();
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(dialog, "Error adding cable type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }

@@ -1,4 +1,4 @@
-package view_inventorytab;
+package log_adapters;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -25,7 +25,7 @@ import utils.DatabaseUtils;
 import utils.FileUtils;
 import utils.UIComponentUtils;
 
-public class LogAdaptersTab extends JPanel {
+public final class LogAdaptersTab extends JPanel {
     private final JTable adapterTable;
     private final DefaultTableModel tableModel;
     private final JLabel statusLabel;
@@ -37,7 +37,7 @@ public class LogAdaptersTab extends JPanel {
         tableModel = new DefaultTableModel(new String[]{"Adapter Type", "Count"}, 0);
         adapterTable = new JTable(tableModel);
         adapterTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        updateTableData();
+        refresh();
 
         // Main panel with vertical layout
         JPanel panel = new JPanel();
@@ -64,7 +64,7 @@ public class LogAdaptersTab extends JPanel {
         add(panel, BorderLayout.CENTER);
     }
 
-    private void updateTableData() {
+    public void refresh() {
         tableModel.setRowCount(0);
         try {
             ArrayList<HashMap<String, String>> adapters = FileUtils.loadAdapters();
@@ -150,7 +150,7 @@ public class LogAdaptersTab extends JPanel {
                         DatabaseUtils.updatePeripheralCount(newType, 0, "Adapter");
                         JOptionPane.showMessageDialog(dialog, "Adapter type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
-                        updateTableData();
+                        refresh();
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(dialog, "Error adding adapter type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
