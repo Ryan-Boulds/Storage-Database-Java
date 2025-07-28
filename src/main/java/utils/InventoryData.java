@@ -13,7 +13,8 @@ public class InventoryData {
     public static void saveDevice(HashMap<String, String> device) {
         try {
             DatabaseUtils.saveDevice(device);
-            devices.add(device);
+            // Invalidate cache to ensure fresh data on next getDevices call
+            devices.clear();
         } catch (SQLException e) {
             throw new RuntimeException("Error saving device to database: " + e.getMessage());
         }
@@ -21,10 +22,23 @@ public class InventoryData {
 
     public static ArrayList<HashMap<String, String>> getDevices() {
         try {
-            devices = FileUtils.loadDevices();
+            System.out.println("Fetching devices from database");
+            devices = FileUtils.loadDevices(); // Always reload from database
+            System.out.println("Retrieved " + devices.size() + " devices from InventoryData");
             return new ArrayList<>(devices);
         } catch (SQLException e) {
+            System.err.println("Error loading devices: " + e.getMessage());
             throw new RuntimeException("Error loading devices: " + e.getMessage());
+        }
+    }
+
+    public static void deleteDevice(String assetName) {
+        try {
+            DatabaseUtils.deleteDevice(assetName);
+            // Invalidate cache
+            devices.clear();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting device: " + e.getMessage());
         }
     }
 
@@ -40,19 +54,19 @@ public class InventoryData {
     public static ArrayList<HashMap<String, String>> getAccessories() {
         try {
             accessories = FileUtils.loadAccessories();
+            return new ArrayList<>(accessories);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading accessories: " + e.getMessage());
         }
-        return accessories;
     }
 
     public static ArrayList<String> getTemplates() {
         try {
             templates = FileUtils.loadTemplates();
+            return new ArrayList<>(templates);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading templates: " + e.getMessage());
         }
-        return templates;
     }
 
     public static void saveTemplate(HashMap<String, String> template, String templateName) {
@@ -71,15 +85,6 @@ public class InventoryData {
             return FileUtils.loadTemplateDetails(templateName);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading template details: " + e.getMessage());
-        }
-    }
-
-    public static void deleteDevice(String assetName) {
-        try {
-            DatabaseUtils.deleteDevice(assetName);
-            devices.removeIf(device -> assetName.equals(device.get("AssetName")));
-        } catch (SQLException e) {
-            throw new RuntimeException("Error deleting device: " + e.getMessage());
         }
     }
 }

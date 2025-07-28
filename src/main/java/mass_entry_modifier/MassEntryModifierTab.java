@@ -138,7 +138,7 @@ public class MassEntryModifierTab extends JPanel {
         }
     }
 
-    public void refresh() { // Removed @Override
+    public void refresh() {
         refreshComboBoxes();
     }
 
@@ -182,6 +182,7 @@ public class MassEntryModifierTab extends JPanel {
             refreshComboBoxes();
 
             // Notify listeners (e.g., ViewInventoryTab) of the update
+            System.out.println("Firing inventoryUpdated event"); // Debug log
             pcs.firePropertyChange("inventoryUpdated", null, null);
         } catch (SQLException e) {
             java.util.logging.Logger.getLogger(MassEntryModifierTab.class.getName()).log(
@@ -224,7 +225,9 @@ public class MassEntryModifierTab extends JPanel {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, setValue);
             stmt.setString(2, matchValue);
-            return stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("Updated " + rowsAffected + " rows for " + matchColumn + " = " + matchValue); // Debug log
+            return rowsAffected;
         }
     }
 }

@@ -2,410 +2,643 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684779</millis>
-  <sequence>690</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
+  <date>2025-07-28T15:22:15</date>
+  <millis>1753734135640</millis>
+  <sequence>0</sequence>
+  <logger>mass_entry_modifier.UniqueValueComboBox</logger>
+  <level>SEVERE</level>
+  <class>mass_entry_modifier.UniqueValueComboBox</class>
+  <method>updateValues</method>
   <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKA</message>
+  <message>Error retrieving unique values for column Memory</message>
+  <exception>
+    <message>net.ucanaccess.jdbc.UcanaccessSQLException: UCAExc:::5.0.1 data exception: invalid character value for cast in statement [SELECT DISTINCT CStr(Format( MEMORY , '0.0')) AS Value FROM Inventory WHERE  MEMORY  IS NOT NULL AND  MEMORY  &lt;&gt; '']</message>
+    <frame>
+      <class>net.ucanaccess.jdbc.UcanaccessConnection</class>
+      <method>prepareStatement</method>
+      <line>555</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>updateValues</method>
+      <line>53</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>lambda$0</method>
+      <line>29</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>fireActionEvent</method>
+      <line>1260</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedItem</method>
+      <line>588</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedIndex</method>
+      <line>624</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$Handler</class>
+      <method>mouseReleased</method>
+      <line>868</line>
+    </frame>
+    <frame>
+      <class>java.awt.AWTEventMulticaster</class>
+      <method>mouseReleased</method>
+      <line>290</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processMouseEvent</method>
+      <line>6539</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComponent</class>
+      <method>processMouseEvent</method>
+      <line>3324</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$1</class>
+      <method>processMouseEvent</method>
+      <line>517</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processEvent</method>
+      <line>6304</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>processEvent</method>
+      <line>2239</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEventImpl</method>
+      <line>4889</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2297</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>retargetMouseEvent</method>
+      <line>4904</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>processMouseEvent</method>
+      <line>4535</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>dispatchEvent</method>
+      <line>4476</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2283</line>
+    </frame>
+    <frame>
+      <class>java.awt.Window</class>
+      <method>dispatchEventImpl</method>
+      <line>2746</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEventImpl</method>
+      <line>760</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>access$500</method>
+      <line>97</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>709</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>703</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>84</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>733</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>731</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEvent</method>
+      <line>730</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpOneEventForFilters</method>
+      <line>205</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForFilter</method>
+      <line>116</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForHierarchy</method>
+      <line>105</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>101</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>93</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>run</method>
+      <line>82</line>
+    </frame>
+  </exception>
 </record>
 <record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684784</millis>
-  <sequence>691</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
+  <date>2025-07-28T15:24:31</date>
+  <millis>1753734271628</millis>
+  <sequence>1</sequence>
+  <logger>mass_entry_modifier.UniqueValueComboBox</logger>
+  <level>SEVERE</level>
+  <class>mass_entry_modifier.UniqueValueComboBox</class>
+  <method>updateValues</method>
   <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
+  <message>Error retrieving unique values for column Last_Successful_Scan</message>
+  <exception>
+    <message>net.ucanaccess.jdbc.UcanaccessSQLException: UCAExc:::5.0.1 incompatible data types in combination in statement [SELECT DISTINCT Format( LAST_SUCCESSFUL_SCAN , 'yyyy-mm-dd') AS Value FROM Inventory WHERE  LAST_SUCCESSFUL_SCAN  IS NOT NULL AND  LAST_SUCCESSFUL_SCAN  &lt;&gt; ''] 
+ This exception may  happen if you add integers representing units of time directly to datetime values using the arithmetic plus operator but without specifying the unit of date. 
+   In this specific case you have to use, for example, &lt;dateColumn&gt; + 1 DAY.</message>
+    <frame>
+      <class>net.ucanaccess.jdbc.UcanaccessConnection</class>
+      <method>prepareStatement</method>
+      <line>555</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>updateValues</method>
+      <line>53</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>lambda$0</method>
+      <line>29</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>fireActionEvent</method>
+      <line>1260</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedItem</method>
+      <line>588</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedIndex</method>
+      <line>624</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$Handler</class>
+      <method>mouseReleased</method>
+      <line>868</line>
+    </frame>
+    <frame>
+      <class>java.awt.AWTEventMulticaster</class>
+      <method>mouseReleased</method>
+      <line>290</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processMouseEvent</method>
+      <line>6539</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComponent</class>
+      <method>processMouseEvent</method>
+      <line>3324</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$1</class>
+      <method>processMouseEvent</method>
+      <line>517</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processEvent</method>
+      <line>6304</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>processEvent</method>
+      <line>2239</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEventImpl</method>
+      <line>4889</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2297</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>retargetMouseEvent</method>
+      <line>4904</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>processMouseEvent</method>
+      <line>4535</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>dispatchEvent</method>
+      <line>4476</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2283</line>
+    </frame>
+    <frame>
+      <class>java.awt.Window</class>
+      <method>dispatchEventImpl</method>
+      <line>2746</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEventImpl</method>
+      <line>760</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>access$500</method>
+      <line>97</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>709</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>703</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>84</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>733</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>731</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEvent</method>
+      <line>730</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpOneEventForFilters</method>
+      <line>205</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForFilter</method>
+      <line>116</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForHierarchy</method>
+      <line>105</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>101</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>93</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>run</method>
+      <line>82</line>
+    </frame>
+  </exception>
 </record>
 <record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684785</millis>
-  <sequence>692</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
+  <date>2025-07-28T15:24:39</date>
+  <millis>1753734279024</millis>
+  <sequence>2</sequence>
+  <logger>mass_entry_modifier.UniqueValueComboBox</logger>
+  <level>SEVERE</level>
+  <class>mass_entry_modifier.UniqueValueComboBox</class>
+  <method>updateValues</method>
   <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKC, IP_Address=10.241.76.10, Proc=1.0, Username=aeil0957, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-21 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684787</millis>
-  <sequence>693</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKC</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684791</millis>
-  <sequence>694</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684792</millis>
-  <sequence>695</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKG, IP_Address=192.168.238.55, Proc=1.0, Username=mharper, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-02-25 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:04</date>
-  <millis>1753720684793</millis>
-  <sequence>696</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKG</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690429</millis>
-  <sequence>697</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690430</millis>
-  <sequence>698</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690432</millis>
-  <sequence>699</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690436</millis>
-  <sequence>700</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690437</millis>
-  <sequence>701</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHY, IP_Address=10.241.82.215, Proc=1.0, Username=aeil2152, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-22 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690438</millis>
-  <sequence>702</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHY</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690442</millis>
-  <sequence>703</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690442</millis>
-  <sequence>704</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCJ5, IP_Address=192.168.156.42, Proc=1.0, Username=aeil0900, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-21 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690443</millis>
-  <sequence>705</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCJ5</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690447</millis>
-  <sequence>706</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690447</millis>
-  <sequence>707</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCJE, IP_Address=10.241.76.117, Proc=1.0, Username=aeil2073, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-24 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690448</millis>
-  <sequence>708</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCJE</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690452</millis>
-  <sequence>709</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690452</millis>
-  <sequence>710</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCK2, IP_Address=10.241.83.46, Proc=1.0, Username=aeil2191, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-04-22 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690454</millis>
-  <sequence>711</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCK2</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690459</millis>
-  <sequence>712</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690460</millis>
-  <sequence>713</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKA, IP_Address=10.241.76.129, Proc=1.0, Username=aeil0136, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-03-25 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690491</millis>
-  <sequence>714</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKA</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690500</millis>
-  <sequence>715</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690500</millis>
-  <sequence>716</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKC, IP_Address=10.241.76.10, Proc=1.0, Username=aeil0957, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-21 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690503</millis>
-  <sequence>717</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKC</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690509</millis>
-  <sequence>718</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690509</millis>
-  <sequence>719</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCKG, IP_Address=192.168.238.55, Proc=1.0, Username=mharper, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-02-25 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:10</date>
-  <millis>1753720690511</millis>
-  <sequence>720</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCKG</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:15</date>
-  <millis>1753720695092</millis>
-  <sequence>721</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:15</date>
-  <millis>1753720695092</millis>
-  <sequence>722</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700 test, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:15</date>
-  <millis>1753720695094</millis>
-  <sequence>723</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:21</date>
-  <millis>1753720701026</millis>
-  <sequence>724</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Generated UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ?</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:21</date>
-  <millis>1753720701026</millis>
-  <sequence>725</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Parameters: {Processor=Intel Core i7-14700, Description=, OS=Win 11, Memory=16384.0, Device_Type=, Last_Successful_Scan=2025-07-21 00:00:00.000000, AssetName=AEILDZ00SCHW, IP_Address=10.241.76.56, Proc=1.0, Username=aeil0283, Manufacturer=Lenovo, Model=ThinkCentre M70s Gen 5, Domain=AISIN-NA, SP=0.0, Location=, Created_at=2025-01-22 00:00:00.000000}</message>
-</record>
-<record>
-  <date>2025-07-28T11:38:21</date>
-  <millis>1753720701027</millis>
-  <sequence>726</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>updateDevice</method>
-  <thread>16</thread>
-  <message>Executing UPDATE SQL: UPDATE Inventory SET [Processor] = ?, [Description] = ?, [OS] = ?, [Memory] = ?, [Device_Type] = ?, [Last_Successful_Scan] = ?, [IP_Address] = ?, [Proc] = ?, [Username] = ?, [Manufacturer] = ?, [Model] = ?, [Domain] = ?, [SP] = ?, [Location] = ?, [Created_at] = ? WHERE AssetName = ? for AssetName: AEILDZ00SCHW</message>
+  <message>Error retrieving unique values for column Last_Successful_Scan</message>
+  <exception>
+    <message>net.ucanaccess.jdbc.UcanaccessSQLException: UCAExc:::5.0.1 incompatible data types in combination in statement [SELECT DISTINCT Format( LAST_SUCCESSFUL_SCAN , 'yyyy-mm-dd') AS Value FROM Inventory WHERE  LAST_SUCCESSFUL_SCAN  IS NOT NULL AND  LAST_SUCCESSFUL_SCAN  &lt;&gt; ''] 
+ This exception may  happen if you add integers representing units of time directly to datetime values using the arithmetic plus operator but without specifying the unit of date. 
+   In this specific case you have to use, for example, &lt;dateColumn&gt; + 1 DAY.</message>
+    <frame>
+      <class>net.ucanaccess.jdbc.UcanaccessConnection</class>
+      <method>prepareStatement</method>
+      <line>555</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>updateValues</method>
+      <line>53</line>
+    </frame>
+    <frame>
+      <class>mass_entry_modifier.UniqueValueComboBox</class>
+      <method>lambda$0</method>
+      <line>29</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>fireActionEvent</method>
+      <line>1260</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedItem</method>
+      <line>588</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComboBox</class>
+      <method>setSelectedIndex</method>
+      <line>624</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$Handler</class>
+      <method>mouseReleased</method>
+      <line>868</line>
+    </frame>
+    <frame>
+      <class>java.awt.AWTEventMulticaster</class>
+      <method>mouseReleased</method>
+      <line>290</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processMouseEvent</method>
+      <line>6539</line>
+    </frame>
+    <frame>
+      <class>javax.swing.JComponent</class>
+      <method>processMouseEvent</method>
+      <line>3324</line>
+    </frame>
+    <frame>
+      <class>javax.swing.plaf.basic.BasicComboPopup$1</class>
+      <method>processMouseEvent</method>
+      <line>517</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>processEvent</method>
+      <line>6304</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>processEvent</method>
+      <line>2239</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEventImpl</method>
+      <line>4889</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2297</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>retargetMouseEvent</method>
+      <line>4904</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>processMouseEvent</method>
+      <line>4535</line>
+    </frame>
+    <frame>
+      <class>java.awt.LightweightDispatcher</class>
+      <method>dispatchEvent</method>
+      <line>4476</line>
+    </frame>
+    <frame>
+      <class>java.awt.Container</class>
+      <method>dispatchEventImpl</method>
+      <line>2283</line>
+    </frame>
+    <frame>
+      <class>java.awt.Window</class>
+      <method>dispatchEventImpl</method>
+      <line>2746</line>
+    </frame>
+    <frame>
+      <class>java.awt.Component</class>
+      <method>dispatchEvent</method>
+      <line>4711</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEventImpl</method>
+      <line>760</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>access$500</method>
+      <line>97</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>709</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$3</class>
+      <method>run</method>
+      <line>703</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>84</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>733</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue$4</class>
+      <method>run</method>
+      <line>731</line>
+    </frame>
+    <frame>
+      <class>java.security.AccessController</class>
+      <method>doPrivileged</method>
+    </frame>
+    <frame>
+      <class>java.security.ProtectionDomain$JavaSecurityAccessImpl</class>
+      <method>doIntersectionPrivilege</method>
+      <line>74</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventQueue</class>
+      <method>dispatchEvent</method>
+      <line>730</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpOneEventForFilters</method>
+      <line>205</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForFilter</method>
+      <line>116</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEventsForHierarchy</method>
+      <line>105</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>101</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>pumpEvents</method>
+      <line>93</line>
+    </frame>
+    <frame>
+      <class>java.awt.EventDispatchThread</class>
+      <method>run</method>
+      <line>82</line>
+    </frame>
+  </exception>
 </record>
 </log>
