@@ -36,16 +36,23 @@ public final class UniqueValueComboBox extends JComboBox<String> {
         String sql;
         String columnType = DefaultColumns.getInventoryColumnDefinitions().getOrDefault(selectedColumn, "TEXT");
 
-        // Adjust SQL based on column type
-        if ("DOUBLE".equals(columnType)) {
-            // For numeric columns like Memory, select raw values and convert in Java
-            sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
-        } else if ("DATE".equals(columnType)) {
-            // For date columns, use Format to ensure consistent string output
-            sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
-        } else {
+        if (null == columnType) {
             // For text columns, select directly
             sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
+        } else // Adjust SQL based on column type
+        switch (columnType) {
+            case "DOUBLE":
+                // For numeric columns like Memory, select raw values and convert in Java
+                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
+                break;
+            case "DATE":
+                // For date columns, use Format to ensure consistent string output
+                sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
+                break;
+            default:
+                // For text columns, select directly
+                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
+                break;
         }
 
         System.out.println("Executing SQL for " + selectedColumn + ": " + sql);

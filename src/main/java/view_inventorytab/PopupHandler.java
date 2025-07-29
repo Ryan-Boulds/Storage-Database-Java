@@ -21,10 +21,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import utils.DefaultColumns;
-
 public class PopupHandler {
-    public static void showDetailsPopup(JFrame parent, HashMap<String, String> device) {
+    private static final String PRIMARY_KEY_COLUMN = "AssetName";
+
+    public static void showDetailsPopup(JFrame parent, HashMap<String, String> device, String[] columns) {
         JDialog dialog = new JDialog(parent, "Device Details", true);
         dialog.setLayout(new BorderLayout(10, 10));
         dialog.setSize(400, 300);
@@ -32,7 +32,7 @@ public class PopupHandler {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 
-        for (String key : DefaultColumns.getInventoryColumns()) {
+        for (String key : columns) {
             String value = device.getOrDefault(key, "");
             if (!value.isEmpty()) {
                 JLabel label = new JLabel(key + ": " + value);
@@ -56,7 +56,6 @@ public class PopupHandler {
         JMenuItem detailsItem = new JMenuItem("View Details");
         JMenuItem modifyItem = new JMenuItem("Modify/Rename");
 
-        // Enable/disable View Details based on selection count
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -72,7 +71,7 @@ public class PopupHandler {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
                 HashMap<String, String> device = getDeviceData(table, selectedRow);
-                showDetailsPopup((JFrame) SwingUtilities.getWindowAncestor(table), device);
+                showDetailsPopup((JFrame) SwingUtilities.getWindowAncestor(table), device, tableManager.getColumns());
             } else {
                 JOptionPane.showMessageDialog(table, "Please select a row first", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -81,68 +80,66 @@ public class PopupHandler {
         modifyItem.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
-            if (selectedRow >= 0 && selectedColumn >= 1) { // Skip Edit column
+            if (selectedRow >= 0 && selectedColumn >= 1) {
                 String columnName = table.getColumnName(selectedColumn);
-                // Log table columns for debugging
                 ArrayList<String> tableColumns = new ArrayList<>();
                 for (int i = 0; i < table.getColumnCount(); i++) {
                     tableColumns.add(table.getColumnName(i));
                 }
-                System.out.println("PopupHandler: Table columns: " + tableColumns); // Debug
-                // Find AssetName column index using table column names
-                int assetNameColumnIndex = -1;
+                System.out.println("PopupHandler: Table columns: " + tableColumns);
+                int primaryKeyColumnIndex = -1;
                 for (int i = 0; i < table.getColumnCount(); i++) {
-                    if ("AssetName".equals(table.getColumnName(i))) {
-                        assetNameColumnIndex = i;
+                    if (PRIMARY_KEY_COLUMN.equals(table.getColumnName(i))) {
+                        primaryKeyColumnIndex = i;
                         break;
                     }
                 }
-                if (assetNameColumnIndex == -1) {
-                    JOptionPane.showMessageDialog(table, "Error: AssetName column not found in table", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("PopupHandler: AssetName column not found in table columns: " + tableColumns); // Debug
+                if (primaryKeyColumnIndex == -1) {
+                    JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " column not found in table", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("PopupHandler: " + PRIMARY_KEY_COLUMN + " column not found in table columns: " + tableColumns);
                     return;
                 }
                 int[] selectedRows = table.getSelectedRows();
                 if (selectedRows.length > 1) {
                     ArrayList<String> cellValues = new ArrayList<>();
-                    ArrayList<String> assetNames = new ArrayList<>();
+                    ArrayList<String> primaryKeys = new ArrayList<>();
                     for (int row : selectedRows) {
                         Object cellValue = table.getValueAt(row, selectedColumn);
                         cellValues.add(cellValue != null ? cellValue.toString().trim() : "");
-                        Object assetNameValue = table.getValueAt(row, assetNameColumnIndex);
-                        if (assetNameValue == null || assetNameValue.toString().trim().isEmpty()) {
-                            JOptionPane.showMessageDialog(table, "Error: AssetName is missing for row " + (row + 1), "Error", JOptionPane.ERROR_MESSAGE);
-                            System.err.println("PopupHandler: Missing AssetName for row " + (row + 1) + ": " + assetNameValue); // Debug
+                        Object primaryKeyValue = table.getValueAt(row, primaryKeyColumnIndex);
+                        if (primaryKeyValue == null || primaryKeyValue.toString().trim().isEmpty()) {
+                            JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " is missing for row " + (row + 1), "Error", JOptionPane.ERROR_MESSAGE);
+                            System.err.println("PopupHandler: Missing " + PRIMARY_KEY_COLUMN + " for row " + (row + 1) + ": " + primaryKeyValue);
                             return;
                         }
-                        String assetName = assetNameValue.toString().trim();
-                        assetNames.add(assetName);
+                        String primaryKey = primaryKeyValue.toString().trim();
+                        primaryKeys.add(primaryKey);
                     }
-                    System.out.println("PopupHandler: Opening MultiRenameDialog for column=" + columnName + ", assetNames=" + assetNames + ", cellValues=" + cellValues); // Debug
+                    System.out.println("PopupHandler: Opening MultiRenameDialog for column=" + columnName + ", primaryKeys=" + primaryKeys + ", cellValues=" + cellValues);
                     MultiRenameDialog.showRenameDialog(
                         (JFrame) SwingUtilities.getWindowAncestor(table),
                         table,
                         cellValues,
                         columnName,
-                        assetNames,
+                        primaryKeys,
                         tableManager
                     );
                 } else {
                     Object cellValue = table.getValueAt(selectedRow, selectedColumn);
-                    Object assetNameValue = table.getValueAt(selectedRow, assetNameColumnIndex);
-                    if (assetNameValue == null || assetNameValue.toString().trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(table, "Error: AssetName is missing for selected row", "Error", JOptionPane.ERROR_MESSAGE);
-                        System.err.println("PopupHandler: Missing AssetName for row " + (selectedRow + 1) + ": " + assetNameValue); // Debug
+                    Object primaryKeyValue = table.getValueAt(selectedRow, primaryKeyColumnIndex);
+                    if (primaryKeyValue == null || primaryKeyValue.toString().trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " is missing for selected row", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.err.println("PopupHandler: Missing " + PRIMARY_KEY_COLUMN + " for row " + (selectedRow + 1) + ": " + primaryKeyValue);
                         return;
                     }
-                    String assetName = assetNameValue.toString().trim();
-                    System.out.println("PopupHandler: Opening SingleRenameDialog for column=" + columnName + ", assetName='" + assetName + "', cellValue=" + cellValue); // Debug
+                    String primaryKey = primaryKeyValue.toString().trim();
+                    System.out.println("PopupHandler: Opening SingleRenameDialog for column=" + columnName + ", primaryKey='" + primaryKey + "', cellValue=" + cellValue);
                     SingleRenameDialog.showRenameDialog(
                         (JFrame) SwingUtilities.getWindowAncestor(table),
                         table,
                         cellValue != null ? cellValue.toString().trim() : "",
                         columnName,
-                        assetName,
+                        primaryKey,
                         tableManager
                     );
                 }
@@ -158,7 +155,7 @@ public class PopupHandler {
 
     private static HashMap<String, String> getDeviceData(JTable table, int row) {
         HashMap<String, String> device = new HashMap<>();
-        for (int i = 1; i < table.getColumnCount(); i++) { // Skip Edit column
+        for (int i = 1; i < table.getColumnCount(); i++) {
             String columnName = table.getColumnName(i);
             Object value = table.getValueAt(row, i);
             device.put(columnName, value != null ? value.toString().trim() : "");

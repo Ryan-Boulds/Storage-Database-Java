@@ -22,11 +22,10 @@ public class ViewInventoryTab extends JPanel {
     public ViewInventoryTab() {
         setLayout(new BorderLayout());
 
-        // Initialize table and manager
         table = new JTable() {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 0; // Only "Edit" column is editable
+                return column == 0;
             }
         };
         table.setCellSelectionEnabled(true);
@@ -34,7 +33,6 @@ public class ViewInventoryTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Add search bar
         JPanel searchPanel = new JPanel(new BorderLayout(10, 10));
         searchField = UIComponentUtils.createFormattedTextField();
         searchField.setPreferredSize(new java.awt.Dimension(200, 30));
@@ -56,7 +54,12 @@ public class ViewInventoryTab extends JPanel {
         searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
-        // Add mouse listener for selection and popup trigger
+        FilterPanel filterPanel = new FilterPanel(
+            (search, status, dept) -> updateTables(search, status, dept),
+            this::refreshDataAndTabs
+        );
+        searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
+
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -71,7 +74,6 @@ public class ViewInventoryTab extends JPanel {
                 int rowIndex = table.rowAtPoint(e.getPoint());
                 if (rowIndex < 0 || columnIndex < 0) return;
 
-                // Handle right-click for popup
                 if (e.isPopupTrigger()) {
                     if (!table.isRowSelected(rowIndex)) {
                         table.setRowSelectionInterval(rowIndex, rowIndex);
@@ -80,12 +82,10 @@ public class ViewInventoryTab extends JPanel {
                     return;
                 }
 
-                // Handle left-click for selection
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (e.isControlDown()) {
-                        // Ctrl + click: toggle selection (same column only)
                         if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                            return; // Restrict to same column
+                            return;
                         }
                         if (table.isCellSelected(rowIndex, columnIndex)) {
                             table.removeRowSelectionInterval(rowIndex, rowIndex);
@@ -94,9 +94,8 @@ public class ViewInventoryTab extends JPanel {
                             table.addColumnSelectionInterval(columnIndex, columnIndex);
                         }
                     } else if (e.isShiftDown()) {
-                        // Shift + click: select range (same column only)
                         if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                            return; // Restrict to same column
+                            return;
                         }
                         int anchorRow = table.getSelectionModel().getAnchorSelectionIndex();
                         if (anchorRow >= 0) {
@@ -106,7 +105,6 @@ public class ViewInventoryTab extends JPanel {
                             table.setColumnSelectionInterval(columnIndex, columnIndex);
                         }
                     } else {
-                        // Single click: select single cell
                         table.setRowSelectionInterval(rowIndex, rowIndex);
                         table.setColumnSelectionInterval(columnIndex, columnIndex);
                     }
@@ -114,7 +112,6 @@ public class ViewInventoryTab extends JPanel {
             }
         });
 
-        // Add sorting on column header click
         table.getTableHeader().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -127,7 +124,6 @@ public class ViewInventoryTab extends JPanel {
             }
         });
 
-        // Add popup menu
         PopupHandler.addTablePopup(table, null, tableManager);
 
         add(searchPanel, BorderLayout.NORTH);
@@ -136,6 +132,7 @@ public class ViewInventoryTab extends JPanel {
     }
 
     private void initialize() {
+        System.out.println("ViewInventoryTab: Initializing table");
         refreshDataAndTabs();
     }
 
@@ -143,7 +140,56 @@ public class ViewInventoryTab extends JPanel {
         tableManager.refreshDataAndTabs();
     }
 
-    public void updateTables(String searchTerm, String deviceType, String status) {
+    public void updateTables(String searchTerm, String status, String dept) {
         refreshDataAndTabs();
+        String text = searchTerm.toLowerCase();
+        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
+        if (sorter != null) {
+            javax.swing.RowFilter<DefaultTableModel, Integer> filter = null;
+            if (!text.isEmpty() || !status.equals("All") || !dept.equals("All")) {
+                filter = new javax.swing.RowFilter<DefaultTableModel, Integer>() {
+                    @Override
+                    public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                        boolean matchesSearch = text.isEmpty();
+                        boolean matchesStatus = status.equals("All");
+                        boolean matchesDept = dept.equals("All");
+
+                        if (!text.isEmpty()) {
+                            for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
+                                Object value = entry.getValue(i);
+                                if (value != null && value.toString().toLowerCase().contains(text)) {
+                                    matchesSearch = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        int statusIndex = getColumnIndex("Status");
+                        if (!status.equals("All") && statusIndex != -1) {
+                            Object value = entry.getValue(statusIndex);
+                            matchesStatus = value != null && value.toString().equals(status);
+                        }
+
+                        int deptIndex = getColumnIndex("Department");
+                        if (!dept.equals("All") && deptIndex != -1) {
+                            Object value = entry.getValue(deptIndex);
+                            matchesDept = value != null && value.toString().equals(dept);
+                        }
+
+                        return matchesSearch && matchesStatus && matchesDept;
+                    }
+
+                    private int getColumnIndex(String columnName) {
+                        for (int i = 0; i < table.getColumnCount(); i++) {
+                            if (table.getColumnName(i).equals(columnName)) {
+                                return i;
+                            }
+                        }
+                        return -1;
+                    }
+                };
+            }
+            sorter.setRowFilter(filter);
+        }
     }
 }

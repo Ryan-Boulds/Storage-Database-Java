@@ -13,7 +13,6 @@ public class InventoryData {
     public static void saveDevice(HashMap<String, String> device) {
         try {
             DatabaseUtils.saveDevice(device);
-            // Invalidate cache to ensure fresh data on next getDevices call
             devices.clear();
         } catch (SQLException e) {
             throw new RuntimeException("Error saving device to database: " + e.getMessage());
@@ -23,8 +22,11 @@ public class InventoryData {
     public static ArrayList<HashMap<String, String>> getDevices() {
         try {
             System.out.println("Fetching devices from database");
-            devices = FileUtils.loadDevices(); // Always reload from database
+            devices = FileUtils.loadDevices();
             System.out.println("Retrieved " + devices.size() + " devices from InventoryData");
+            if (!devices.isEmpty()) {
+                System.out.println("InventoryData: Columns in first device: " + devices.get(0).keySet());
+            }
             return new ArrayList<>(devices);
         } catch (SQLException e) {
             System.err.println("Error loading devices: " + e.getMessage());
@@ -35,7 +37,6 @@ public class InventoryData {
     public static void deleteDevice(String assetName) {
         try {
             DatabaseUtils.deleteDevice(assetName);
-            // Invalidate cache
             devices.clear();
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting device: " + e.getMessage());

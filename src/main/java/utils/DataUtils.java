@@ -16,16 +16,16 @@ public class DataUtils {
 
     public static String validateDevice(Map<String, String> data, String originalAssetName) {
         String assetName = data.get("AssetName");
-        String ipAddress = data.get("IP Address");
+        String ipAddress = data.get("IP_Address");
 
         if (assetName == null || assetName.trim().isEmpty()) {
-            return "Asset Name is required";
+            return "AssetName is required";
         }
         for (HashMap<String, String> device : InventoryData.getDevices()) {
             String existingAssetName = device.getOrDefault("AssetName", "");
             if (originalAssetName == null || !existingAssetName.equals(originalAssetName)) {
                 if (existingAssetName.equals(assetName)) {
-                    return "Asset Name '" + assetName + "' already exists";
+                    return "AssetName '" + assetName + "' already exists";
                 }
             }
         }

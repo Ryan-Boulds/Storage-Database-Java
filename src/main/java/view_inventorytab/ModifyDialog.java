@@ -7,10 +7,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -22,23 +24,26 @@ import javax.swing.SwingUtilities;
 
 import utils.DataUtils;
 import utils.DatabaseUtils;
-import utils.DefaultColumns;
 import utils.UIComponentUtils;
 
 public class ModifyDialog {
     private final JDialog dialog;
     private final HashMap<String, String> device;
-    private final String[] columnNames = DefaultColumns.getInventoryColumns();
+    private final String[] columnNames;
+    private final Map<String, Integer> columnTypes;
     private final JComponent[] inputs;
     private final HashMap<String, String> originalValues;
     private final JFrame parent;
     private final TableManager tableManager;
+    private final String primaryKeyColumn = "AssetName";
 
     public ModifyDialog(JFrame parent, HashMap<String, String> device, String deviceType, TableManager tableManager) {
         this.parent = parent;
         this.device = new HashMap<>(device);
         this.originalValues = new HashMap<>(device);
         this.tableManager = tableManager;
+        this.columnNames = tableManager.getColumns();
+        this.columnTypes = tableManager.getColumnTypes();
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -47,19 +52,19 @@ public class ModifyDialog {
         gbc.anchor = GridBagConstraints.WEST;
         this.inputs = new JComponent[columnNames.length];
 
-        Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
         int maxLabelWidth = 0;
         FontMetrics fm = panel.getFontMetrics(panel.getFont());
         for (String fieldName : columnNames) {
             maxLabelWidth = Math.max(maxLabelWidth, fm.stringWidth(fieldName + ":"));
         }
-        maxLabelWidth += 20; // Padding
+        maxLabelWidth += 20;
 
         for (int i = 0; i < columnNames.length; i++) {
             String fieldName = columnNames[i];
             JComponent input;
             String key = fieldName;
-            String type = columnDefs.getOrDefault(key, "TEXT");
+            Integer sqlType = columnTypes.getOrDefault(key, Types.VARCHAR);
+            System.out.println("ModifyDialog: Column " + key + " SQL type: " + sqlType);
 
             gbc.gridx = 0;
             gbc.gridy = i;
@@ -71,29 +76,35 @@ public class ModifyDialog {
 
             gbc.gridx = 1;
             gbc.weightx = 1;
-            switch (type) {
-                case "DATE":
-                    JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
-                    JTextField dateField = (JTextField) datePicker.getComponent(0);
-                    dateField.setText(device.getOrDefault(key, ""));
-                    dateField.setPreferredSize(new java.awt.Dimension(200, 30));
-                    input = datePicker;
-                    break;
-                case "DOUBLE":
-                    JTextField doubleField = UIComponentUtils.createFormattedTextField();
-                    doubleField.setText(device.getOrDefault(key, ""));
-                    doubleField.setPreferredSize(new java.awt.Dimension(200, 30));
-                    input = doubleField;
-                    break;
-                default:
-                    JTextField textField = UIComponentUtils.createFormattedTextField();
-                    textField.setText(device.getOrDefault(key, ""));
-                    textField.setPreferredSize(new java.awt.Dimension(200, 30));
-                    if (fieldName.equals("AssetName")) {
-                        textField.setEditable(false);
-                    }
-                    input = textField;
-                    break;
+            if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || 
+                key.equals("Warranty_Expiry_Date") || key.equals("Last_Maintenance") || 
+                key.equals("Maintenance_Due") || key.equals("Date_Of_Purchase")) {
+                JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
+                JTextField dateField = (JTextField) datePicker.getComponent(0);
+                dateField.setText(device.getOrDefault(key, ""));
+                dateField.setPreferredSize(new java.awt.Dimension(200, 30));
+                input = datePicker;
+            } else if (sqlType == Types.DOUBLE || sqlType == Types.FLOAT || 
+                       sqlType == Types.DECIMAL || sqlType == Types.NUMERIC || 
+                       key.equals("Purchase_Cost")) {
+                JTextField doubleField = UIComponentUtils.createFormattedTextField();
+                doubleField.setText(device.getOrDefault(key, ""));
+                doubleField.setPreferredSize(new java.awt.Dimension(200, 30));
+                input = doubleField;
+            } else if (sqlType == Types.BIT || sqlType == Types.BOOLEAN || 
+                       key.equals("Added_Memory")) {
+                JCheckBox checkBox = new JCheckBox();
+                checkBox.setSelected(Boolean.parseBoolean(device.getOrDefault(key, "false")));
+                checkBox.setPreferredSize(new java.awt.Dimension(200, 30));
+                input = checkBox;
+            } else {
+                JTextField textField = UIComponentUtils.createFormattedTextField();
+                textField.setText(device.getOrDefault(key, ""));
+                textField.setPreferredSize(new java.awt.Dimension(200, 30));
+                if (fieldName.equals(primaryKeyColumn)) {
+                    textField.setEditable(false);
+                }
+                input = textField;
             }
             panel.add(input, gbc);
             inputs[i] = input;
@@ -147,12 +158,18 @@ public class ModifyDialog {
         for (int i = 0; i < columnNames.length; i++) {
             String key = columnNames[i];
             String value;
+            Integer sqlType = columnTypes.getOrDefault(key, Types.VARCHAR);
             if (inputs[i] instanceof JTextField) {
                 value = ((JTextField) inputs[i]).getText();
-            } else {
+            } else if (inputs[i] instanceof JPanel) {
                 value = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
+            } else if (inputs[i] instanceof JCheckBox) {
+                value = String.valueOf(((JCheckBox) inputs[i]).isSelected());
+            } else {
+                value = "";
             }
             updatedDevice.put(key, value);
+            System.out.println("ModifyDialog: Saving column " + key + " = " + value);
         }
 
         boolean hasChanges = false;
@@ -180,29 +197,29 @@ public class ModifyDialog {
             return;
         }
 
-        String assetName = device.get("AssetName");
-        String error = DataUtils.validateDevice(updatedDevice, assetName);
+        String primaryKey = device.get(primaryKeyColumn);
+        String error = DataUtils.validateDevice(updatedDevice, primaryKey);
         if (error != null) {
             JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            if (assetName != null) {
-                DatabaseUtils.deleteDevice(assetName);
+            if (primaryKey != null) {
+                DatabaseUtils.deleteDevice(primaryKey);
                 DatabaseUtils.saveDevice(updatedDevice);
                 JOptionPane.showMessageDialog(dialog, "Device updated successfully");
                 dialog.dispose();
                 SwingUtilities.invokeLater(() -> {
                     if (tableManager != null) {
-                        System.out.println("Refreshing table after modify for " + assetName); // Debug log
+                        System.out.println("Refreshing table after modify for " + primaryKey);
                         tableManager.refreshDataAndTabs();
                     } else {
                         System.err.println("Error: TableManager is null during refresh");
                     }
                 });
             } else {
-                JOptionPane.showMessageDialog(dialog, "Error: Asset Name not found", "Update Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Update Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(dialog, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
@@ -214,10 +231,15 @@ public class ModifyDialog {
         for (int i = 0; i < columnNames.length; i++) {
             String key = columnNames[i];
             String currentValue;
+            Integer sqlType = columnTypes.getOrDefault(key, Types.VARCHAR);
             if (inputs[i] instanceof JTextField) {
                 currentValue = ((JTextField) inputs[i]).getText();
-            } else {
+            } else if (inputs[i] instanceof JPanel) {
                 currentValue = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
+            } else if (inputs[i] instanceof JCheckBox) {
+                currentValue = String.valueOf(((JCheckBox) inputs[i]).isSelected());
+            } else {
+                currentValue = "";
             }
             String originalValue = originalValues.getOrDefault(key, "");
             if (!currentValue.equals(originalValue)) {
@@ -241,10 +263,10 @@ public class ModifyDialog {
     }
 
     private void deleteAction() {
-        String assetName = device.get("AssetName");
-        if (assetName != null) {
+        String primaryKey = device.get(primaryKeyColumn);
+        if (primaryKey != null) {
             JOptionPane optionPane = new JOptionPane(
-                "Are you sure you want to delete device with Asset Name: " + assetName + "?",
+                "Are you sure you want to delete device with " + primaryKeyColumn + ": " + primaryKey + "?",
                 JOptionPane.QUESTION_MESSAGE,
                 JOptionPane.YES_NO_OPTION
             );
@@ -254,13 +276,13 @@ public class ModifyDialog {
             Integer confirm = (Integer) optionPane.getValue();
             if (confirm != null && confirm == JOptionPane.YES_OPTION) {
                 try {
-                    System.out.println("Deleting device with AssetName: " + assetName); // Debug log
-                    DatabaseUtils.deleteDevice(assetName);
+                    System.out.println("Deleting device with " + primaryKeyColumn + ": " + primaryKey);
+                    DatabaseUtils.deleteDevice(primaryKey);
                     JOptionPane.showMessageDialog(parent, "Device deleted successfully");
                     dialog.dispose();
                     SwingUtilities.invokeLater(() -> {
                         if (tableManager != null) {
-                            System.out.println("Refreshing table after delete for " + assetName); // Debug log
+                            System.out.println("Refreshing table after delete for " + primaryKey);
                             tableManager.refreshDataAndTabs();
                         } else {
                             System.err.println("Error: TableManager is null during refresh");
@@ -271,7 +293,7 @@ public class ModifyDialog {
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(dialog, "Error: Asset Name not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

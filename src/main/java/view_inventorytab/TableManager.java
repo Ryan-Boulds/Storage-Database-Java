@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -21,13 +23,13 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
-import utils.DefaultColumns;
 import utils.InventoryData;
 
 public class TableManager {
     private final JTable table;
     private final DefaultTableModel model;
     private String[] columns;
+    private Map<String, Integer> columnTypes;
     private TableRowSorter<DefaultTableModel> sorter;
     private final List<Integer> sortColumnIndices = new ArrayList<>();
     private final List<SortOrder> sortOrders = new ArrayList<>();
@@ -35,13 +37,13 @@ public class TableManager {
     public TableManager(JTable table) {
         this.table = table;
         this.model = new DefaultTableModel();
+        this.columnTypes = new HashMap<>();
         if (table != null) {
             table.setModel(model);
             sorter = new TableRowSorter<>(model);
             table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             initializeColumns();
-            // Set renderer and editor for Edit column
             TableColumn editColumn = table.getColumnModel().getColumn(0);
             editColumn.setCellRenderer(new RowEditButtonRenderer());
             editColumn.setCellEditor(new RowEditButtonEditor(table, this));
@@ -50,32 +52,41 @@ public class TableManager {
 
     private void initializeColumns() {
         if (model != null) {
-            model.addColumn("Edit"); // Add Edit column
-            // Get columns dynamically from database
+            model.addColumn("Edit");
             try (Connection conn = DatabaseUtils.getConnection();
                  ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Inventory WHERE 1=0")) {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
                 List<String> columnList = new ArrayList<>();
+                columnTypes.clear();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
+                    int sqlType = metaData.getColumnType(i);
                     columnList.add(columnName);
+                    columnTypes.put(columnName, sqlType);
                 }
                 columns = columnList.toArray(new String[0]);
                 for (String column : columns) {
                     model.addColumn(column);
                 }
-                System.out.println("TableManager: Initialized columns from database: " + String.join(", ", columns)); // Debug
+                System.out.println("TableManager: Initialized columns from database: " + String.join(", ", columns));
+                System.out.println("TableManager: Column types: " + columnTypes);
             } catch (SQLException e) {
-                System.err.println("TableManager: Error fetching columns from database: " + e.getMessage()); // Debug
-                // Fallback to DefaultColumns
-                columns = DefaultColumns.getInventoryColumns();
-                for (String column : columns) {
-                    model.addColumn(column);
-                }
-                System.out.println("TableManager: Fallback to DefaultColumns: " + String.join(", ", columns)); // Debug
+                System.err.println("TableManager: Error fetching columns from database: " + e.getMessage());
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(table, "Error fetching table columns: " + e.getMessage() + ". Please check database connection and Inventory table.", "Database Error", JOptionPane.ERROR_MESSAGE);
+                columns = new String[0];
+                columnTypes.clear();
             }
         }
+    }
+
+    public String[] getColumns() {
+        return columns != null ? columns.clone() : new String[0];
+    }
+
+    public Map<String, Integer> getColumnTypes() {
+        return new HashMap<>(columnTypes);
     }
 
     private void adjustColumnWidths() {
@@ -92,10 +103,8 @@ public class TableManager {
             int maxWidth = fontMetrics.stringWidth(header) + padding;
 
             if (i == 0) {
-                // Fixed width for Edit button
                 maxWidth = fontMetrics.stringWidth("Edit") + padding + 20;
             } else {
-                // Calculate max width for data columns
                 for (int row = 0; row < table.getRowCount(); row++) {
                     Object value = table.getValueAt(row, i);
                     String text = value != null ? value.toString() : "";
@@ -113,37 +122,42 @@ public class TableManager {
             System.err.println("TableManager: Table or model is null during refresh");
             return;
         }
-        // Preserve selection
+        if (columns == null || columns.length == 0) {
+            System.err.println("TableManager: No columns defined, skipping data refresh");
+            return;
+        }
         int[] selectedRows = table.getSelectedRows();
         model.setRowCount(0);
         ArrayList<HashMap<String, String>> devices = InventoryData.getDevices();
-        if (devices == null) {
+        if (devices == null || devices.isEmpty()) {
             System.err.println("TableManager: No devices retrieved from InventoryData");
             return;
         }
-        System.out.println("TableManager: Retrieved " + devices.size() + " devices from InventoryData"); // Debug
+        System.out.println("TableManager: Retrieved " + devices.size() + " devices from InventoryData");
         SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
         SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
         inputFormat.setLenient(false);
         for (Map<String, String> device : devices) {
             if (device == null) continue;
             Object[] row = new Object[columns.length + 1];
-            row[0] = "Edit"; // Placeholder for button
+            row[0] = "Edit";
             for (int i = 0; i < columns.length; i++) {
                 String column = columns[i];
-                if (column.equals("Created_at") || column.equals("Last_Successful_Scan")) {
+                Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
+                String value = device.getOrDefault(column, "");
+                if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || column.equals("Warranty_Expiry_Date") || 
+                    column.equals("Last_Maintenance") || column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
                     try {
-                        row[i + 1] = device.get(column) != null ? outputFormat.format(inputFormat.parse(device.get(column))) : "";
+                        row[i + 1] = value != null && !value.isEmpty() ? outputFormat.format(inputFormat.parse(value)) : "";
                     } catch (ParseException e) {
-                        row[i + 1] = device.getOrDefault(column, "");
+                        row[i + 1] = value;
                     }
                 } else {
-                    row[i + 1] = device.getOrDefault(column, "");
+                    row[i + 1] = value;
                 }
             }
             model.addRow(row);
         }
-        // Restore selection
         for (int row : selectedRows) {
             if (row < table.getRowCount()) {
                 table.addRowSelectionInterval(row, row);
@@ -155,18 +169,15 @@ public class TableManager {
     }
 
     public void sortTable(int columnIndex) {
-        // Adjust for Edit column
-        if (columnIndex == 0) return; // Skip sorting on Edit column
-        columnIndex -= 1; // Adjust for data columns
+        if (columnIndex == 0) return;
+        columnIndex -= 1;
 
         int index = sortColumnIndices.indexOf(columnIndex);
         SortOrder newOrder;
         if (index >= 0) {
-            // Toggle sort order
             newOrder = sortOrders.get(index) == SortOrder.ASCENDING ? SortOrder.DESCENDING : SortOrder.ASCENDING;
             sortOrders.set(index, newOrder);
         } else {
-            // New sort column
             sortColumnIndices.add(columnIndex);
             newOrder = SortOrder.ASCENDING;
             sortOrders.add(newOrder);

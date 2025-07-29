@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,25 +49,15 @@ public class FileUtils {
     public static ArrayList<String> loadTemplates() throws SQLException {
         ArrayList<String> templateNames = new ArrayList<>();
         for (HashMap<String, String> template : DatabaseUtils.loadTemplates()) {
-            templateNames.add(template.getOrDefault("Template_Name", ""));
+            String templateName = template.getOrDefault("Template_Name", "");
+            if (!templateName.isEmpty()) {
+                templateNames.add(templateName);
+            }
         }
         return templateNames;
     }
 
     public static HashMap<String, String> loadTemplateDetails(String templateName) throws SQLException {
-        HashMap<String, String> template = new HashMap<>();
-        String sql = "SELECT * FROM Templates WHERE Template_Name = ?";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, templateName);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    for (String column : DefaultColumns.getInventoryColumns()) {
-                        template.put(column, rs.getString(column));
-                    }
-                    template.put("Template_Name", rs.getString("Template_Name"));
-                }
-            }
-        }
-        return template;
+        return DatabaseUtils.loadTemplateDetails(templateName);
     }
 }
