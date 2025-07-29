@@ -158,7 +158,6 @@ public class ModifyDialog {
         for (int i = 0; i < columnNames.length; i++) {
             String key = columnNames[i];
             String value;
-            Integer sqlType = columnTypes.getOrDefault(key, Types.VARCHAR);
             if (inputs[i] instanceof JTextField) {
                 value = ((JTextField) inputs[i]).getText();
             } else if (inputs[i] instanceof JPanel) {
@@ -231,7 +230,6 @@ public class ModifyDialog {
         for (int i = 0; i < columnNames.length; i++) {
             String key = columnNames[i];
             String currentValue;
-            Integer sqlType = columnTypes.getOrDefault(key, Types.VARCHAR);
             if (inputs[i] instanceof JTextField) {
                 currentValue = ((JTextField) inputs[i]).getText();
             } else if (inputs[i] instanceof JPanel) {

@@ -1,5 +1,3 @@
-
-
 import java.awt.Component;
 import java.io.IOException;
 import java.util.logging.LogManager;
@@ -13,7 +11,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import accessories_count.AccessoriesCountTab;
-import data_import.ImportDataTab;
 import database_creator.DatabaseCreatorTab;
 import device_logging.LogNewDeviceTab;
 import log_adapters.LogAdaptersTab;
@@ -56,7 +53,8 @@ public class mainFile {
                 AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
                 LogCablesTab logCablesTab = new LogCablesTab();
                 LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
-                ImportDataTab importDataTab = new ImportDataTab(statusLabel);
+                inventory_data_importer.ImportDataTab importDataTab = new inventory_data_importer.ImportDataTab(statusLabel);
+                software_data_importer.ImportDataTab softwareImportDataTab = new software_data_importer.ImportDataTab(statusLabel);
                 MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                 JFrame frame = UIComponentUtils.createMainFrame(
@@ -68,10 +66,13 @@ public class mainFile {
                     logCablesTab,
                     logAdaptersTab,
                     importDataTab,
+                    softwareImportDataTab,
                     massEntryModifierTab
                 );
 
                 JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+                tabbedPane.setTitleAt(tabbedPane.indexOfComponent(importDataTab), "Import Inventory Data");
+                tabbedPane.setTitleAt(tabbedPane.indexOfComponent(softwareImportDataTab), "Import Software Data");
                 tabbedPane.addChangeListener(e -> {
                     Component selected = tabbedPane.getSelectedComponent();
                     if (selected == viewInventoryTab) {
