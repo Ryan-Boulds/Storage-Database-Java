@@ -92,7 +92,7 @@ public class MultiRenameDialog extends JDialog {
         try {
             for (int i = 0; i < originalAssetNames.size(); i++) {
                 String originalAssetName = originalAssetNames.get(i);
-                HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName(originalAssetName);
+                HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName("Inventory", originalAssetName);
                 if (device == null) {
                     System.err.println("MultiRenameDialog: Device not found for AssetName='" + originalAssetName + "'"); // Debug
                     statusLabel.setText("Error: Device not found for AssetName: " + originalAssetName);
@@ -109,7 +109,7 @@ public class MultiRenameDialog extends JDialog {
                     return;
                 }
 
-                DatabaseUtils.updateDevice(device);
+                DatabaseUtils.updateDevice("Inventory", device);
             }
             statusLabel.setText(columnName + " values updated successfully");
             if (tableManager != null) {

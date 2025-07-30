@@ -1,5 +1,6 @@
 package software_data_importer;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -10,6 +11,7 @@ import javax.swing.JOptionPane;
 
 import software_data_importer.ui.MappingDialog;
 import software_data_importer.ui.PreviewDialog;
+import utils.DatabaseUtils;
 
 public class DataImporter {
     private final ImportDataTab parent;
@@ -45,11 +47,25 @@ public class DataImporter {
             return;
         }
 
+        // Add new columns to the selected table based on Excel headers
+        try {
+            String[] headers = importedData.get(0);
+            DatabaseUtils.addColumnsToTable(parent.getSelectedTable(), headers);
+            parent.setTableColumns(headers); // Update table columns in UI
+            parent.getFieldTypes().clear();
+            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(parent.getSelectedTable()));
+        } catch (SQLException e) {
+            String errorMessage = "Error adding columns to table " + parent.getSelectedTable() + ": " + e.getMessage();
+            statusLabel.setText(errorMessage);
+            LOGGER.log(Level.SEVERE, errorMessage, e);
+            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         statusLabel.setText("Data loaded for mapping: " + importedData.size() + " rows.");
         MappingDialog mappingDialog = new MappingDialog(parent, importedData);
         mappingDialog.showDialog();
         Map<String, String> columnMappings = mappingDialog.getColumnMappings();
-        Map<String, String> newFields = mappingDialog.getNewFields();
         Map<String, String> deviceTypeMappings = mappingDialog.getDeviceTypeMappings();
 
         if (columnMappings.isEmpty()) {
@@ -67,16 +83,16 @@ public class DataImporter {
             parent.getOriginalData().clear();
             parent.getRowStatus().clear();
             parent.getFieldTypes().clear();
-            parent.getFieldTypes().putAll(newFields);
+            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(parent.getSelectedTable()));
             parent.getOriginalData().addAll(new DataProcessor().processData(
                 importedData, columnMappings, deviceTypeMappings, parent.getTableColumns(), parent.getFieldTypes()));
             for (int i = 0; i < parent.getOriginalData().size(); i++) {
                 String status = parent.dataDisplayManager.computeRowStatus(i, parent.getOriginalData().get(i));
                 parent.getRowStatus().put(i, status);
             }
-            parent.dataDisplayManager.displayData(columnMappings, newFields, deviceTypeMappings, importedData);
+            parent.dataDisplayManager.displayData(columnMappings, deviceTypeMappings, importedData, parent.getSelectedTable());
             statusLabel.setText("Data displayed for review.");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             String errorMessage = "Error processing data: " + e.getMessage();
             statusLabel.setText(errorMessage);
             LOGGER.log(Level.SEVERE, "Error processing data: {0}", e.getMessage());

@@ -12,10 +12,10 @@ public class InventoryData {
 
     public static void saveDevice(HashMap<String, String> device) {
         try {
-            DatabaseUtils.saveDevice(device);
+            DatabaseUtils.saveDevice("Inventory", device);
             devices.clear();
         } catch (SQLException e) {
-            throw new RuntimeException("Error saving device to database: " + e.getMessage());
+            throw new RuntimeException("Error saving device: " + e.getMessage());
         }
     }
 
@@ -36,7 +36,7 @@ public class InventoryData {
 
     public static void deleteDevice(String assetName) {
         try {
-            DatabaseUtils.deleteDevice(assetName);
+            DatabaseUtils.deleteDevice("Inventory", assetName);
             devices.clear();
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting device: " + e.getMessage());

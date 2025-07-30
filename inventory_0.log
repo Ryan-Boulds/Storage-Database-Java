@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-07-29T14:25:18</date>
-  <millis>1753817118265</millis>
+  <date>2025-07-30T12:21:42</date>
+  <millis>1753896102820</millis>
   <sequence>0</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -13,8 +13,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:18</date>
-  <millis>1753817118327</millis>
+  <date>2025-07-30T12:21:42</date>
+  <millis>1753896102913</millis>
   <sequence>1</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -24,8 +24,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:18</date>
-  <millis>1753817118331</millis>
+  <date>2025-07-30T12:21:42</date>
+  <millis>1753896102915</millis>
   <sequence>2</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -35,8 +35,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:21</date>
-  <millis>1753817121321</millis>
+  <date>2025-07-30T12:22:07</date>
+  <millis>1753896127541</millis>
   <sequence>3</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -46,8 +46,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122286</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128065</millis>
   <sequence>4</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -57,8 +57,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122334</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128112</millis>
   <sequence>5</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -68,30 +68,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122348</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128123</millis>
   <sequence>6</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at]</message>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122381</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128139</millis>
   <sequence>7</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices</message>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122386</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128142</millis>
   <sequence>8</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -101,30 +101,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122404</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128153</millis>
   <sequence>9</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at]</message>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122426</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128172</millis>
   <sequence>10</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices</message>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122434</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128180</millis>
   <sequence>11</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -134,30 +134,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122445</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128195</millis>
   <sequence>12</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at]</message>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122454</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128211</millis>
   <sequence>13</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices</message>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122481</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128233</millis>
   <sequence>14</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -167,30 +167,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122494</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128250</millis>
   <sequence>15</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at]</message>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122506</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128265</millis>
   <sequence>16</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>loadDevices</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices</message>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122621</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128392</millis>
   <sequence>17</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -200,8 +200,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122627</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128399</millis>
   <sequence>18</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -211,8 +211,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122642</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128414</millis>
   <sequence>19</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -222,8 +222,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122743</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128479</millis>
   <sequence>20</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -233,19 +233,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122755</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128483</millis>
   <sequence>21</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
+  <method>getTableNames</method>
   <thread>16</thread>
-  <message>Retrieved Inventory columns: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at]</message>
+  <message>Retrieved table names: [Accessories, Adapters, Cables, Chrome, Inventory, Templates]</message>
 </record>
 <record>
-  <date>2025-07-29T14:25:22</date>
-  <millis>1753817122761</millis>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128498</millis>
   <sequence>22</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -253,5 +253,181 @@
   <method>getConnection</method>
   <thread>16</thread>
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128509</millis>
+  <sequence>23</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>16</thread>
+  <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:08</date>
+  <millis>1753896128513</millis>
+  <sequence>24</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:09</date>
+  <millis>1753896129588</millis>
+  <sequence>25</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:09</date>
+  <millis>1753896129600</millis>
+  <sequence>26</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>loadDevices</method>
+  <thread>16</thread>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:09</date>
+  <millis>1753896129607</millis>
+  <sequence>27</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>loadDevices</method>
+  <thread>16</thread>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:12</date>
+  <millis>1753896132826</millis>
+  <sequence>28</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:13</date>
+  <millis>1753896133203</millis>
+  <sequence>29</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:13</date>
+  <millis>1753896133514</millis>
+  <sequence>30</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:14</date>
+  <millis>1753896134565</millis>
+  <sequence>31</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:14</date>
+  <millis>1753896134571</millis>
+  <sequence>32</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>16</thread>
+  <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:14</date>
+  <millis>1753896134572</millis>
+  <sequence>33</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:14</date>
+  <millis>1753896134575</millis>
+  <sequence>34</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:16</date>
+  <millis>1753896136331</millis>
+  <sequence>35</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:17</date>
+  <millis>1753896137058</millis>
+  <sequence>36</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:17</date>
+  <millis>1753896137063</millis>
+  <sequence>37</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>loadDevices</method>
+  <thread>16</thread>
+  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
+</record>
+<record>
+  <date>2025-07-30T12:22:17</date>
+  <millis>1753896137068</millis>
+  <sequence>38</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>loadDevices</method>
+  <thread>16</thread>
+  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
 </record>
 </log>

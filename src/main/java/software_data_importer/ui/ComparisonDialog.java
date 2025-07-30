@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 
-import software_data_importer.ImportDataTab;
 import software_data_importer.DatabaseHandler;
+import software_data_importer.ImportDataTab;
 import utils.DataEntry;
 import utils.UIComponentUtils;
 
@@ -42,7 +42,7 @@ public class ComparisonDialog {
 
     public DataEntry showDialog() {
         try {
-            HashMap<String, String> oldDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
+            HashMap<String, String> oldDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(parent.getSelectedTable(), assetName);
             if (oldDevice == null) {
                 String errorMessage = "No existing device found for AssetName: " + assetName;
                 LOGGER.warning(errorMessage);

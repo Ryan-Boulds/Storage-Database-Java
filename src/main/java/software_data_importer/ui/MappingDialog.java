@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,14 +23,13 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import software_data_importer.ImportDataTab;
-import utils.DefaultColumns;
+import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
 public class MappingDialog {
     private final ImportDataTab parent;
     private final List<String[]> data;
     private final Map<String, String> columnMappings = new HashMap<>();
-    private final Map<String, String> newFields = new HashMap<>();
     private final Map<String, String> deviceTypeMappings = new HashMap<>();
     private static final Logger LOGGER = Logger.getLogger(MappingDialog.class.getName());
 
@@ -66,8 +66,16 @@ public class MappingDialog {
         java.util.function.Function<String, String> normalize = s -> s.replaceAll("[\\s_-]", "").toLowerCase();
         String[] comboOptions = Arrays.copyOf(csvColumns, csvColumns.length + 1);
         comboOptions[comboOptions.length - 1] = "None";
-        String[] dbFields = DefaultColumns.getInventoryColumns();
-        JComboBox<String>[] comboBoxes = new JComboBox[dbFields.length];
+        String[] dbFields;
+        try {
+            dbFields = DatabaseUtils.getInventoryColumnNames(parent.getSelectedTable()).toArray(new String[0]);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving columns for table {0}: {1}", 
+                       new Object[]{parent.getSelectedTable(), e.getMessage()});
+            JOptionPane.showMessageDialog(parent, "Error retrieving columns: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         for (int i = 0; i < dbFields.length; i++) {
             String dbField = dbFields[i];
             String normalizedDbField = normalize.apply(dbField);
@@ -86,7 +94,6 @@ public class MappingDialog {
             mappingPanel.add(comboBox, gbc);
             gbc.gridx = 0;
             gbc.gridy++;
-            comboBoxes[i] = comboBox;
 
             if (!"None".equals(defaultMatch)) {
                 columnMappings.put(defaultMatch, dbField);
@@ -107,39 +114,15 @@ public class MappingDialog {
             });
         }
 
-        JPanel newColumnPanel = new JPanel(new BorderLayout());
-        JButton newColumnButton = new JButton("Create New Column");
-        newColumnPanel.add(newColumnButton, BorderLayout.CENTER);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        mappingPanel.add(newColumnPanel, gbc);
-
-        newColumnButton.addActionListener(e -> {
-            String newFieldName = JOptionPane.showInputDialog(parent, "Enter new field name:");
-            if (newFieldName != null && !newFieldName.trim().isEmpty()) {
-                String type = (String) JOptionPane.showInputDialog(parent, "Select field type:",
-                        "New Field Type", JOptionPane.QUESTION_MESSAGE, null,
-                        new String[]{"VARCHAR(255)", "INTEGER", "DATE", "BOOLEAN"}, "VARCHAR(255)");
-                if (type != null) {
-                    newFields.put(newFieldName, type);
-                    LOGGER.log(Level.INFO, "Added new field: {0} ({1})", new Object[]{newFieldName, type});
-                    JOptionPane.showMessageDialog(parent, "New column '" + newFieldName + "' added.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        });
-
-        JScrollPane mappingScrollPane = UIComponentUtils.createScrollableContentPanel(mappingPanel);
-        mappingScrollPane.setPreferredSize(new Dimension(400, 400));
+        JPanel buttonPanel = new JPanel();
+        JButton okButton = new JButton("Save Mappings");
+        JButton cancelButton = new JButton("Cancel");
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(previewScrollPane, BorderLayout.WEST);
-        mainPanel.add(mappingScrollPane, BorderLayout.CENTER);
-
-        JButton okButton = new JButton("Save Mappings");
-        JButton cancelButton = new JButton("Cancel");
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
+        mainPanel.add(mappingPanel, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Map Columns to Database Fields", true);
@@ -180,10 +163,6 @@ public class MappingDialog {
 
     public Map<String, String> getColumnMappings() {
         return columnMappings;
-    }
-
-    public Map<String, String> getNewFields() {
-        return newFields;
     }
 
     public Map<String, String> getDeviceTypeMappings() {

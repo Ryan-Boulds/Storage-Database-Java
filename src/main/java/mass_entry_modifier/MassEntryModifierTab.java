@@ -88,7 +88,7 @@ public class MassEntryModifierTab extends JPanel {
 
     private String[] getInventoryColumns() {
         try {
-            ArrayList<String> columns = DatabaseUtils.getInventoryColumnNames();
+            ArrayList<String> columns = DatabaseUtils.getInventoryColumnNames("Inventory");
             return columns.toArray(new String[0]);
         } catch (SQLException e) {
             statusLabel.setText("Error loading columns: " + e.getMessage());

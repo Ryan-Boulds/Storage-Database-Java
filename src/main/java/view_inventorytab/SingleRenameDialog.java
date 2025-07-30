@@ -82,7 +82,7 @@ public class SingleRenameDialog extends JDialog {
         }
 
         try {
-            HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName(originalAssetName);
+            HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName("Inventory", originalAssetName);
             if (device == null) {
                 System.err.println("SingleRenameDialog: Device not found for AssetName='" + originalAssetName + "'"); // Debug
                 statusLabel.setText("Error: Device not found for AssetName: " + originalAssetName);
@@ -98,7 +98,7 @@ public class SingleRenameDialog extends JDialog {
                 return;
             }
 
-            DatabaseUtils.updateDevice(device);
+            DatabaseUtils.updateDevice("Inventory", device);
             statusLabel.setText(columnName + " updated successfully");
             if (tableManager != null) {
                 tableManager.refreshDataAndTabs();

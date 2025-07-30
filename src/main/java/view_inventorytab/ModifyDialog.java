@@ -205,8 +205,8 @@ public class ModifyDialog {
 
         try {
             if (primaryKey != null) {
-                DatabaseUtils.deleteDevice(primaryKey);
-                DatabaseUtils.saveDevice(updatedDevice);
+                DatabaseUtils.deleteDevice("Inventory", primaryKey);
+                DatabaseUtils.saveDevice("Inventory", updatedDevice);
                 JOptionPane.showMessageDialog(dialog, "Device updated successfully");
                 dialog.dispose();
                 SwingUtilities.invokeLater(() -> {
@@ -275,7 +275,7 @@ public class ModifyDialog {
             if (confirm != null && confirm == JOptionPane.YES_OPTION) {
                 try {
                     System.out.println("Deleting device with " + primaryKeyColumn + ": " + primaryKey);
-                    DatabaseUtils.deleteDevice(primaryKey);
+                    DatabaseUtils.deleteDevice("Inventory", primaryKey);
                     JOptionPane.showMessageDialog(parent, "Device deleted successfully");
                     dialog.dispose();
                     SwingUtilities.invokeLater(() -> {

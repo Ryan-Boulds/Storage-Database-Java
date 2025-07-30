@@ -32,51 +32,124 @@ public class DatabaseUtils {
         return DriverManager.getConnection(DB_URL);
     }
 
-    public static ArrayList<String> getInventoryColumnNames() throws SQLException {
+    public static List<String> getTableNames() throws SQLException {
+        List<String> tableNames = new ArrayList<>();
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            try (ResultSet rs = metaData.getTables(null, null, null, new String[]{"TABLE"})) {
+                while (rs.next()) {
+                    String tableName = rs.getString("TABLE_NAME");
+                    if (!tableName.startsWith("MSys")) {
+                        tableNames.add(tableName);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving table names: {0}", e.getMessage());
+            throw e;
+        }
+        LOGGER.log(Level.INFO, "Retrieved table names: {0}", tableNames);
+        return tableNames;
+    }
+
+    public static void createTable(String tableName) throws SQLException {
+        String sql = "CREATE TABLE [" + tableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            LOGGER.log(Level.INFO, "Executing CREATE TABLE SQL: {0}", sql);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error creating table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            throw e;
+        }
+    }
+
+    public static void addColumnsToTable(String tableName, String[] columnNames) throws SQLException {
+        try (Connection conn = getConnection()) {
+            List<String> existingColumns = getInventoryColumnNames(tableName);
+            for (String columnName : columnNames) {
+                if (!existingColumns.contains(columnName) && !columnName.equals("AssetName")) {
+                    String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + columnName + "] VARCHAR(255)";
+                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                        LOGGER.log(Level.INFO, "Executing ALTER TABLE SQL: {0}", sql);
+                        stmt.executeUpdate();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error adding columns to table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            throw e;
+        }
+    }
+
+    public static ArrayList<String> getInventoryColumnNames(String tableName) throws SQLException {
         ArrayList<String> columns = new ArrayList<>();
         try (Connection conn = getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet rs = metaData.getColumns(null, null, "Inventory", null)) {
+            try (ResultSet rs = metaData.getColumns(null, null, tableName, null)) {
                 while (rs.next()) {
                     String columnName = rs.getString("COLUMN_NAME");
                     columns.add(columnName);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving Inventory column names: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving columns for table {0}: {1}", new Object[]{tableName, e.getMessage()});
             throw e;
         }
-        LOGGER.log(Level.INFO, "Retrieved Inventory columns: {0}", columns);
+        LOGGER.log(Level.INFO, "Retrieved columns for table {0}: {1}", new Object[]{tableName, columns});
         return columns;
     }
 
-    public static Map<String, Integer> getInventoryColumnTypes() throws SQLException {
-        Map<String, Integer> columnTypes = new HashMap<>();
+    public static Map<String, String> getInventoryColumnTypes(String tableName) throws SQLException {
+        Map<String, String> columnTypes = new HashMap<>();
         try (Connection conn = getConnection();
-             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Inventory WHERE 1=0")) {
+             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             for (int i = 1; i <= columnCount; i++) {
-                columnTypes.put(metaData.getColumnName(i), metaData.getColumnType(i));
+                String columnName = metaData.getColumnName(i);
+                int sqlType = metaData.getColumnType(i);
+                String typeName;
+                switch (sqlType) {
+                    case Types.VARCHAR:
+                        typeName = "VARCHAR(255)";
+                        break;
+                    case Types.INTEGER:
+                        typeName = "INTEGER";
+                        break;
+                    case Types.DOUBLE:
+                        typeName = "DOUBLE";
+                        break;
+                    case Types.DATE:
+                    case Types.TIMESTAMP:
+                        typeName = "DATE";
+                        break;
+                    case Types.BOOLEAN:
+                        typeName = "BOOLEAN";
+                        break;
+                    default:
+                        typeName = "VARCHAR(255)";
+                        break;
+                }
+                columnTypes.put(columnName, typeName);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving Inventory column types: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving column types for table {0}: {1}", new Object[]{tableName, e.getMessage()});
             throw e;
         }
-        LOGGER.log(Level.INFO, "Retrieved Inventory column types: {0}", columnTypes);
+        LOGGER.log(Level.INFO, "Retrieved column types for table {0}: {1}", new Object[]{tableName, columnTypes});
         return columnTypes;
     }
 
-    public static void saveDevice(HashMap<String, String> device) throws SQLException {
-        String sql = SQLGenerator.generateInsertSQL("Inventory", device);
+    public static void saveDevice(String tableName, HashMap<String, String> device) throws SQLException {
+        String sql = SQLGenerator.generateInsertSQL(tableName, device);
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            Map<String, Integer> columnTypes = getInventoryColumnTypes();
+            Map<String, String> columnTypes = getInventoryColumnTypes(tableName);
             int index = 1;
             for (Map.Entry<String, String> entry : device.entrySet()) {
                 String column = entry.getKey();
                 String value = entry.getValue();
-                Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
-                if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || 
+                String sqlType = columnTypes.getOrDefault(column, "VARCHAR(255)");
+                if (sqlType.equals("DATE") || 
                     column.equals("Warranty_Expiry_Date") || column.equals("Last_Maintenance") || 
                     column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
                     if (value == null || value.trim().isEmpty()) {
@@ -97,17 +170,17 @@ public class DatabaseUtils {
             LOGGER.log(Level.INFO, "Executing INSERT SQL: {0}", sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error inserting device: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error inserting device into table {0}: {1}", new Object[]{tableName, e.getMessage()});
             throw e;
         }
     }
 
-    public static void updateDevice(HashMap<String, String> device) throws SQLException {
+    public static void updateDevice(String tableName, HashMap<String, String> device) throws SQLException {
         if (!device.containsKey("AssetName") || device.get("AssetName") == null || device.get("AssetName").trim().isEmpty()) {
             throw new SQLException("AssetName is required for update");
         }
 
-        StringBuilder sql = new StringBuilder("UPDATE Inventory SET ");
+        StringBuilder sql = new StringBuilder("UPDATE [" + tableName + "] SET ");
         List<String> columns = new ArrayList<>();
         for (String column : device.keySet()) {
             if (!column.equals("AssetName")) {
@@ -124,7 +197,7 @@ public class DatabaseUtils {
         LOGGER.log(Level.INFO, "Parameters: {0}", device);
 
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            Map<String, Integer> columnTypes = getInventoryColumnTypes();
+            Map<String, String> columnTypes = getInventoryColumnTypes(tableName);
             int index = 1;
             String assetName = device.get("AssetName");
 
@@ -132,8 +205,8 @@ public class DatabaseUtils {
                 String column = entry.getKey();
                 if (!column.equals("AssetName")) {
                     String value = entry.getValue();
-                    Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
-                    if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || 
+                    String sqlType = columnTypes.getOrDefault(column, "VARCHAR(255)");
+                    if (sqlType.equals("DATE") || 
                         column.equals("Warranty_Expiry_Date") || column.equals("Last_Maintenance") || 
                         column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
                         if (value == null || value.trim().isEmpty()) {
@@ -156,37 +229,27 @@ public class DatabaseUtils {
             LOGGER.log(Level.INFO, "Executing UPDATE SQL: {0} for AssetName: {1}", new Object[]{debugSql, assetName});
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
-                LOGGER.log(Level.WARNING, "No rows updated for AssetName: {0}", assetName);
+                LOGGER.log(Level.WARNING, "No rows updated for AssetName: {0} in table {1}", new Object[]{assetName, tableName});
                 throw new SQLException("No device found with AssetName: " + assetName);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating device with AssetName {0}: {1}\nSQL: {2}", new Object[]{device.get("AssetName"), e.getMessage(), debugSql});
+            LOGGER.log(Level.SEVERE, "Error updating device with AssetName {0} in table {1}: {2}\nSQL: {3}", 
+                       new Object[]{device.get("AssetName"), tableName, e.getMessage(), debugSql});
             throw e;
         }
     }
 
-    public static void deleteDevice(String assetName) throws SQLException {
-        String sql = "DELETE FROM Inventory WHERE AssetName = ?";
+    public static void deleteDevice(String tableName, String assetName) throws SQLException {
+        String sql = "DELETE FROM [" + tableName + "] WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, assetName);
             LOGGER.log(Level.INFO, "Executing DELETE SQL: {0}", sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error deleting device with AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error deleting device with AssetName {0} from table {1}: {2}", 
+                       new Object[]{assetName, tableName, e.getMessage()});
             throw e;
         }
-    }
-
-    private static java.util.Date parseDate(String value) throws java.text.ParseException {
-        String[] formats = {"MM/dd/yyyy", "yyyy-MM-dd", "MM-dd-yyyy"};
-        for (String format : formats) {
-            try {
-                return new SimpleDateFormat(format).parse(value);
-            } catch (java.text.ParseException e) {
-                // Try next format
-            }
-        }
-        throw new java.text.ParseException("Unparseable date: " + value, 0);
     }
 
     public static void updatePeripheralCount(String peripheralType, int countDelta, String category) throws SQLException {
@@ -208,14 +271,14 @@ public class DatabaseUtils {
             default:
                 throw new IllegalArgumentException("Unknown category: " + category);
         }
-        String sql = "UPDATE " + table + " SET Count = Count + ? WHERE " + typeColumn + " = ?";
+        String sql = "UPDATE [" + table + "] SET Count = Count + ? WHERE " + typeColumn + " = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, countDelta);
             stmt.setString(2, peripheralType);
             LOGGER.log(Level.INFO, "Executing UPDATE peripheral SQL: {0}", sql);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
-                sql = "INSERT INTO " + table + " (" + typeColumn + ", Count) VALUES (?, ?)";
+                sql = "INSERT INTO [" + table + "] (" + typeColumn + ", Count) VALUES (?, ?)";
                 try (PreparedStatement insertStmt = conn.prepareStatement(sql)) {
                     insertStmt.setString(1, peripheralType);
                     insertStmt.setInt(2, countDelta);
@@ -230,19 +293,19 @@ public class DatabaseUtils {
     }
 
     public static void addNewField(String tableName, String fieldName, String fieldType) throws SQLException {
-        String sql = "ALTER TABLE " + tableName + " ADD COLUMN [" + fieldName + "] " + fieldType;
+        String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + fieldName + "] " + fieldType;
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             LOGGER.log(Level.INFO, "Executing ALTER TABLE SQL: {0}", sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error adding new field {0}: {1}", new Object[]{fieldName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error adding new field {0} to table {1}: {2}", new Object[]{fieldName, tableName, e.getMessage()});
             throw e;
         }
     }
 
-    public static List<String> getDeviceTypes() throws SQLException {
+    public static List<String> getDeviceTypes(String tableName) throws SQLException {
         Set<String> deviceTypes = new HashSet<>();
-        String sql = "SELECT [Device_Type] FROM Inventory WHERE [Device_Type] IS NOT NULL";
+        String sql = "SELECT [Device_Type] FROM [" + tableName + "] WHERE [Device_Type] IS NOT NULL";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 String type = rs.getString("Device_Type");
@@ -251,7 +314,7 @@ public class DatabaseUtils {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving device types: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving device types from table {0}: {1}", new Object[]{tableName, e.getMessage()});
             throw e;
         }
         return new ArrayList<>(deviceTypes);
@@ -297,9 +360,9 @@ public class DatabaseUtils {
         return templates;
     }
 
-    public static ArrayList<HashMap<String, String>> loadDevices() throws SQLException {
+    public static ArrayList<HashMap<String, String>> loadDevices(String tableName) throws SQLException {
         ArrayList<HashMap<String, String>> devices = new ArrayList<>();
-        String sql = "SELECT * FROM Inventory";
+        String sql = "SELECT * FROM [" + tableName + "]";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -307,7 +370,7 @@ public class DatabaseUtils {
             for (int i = 1; i <= columnCount; i++) {
                 columns.add(metaData.getColumnName(i));
             }
-            LOGGER.log(Level.INFO, "loadDevices: Columns fetched: {0}", columns);
+            LOGGER.log(Level.INFO, "loadDevices: Columns fetched for table {0}: {1}", new Object[]{tableName, columns});
             while (rs.next()) {
                 HashMap<String, String> device = new HashMap<>();
                 for (String column : columns) {
@@ -316,9 +379,9 @@ public class DatabaseUtils {
                 }
                 devices.add(device);
             }
-            LOGGER.log(Level.INFO, "loadDevices: Retrieved {0} devices", devices.size());
+            LOGGER.log(Level.INFO, "loadDevices: Retrieved {0} devices from table {1}", new Object[]{devices.size(), tableName});
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error loading devices: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error loading devices from table {0}: {1}", new Object[]{tableName, e.getMessage()});
             throw e;
         }
         return devices;
@@ -344,7 +407,7 @@ public class DatabaseUtils {
             default:
                 throw new IllegalArgumentException("Unknown category: " + category);
         }
-        String sql = "SELECT " + typeColumn + ", Count FROM " + table;
+        String sql = "SELECT " + typeColumn + ", Count FROM [" + table + "]";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 HashMap<String, String> peripheral = new HashMap<>();
@@ -382,8 +445,8 @@ public class DatabaseUtils {
         return template;
     }
 
-    public static HashMap<String, String> getDeviceByAssetName(String assetName) throws SQLException {
-        String sql = "SELECT * FROM Inventory WHERE AssetName = ?";
+    public static HashMap<String, String> getDeviceByAssetName(String tableName, String assetName) throws SQLException {
+        String sql = "SELECT * FROM [" + tableName + "] WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, assetName);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -400,13 +463,22 @@ public class DatabaseUtils {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error retrieving device with AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error retrieving device with AssetName {0} from table {1}: {2}", 
+                       new Object[]{assetName, tableName, e.getMessage()});
             throw e;
         }
         return null;
     }
 
-    public static void deleteDeviceByAssetName(String assetName) throws SQLException {
-        deleteDevice(assetName);
+    private static java.util.Date parseDate(String value) throws java.text.ParseException {
+        String[] formats = {"MM/dd/yyyy", "yyyy-MM-dd", "MM-dd-yyyy"};
+        for (String format : formats) {
+            try {
+                return new SimpleDateFormat(format).parse(value);
+            } catch (java.text.ParseException e) {
+                // Try next format
+            }
+        }
+        throw new java.text.ParseException("Unparseable date: " + value, 0);
     }
 }
