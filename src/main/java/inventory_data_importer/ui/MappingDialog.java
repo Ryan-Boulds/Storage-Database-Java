@@ -38,7 +38,6 @@ public class MappingDialog {
         this.data = data;
     }
 
-    @SuppressWarnings("unchecked")
     public void showDialog() {
         // Preview Table
         String[] csvColumns = data.get(0);
@@ -69,9 +68,7 @@ public class MappingDialog {
         String[] comboOptions = Arrays.copyOf(csvColumns, csvColumns.length + 1);
         comboOptions[comboOptions.length - 1] = "None";
         String[] dbFields = DefaultColumns.getInventoryColumns();
-        JComboBox<String>[] comboBoxes = new JComboBox[dbFields.length];
-        for (int i = 0; i < dbFields.length; i++) {
-            String dbField = dbFields[i];
+        for (String dbField : dbFields) {
             String normalizedDbField = normalize.apply(dbField);
             String defaultMatch = "None";
             for (String csvColumn : csvColumns) {
@@ -88,7 +85,6 @@ public class MappingDialog {
             mappingPanel.add(comboBox, gbc);
             gbc.gridx = 0;
             gbc.gridy++;
-            comboBoxes[i] = comboBox;
 
             if (!"None".equals(defaultMatch)) {
                 columnMappings.put(defaultMatch, dbField);

@@ -26,7 +26,16 @@ public class DataImporter {
         this.databaseHandler = new DatabaseHandler();
     }
 
-    public void importData() {
+    public void importData() throws SQLException {
+        String selectedTable = parent.getSelectedTable();
+        if (selectedTable == null) {
+            String errorMessage = "No table selected. Please select or create a table before importing data.";
+            statusLabel.setText(errorMessage);
+            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, errorMessage);
+            return;
+        }
+
         if (importedData != null && !importedData.isEmpty()) {
             int result = JOptionPane.showConfirmDialog(parent,
                     "Are you sure that you want to import a different file? Any changes made here will be lost unless you save to database.",
@@ -47,19 +56,25 @@ public class DataImporter {
             return;
         }
 
-        // Add new columns to the selected table based on Excel headers
+        // Add new columns to the selected table based on Excel headers, skipping duplicates
         try {
             String[] headers = importedData.get(0);
-            DatabaseUtils.addColumnsToTable(parent.getSelectedTable(), headers);
+            List<String> existingColumns = DatabaseUtils.getInventoryColumnNames(selectedTable.replace(" ", "_"));
+            for (String header : headers) {
+                String sanitizedHeader = header.replace(" ", "_");
+                if (!existingColumns.contains(sanitizedHeader)) {
+                    DatabaseUtils.addNewField(selectedTable.replace(" ", "_"), sanitizedHeader, "VARCHAR(255)");
+                }
+            }
             parent.setTableColumns(headers); // Update table columns in UI
             parent.getFieldTypes().clear();
-            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(parent.getSelectedTable()));
+            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(selectedTable));
+            LOGGER.log(Level.INFO, "Successfully added new columns to table {0}.", selectedTable);
         } catch (SQLException e) {
-            String errorMessage = "Error adding columns to table " + parent.getSelectedTable() + ": " + e.getMessage();
+            String errorMessage = "Error adding some columns to table " + selectedTable + ": " + e.getMessage();
             statusLabel.setText(errorMessage);
             LOGGER.log(Level.SEVERE, errorMessage, e);
-            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            JOptionPane.showMessageDialog(parent, errorMessage + " Proceeding with available data.", "Warning", JOptionPane.WARNING_MESSAGE);
         }
 
         statusLabel.setText("Data loaded for mapping: " + importedData.size() + " rows.");
@@ -83,14 +98,14 @@ public class DataImporter {
             parent.getOriginalData().clear();
             parent.getRowStatus().clear();
             parent.getFieldTypes().clear();
-            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(parent.getSelectedTable()));
+            parent.getFieldTypes().putAll(DatabaseUtils.getInventoryColumnTypes(selectedTable));
             parent.getOriginalData().addAll(new DataProcessor().processData(
                 importedData, columnMappings, deviceTypeMappings, parent.getTableColumns(), parent.getFieldTypes()));
             for (int i = 0; i < parent.getOriginalData().size(); i++) {
                 String status = parent.dataDisplayManager.computeRowStatus(i, parent.getOriginalData().get(i));
                 parent.getRowStatus().put(i, status);
             }
-            parent.dataDisplayManager.displayData(columnMappings, deviceTypeMappings, importedData, parent.getSelectedTable());
+            parent.dataDisplayManager.displayData(columnMappings, deviceTypeMappings, importedData, selectedTable);
             statusLabel.setText("Data displayed for review.");
         } catch (SQLException e) {
             String errorMessage = "Error processing data: " + e.getMessage();

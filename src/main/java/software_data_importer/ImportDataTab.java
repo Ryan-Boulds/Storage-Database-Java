@@ -1,6 +1,7 @@
 package software_data_importer;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
@@ -15,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import software_data_importer.ui.ComparisonDialog;
 import utils.DatabaseUtils;
+import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends javax.swing.JPanel {
@@ -28,8 +30,10 @@ public class ImportDataTab extends javax.swing.JPanel {
     private final DuplicateManager duplicateManager;
     private final JComboBox<String> tableSelector;
     private String selectedTable;
+    private final javax.swing.JLabel statusLabel;
 
     public ImportDataTab(javax.swing.JLabel statusLabel) {
+        this.statusLabel = statusLabel;
         this.dataImporter = new DataImporter(this, statusLabel);
         this.dataDisplayManager = new DataDisplayManager(this, statusLabel);
         this.dataSaver = new DataSaver(this, statusLabel);
@@ -41,19 +45,18 @@ public class ImportDataTab extends javax.swing.JPanel {
         tableSelector = new JComboBox<>();
         tableSelector.setPreferredSize(new java.awt.Dimension(150, 30));
         updateTableSelectorOptions();
-        selectedTable = "Inventory"; // Default table
-        tableSelector.setSelectedItem(selectedTable);
+        selectedTable = null; // Default to no table selected
         tableSelector.addActionListener(e -> {
             selectedTable = (String) tableSelector.getSelectedItem();
             updateTableColumns();
-            statusLabel.setText("Selected table: " + selectedTable);
+            statusLabel.setText("Selected table: " + (selectedTable != null ? selectedTable : "None"));
             java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
                 java.util.logging.Level.INFO, "Selected table changed to: {0}", selectedTable);
         });
 
         // Button to create a new table
         javax.swing.JButton createTableButton = UIComponentUtils.createFormattedButton("Create New Table");
-        createTableButton.addActionListener(e -> createNewTable(statusLabel));
+        createTableButton.addActionListener(e -> createNewTable());
 
         // Panel for table selector and create table button
         JPanel selectorPanel = new JPanel(new BorderLayout(5, 5));
@@ -63,7 +66,15 @@ public class ImportDataTab extends javax.swing.JPanel {
 
         // Existing buttons
         javax.swing.JButton importButton = UIComponentUtils.createFormattedButton("Import Data (.csv, .xlsx, .xls)");
-        importButton.addActionListener(e -> dataImporter.importData());
+        importButton.addActionListener(e -> {
+            try {
+                dataImporter.importData();
+            } catch (SQLException ex) {
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    java.util.logging.Level.SEVERE, "Error importing data: {0}", ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error importing data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         javax.swing.JButton saveButton = UIComponentUtils.createFormattedButton("Save to Database");
         saveButton.addActionListener(e -> dataSaver.saveToDatabase());
@@ -148,34 +159,39 @@ public class ImportDataTab extends javax.swing.JPanel {
         add(tableScrollPane, BorderLayout.CENTER);
     }
 
-    private void updateTableSelectorOptions() {
-        tableSelector.removeAllItems();
-        try {
-            List<String> tableNames = DatabaseUtils.getTableNames();
-            for (String tableName : tableNames) {
-                tableSelector.addItem(tableName);
-            }
-        } catch (SQLException e) {
-            java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
-                java.util.logging.Level.SEVERE, "Error retrieving table names: {0}", e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error retrieving table names: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void createNewTable(javax.swing.JLabel statusLabel) {
+    private void createNewTable() {
         String tableName = JOptionPane.showInputDialog(this, "Enter new table name:");
         if (tableName != null && !tableName.trim().isEmpty()) {
+            String sanitizedTableName = tableName.trim().replace(" ", "_");
             try {
-                DatabaseUtils.createTable(tableName);
+                // Create the table with sanitized name
+                DatabaseUtils.createTable(sanitizedTableName);
+                
+                // Set selectedTable to sanitized name
+                selectedTable = sanitizedTableName;
+                
+                // Temporarily remove ActionListener to prevent premature update
+                ActionListener[] listeners = tableSelector.getActionListeners();
+                for (ActionListener listener : listeners) {
+                    tableSelector.removeActionListener(listener);
+                }
+                
+                // Update table selector and set the selected item
                 updateTableSelectorOptions();
-                tableSelector.setSelectedItem(tableName);
-                selectedTable = tableName;
+                tableSelector.setSelectedItem(sanitizedTableName);
+                
+                // Restore ActionListeners
+                for (ActionListener listener : listeners) {
+                    tableSelector.addActionListener(listener);
+                }
+                
+                // Now update columns
                 updateTableColumns();
-                statusLabel.setText("Table '" + tableName + "' created and selected.");
+                statusLabel.setText("Table '" + sanitizedTableName + "' created and selected.");
                 java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
-                    java.util.logging.Level.INFO, "Created and selected new table: {0}", tableName);
+                    java.util.logging.Level.INFO, "Created and selected new table: {0}", sanitizedTableName);
             } catch (SQLException e) {
-                String errorMessage = "Error creating table '" + tableName + "': " + e.getMessage();
+                String errorMessage = "Error creating table '" + sanitizedTableName + "': " + e.getMessage();
                 statusLabel.setText(errorMessage);
                 java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
                     java.util.logging.Level.SEVERE, errorMessage, e);
@@ -186,10 +202,48 @@ public class ImportDataTab extends javax.swing.JPanel {
         }
     }
 
+    private void updateTableSelectorOptions() {
+        tableSelector.removeAllItems();
+        try {
+            List<String> tableNames = DatabaseUtils.getTableNames();
+            List<String> excludedTables = TablesNotIncludedList.getExcludedTablesForSoftwareImporter();
+            for (String tableName : tableNames) {
+                String sanitizedTableName = tableName.replace(" ", "_");
+                if (!excludedTables.contains(sanitizedTableName)) {
+                    tableSelector.addItem(sanitizedTableName);
+                }
+            }
+            if (tableSelector.getItemCount() > 0) {
+                if (selectedTable == null || !tableNames.contains(selectedTable.replace(" ", "_")) || excludedTables.contains(selectedTable.replace(" ", "_"))) {
+                    selectedTable = (String) tableSelector.getItemAt(0);
+                    tableSelector.setSelectedItem(selectedTable);
+                }
+            } else {
+                selectedTable = null;
+                statusLabel.setText("No tables available. Please create a new table.");
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    java.util.logging.Level.WARNING, "No non-excluded tables available in the database");
+            }
+        } catch (SQLException e) {
+            java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                java.util.logging.Level.SEVERE, "Error retrieving table names: {0}", e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error retrieving table names: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void updateTableColumns() {
+        if (selectedTable == null) {
+            tableModel.setColumnIdentifiers(new String[0]);
+            tableModel.setRowCount(0);
+            dataDisplayManager.getOriginalData().clear();
+            dataDisplayManager.getRowStatus().clear();
+            dataDisplayManager.getFieldTypes().clear();
+            table.repaint();
+            return;
+        }
         try {
             List<String> columns = DatabaseUtils.getInventoryColumnNames(selectedTable);
-            tableColumns = columns.toArray(new String[0]);
+            tableColumns = columns.stream().map(col -> col.replace(" ", "_")).toArray(String[]::new);
             tableModel.setColumnIdentifiers(tableColumns);
             tableModel.setRowCount(0);
             dataDisplayManager.getOriginalData().clear();
@@ -206,13 +260,20 @@ public class ImportDataTab extends javax.swing.JPanel {
     }
 
     public void setTableColumns(String[] columns) {
-        this.tableColumns = columns;
-        tableModel.setColumnIdentifiers(columns);
+        this.tableColumns = new String[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            this.tableColumns[i] = columns[i].replace(" ", "_");
+        }
+        tableModel.setColumnIdentifiers(this.tableColumns);
         table.repaint();
     }
 
     public DatabaseHandler getDatabaseHandler() {
         return dataImporter.getDatabaseHandler();
+    }
+
+    public DataImporter getDataImporter() {
+        return dataImporter;
     }
 
     public java.util.Map<String, String> getFieldTypes() {

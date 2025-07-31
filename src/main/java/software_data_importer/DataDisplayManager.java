@@ -31,6 +31,7 @@ public class DataDisplayManager {
 
     public void displayData(Map<String, String> columnMappings, Map<String, String> deviceTypeMappings, 
                            List<String[]> importedData, String tableName) {
+        tableName = tableName.replace(" ", "_");
         DefaultTableModel tableModel = parent.getTableModel();
         tableModel.setRowCount(0);
         fieldTypes.clear();
@@ -90,7 +91,11 @@ public class DataDisplayManager {
         String status = "white"; // Default to white (new entry)
         if (assetName != null && !assetName.trim().isEmpty()) {
             try {
-                HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(parent.getSelectedTable(), assetName);
+                HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(
+                    parent.getSelectedTable().replace(" ", "_"), assetName);
+                LOGGER.log(Level.FINE, "Checking duplicate for AssetName {0} in table {1}: {2}", 
+                           new Object[]{assetName, parent.getSelectedTable().replace(" ", "_"), 
+                                        existingDevice != null ? "Found" : "Not found"});
                 if (existingDevice != null) {
                     boolean isExactMatch = true;
                     boolean hasNewData = false;
@@ -122,7 +127,7 @@ public class DataDisplayManager {
                 }
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "Error checking row status for AssetName {0} in table {1}: {2}", 
-                           new Object[]{assetName, parent.getSelectedTable(), e.getMessage()});
+                           new Object[]{assetName, parent.getSelectedTable().replace(" ", "_"), e.getMessage()});
             }
         }
         if (entry.isResolved()) {

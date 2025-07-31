@@ -2,31 +2,9 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-07-30T12:21:42</date>
-  <millis>1753896102820</millis>
-  <sequence>0</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>16</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:21:42</date>
-  <millis>1753896102913</millis>
-  <sequence>1</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>16</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:21:42</date>
-  <millis>1753896102915</millis>
-  <sequence>2</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818759</millis>
+  <sequence>7349</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -35,9 +13,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:07</date>
-  <millis>1753896127541</millis>
-  <sequence>3</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818760</millis>
+  <sequence>7350</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -46,9 +24,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128065</millis>
-  <sequence>4</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818761</millis>
+  <sequence>7351</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818761</millis>
+  <sequence>7352</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818762</millis>
+  <sequence>7353</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MLC-SHIP-OLT2 into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818762</millis>
+  <sequence>7354</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -57,9 +68,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128112</millis>
-  <sequence>5</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818763</millis>
+  <sequence>7355</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -68,31 +79,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128123</millis>
-  <sequence>6</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128139</millis>
-  <sequence>7</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128142</millis>
-  <sequence>8</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818764</millis>
+  <sequence>7356</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -101,64 +90,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128153</millis>
-  <sequence>9</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818766</millis>
+  <sequence>7357</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
+  <method>getInventoryColumnTypes</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128172</millis>
-  <sequence>10</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818766</millis>
+  <sequence>7358</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
+  <method>saveDevice</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128180</millis>
-  <sequence>11</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818768</millis>
+  <sequence>7359</sequence>
+  <logger>software_data_importer.DataSaver</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+  <message>Inserted new device for AssetName MSF-DOCK-PC into table test.</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128195</millis>
-  <sequence>12</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128211</millis>
-  <sequence>13</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128233</millis>
-  <sequence>14</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818768</millis>
+  <sequence>7360</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -167,31 +134,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128250</millis>
-  <sequence>15</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128265</millis>
-  <sequence>16</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128392</millis>
-  <sequence>17</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818768</millis>
+  <sequence>7361</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -200,9 +145,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128399</millis>
-  <sequence>18</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818769</millis>
+  <sequence>7362</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -211,9 +156,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128414</millis>
-  <sequence>19</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818770</millis>
+  <sequence>7363</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818770</millis>
+  <sequence>7364</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818772</millis>
+  <sequence>7365</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MSF-L-JADAMS2 into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818772</millis>
+  <sequence>7366</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -222,9 +200,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128479</millis>
-  <sequence>20</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818773</millis>
+  <sequence>7367</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -233,20 +211,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128483</millis>
-  <sequence>21</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getTableNames</method>
-  <thread>16</thread>
-  <message>Retrieved table names: [Accessories, Adapters, Cables, Chrome, Inventory, Templates]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128498</millis>
-  <sequence>22</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818774</millis>
+  <sequence>7368</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -255,9 +222,394 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128509</millis>
-  <sequence>23</sequence>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818775</millis>
+  <sequence>7369</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818775</millis>
+  <sequence>7370</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818776</millis>
+  <sequence>7371</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MSF-RI-PC2 into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818777</millis>
+  <sequence>7372</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818777</millis>
+  <sequence>7373</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818778</millis>
+  <sequence>7374</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818779</millis>
+  <sequence>7375</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818779</millis>
+  <sequence>7376</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818781</millis>
+  <sequence>7377</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MSF-SHIP-OLT into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818781</millis>
+  <sequence>7378</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818782</millis>
+  <sequence>7379</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818783</millis>
+  <sequence>7380</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818784</millis>
+  <sequence>7381</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818784</millis>
+  <sequence>7382</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818786</millis>
+  <sequence>7383</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MSF-STEIGO-SRVC into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818786</millis>
+  <sequence>7384</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818787</millis>
+  <sequence>7385</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818787</millis>
+  <sequence>7386</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818788</millis>
+  <sequence>7387</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818789</millis>
+  <sequence>7388</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818790</millis>
+  <sequence>7389</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName MSF-SVC-KITTIN2 into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818790</millis>
+  <sequence>7390</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818791</millis>
+  <sequence>7391</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818791</millis>
+  <sequence>7392</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818792</millis>
+  <sequence>7393</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818793</millis>
+  <sequence>7394</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818795</millis>
+  <sequence>7395</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName WAIP-DC01-NA into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818795</millis>
+  <sequence>7396</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818796</millis>
+  <sequence>7397</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818797</millis>
+  <sequence>7398</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818798</millis>
+  <sequence>7399</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {IPLocation=VARCHAR(255), Description=VARCHAR(255), software=VARCHAR(255), OS=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818798</millis>
+  <sequence>7400</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>saveDevice</method>
+  <thread>16</thread>
+  <message>Executing INSERT SQL: INSERT INTO test ([IPLocation], [Description], [software], [OS], [OS_Version], [version], [AssetName], [Username], [Last_successful_scan], [Build], [Manufacturer], [Model], [Domain], [IPAddress], [SP], [Userdomain], [Location], [Created_at]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818799</millis>
+  <sequence>7401</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Inserted new device for AssetName Y19O6302-PC1 into table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:10:18</date>
+  <millis>1753981818800</millis>
+  <sequence>7402</sequence>
+  <logger>software_data_importer.DataSaver</logger>
+  <level>INFO</level>
+  <class>software_data_importer.DataSaver</class>
+  <method>saveToDatabase</method>
+  <thread>16</thread>
+  <message>Successfully saved 813 devices to table test.</message>
+</record>
+<record>
+  <date>2025-07-31T12:11:06</date>
+  <millis>1753981866731</millis>
+  <sequence>7403</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:11:06</date>
+  <millis>1753981866954</millis>
+  <sequence>7404</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -266,9 +618,9 @@
   <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:08</date>
-  <millis>1753896128513</millis>
-  <sequence>24</sequence>
+  <date>2025-07-31T12:11:06</date>
+  <millis>1753981866956</millis>
+  <sequence>7405</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -277,9 +629,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:09</date>
-  <millis>1753896129588</millis>
-  <sequence>25</sequence>
+  <date>2025-07-31T12:11:06</date>
+  <millis>1753981866959</millis>
+  <sequence>7406</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -288,9 +640,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:09</date>
-  <millis>1753896129600</millis>
-  <sequence>26</sequence>
+  <date>2025-07-31T12:11:50</date>
+  <millis>1753981910637</millis>
+  <sequence>7407</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-07-31T12:11:50</date>
+  <millis>1753981910639</millis>
+  <sequence>7408</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -299,130 +662,9 @@
   <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-07-30T12:22:09</date>
-  <millis>1753896129607</millis>
-  <sequence>27</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Retrieved 325 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:12</date>
-  <millis>1753896132826</millis>
-  <sequence>28</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:13</date>
-  <millis>1753896133203</millis>
-  <sequence>29</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:13</date>
-  <millis>1753896133514</millis>
-  <sequence>30</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:14</date>
-  <millis>1753896134565</millis>
-  <sequence>31</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:14</date>
-  <millis>1753896134571</millis>
-  <sequence>32</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>16</thread>
-  <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:14</date>
-  <millis>1753896134572</millis>
-  <sequence>33</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:14</date>
-  <millis>1753896134575</millis>
-  <sequence>34</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:16</date>
-  <millis>1753896136331</millis>
-  <sequence>35</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:17</date>
-  <millis>1753896137058</millis>
-  <sequence>36</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:17</date>
-  <millis>1753896137063</millis>
-  <sequence>37</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
-</record>
-<record>
-  <date>2025-07-30T12:22:17</date>
-  <millis>1753896137068</millis>
-  <sequence>38</sequence>
+  <date>2025-07-31T12:11:50</date>
+  <millis>1753981910643</millis>
+  <sequence>7409</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>

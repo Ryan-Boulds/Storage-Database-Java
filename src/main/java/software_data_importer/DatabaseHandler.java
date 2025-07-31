@@ -17,6 +17,7 @@ public class DatabaseHandler {
     }
 
     public void saveDevice(String tableName, HashMap<String, String> device) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         try {
             DatabaseUtils.saveDevice(tableName, device);
         } catch (SQLException e) {
@@ -26,6 +27,7 @@ public class DatabaseHandler {
     }
 
     public void updateDeviceInDB(String tableName, HashMap<String, String> device) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         try {
             DatabaseUtils.updateDevice(tableName, device);
         } catch (SQLException e) {
@@ -35,6 +37,7 @@ public class DatabaseHandler {
     }
 
     public HashMap<String, String> getDeviceByAssetNameFromDB(String tableName, String assetName) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         try {
             return DatabaseUtils.getDeviceByAssetName(tableName, assetName);
         } catch (SQLException e) {
@@ -45,6 +48,7 @@ public class DatabaseHandler {
     }
 
     public void addNewField(String tableName, String fieldName, String fieldType) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         try {
             DatabaseUtils.addNewField(tableName, fieldName, fieldType);
         } catch (SQLException e) {
@@ -55,6 +59,7 @@ public class DatabaseHandler {
     }
 
     public List<String> getDeviceTypesFromDB(String tableName) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         try {
             return DatabaseUtils.getDeviceTypes(tableName);
         } catch (SQLException e) {
@@ -65,10 +70,11 @@ public class DatabaseHandler {
     }
 
     public List<DataEntry> loadAllDevices(String tableName) throws SQLException {
+        tableName = tableName.replace(" ", "_");
         List<DataEntry> devices = new ArrayList<>();
         try {
             List<HashMap<String, String>> deviceList = DatabaseUtils.loadDevices(tableName);
-            String[] columns = DatabaseUtils.getInventoryColumnNames(tableName).toArray(new String[0]);
+            String[] columns = (String[]) DatabaseUtils.getInventoryColumnNames(tableName).toArray(new String[0]);
             for (HashMap<String, String> device : deviceList) {
                 String[] values = new String[columns.length];
                 for (int i = 0; i < columns.length; i++) {

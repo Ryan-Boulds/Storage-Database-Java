@@ -38,7 +38,6 @@ public class MappingDialog {
         this.data = data;
     }
 
-    @SuppressWarnings("unchecked")
     public void showDialog() {
         String[] csvColumns = data.get(0);
         List<String[]> previewData = data.subList(1, data.size());

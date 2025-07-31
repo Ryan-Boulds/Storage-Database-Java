@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import utils.DataEntry;
-import utils.DataUtils;
 
 public class DataProcessor {
     private static final SimpleDateFormat[] dateFormats = {
@@ -44,8 +43,14 @@ public class DataProcessor {
         for (int i = 0; i < headers.length; i++) {
             String mappedField = columnMappings.get(headers[i]);
             if (mappedField != null) {
-                columnIndexToDbField.put(i, DataUtils.normalizeColumnName(mappedField));
+                columnIndexToDbField.put(i, mappedField.replace(" ", "_"));
             }
+        }
+
+        // Convert tableColumns to use underscores
+        String[] dbTableColumns = new String[tableColumns.length];
+        for (int i = 0; i < tableColumns.length; i++) {
+            dbTableColumns[i] = tableColumns[i].replace(" ", "_");
         }
 
         // Process each data row
@@ -54,8 +59,8 @@ public class DataProcessor {
             HashMap<String, String> deviceData = new HashMap<>();
             
             // Initialize all table columns with empty strings
-            for (String column : tableColumns) {
-                deviceData.put(DataUtils.normalizeColumnName(column), "");
+            for (String column : dbTableColumns) {
+                deviceData.put(column, "");
             }
 
             // Populate mapped fields
@@ -65,7 +70,7 @@ public class DataProcessor {
                 if (colIndex < row.length) {
                     String value = row[colIndex] != null ? row[colIndex].trim() : "";
                     // Handle device type mappings for DeviceType field
-                    if (dbField.equals("Device_Type") && deviceTypeMappings.containsKey(value)) {
+                    if (dbField.equals("DeviceType") && deviceTypeMappings.containsKey(value)) {
                         value = deviceTypeMappings.get(value);
                     }
                     // Reformat date fields to yyyy-MM-dd
@@ -79,7 +84,7 @@ public class DataProcessor {
             // Create DataEntry with values in table column order
             String[] values = new String[tableColumns.length];
             for (int j = 0; j < tableColumns.length; j++) {
-                values[j] = deviceData.getOrDefault(DataUtils.normalizeColumnName(tableColumns[j]), "");
+                values[j] = deviceData.getOrDefault(dbTableColumns[j], "");
             }
             processedData.add(new DataEntry(values, deviceData));
         }
