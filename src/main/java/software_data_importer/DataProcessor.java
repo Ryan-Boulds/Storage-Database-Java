@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import utils.DataEntry;
+import utils.DataUtils;
 
 public class DataProcessor {
     private static final SimpleDateFormat[] dateFormats = {
@@ -43,7 +44,7 @@ public class DataProcessor {
         for (int i = 0; i < headers.length; i++) {
             String mappedField = columnMappings.get(headers[i]);
             if (mappedField != null) {
-                columnIndexToDbField.put(i, mappedField);
+                columnIndexToDbField.put(i, DataUtils.normalizeColumnName(mappedField));
             }
         }
 
@@ -54,7 +55,7 @@ public class DataProcessor {
             
             // Initialize all table columns with empty strings
             for (String column : tableColumns) {
-                deviceData.put(column, "");
+                deviceData.put(DataUtils.normalizeColumnName(column), "");
             }
 
             // Populate mapped fields
@@ -64,7 +65,7 @@ public class DataProcessor {
                 if (colIndex < row.length) {
                     String value = row[colIndex] != null ? row[colIndex].trim() : "";
                     // Handle device type mappings for DeviceType field
-                    if (dbField.equals("DeviceType") && deviceTypeMappings.containsKey(value)) {
+                    if (dbField.equals("Device_Type") && deviceTypeMappings.containsKey(value)) {
                         value = deviceTypeMappings.get(value);
                     }
                     // Reformat date fields to yyyy-MM-dd
@@ -78,7 +79,7 @@ public class DataProcessor {
             // Create DataEntry with values in table column order
             String[] values = new String[tableColumns.length];
             for (int j = 0; j < tableColumns.length; j++) {
-                values[j] = deviceData.getOrDefault(tableColumns[j], "");
+                values[j] = deviceData.getOrDefault(DataUtils.normalizeColumnName(tableColumns[j]), "");
             }
             processedData.add(new DataEntry(values, deviceData));
         }
