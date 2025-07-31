@@ -13,15 +13,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.UIComponentUtils;
+import view_inventorytab.view_device_details.DeviceDetailsPanel;
 
 public class ViewInventoryTab extends JPanel {
     private final JTable table;
     private final TableManager tableManager;
     private final JTextField searchField;
+    private final JPanel mainPanel;
+    private JPanel currentView;
 
     public ViewInventoryTab() {
         setLayout(new BorderLayout());
 
+        mainPanel = new JPanel(new BorderLayout());
         table = new JTable() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -59,6 +63,11 @@ public class ViewInventoryTab extends JPanel {
             this::refreshDataAndTabs
         );
         searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
+
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        currentView = mainPanel;
+        add(currentView, BorderLayout.CENTER);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -124,10 +133,7 @@ public class ViewInventoryTab extends JPanel {
             }
         });
 
-        PopupHandler.addTablePopup(table, null, tableManager);
-
-        add(searchPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        PopupHandler.addTablePopup(table, this, tableManager);
         initialize();
     }
 
@@ -191,5 +197,22 @@ public class ViewInventoryTab extends JPanel {
             }
             sorter.setRowFilter(filter);
         }
+    }
+
+    public void showDeviceDetails(String assetName) {
+        remove(currentView);
+        currentView = new DeviceDetailsPanel(assetName, this);
+        add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+
+    public void showMainView() {
+        remove(currentView);
+        currentView = mainPanel;
+        add(currentView, BorderLayout.CENTER);
+        refreshDataAndTabs();
+        revalidate();
+        repaint();
     }
 }

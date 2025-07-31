@@ -67,12 +67,16 @@ public class DatabaseUtils {
         try (Connection conn = getConnection()) {
             List<String> existingColumns = getInventoryColumnNames(tableName);
             for (String columnName : columnNames) {
-                if (!existingColumns.contains(columnName) && !columnName.equals("AssetName")) {
-                    String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + columnName + "] VARCHAR(255)";
+                String sanitizedColumnName = columnName.replace(" ", "_").toUpperCase(); // Case-insensitive match
+                boolean exists = existingColumns.stream().anyMatch(existing -> existing.replace(" ", "_").toUpperCase().equals(sanitizedColumnName));
+                if (!exists && !sanitizedColumnName.equals("ASSETNAME")) { // Case-insensitive check
+                    String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + sanitizedColumnName + "] VARCHAR(255)";
                     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                        LOGGER.log(Level.INFO, "Executing ALTER TABLE SQL: {0}", sql);
+                        LOGGER.log(Level.INFO, "Adding column {0} to table {1}", new Object[]{sanitizedColumnName, tableName});
                         stmt.executeUpdate();
                     }
+                } else if (exists) {
+                    LOGGER.log(Level.INFO, "Column {0} already exists in table {1}, skipping", new Object[]{sanitizedColumnName, tableName});
                 }
             }
         } catch (SQLException e) {
@@ -183,7 +187,7 @@ public class DatabaseUtils {
         StringBuilder sql = new StringBuilder("UPDATE [" + tableName + "] SET ");
         List<String> columns = new ArrayList<>();
         for (String column : device.keySet()) {
-            if (!column.equals("AssetName")) {
+            if (!column.equals("AssetName") && !column.equals("TableName")) { // Exclude TableName
                 columns.add("[" + column + "] = ?");
             }
         }
@@ -203,7 +207,7 @@ public class DatabaseUtils {
 
             for (Map.Entry<String, String> entry : device.entrySet()) {
                 String column = entry.getKey();
-                if (!column.equals("AssetName")) {
+                if (!column.equals("AssetName") && !column.equals("TableName")) {
                     String value = entry.getValue();
                     String sqlType = columnTypes.getOrDefault(column, "VARCHAR(255)");
                     if (sqlType.equals("DATE") || 
@@ -446,6 +450,10 @@ public class DatabaseUtils {
     }
 
     public static HashMap<String, String> getDeviceByAssetName(String tableName, String assetName) throws SQLException {
+        if (!getInventoryColumnNames(tableName).contains("AssetName")) {
+            LOGGER.log(Level.WARNING, "Table {0} does not contain AssetName, skipping query", tableName);
+            return null;
+        }
         String sql = "SELECT * FROM [" + tableName + "] WHERE AssetName = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, assetName);
@@ -459,6 +467,7 @@ public class DatabaseUtils {
                         String value = rs.getString(column);
                         device.put(column, value != null ? value.trim() : "");
                     }
+                    device.put("TableName", tableName); // Add table name to the result
                     return device;
                 }
             }
