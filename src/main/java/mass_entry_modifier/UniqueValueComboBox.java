@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.swing.JComboBox;
 
@@ -15,9 +16,11 @@ import utils.DefaultColumns;
 
 public final class UniqueValueComboBox extends JComboBox<String> {
     private final JComboBox<String> columnCombo;
+    private final Supplier<String> tableNameSupplier;
 
-    public UniqueValueComboBox(JComboBox<String> columnCombo) {
+    public UniqueValueComboBox(JComboBox<String> columnCombo, Supplier<String> tableNameSupplier) {
         this.columnCombo = columnCombo;
+        this.tableNameSupplier = tableNameSupplier;
         setPreferredSize(new Dimension(450, 30));
         setMaximumSize(new Dimension(450, 30));
         setAlignmentX(LEFT_ALIGNMENT);
@@ -27,7 +30,8 @@ public final class UniqueValueComboBox extends JComboBox<String> {
 
     void updateValues() {
         String selectedColumn = (String) columnCombo.getSelectedItem();
-        if (selectedColumn == null) {
+        String tableName = tableNameSupplier.get();
+        if (selectedColumn == null || tableName == null) {
             removeAllItems();
             return;
         }
@@ -38,24 +42,24 @@ public final class UniqueValueComboBox extends JComboBox<String> {
 
         if (null == columnType) {
             // For text columns, select directly
-            sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
+            sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
         } else // Adjust SQL based on column type
         switch (columnType) {
             case "DOUBLE":
                 // For numeric columns like Memory, select raw values and convert in Java
-                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
+                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
                 break;
             case "DATE":
                 // For date columns, use Format to ensure consistent string output
-                sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL";
+                sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
                 break;
             default:
                 // For text columns, select directly
-                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM Inventory WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
+                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
                 break;
         }
 
-        System.out.println("Executing SQL for " + selectedColumn + ": " + sql);
+        System.out.println("Executing SQL for " + selectedColumn + " in " + tableName + ": " + sql);
         try (Connection conn = DatabaseUtils.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -73,7 +77,7 @@ public final class UniqueValueComboBox extends JComboBox<String> {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error retrieving unique values for column " + selectedColumn + ": " + e.getMessage());
+            System.err.println("Error retrieving unique values for column " + selectedColumn + " in " + tableName + ": " + e.getMessage());
             e.printStackTrace();
             removeAllItems();
             return;
@@ -81,6 +85,6 @@ public final class UniqueValueComboBox extends JComboBox<String> {
 
         removeAllItems();
         uniqueValues.stream().sorted().forEach(this::addItem);
-        System.out.println("Populated " + uniqueValues.size() + " unique values for " + selectedColumn);
+        System.out.println("Populated " + uniqueValues.size() + " unique values for " + selectedColumn + " in " + tableName);
     }
 }

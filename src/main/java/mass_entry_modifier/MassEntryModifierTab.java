@@ -21,16 +21,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import utils.DatabaseUtils;
+import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
 
 public class MassEntryModifierTab extends JPanel {
     private final JLabel statusLabel;
+    private JComboBox<String> tableTypeCombo;
+    private JComboBox<String> specificTableCombo;
     private JComboBox<String> matchColumnCombo;
     private UniqueValueComboBox matchValueCombo;
     private JComboBox<String> setColumnCombo;
     private JTextField setValueField;
     private JCheckBox overwriteCheckBox;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private JPanel tableSelectionPanel;
 
     public MassEntryModifierTab(JLabel statusLabel) {
         this.statusLabel = statusLabel;
@@ -39,14 +43,32 @@ public class MassEntryModifierTab extends JPanel {
     }
 
     private void initComponents() {
+        // Table selection panel
+        tableSelectionPanel = new JPanel();
+        tableSelectionPanel.setLayout(new BoxLayout(tableSelectionPanel, BoxLayout.Y_AXIS));
+        tableSelectionPanel.setBorder(BorderFactory.createTitledBorder("Table Selection"));
+
+        tableTypeCombo = UIComponentUtils.createFormattedComboBox(new String[]{"Inventory", "Software"});
+        tableTypeCombo.addActionListener(e -> updateTableSelection());
+
+        specificTableCombo = UIComponentUtils.createFormattedComboBox(new String[]{});
+        specificTableCombo.setVisible(false); // Hidden by default
+
+        tableSelectionPanel.add(UIComponentUtils.createAlignedLabel("Table Type:"));
+        tableSelectionPanel.add(tableTypeCombo);
+        tableSelectionPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        tableSelectionPanel.add(UIComponentUtils.createAlignedLabel("Specific Table:"));
+        tableSelectionPanel.add(specificTableCombo);
+        tableSelectionPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+
         // Match criteria panel
         JPanel matchPanel = new JPanel();
         matchPanel.setLayout(new BoxLayout(matchPanel, BoxLayout.Y_AXIS));
         matchPanel.setBorder(BorderFactory.createTitledBorder("Match Criteria"));
 
-        String[] columns = getInventoryColumns();
+        String[] columns = getInventoryColumns(getSelectedTable());
         matchColumnCombo = UIComponentUtils.createFormattedComboBox(columns);
-        matchValueCombo = new UniqueValueComboBox(matchColumnCombo);
+        matchValueCombo = new UniqueValueComboBox(matchColumnCombo, this::getSelectedTable);
 
         matchPanel.add(UIComponentUtils.createAlignedLabel("Match Column:"));
         matchPanel.add(matchColumnCombo);
@@ -77,6 +99,8 @@ public class MassEntryModifierTab extends JPanel {
         applyButton.addActionListener(e -> applyMassUpdate());
 
         // Add components to main panel
+        add(tableSelectionPanel);
+        add(Box.createRigidArea(new Dimension(0, 10)));
         add(matchPanel);
         add(Box.createRigidArea(new Dimension(0, 10)));
         add(setPanel);
@@ -84,11 +108,48 @@ public class MassEntryModifierTab extends JPanel {
         add(applyButton);
         add(Box.createRigidArea(new Dimension(0, 10)));
         add(statusLabel);
+
+        // Initialize table selection
+        updateTableSelection();
     }
 
-    private String[] getInventoryColumns() {
+    private String getSelectedTable() {
+        String tableType = (String) tableTypeCombo.getSelectedItem();
+        if ("Inventory".equals(tableType)) {
+            return "Inventory";
+        } else if ("Software".equals(tableType) && specificTableCombo.getSelectedItem() != null) {
+            return (String) specificTableCombo.getSelectedItem();
+        }
+        return "Inventory"; // Default to Inventory
+    }
+
+    private void updateTableSelection() {
+        String tableType = (String) tableTypeCombo.getSelectedItem();
+        specificTableCombo.removeAllItems();
+        specificTableCombo.setVisible("Software".equals(tableType));
+
+        if ("Software".equals(tableType)) {
+            try {
+                ArrayList<String> tables = (ArrayList<String>) DatabaseUtils.getTableNames();
+                ArrayList<String> excludedTables = new ArrayList<>(TablesNotIncludedList.getExcludedTablesForSoftwareImporter());
+                for (String table : tables) {
+                    if (!excludedTables.contains(table)) {
+                        specificTableCombo.addItem(table);
+                    }
+                }
+                if (specificTableCombo.getItemCount() > 0) {
+                    specificTableCombo.setSelectedIndex(0);
+                }
+            } catch (SQLException e) {
+                statusLabel.setText("Error loading tables: " + e.getMessage());
+            }
+        }
+        refreshComboBoxes();
+    }
+
+    private String[] getInventoryColumns(String tableName) {
         try {
-            ArrayList<String> columns = DatabaseUtils.getInventoryColumnNames("Inventory");
+            ArrayList<String> columns = DatabaseUtils.getInventoryColumnNames(tableName);
             return columns.toArray(new String[0]);
         } catch (SQLException e) {
             statusLabel.setText("Error loading columns: " + e.getMessage());
@@ -102,7 +163,7 @@ public class MassEntryModifierTab extends JPanel {
         String prevMatchValue = (String) matchValueCombo.getSelectedItem();
 
         // Refresh columns
-        String[] columns = getInventoryColumns();
+        String[] columns = getInventoryColumns(getSelectedTable());
         matchColumnCombo.setModel(new javax.swing.DefaultComboBoxModel<>(columns));
         setColumnCombo.setModel(new javax.swing.DefaultComboBoxModel<>(columns));
 
@@ -139,7 +200,7 @@ public class MassEntryModifierTab extends JPanel {
     }
 
     public void refresh() {
-        refreshComboBoxes();
+        updateTableSelection();
     }
 
     @Override
@@ -148,19 +209,20 @@ public class MassEntryModifierTab extends JPanel {
     }
 
     private void applyMassUpdate() {
+        String tableName = getSelectedTable();
         String matchColumn = (String) matchColumnCombo.getSelectedItem();
         String matchValue = (String) matchValueCombo.getSelectedItem();
         String setColumn = (String) setColumnCombo.getSelectedItem();
         String setValue = setValueField.getText().trim();
 
-        if (matchColumn == null || matchValue == null || setColumn == null || setValue.isEmpty()) {
+        if (tableName == null || matchColumn == null || matchValue == null || setColumn == null || setValue.isEmpty()) {
             statusLabel.setText("Error: All fields must be filled");
             return;
         }
 
         try {
             // Check if any non-blank values would be overwritten
-            boolean hasNonBlankValues = checkNonBlankValues(matchColumn, matchValue, setColumn);
+            boolean hasNonBlankValues = checkNonBlankValues(tableName, matchColumn, matchValue, setColumn);
             if (hasNonBlankValues && !overwriteCheckBox.isSelected()) {
                 int confirm = JOptionPane.showConfirmDialog(
                     this,
@@ -175,25 +237,25 @@ public class MassEntryModifierTab extends JPanel {
             }
 
             // Perform the mass update
-            int updatedRows = updateMatchingEntries(matchColumn, matchValue, setColumn, setValue, overwriteCheckBox.isSelected());
-            statusLabel.setText("Successfully updated " + updatedRows + " entries");
+            int updatedRows = updateMatchingEntries(tableName, matchColumn, matchValue, setColumn, setValue, overwriteCheckBox.isSelected());
+            statusLabel.setText("Successfully updated " + updatedRows + " entries in " + tableName);
 
             // Refresh combo boxes after successful update
             refreshComboBoxes();
 
             // Notify listeners (e.g., ViewInventoryTab) of the update
-            System.out.println("Firing inventoryUpdated event"); // Debug log
-            pcs.firePropertyChange("inventoryUpdated", null, null);
+            System.out.println("Firing inventoryUpdated event for table: " + tableName);
+            pcs.firePropertyChange("inventoryUpdated", null, tableName);
         } catch (SQLException e) {
             java.util.logging.Logger.getLogger(MassEntryModifierTab.class.getName()).log(
                 java.util.logging.Level.SEVERE,
-                "Error updating " + matchColumn + " = " + matchValue + " to " + setColumn + " = " + setValue, e);
+                "Error updating " + matchColumn + " = " + matchValue + " to " + setColumn + " = " + setValue + " in " + tableName, e);
             statusLabel.setText("Error: " + e.getMessage());
         }
     }
 
-    private boolean checkNonBlankValues(String matchColumn, String matchValue, String setColumn) throws SQLException {
-        String sql = "SELECT [" + setColumn + "] FROM Inventory WHERE [" + matchColumn + "] = ?";
+    private boolean checkNonBlankValues(String tableName, String matchColumn, String matchValue, String setColumn) throws SQLException {
+        String sql = "SELECT [" + setColumn + "] FROM [" + tableName + "] WHERE [" + matchColumn + "] = ?";
         try (Connection conn = DatabaseUtils.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, matchValue);
@@ -213,12 +275,12 @@ public class MassEntryModifierTab extends JPanel {
         return false;
     }
 
-    private int updateMatchingEntries(String matchColumn, String matchValue, String setColumn, String setValue, boolean overwrite) throws SQLException {
+    private int updateMatchingEntries(String tableName, String matchColumn, String matchValue, String setColumn, String setValue, boolean overwrite) throws SQLException {
         String sql;
         if (overwrite) {
-            sql = "UPDATE Inventory SET [" + setColumn + "] = ? WHERE [" + matchColumn + "] = ?";
+            sql = "UPDATE [" + tableName + "] SET [" + setColumn + "] = ? WHERE [" + matchColumn + "] = ?";
         } else {
-            sql = "UPDATE Inventory SET [" + setColumn + "] = ? WHERE [" + matchColumn + "] = ? AND ([" + setColumn + "] IS NULL OR [" + setColumn + "] = '')";
+            sql = "UPDATE [" + tableName + "] SET [" + setColumn + "] = ? WHERE [" + matchColumn + "] = ? AND ([" + setColumn + "] IS NULL OR [" + setColumn + "] = '')";
         }
 
         try (Connection conn = DatabaseUtils.getConnection();
@@ -226,7 +288,7 @@ public class MassEntryModifierTab extends JPanel {
             stmt.setString(1, setValue);
             stmt.setString(2, matchValue);
             int rowsAffected = stmt.executeUpdate();
-            System.out.println("Updated " + rowsAffected + " rows for " + matchColumn + " = " + matchValue); // Debug log
+            System.out.println("Updated " + rowsAffected + " rows for " + matchColumn + " = " + matchValue + " in " + tableName);
             return rowsAffected;
         }
     }
