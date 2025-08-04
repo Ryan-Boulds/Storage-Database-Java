@@ -54,7 +54,7 @@ public class mainFile {
                 LogCablesTab logCablesTab = new LogCablesTab();
                 LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
                 inventory_data_importer.ImportDataTab importDataTab = new inventory_data_importer.ImportDataTab(statusLabel);
-                software_data_importer.ImportDataTab softwareImportDataTab = new software_data_importer.ImportDataTab(statusLabel);
+                data_importing_tabs.ImportDataTab softwareImportDataTab = new data_importing_tabs.ImportDataTab(statusLabel);
                 MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                 JFrame frame = UIComponentUtils.createMainFrame(
