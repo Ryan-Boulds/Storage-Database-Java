@@ -60,9 +60,11 @@ public final class UniqueValueComboBox extends JComboBox<String> {
         }
 
         System.out.println("Executing SQL for " + selectedColumn + " in " + tableName + ": " + sql);
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (
+            Connection conn = DatabaseUtils.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()
+        ) {
             while (rs.next()) {
                 String value;
                 if ("DOUBLE".equals(columnType)) {
@@ -78,7 +80,6 @@ public final class UniqueValueComboBox extends JComboBox<String> {
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving unique values for column " + selectedColumn + " in " + tableName + ": " + e.getMessage());
-            e.printStackTrace();
             removeAllItems();
             return;
         }

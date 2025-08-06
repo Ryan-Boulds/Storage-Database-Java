@@ -1,9 +1,10 @@
-package view_inventorytab.view_device_details;
+package view_software_list_tab.view_software_details;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -32,11 +34,11 @@ import java.awt.Color;
 import utils.DatabaseUtils;
 import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
-import view_inventorytab.ViewInventoryTab;
+import view_software_list_tab.ViewSoftwareListTab;
 
 public class DeviceDetailsPanel extends JPanel {
     private final String assetName;
-    private final ViewInventoryTab parentTab;
+    private final ViewSoftwareListTab parentTab;
     private static final int CONTENT_WIDTH = 800; // Fixed width for content
     private static final int SPECS_HEIGHT = 200; // Fixed height for Inventory specs
     private static final int LIST_HEIGHT = 400; // Fixed height for list
@@ -45,7 +47,7 @@ public class DeviceDetailsPanel extends JPanel {
     private JList<String> tableList;
     private JPanel dataListPanel;
 
-    public DeviceDetailsPanel(String assetName, ViewInventoryTab parentTab) {
+    public DeviceDetailsPanel(String assetName, view_software_list_tab.ViewSoftwareListTab parentTab) {
         this.assetName = assetName;
         this.parentTab = parentTab;
         setLayout(new BorderLayout(10, 10));
@@ -54,7 +56,7 @@ public class DeviceDetailsPanel extends JPanel {
 
     private void initializeComponents() {
         // Title with Asset Name
-        JLabel titleLabel = UIComponentUtils.createAlignedLabel("Device Details: " + assetName);
+        JLabel titleLabel = UIComponentUtils.createAlignedLabel("Software Details: " + assetName);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
         // Back button
@@ -79,7 +81,7 @@ public class DeviceDetailsPanel extends JPanel {
         contentPanel.add(Box.createVerticalStrut(10)); // Space before separator
 
         // Separator
-        JLabel separatorLabel = new JLabel("Software Details");
+        JLabel separatorLabel = new JLabel("Other Tables");
         separatorLabel.setFont(new Font("Arial", Font.BOLD, 14));
         separatorLabel.setAlignmentX(LEFT_ALIGNMENT);
         contentPanel.add(separatorLabel);

@@ -19,6 +19,7 @@ import mass_entry_modifier.MassEntryModifierTab;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 import view_inventorytab.ViewInventoryTab;
+import view_software_list_tab.ViewSoftwareListTab;
 
 public class mainFile {
     public static void main(String[] args) {
@@ -49,6 +50,7 @@ public class mainFile {
 
                 JLabel statusLabel = new JLabel("Ready");
                 ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
+                ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
                 LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
                 AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
                 LogCablesTab logCablesTab = new LogCablesTab();
@@ -61,6 +63,7 @@ public class mainFile {
                     "Inventory Management",
                     databaseCreatorTab,
                     viewInventoryTab,
+                    viewSoftwareListTab,
                     logNewDeviceTab,
                     accessoriesCountTab,
                     logCablesTab,
@@ -73,10 +76,13 @@ public class mainFile {
                 JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
                 tabbedPane.setTitleAt(tabbedPane.indexOfComponent(importDataTab), "Import Inventory Data");
                 tabbedPane.setTitleAt(tabbedPane.indexOfComponent(softwareImportDataTab), "Import Software Data");
+                tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
                 tabbedPane.addChangeListener(e -> {
                     Component selected = tabbedPane.getSelectedComponent();
                     if (selected == viewInventoryTab) {
                         viewInventoryTab.refreshDataAndTabs();
+                    } else if (selected == viewSoftwareListTab) {
+                        viewSoftwareListTab.refreshDataAndTabs();
                     } else if (selected == massEntryModifierTab) {
                         massEntryModifierTab.refresh();
                     } else if (selected == accessoriesCountTab) {
@@ -91,6 +97,7 @@ public class mainFile {
                 // Listen for updates from MassEntryModifierTab
                 massEntryModifierTab.addPropertyChangeListener("inventoryUpdated", evt -> {
                     viewInventoryTab.refreshDataAndTabs();
+                    viewSoftwareListTab.refreshDataAndTabs();
                     // Optionally refresh other tabs if they depend on Inventory data
                     // accessoriesCountTab.refresh();
                     // logCablesTab.refresh();
