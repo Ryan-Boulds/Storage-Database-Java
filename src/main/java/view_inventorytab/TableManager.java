@@ -30,7 +30,7 @@ public class TableManager {
     private final DefaultTableModel model;
     private String[] columns;
     private final Map<String, Integer> columnTypes;
-    private TableRowSorter<DefaultTableModel> sorter;
+    private final TableRowSorter<DefaultTableModel> sorter;
     private final List<Integer> sortColumnIndices = new ArrayList<>();
     private final List<SortOrder> sortOrders = new ArrayList<>();
 
@@ -47,7 +47,13 @@ public class TableManager {
             TableColumn editColumn = table.getColumnModel().getColumn(0);
             editColumn.setCellRenderer(new RowEditButtonRenderer());
             editColumn.setCellEditor(new RowEditButtonEditor(table, this));
+        } else {
+            sorter = null;
         }
+    }
+
+    public TableRowSorter<DefaultTableModel> getSorter() {
+        return sorter;
     }
 
     private void initializeColumns() {
@@ -186,7 +192,9 @@ public class TableManager {
         for (int i = 0; i < sortColumnIndices.size(); i++) {
             sortKeys.add(new RowSorter.SortKey(sortColumnIndices.get(i) + 1, sortOrders.get(i)));
         }
-        sorter.setSortKeys(sortKeys);
-        sorter.sort();
+        if (sorter != null) {
+            sorter.setSortKeys(sortKeys);
+            sorter.sort();
+        }
     }
 }

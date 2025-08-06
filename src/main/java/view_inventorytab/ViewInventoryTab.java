@@ -21,6 +21,7 @@ public class ViewInventoryTab extends JPanel {
     private final JTextField searchField;
     private final JPanel mainPanel;
     private JPanel currentView;
+    private FilterPanel filterPanel;
 
     public ViewInventoryTab() {
         setLayout(new BorderLayout());
@@ -40,6 +41,25 @@ public class ViewInventoryTab extends JPanel {
         JPanel searchPanel = new JPanel(new BorderLayout(10, 10));
         searchField = UIComponentUtils.createFormattedTextField();
         searchField.setPreferredSize(new java.awt.Dimension(200, 30));
+        searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        currentView = mainPanel;
+        add(currentView, BorderLayout.CENTER);
+
+        initializeFilterPanel();
+        initializeTableListeners();
+        initialize();
+    }
+
+    private void initializeFilterPanel() {
+        filterPanel = new FilterPanel(
+            (search, status, dept) -> updateTables(search, status, dept),
+            this::refreshDataAndTabs
+        );
+        mainPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
@@ -49,26 +69,15 @@ public class ViewInventoryTab extends JPanel {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
             private void filterTable() {
                 String text = searchField.getText().toLowerCase();
-                TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
+                TableRowSorter<DefaultTableModel> sorter = tableManager.getSorter();
                 if (sorter != null) {
                     sorter.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + text));
                 }
             }
         });
-        searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
-        searchPanel.add(searchField, BorderLayout.CENTER);
+    }
 
-        FilterPanel filterPanel = new FilterPanel(
-            (search, status, dept) -> updateTables(search, status, dept),
-            this::refreshDataAndTabs
-        );
-        searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
-
-        mainPanel.add(searchPanel, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        currentView = mainPanel;
-        add(currentView, BorderLayout.CENTER);
-
+    private void initializeTableListeners() {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -133,8 +142,7 @@ public class ViewInventoryTab extends JPanel {
             }
         });
 
-        PopupHandler.addTablePopup(table, this, tableManager);
-        initialize();
+        PopupHandler.addTablePopup(table, ViewInventoryTab.this, tableManager);
     }
 
     private void initialize() {
@@ -146,10 +154,14 @@ public class ViewInventoryTab extends JPanel {
         tableManager.refreshDataAndTabs();
     }
 
+    public TableManager getTableManager() {
+        return tableManager;
+    }
+
     public void updateTables(String searchTerm, String status, String dept) {
         refreshDataAndTabs();
         String text = searchTerm.toLowerCase();
-        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
+        TableRowSorter<DefaultTableModel> sorter = tableManager.getSorter();
         if (sorter != null) {
             javax.swing.RowFilter<DefaultTableModel, Integer> filter = null;
             if (!text.isEmpty() || !status.equals("All") || !dept.equals("All")) {

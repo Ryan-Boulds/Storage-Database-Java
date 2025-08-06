@@ -1,7 +1,6 @@
 package view_inventorytab;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,19 +25,17 @@ import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
-public class ModifyDialog {
-    private final JDialog dialog;
+public class ModifyDialog extends JDialog {
     private final HashMap<String, String> device;
     private final String[] columnNames;
     private final Map<String, Integer> columnTypes;
     private final JComponent[] inputs;
     private final HashMap<String, String> originalValues;
-    private final JFrame parent;
     private final TableManager tableManager;
     private final String primaryKeyColumn = "AssetName";
 
     public ModifyDialog(JFrame parent, HashMap<String, String> device, String deviceType, TableManager tableManager) {
-        this.parent = parent;
+        super(parent, "Modify Device", true);
         this.device = new HashMap<>(device);
         this.originalValues = new HashMap<>(device);
         this.tableManager = tableManager;
@@ -114,43 +111,33 @@ public class ModifyDialog {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        dialog = new JDialog(parent, "Modify Device", true);
-        dialog.setLayout(new BorderLayout());
-        dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.setSize(800, Math.min(600, 100 + 40 * columnNames.length));
-        dialog.setResizable(true);
-        dialog.setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
+        setSize(800, Math.min(600, 100 + 40 * columnNames.length));
+        setResizable(true);
+        setLocationRelativeTo(parent);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
         JPanel leftPanel = new JPanel(new BorderLayout());
-        JPanel rightPanel = new JPanel(new BorderLayout());
+        JButton deleteButton = UIComponentUtils.createFormattedButton("Delete");
+        deleteButton.addActionListener(e -> deleteAction());
+        leftPanel.add(deleteButton, BorderLayout.WEST);
+        buttonPanel.add(leftPanel, BorderLayout.WEST);
 
+        JPanel rightPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
         JButton saveButton = UIComponentUtils.createFormattedButton("Save");
         JButton cancelButton = UIComponentUtils.createFormattedButton("Cancel");
-        JButton deleteButton = new JButton("Delete Device");
-        deleteButton.setBackground(Color.RED);
-        deleteButton.setForeground(Color.WHITE);
-
         saveButton.addActionListener(e -> saveAction());
         cancelButton.addActionListener(e -> cancelAction());
-        deleteButton.addActionListener(e -> deleteAction());
-
-        leftPanel.add(saveButton, BorderLayout.WEST);
-        rightPanel.add(cancelButton, BorderLayout.EAST);
-        rightPanel.add(deleteButton, BorderLayout.WEST);
-        buttonPanel.add(leftPanel, BorderLayout.WEST);
+        rightPanel.add(saveButton);
+        rightPanel.add(cancelButton);
         buttonPanel.add(rightPanel, BorderLayout.EAST);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    public void showDialog() {
-        dialog.setVisible(true);
-    }
-
-    public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
-        String deviceType = device.getOrDefault("Device_Type", "Unknown");
-        ModifyDialog modifyDialog = new ModifyDialog(parent, device, deviceType, tableManager);
-        modifyDialog.showDialog();
+    protected void afterSaveOrDelete(boolean wasDeleted) {
+        // Hook for subclasses to override
     }
 
     private void saveAction() {
@@ -159,7 +146,7 @@ public class ModifyDialog {
             String key = columnNames[i];
             String value;
             if (inputs[i] instanceof JTextField) {
-                value = ((JTextField) inputs[i]).getText();
+                value = ((JTextField) inputs[i]).getText().trim();
             } else if (inputs[i] instanceof JPanel) {
                 value = UIComponentUtils.getDateFromPicker((JPanel) inputs[i]);
             } else if (inputs[i] instanceof JCheckBox) {
@@ -183,7 +170,7 @@ public class ModifyDialog {
 
         if (hasChanges) {
             int confirm = JOptionPane.showConfirmDialog(
-                dialog,
+                this,
                 "Are you sure you want to save?",
                 "Confirm Save",
                 JOptionPane.YES_NO_OPTION
@@ -192,14 +179,15 @@ public class ModifyDialog {
                 return;
             }
         } else {
-            dialog.dispose();
+            dispose();
+            afterSaveOrDelete(false);
             return;
         }
 
         String primaryKey = device.get(primaryKeyColumn);
         String error = DataUtils.validateDevice(updatedDevice, primaryKey);
         if (error != null) {
-            JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -207,8 +195,8 @@ public class ModifyDialog {
             if (primaryKey != null) {
                 DatabaseUtils.deleteDevice("Inventory", primaryKey);
                 DatabaseUtils.saveDevice("Inventory", updatedDevice);
-                JOptionPane.showMessageDialog(dialog, "Device updated successfully");
-                dialog.dispose();
+                JOptionPane.showMessageDialog(this, "Device updated successfully");
+                dispose();
                 SwingUtilities.invokeLater(() -> {
                     if (tableManager != null) {
                         System.out.println("Refreshing table after modify for " + primaryKey);
@@ -216,12 +204,13 @@ public class ModifyDialog {
                     } else {
                         System.err.println("Error: TableManager is null during refresh");
                     }
+                    afterSaveOrDelete(false);
                 });
             } else {
-                JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Update Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error: " + primaryKeyColumn + " not found", "Update Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(dialog, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -248,7 +237,7 @@ public class ModifyDialog {
 
         if (hasChanges) {
             int confirm = JOptionPane.showConfirmDialog(
-                dialog,
+                this,
                 "Are you sure you want to cancel? Any changes made will be lost.",
                 "Confirm Cancel",
                 JOptionPane.YES_NO_OPTION
@@ -257,7 +246,7 @@ public class ModifyDialog {
                 return;
             }
         }
-        dialog.dispose();
+        dispose();
     }
 
     private void deleteAction() {
@@ -268,16 +257,16 @@ public class ModifyDialog {
                 JOptionPane.QUESTION_MESSAGE,
                 JOptionPane.YES_NO_OPTION
             );
-            JDialog confirmDialog = optionPane.createDialog(parent, "Confirm Delete");
-            confirmDialog.setLocationRelativeTo(parent);
+            JDialog confirmDialog = optionPane.createDialog(this, "Confirm Delete");
+            confirmDialog.setLocationRelativeTo(this);
             confirmDialog.setVisible(true);
             Integer confirm = (Integer) optionPane.getValue();
             if (confirm != null && confirm == JOptionPane.YES_OPTION) {
                 try {
                     System.out.println("Deleting device with " + primaryKeyColumn + ": " + primaryKey);
                     DatabaseUtils.deleteDevice("Inventory", primaryKey);
-                    JOptionPane.showMessageDialog(parent, "Device deleted successfully");
-                    dialog.dispose();
+                    JOptionPane.showMessageDialog(this, "Device deleted successfully");
+                    dispose();
                     SwingUtilities.invokeLater(() -> {
                         if (tableManager != null) {
                             System.out.println("Refreshing table after delete for " + primaryKey);
@@ -285,13 +274,19 @@ public class ModifyDialog {
                         } else {
                             System.err.println("Error: TableManager is null during refresh");
                         }
+                        afterSaveOrDelete(true);
                     });
                 } catch (SQLException e) {
-                    JOptionPane.showMessageDialog(parent, "Error deleting device: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Error deleting device: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: " + primaryKeyColumn + " not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
+        ModifyDialog dialog = new ModifyDialog(parent, device, "Inventory", tableManager);
+        dialog.setVisible(true);
     }
 }
