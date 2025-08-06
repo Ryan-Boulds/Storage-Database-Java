@@ -1,10 +1,10 @@
 package view_software_list_tab.view_software_details;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,12 +24,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import java.awt.Color;
 
 import utils.DatabaseUtils;
 import utils.TablesNotIncludedList;
@@ -201,14 +197,11 @@ public class DeviceDetailsPanel extends JPanel {
         }
 
         // Add selection listener to update data list
-        list.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    String selectedTable = list.getSelectedValue();
-                    if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
-                        updateDataList(selectedTable);
-                    }
+        list.addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedTable = list.getSelectedValue();
+                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
+                    updateDataList(selectedTable);
                 }
             }
         });

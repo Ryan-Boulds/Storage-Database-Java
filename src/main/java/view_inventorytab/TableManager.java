@@ -29,7 +29,7 @@ public class TableManager {
     private final JTable table;
     private final DefaultTableModel model;
     private String[] columns;
-    private Map<String, Integer> columnTypes;
+    private final Map<String, Integer> columnTypes;
     private TableRowSorter<DefaultTableModel> sorter;
     private final List<Integer> sortColumnIndices = new ArrayList<>();
     private final List<SortOrder> sortOrders = new ArrayList<>();
@@ -73,7 +73,6 @@ public class TableManager {
                 System.out.println("TableManager: Column types: " + columnTypes);
             } catch (SQLException e) {
                 System.err.println("TableManager: Error fetching columns from database: " + e.getMessage());
-                e.printStackTrace();
                 JOptionPane.showMessageDialog(table, "Error fetching table columns: " + e.getMessage() + ". Please check database connection and Inventory table.", "Database Error", JOptionPane.ERROR_MESSAGE);
                 columns = new String[0];
                 columnTypes.clear();
