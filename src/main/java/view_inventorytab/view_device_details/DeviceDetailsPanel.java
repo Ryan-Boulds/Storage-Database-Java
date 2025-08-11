@@ -57,7 +57,7 @@ public class DeviceDetailsPanel extends JPanel {
 
     private void initializeComponents() {
         // Title with Asset Name
-        JLabel titleLabel = UIComponentUtils.createAlignedLabel("Device Details: " + assetName);
+        JLabel titleLabel = UIComponentUtils.createAlignedLabel("Inventory Details: " + assetName);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
         // Back button
@@ -124,7 +124,7 @@ public class DeviceDetailsPanel extends JPanel {
         contentPanel.add(Box.createVerticalStrut(10)); // Space before separator
 
         // Separator
-        JLabel separatorLabel = new JLabel("Software Details");
+        JLabel separatorLabel = new JLabel("Other Tables");
         separatorLabel.setFont(new Font("Arial", Font.BOLD, 14));
         separatorLabel.setAlignmentX(LEFT_ALIGNMENT);
         contentPanel.add(separatorLabel);
@@ -166,13 +166,21 @@ public class DeviceDetailsPanel extends JPanel {
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         contentScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        contentScrollPane.getHorizontalScrollBar().setUnitIncrement(20);
         add(contentScrollPane, BorderLayout.CENTER);
+
+        // Initialize with the first table if available
+        if (tableList.getModel().getSize() > 0) {
+            tableList.setSelectedIndex(0);
+        }
     }
 
     private JTextArea createInventorySpecsArea() {
         JTextArea specsArea = new JTextArea();
         specsArea.setEditable(false);
         specsArea.setFont(new Font("Arial", Font.PLAIN, 12));
+        specsArea.setBorder(javax.swing.BorderFactory.createTitledBorder("Inventory Specifications"));
+        specsArea.setAlignmentX(LEFT_ALIGNMENT);
         specsArea.setPreferredSize(new Dimension(CONTENT_WIDTH, SPECS_HEIGHT));
         specsArea.setMaximumSize(new Dimension(CONTENT_WIDTH, SPECS_HEIGHT));
         specsArea.setLineWrap(true);
