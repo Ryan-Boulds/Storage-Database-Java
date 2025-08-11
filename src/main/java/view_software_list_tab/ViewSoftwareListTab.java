@@ -28,7 +28,6 @@ public class ViewSoftwareListTab extends JPanel {
     private final JTextField searchField;
     private final JPanel mainPanel;
     private JPanel currentView;
-    private FilterPanel filterPanel;
     private JList<String> tableList;
 
     public ViewSoftwareListTab() {
@@ -67,8 +66,8 @@ public class ViewSoftwareListTab extends JPanel {
         searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
-        filterPanel = new FilterPanel(
-            (search, status, dept) -> updateTables(search, status, dept),
+        FilterPanel filterPanel = new FilterPanel(
+            (search, status, dept) -> updateTables(search),
             this::refreshDataAndTabs
         );
         searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
@@ -196,14 +195,6 @@ public class ViewSoftwareListTab extends JPanel {
 
     private void updateTableView(String tableName) {
         tableManager.setTableName(tableName);
-        mainPanel.remove(filterPanel.getPanel());
-        filterPanel = new FilterPanel(
-            (search, status, dept) -> updateTables(search, status, dept),
-            this::refreshDataAndTabs
-        );
-        mainPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
-        mainPanel.revalidate();
-        mainPanel.repaint();
         refreshDataAndTabs();
     }
 
@@ -216,52 +207,23 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager.refreshDataAndTabs();
     }
 
-    public void updateTables(String searchTerm, String status, String dept) {
+    public void updateTables(String searchTerm) {
         refreshDataAndTabs();
         String text = searchTerm.toLowerCase();
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
         if (sorter != null) {
             javax.swing.RowFilter<DefaultTableModel, Integer> filter = null;
-            if (!text.isEmpty() || !status.equals("All") || !dept.equals("All")) {
+            if (!text.isEmpty()) {
                 filter = new javax.swing.RowFilter<DefaultTableModel, Integer>() {
                     @Override
                     public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
-                        boolean matchesSearch = text.isEmpty();
-                        boolean matchesStatus = status.equals("All");
-                        boolean matchesDept = dept.equals("All");
-
-                        if (!text.isEmpty()) {
-                            for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
-                                Object value = entry.getValue(i);
-                                if (value != null && value.toString().toLowerCase().contains(text)) {
-                                    matchesSearch = true;
-                                    break;
-                                }
+                        for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
+                            Object value = entry.getValue(i);
+                            if (value != null && value.toString().toLowerCase().contains(text)) {
+                                return true;
                             }
                         }
-
-                        int statusIndex = getColumnIndex("Status");
-                        if (!status.equals("All") && statusIndex != -1) {
-                            Object value = entry.getValue(statusIndex);
-                            matchesStatus = value != null && value.toString().equals(status);
-                        }
-
-                        int deptIndex = getColumnIndex("Department");
-                        if (!dept.equals("All") && deptIndex != -1) {
-                            Object value = entry.getValue(deptIndex);
-                            matchesDept = value != null && value.toString().equals(dept);
-                        }
-
-                        return matchesSearch && matchesStatus && matchesDept;
-                    }
-
-                    private int getColumnIndex(String columnName) {
-                        for (int i = 0; i < table.getColumnCount(); i++) {
-                            if (table.getColumnName(i).equals(columnName)) {
-                                return i;
-                            }
-                        }
-                        return -1;
+                        return false;
                     }
                 };
             }
