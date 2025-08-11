@@ -3,15 +3,22 @@ package view_software_list_tab;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
+import utils.DatabaseUtils;
+import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
@@ -21,6 +28,8 @@ public class ViewSoftwareListTab extends JPanel {
     private final JTextField searchField;
     private final JPanel mainPanel;
     private JPanel currentView;
+    private FilterPanel filterPanel;
+    private JList<String> tableList;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -58,14 +67,24 @@ public class ViewSoftwareListTab extends JPanel {
         searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
-        FilterPanel filterPanel = new FilterPanel(
+        filterPanel = new FilterPanel(
             (search, status, dept) -> updateTables(search, status, dept),
             this::refreshDataAndTabs
         );
         searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
 
-        mainPanel.add(searchPanel, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        splitPane.setDividerLocation(200);
+
+        JScrollPane listScrollPane = createTableListScrollPane();
+        splitPane.setLeftComponent(listScrollPane);
+
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(searchPanel, BorderLayout.NORTH);
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+        splitPane.setRightComponent(tablePanel);
+
+        mainPanel.add(splitPane, BorderLayout.CENTER);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
 
@@ -135,6 +154,57 @@ public class ViewSoftwareListTab extends JPanel {
 
         PopupHandler.addTablePopup(table, this, tableManager);
         initialize();
+    }
+
+    private JScrollPane createTableListScrollPane() {
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        try {
+            List<String> tableNames = DatabaseUtils.getTableNames();
+            List<String> excluded = TablesNotIncludedList.getExcludedTablesForSoftwareImporter();
+            for (String table : tableNames) {
+                if (!excluded.contains(table)) {
+                    listModel.addElement(table);
+                }
+            }
+            if (listModel.isEmpty()) {
+                listModel.addElement("No tables available");
+            }
+        } catch (SQLException e) {
+            System.err.println("ViewSoftwareListTab: Error fetching table names: " + e.getMessage());
+            listModel.addElement("Error: " + e.getMessage());
+        }
+
+        tableList = new JList<>(listModel);
+        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableList.setFixedCellWidth(180);
+        tableList.setFixedCellHeight(25);
+
+        tableList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedTable = tableList.getSelectedValue();
+                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
+                    updateTableView(selectedTable);
+                }
+            }
+        });
+
+        // Initial selection
+        tableList.setSelectedValue("Inventory", true);
+
+        return new JScrollPane(tableList);
+    }
+
+    private void updateTableView(String tableName) {
+        tableManager.setTableName(tableName);
+        mainPanel.remove(filterPanel.getPanel());
+        filterPanel = new FilterPanel(
+            (search, status, dept) -> updateTables(search, status, dept),
+            this::refreshDataAndTabs
+        );
+        mainPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        refreshDataAndTabs();
     }
 
     private void initialize() {
