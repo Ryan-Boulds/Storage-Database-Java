@@ -12,20 +12,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
 import utils.TablesNotIncludedList;
-import utils.UIComponentUtils;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewSoftwareListTab extends JPanel {
     private final JTable table;
     private final TableManager tableManager;
-    private final JTextField searchField;
     private final JPanel mainPanel;
     private JPanel currentView;
     private JList<String> tableList;
@@ -45,32 +42,10 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JPanel searchPanel = new JPanel(new BorderLayout(10, 10));
-        searchField = UIComponentUtils.createFormattedTextField();
-        searchField.setPreferredSize(new java.awt.Dimension(200, 30));
-        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
-            private void filterTable() {
-                String text = searchField.getText().toLowerCase();
-                TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
-                if (sorter != null) {
-                    sorter.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + text));
-                }
-            }
-        });
-        searchPanel.add(UIComponentUtils.createAlignedLabel("Search:"), BorderLayout.WEST);
-        searchPanel.add(searchField, BorderLayout.CENTER);
-
         FilterPanel filterPanel = new FilterPanel(
             (search, status, dept) -> updateTables(search),
             this::refreshDataAndTabs
         );
-        searchPanel.add(filterPanel.getPanel(), BorderLayout.SOUTH);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         splitPane.setDividerLocation(200);
@@ -79,7 +54,7 @@ public class ViewSoftwareListTab extends JPanel {
         splitPane.setLeftComponent(listScrollPane);
 
         JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(searchPanel, BorderLayout.NORTH);
+        tablePanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         splitPane.setRightComponent(tablePanel);
 
