@@ -26,7 +26,6 @@ import utils.UIComponentUtils;
 public class DatabaseCreatorTab extends JPanel {
     private final JTextField dbPathField;
     private final JLabel statusLabel;
-    private static final String DEFAULT_DB_PATH = "C:\\Users\\ami6985\\OneDrive - AISIN WORLD CORP\\Documents\\InventoryManagement.accdb";
 
     public DatabaseCreatorTab() {
         setLayout(new BorderLayout(10, 10));
@@ -35,11 +34,16 @@ public class DatabaseCreatorTab extends JPanel {
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         dbPathField = UIComponentUtils.createFormattedTextField();
         dbPathField.setColumns(30);
-        dbPathField.setText(DEFAULT_DB_PATH);
+        dbPathField.setText(DatabaseUtils.getDatabasePath());
         JButton browseButton = UIComponentUtils.createFormattedButton("Browse");
         browseButton.addActionListener(e -> browseDatabaseFile());
         JButton createButton = UIComponentUtils.createFormattedButton("Create Tables");
-        createButton.addActionListener(e -> createMissingTables());
+        createButton.addActionListener(e -> {
+            try {
+                createMissingTables();
+            } catch (SQLException ex) {
+            }
+        });
         JButton designButton = UIComponentUtils.createFormattedButton("Design Database");
         designButton.addActionListener(e -> designDatabase());
         inputPanel.add(new JLabel("Database Path:"));
@@ -64,9 +68,16 @@ public class DatabaseCreatorTab extends JPanel {
     private void initializeDatabase() {
         if (validateDatabasePath()) {
             DatabaseUtils.setDatabasePath(dbPathField.getText().trim());
-            createMissingTables();
+            try {
+                createMissingTables();
+                statusLabel.setText("Database initialized successfully.");
+            } catch (SQLException e) {
+                statusLabel.setText("Error: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error initializing database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
-            statusLabel.setText("Invalid database path. Please select a valid .accdb file.");
+            statusLabel.setText("No database path set. Please select a valid .accdb file.");
+            JOptionPane.showMessageDialog(this, "Please select a valid .accdb file to initialize the database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -91,15 +102,20 @@ public class DatabaseCreatorTab extends JPanel {
             dbPathField.setText(selectedFile.getAbsolutePath());
             DatabaseUtils.setDatabasePath(selectedFile.getAbsolutePath());
             statusLabel.setText("Selected database: " + selectedFile.getName());
-            createMissingTables();
+            try {
+                createMissingTables();
+                statusLabel.setText("Database initialized successfully.");
+            } catch (SQLException e) {
+                statusLabel.setText("Error: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Error initializing database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
-    public void createMissingTables() {
+    public void createMissingTables() throws SQLException {
         if (!validateDatabasePath()) {
             statusLabel.setText("Invalid database path.");
-            JOptionPane.showMessageDialog(this, "Please enter a valid .accdb file path.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            throw new SQLException("Please enter a valid .accdb file path.");
         }
 
         try (Connection conn = DatabaseUtils.getConnection()) {
@@ -110,10 +126,9 @@ public class DatabaseCreatorTab extends JPanel {
             createAdaptersTable(conn, metaData);
             createTemplatesTable(conn, metaData);
             statusLabel.setText("Tables checked/created successfully.");
-            JOptionPane.showMessageDialog(this, "Database tables checked and created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
             statusLabel.setText("Error: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error creating tables: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            throw e;
         }
     }
 

@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DatabaseUtils {
-    private static String DB_URL = "jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb";
+    private static String DB_URL = null;
     private static final Logger LOGGER = Logger.getLogger(DatabaseUtils.class.getName());
 
     public static void setDatabasePath(String path) {
@@ -27,7 +27,18 @@ public class DatabaseUtils {
         LOGGER.log(Level.INFO, "Database path set to: {0}", DB_URL);
     }
 
+    public static String getDatabasePath() {
+        if (DB_URL == null || DB_URL.isEmpty()) {
+            return "";
+        }
+        return DB_URL.replace("jdbc:ucanaccess://", "").replace("/", "\\");
+    }
+
     public static Connection getConnection() throws SQLException {
+        if (DB_URL == null || DB_URL.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Database path not set");
+            throw new SQLException("Database path not set. Please select a database file.");
+        }
         LOGGER.log(Level.INFO, "Connecting to database: {0}", DB_URL);
         return DriverManager.getConnection(DB_URL);
     }
@@ -309,7 +320,7 @@ public class DatabaseUtils {
 
     public static List<String> getDeviceTypes(String tableName) throws SQLException {
         Set<String> deviceTypes = new HashSet<>();
-        String sql = "SELECT [Device_Type] FROM [" + tableName + "] WHERE [Device_Type] IS NOT NULL";
+        String sql = "SELECT Device_Type FROM [" + tableName + "]";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 String type = rs.getString("Device_Type");

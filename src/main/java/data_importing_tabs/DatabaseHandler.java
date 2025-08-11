@@ -74,7 +74,7 @@ public class DatabaseHandler {
         List<DataEntry> devices = new ArrayList<>();
         try {
             List<HashMap<String, String>> deviceList = DatabaseUtils.loadDevices(tableName);
-            String[] columns = (String[]) DatabaseUtils.getInventoryColumnNames(tableName).toArray(new String[0]);
+            String[] columns = DatabaseUtils.getInventoryColumnNames(tableName).toArray(new String[0]);
             for (HashMap<String, String> device : deviceList) {
                 String[] values = new String[columns.length];
                 for (int i = 0; i < columns.length; i++) {
