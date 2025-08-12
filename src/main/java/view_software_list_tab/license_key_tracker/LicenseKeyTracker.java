@@ -1,157 +1,115 @@
-// New file: view_software_list_tab/license_key_tracker/LicenseKeyTracker.java
 package view_software_list_tab.license_key_tracker;
 
 import java.awt.BorderLayout;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.ListSelectionModel;
 
 import utils.DatabaseUtils;
-import utils.UIComponentUtils;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
+import view_software_list_tab.TableManager;
 
 public class LicenseKeyTracker extends JDialog {
-    private final String tableName;
-    private JList<String> keyList;
-    private JTable detailTable;
-    private DefaultListModel<String> keyModel;
+    private final JList<String> keyList;
+    private final DefaultListModel<String> keyListModel;
+    private final TableManager tableManager;
+    private final Map<String, Integer> keyUsageCounts;
+    private final Map<String, Integer> keyUsageLimits;
 
-    public LicenseKeyTracker(JFrame parent, String tableName) {
-        super(parent, "License Key Tracker - " + tableName, false);
-        this.tableName = tableName;
-        buildUI();
-        loadKeys();
+    public LicenseKeyTracker(JFrame parent, TableManager tableManager) {
+        super(parent, "License Key Tracker", true);
+        this.tableManager = tableManager;
+        this.keyUsageCounts = new HashMap<>();
+        this.keyUsageLimits = new HashMap<>();
+        this.keyListModel = new DefaultListModel<>();
+        this.keyList = new JList<>(keyListModel);
+        initializeUI();
+        loadLicenseKeys();
     }
 
-    private void buildUI() {
-        JPanel content = new JPanel(new BorderLayout());
+    private void initializeUI() {
+        setLayout(new BorderLayout());
+        setSize(600, 400);
+        setLocationRelativeTo(null);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-        split.setDividerLocation(300);
-
-        JPanel left = new JPanel(new BorderLayout());
-        keyModel = new DefaultListModel<>();
-        keyList = new JList<>(keyModel);
-        JScrollPane keyScroll = new JScrollPane(keyList);
-        left.add(keyScroll, BorderLayout.CENTER);
-
-        JButton rulesButton = UIComponentUtils.createFormattedButton("Key Rules");
-        rulesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                KeyRulesDialog settings = new KeyRulesDialog(LicenseKeyTracker.this);
-                settings.setLocationRelativeTo(LicenseKeyTracker.this);
-                settings.setVisible(true);
-            }
-        });
-        left.add(rulesButton, BorderLayout.NORTH);
-
-        split.setLeftComponent(left);
-
-        detailTable = new JTable();
-        JScrollPane detailScroll = new JScrollPane(detailTable);
-        split.setRightComponent(detailScroll);
-
-        content.add(split, BorderLayout.CENTER);
-        setContentPane(content);
-
-        keyList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    String selectedItem = keyList.getSelectedValue();
-                    if (selectedItem != null) {
-                        String selectedKey = selectedItem.substring(0, selectedItem.lastIndexOf(" ("));
-                        loadDetails(selectedKey);
-                    }
+        keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        keyList.setFixedCellWidth(180);
+        keyList.setFixedCellHeight(25);
+        keyList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedKey = keyList.getSelectedValue();
+                if (selectedKey != null && !selectedKey.startsWith("Error")) {
+                    showKeyDetails(selectedKey);
                 }
             }
         });
+
+        JScrollPane listScrollPane = new JScrollPane(keyList);
+        add(listScrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JButton settingsButton = new JButton("Key Rules");
+        settingsButton.addActionListener(e -> openSettingsDialog());
+        buttonPanel.add(settingsButton, BorderLayout.WEST);
+
+        JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(e -> dispose());
+        buttonPanel.add(closeButton, BorderLayout.EAST);
+
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void loadKeys() {
-        keyModel.clear();
+    private void loadLicenseKeys() {
+        keyListModel.clear();
+        keyUsageCounts.clear();
+        String tableName = tableManager.getTableName();
         try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(
-                 "SELECT License_Key, COUNT(*) as count FROM " + tableName + 
-                 " WHERE License_Key IS NOT NULL GROUP BY License_Key ORDER BY License_Key")) {
-            ResultSet rs = pstmt.executeQuery();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT License_Key, COUNT(*) as usage_count FROM " + tableName + " WHERE License_Key IS NOT NULL AND License_Key != '' GROUP BY License_Key")) {
             while (rs.next()) {
-                String key = rs.getString("License_Key");
-                int count = rs.getInt("count");
-                keyModel.addElement(key + " (" + count + ")");
+                String licenseKey = rs.getString("License_Key");
+                int count = rs.getInt("usage_count");
+                keyUsageCounts.put(licenseKey, count);
+                keyListModel.addElement(licenseKey + (isViolation(licenseKey, count) ? " (Violation)" : ""));
+            }
+            if (keyListModel.isEmpty()) {
+                keyListModel.addElement("No license keys found");
+            } else {
+                keyList.setSelectedIndex(0);
             }
         } catch (SQLException e) {
-            System.err.println("LicenseKeyTracker: Error loading keys for table " + tableName + ": " + e.getMessage());
+            keyListModel.addElement("Error: " + e.getMessage());
+            System.err.println("LicenseKeyTracker: Error fetching license keys: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error fetching license keys: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void loadDetails(String selectedKey) {
-        DefaultTableModel model = new DefaultTableModel();
-        Map<String, Integer> colTypes = new HashMap<>();
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE License_Key = ?")) {
-            pstmt.setString(1, selectedKey);
-            ResultSet rs = pstmt.executeQuery();
-            ResultSetMetaData meta = rs.getMetaData();
-            int colCount = meta.getColumnCount();
-            for (int i = 1; i <= colCount; i++) {
-                String colName = meta.getColumnName(i);
-                model.addColumn(colName);
-                colTypes.put(colName, meta.getColumnType(i));
-            }
+    private boolean isViolation(String licenseKey, int usageCount) {
+        int limit = keyUsageLimits.getOrDefault(licenseKey, 10);
+        return usageCount > limit;
+    }
 
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-            inputFormat.setLenient(false);
+    private void openSettingsDialog() {
+        LicenseKeySettingsDialog settingsDialog = new LicenseKeySettingsDialog(this, keyUsageLimits);
+        settingsDialog.showDialog();
+        loadLicenseKeys();
+    }
 
-            while (rs.next()) {
-                Object[] row = new Object[colCount];
-                for (int i = 1; i <= colCount; i++) {
-                    String colName = meta.getColumnName(i);
-                    Integer sqlType = colTypes.get(colName);
-                    String value = rs.getString(i);
-                    if (value != null && (sqlType == Types.DATE || sqlType == Types.TIMESTAMP ||
-                        colName.equals("Warranty_Expiry_Date") || colName.equals("Last_Maintenance") ||
-                        colName.equals("Maintenance_Due") || colName.equals("Date_Of_Purchase"))) {
-                        try {
-                            row[i - 1] = outputFormat.format(inputFormat.parse(value));
-                        } catch (ParseException e) {
-                            row[i - 1] = value;
-                        }
-                    } else {
-                        row[i - 1] = value;
-                    }
-                }
-                model.addRow(row);
-            }
-            detailTable.setModel(model);
-            detailTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            // Optional: adjust column widths similar to TableManager
-        } catch (SQLException e) {
-            System.err.println("LicenseKeyTracker: Error loading details for key " + selectedKey + " in table " + tableName + ": " + e.getMessage());
-        }
+    private void showKeyDetails(String licenseKey) {
+        String cleanKey = licenseKey.replace(" (Violation)", "");
+        LicenseKeyDetailsPanel detailsPanel = new LicenseKeyDetailsPanel(this, cleanKey, tableManager);
+        detailsPanel.showPanel();
     }
 }

@@ -37,7 +37,7 @@ public class TableManager {
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
-        this.tableName = tableName != null ? tableName : "Inventory"; // Fallback to Inventory if null
+        this.tableName = tableName != null ? tableName : "Inventory";
         this.model = new DefaultTableModel();
         this.columnTypes = new HashMap<>();
         if (table != null) {
@@ -49,9 +49,12 @@ public class TableManager {
         }
     }
 
-    // Constructor for backward compatibility
     public TableManager(JTable table) {
         this(table, "Inventory");
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public void setTableName(String tableName) {
@@ -89,12 +92,11 @@ public class TableManager {
                 columnTypes.clear();
             }
 
-            // Apply renderer and editor after adding all columns
             if (table.getColumnModel().getColumnCount() > 0) {
                 TableColumn editColumn = table.getColumnModel().getColumn(0);
                 editColumn.setCellRenderer(new RowEditButtonRenderer());
                 editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-                editColumn.setPreferredWidth(100); // Set a reasonable width for visibility
+                editColumn.setPreferredWidth(100);
             }
         }
     }

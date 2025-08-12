@@ -9,27 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
 import utils.TablesNotIncludedList;
+import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewSoftwareListTab extends JPanel {
-
     private final JTable table;
     private final TableManager tableManager;
     private final JPanel mainPanel;
     private JPanel currentView;
-    private JList<String> tableList;
-
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
 
@@ -57,7 +58,14 @@ public class ViewSoftwareListTab extends JPanel {
         splitPane.setLeftComponent(listScrollPane);
 
         JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
+        JPanel topPanel = new JPanel(new BorderLayout());
+        JButton licenseKeyButton = new JButton("License Key Tracker");
+        licenseKeyButton.addActionListener(e -> {
+            showLicenseKeyTracker();
+        });
+        topPanel.add(licenseKeyButton, BorderLayout.WEST);
+        topPanel.add(filterPanel.getPanel(), BorderLayout.CENTER);
+        tablePanel.add(topPanel, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         splitPane.setRightComponent(tablePanel);
 
@@ -145,6 +153,11 @@ public class ViewSoftwareListTab extends JPanel {
         initialize();
     }
 
+    private void showLicenseKeyTracker() {
+        LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
+        tracker.setVisible(true);
+    }
+
     private JScrollPane createTableListScrollPane() {
         DefaultListModel<String> listModel = new DefaultListModel<>();
         try {
@@ -156,7 +169,6 @@ public class ViewSoftwareListTab extends JPanel {
                     validTables.add(table);
                 }
             }
-            // Sort tables alphabetically
             validTables.sort(String::compareToIgnoreCase);
             for (String table : validTables) {
                 listModel.addElement(table);
@@ -169,26 +181,25 @@ public class ViewSoftwareListTab extends JPanel {
             listModel.addElement("Error: " + e.getMessage());
         }
 
-        tableList = new JList<>(listModel);
-        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableList.setFixedCellWidth(180);
-        tableList.setFixedCellHeight(25);
+        JList<String> localTableList = new JList<>(listModel);
+        localTableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        localTableList.setFixedCellWidth(180);
+        localTableList.setFixedCellHeight(25);
 
-        tableList.addListSelectionListener(e -> {
+        localTableList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                String selectedTable = tableList.getSelectedValue();
+                String selectedTable = localTableList.getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     updateTableView(selectedTable);
                 }
             }
         });
 
-        // Select the first table alphabetically if available
         if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
-            tableList.setSelectedIndex(0);
+            localTableList.setSelectedIndex(0);
         }
 
-        return new JScrollPane(tableList);
+        return new JScrollPane(localTableList);
     }
 
     private void updateTableView(String tableName) {
@@ -205,6 +216,7 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager.refreshDataAndTabs();
     }
 
+    @SuppressWarnings("unchecked")
     public void updateTables(String searchTerm) {
         refreshDataAndTabs();
         String text = searchTerm.toLowerCase();

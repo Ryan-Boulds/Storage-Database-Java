@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
@@ -44,6 +46,11 @@ public class ModifyDialog {
         this.tableManager = tableManager;
         this.columnNames = tableManager.getColumns();
         this.columnTypes = tableManager.getColumnTypes();
+
+        dialog = new JDialog(parent, "Modify Device", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(600, 800);
+        dialog.setLocationRelativeTo(parent);
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -103,54 +110,91 @@ public class ModifyDialog {
                 textField.setPreferredSize(new java.awt.Dimension(200, 30));
                 if (fieldName.equals(primaryKeyColumn)) {
                     textField.setEditable(false);
+                    textField.setBackground(Color.LIGHT_GRAY);
                 }
                 input = textField;
             }
-            panel.add(input, gbc);
             inputs[i] = input;
+            panel.add(input, gbc);
         }
 
-        JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        dialog = new JDialog(parent, "Modify Device", true);
-        dialog.setLayout(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane(panel);
         dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.setSize(800, Math.min(600, 100 + 40 * columnNames.length));
-        dialog.setResizable(true);
-        dialog.setLocationRelativeTo(parent);
 
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        JPanel rightPanel = new JPanel(new BorderLayout());
-
-        JButton saveButton = UIComponentUtils.createFormattedButton("Save");
-        JButton cancelButton = UIComponentUtils.createFormattedButton("Cancel");
-        JButton deleteButton = new JButton("Delete Device");
-        deleteButton.setBackground(Color.RED);
-        deleteButton.setForeground(Color.WHITE);
-
+        JPanel buttonPanel = new JPanel();
+        JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> saveAction());
+        buttonPanel.add(saveButton);
+
+        JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> cancelAction());
+        buttonPanel.add(cancelButton);
+
+        JButton deleteButton = new JButton("Delete");
         deleteButton.addActionListener(e -> deleteAction());
+        buttonPanel.add(deleteButton);
 
-        leftPanel.add(saveButton, BorderLayout.WEST);
-        rightPanel.add(cancelButton, BorderLayout.EAST);
-        rightPanel.add(deleteButton, BorderLayout.WEST);
-        buttonPanel.add(leftPanel, BorderLayout.WEST);
-        buttonPanel.add(rightPanel, BorderLayout.EAST);
+        JButton addColumnButton = new JButton("Add Column");
+        addColumnButton.addActionListener(e -> addColumnAction());
+        buttonPanel.add(addColumnButton);
+
+        JButton renameColumnButton = new JButton("Rename Column");
+        renameColumnButton.addActionListener(e -> renameColumnAction());
+        buttonPanel.add(renameColumnButton);
+
         dialog.add(buttonPanel, BorderLayout.SOUTH);
-    }
-
-    public void showDialog() {
         dialog.setVisible(true);
     }
 
     public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
-        String deviceType = device.getOrDefault("Device_Type", "Unknown");
-        ModifyDialog modifyDialog = new ModifyDialog(parent, device, deviceType, tableManager);
-        modifyDialog.showDialog();
+        new ModifyDialog(parent, device, "Inventory", tableManager);
+    }
+
+    private void addColumnAction() {
+        String columnName = JOptionPane.showInputDialog(dialog, "Enter new column name:");
+        if (columnName != null && !columnName.trim().isEmpty()) {
+            String tableName = tableManager.getTableName();
+            String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + columnName + "] VARCHAR(255)";
+            try (Connection conn = DatabaseUtils.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.executeUpdate();
+                JOptionPane.showMessageDialog(dialog, "Column added successfully");
+                dialog.dispose();
+                SwingUtilities.invokeLater(() -> {
+                    tableManager.setTableName(tableName);
+                    tableManager.refreshDataAndTabs();
+                });
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(dialog, "Error adding column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void renameColumnAction() {
+        String oldName = (String) JOptionPane.showInputDialog(dialog, "Select column to rename:", "Rename Column", JOptionPane.PLAIN_MESSAGE, null, columnNames, columnNames[0]);
+        if (oldName != null) {
+            if (oldName.equals(primaryKeyColumn)) {
+                JOptionPane.showMessageDialog(dialog, "Cannot rename primary key column", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String newName = JOptionPane.showInputDialog(dialog, "Enter new name for " + oldName + ":");
+            if (newName != null && !newName.trim().isEmpty()) {
+                String tableName = tableManager.getTableName();
+                String sql = "ALTER TABLE [" + tableName + "] RENAME COLUMN [" + oldName + "] TO [" + newName + "]";
+                try (Connection conn = DatabaseUtils.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.executeUpdate();
+                    JOptionPane.showMessageDialog(dialog, "Column renamed successfully");
+                    dialog.dispose();
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(dialog, "Error renaming column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     private void saveAction() {
@@ -168,27 +212,17 @@ public class ModifyDialog {
                 value = "";
             }
             updatedDevice.put(key, value);
-            System.out.println("ModifyDialog: Saving column " + key + " = " + value);
         }
 
-        boolean hasChanges = false;
-        for (String key : updatedDevice.keySet()) {
-            String original = originalValues.getOrDefault(key, "");
-            String updated = updatedDevice.getOrDefault(key, "");
-            if (!original.equals(updated)) {
-                hasChanges = true;
-                break;
-            }
-        }
-
-        if (hasChanges) {
+        if (updatedDevice.equals(originalValues)) {
             int confirm = JOptionPane.showConfirmDialog(
                 dialog,
-                "Are you sure you want to save?",
-                "Confirm Save",
+                "No changes detected. Do you want to close the dialog?",
+                "No Changes",
                 JOptionPane.YES_NO_OPTION
             );
-            if (confirm != JOptionPane.YES_OPTION) {
+            if (confirm == JOptionPane.YES_OPTION) {
+                dialog.dispose();
                 return;
             }
         } else {
