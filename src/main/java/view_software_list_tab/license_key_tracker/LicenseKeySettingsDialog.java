@@ -6,10 +6,10 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -17,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import utils.DatabaseUtils;
@@ -25,16 +24,14 @@ import view_software_list_tab.TableManager;
 
 public class LicenseKeySettingsDialog extends JDialog {
     private final TableManager tableManager;
-    private final Map<String, Integer> keyUsageLimits;
-    private final JTextField keyField;
     private final JSpinner limitSpinner;
+    private int usageLimit;
 
-    public LicenseKeySettingsDialog(JDialog parent, TableManager tableManager, Map<String, Integer> keyUsageLimits) {
+    public LicenseKeySettingsDialog(JDialog parent, TableManager tableManager, int usageLimit) {
         super(parent, "License Key Rules", true);
         this.tableManager = tableManager;
-        this.keyUsageLimits = keyUsageLimits;
-        this.keyField = new JTextField(20);
-        this.limitSpinner = new JSpinner(new SpinnerNumberModel(10, 1, Integer.MAX_VALUE, 1));
+        this.usageLimit = usageLimit;
+        this.limitSpinner = new JSpinner(new SpinnerNumberModel(usageLimit, 1, Integer.MAX_VALUE, 1));
         initializeUI();
     }
 
@@ -51,12 +48,6 @@ public class LicenseKeySettingsDialog extends JDialog {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        inputPanel.add(new JLabel("License Key:"), gbc);
-        gbc.gridx = 1;
-        inputPanel.add(keyField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
         inputPanel.add(new JLabel("Number of allowed uses:"), gbc);
         gbc.gridx = 1;
         limitSpinner.setEditor(new JSpinner.NumberEditor(limitSpinner, "#"));
@@ -76,11 +67,6 @@ public class LicenseKeySettingsDialog extends JDialog {
     }
 
     private void saveLimit() {
-        String key = keyField.getText().trim();
-        if (key.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a license key", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
         int limit;
         try {
             limitSpinner.commitEdit();
@@ -97,30 +83,30 @@ public class LicenseKeySettingsDialog extends JDialog {
         String tableName = tableManager.getTableName();
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement()) {
-            // Insert or update the LicenseKeyRules table
-            String sql = "INSERT INTO LicenseKeyRules (TableName, LicenseKey, UsageLimit) VALUES ('" +
-                         tableName.replace("'", "''") + "', '" +
-                         key.replace("'", "''") + "', " + limit + ")" +
-                         " ON DUPLICATE KEY UPDATE UsageLimit = " + limit;
-            try {
-                stmt.executeUpdate(sql);
-            } catch (SQLException e) {
-                // Fallback for Access (UCanAccess doesn't support ON DUPLICATE KEY UPDATE)
-                if (e.getMessage().contains("already exists")) {
-                    sql = "UPDATE LicenseKeyRules SET UsageLimit = " + limit +
-                          " WHERE TableName = '" + tableName.replace("'", "''") + "' AND LicenseKey = '" + key.replace("'", "''") + "'";
-                    stmt.executeUpdate(sql);
-                } else {
-                    throw e;
-                }
+            // Check if a record exists for the table
+            String checkSql = "SELECT COUNT(*) FROM LicenseKeyRules WHERE TableName = '" + tableName.replace("'", "''") + "'";
+            ResultSet rs = stmt.executeQuery(checkSql);
+            rs.next();
+            int count = rs.getInt(1);
+
+            String sql;
+            if (count > 0) {
+                // Update existing record
+                sql = "UPDATE LicenseKeyRules SET UsageLimit = " + limit +
+                      " WHERE TableName = '" + tableName.replace("'", "''") + "'";
+            } else {
+                // Insert new record
+                sql = "INSERT INTO LicenseKeyRules (TableName, UsageLimit) VALUES ('" +
+                      tableName.replace("'", "''") + "', " + limit + ")";
             }
-            keyUsageLimits.put(key, limit);
-            JOptionPane.showMessageDialog(this, "Usage limit saved for key: " + key, "Success", JOptionPane.INFORMATION_MESSAGE);
-            keyField.setText("");
-            limitSpinner.setValue(10);
+
+            stmt.executeUpdate(sql);
+            usageLimit = limit;
+            JOptionPane.showMessageDialog(this, "Usage limit saved: " + limit, "Success", JOptionPane.INFORMATION_MESSAGE);
+            limitSpinner.setValue(limit);
             dispose();
         } catch (SQLException e) {
-            System.err.println("LicenseKeySettingsDialog: Error saving to LicenseKeyRules for table '" + tableName + "', key '" + key + "': " + e.getMessage());
+            System.err.println("LicenseKeySettingsDialog: Error saving to LicenseKeyRules for table '" + tableName + "': " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error saving usage limit: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }

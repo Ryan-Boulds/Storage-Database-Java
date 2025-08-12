@@ -63,7 +63,7 @@ public class LicenseKeyDetailsPanel extends JDialog {
         String licenseKeyColumn = null;
         for (String column : columns) {
             if (column.equalsIgnoreCase("License_Key")) {
-                licenseKeyColumn = column; // Use exact column name
+                licenseKeyColumn = column;
                 break;
             }
         }
