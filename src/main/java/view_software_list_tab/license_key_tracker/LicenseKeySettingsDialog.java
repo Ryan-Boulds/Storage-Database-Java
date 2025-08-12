@@ -80,7 +80,6 @@ public class LicenseKeySettingsDialog extends JDialog {
         String tableName = tableManager.getTableName();
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement()) {
-            // Check if a record exists for the table
             String checkSql = "SELECT COUNT(*) FROM LicenseKeyRules WHERE TableName = '" + tableName.replace("'", "''") + "'";
             ResultSet rs = stmt.executeQuery(checkSql);
             rs.next();
@@ -88,11 +87,9 @@ public class LicenseKeySettingsDialog extends JDialog {
 
             String sql;
             if (count > 0) {
-                // Update existing record
                 sql = "UPDATE LicenseKeyRules SET UsageLimit = " + limit +
                       " WHERE TableName = '" + tableName.replace("'", "''") + "'";
             } else {
-                // Insert new record
                 sql = "INSERT INTO LicenseKeyRules (TableName, UsageLimit) VALUES ('" +
                       tableName.replace("'", "''") + "', " + limit + ")";
             }

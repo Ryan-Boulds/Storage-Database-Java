@@ -36,7 +36,8 @@ public class ViewSoftwareListTab extends JPanel {
     private JPanel currentView;
     private JScrollPane tableListScrollPane;
     private JList<String> tableList;
-    private JSplitPane mainSplitPane; // Store the main split pane
+    private JSplitPane mainSplitPane;
+    private ListSelectionListener originalTableListListener; // Store the original listener
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -258,7 +259,6 @@ public class ViewSoftwareListTab extends JPanel {
             return;
         }
 
-        // Create a new split pane for the LicenseKeyTracker view
         JSplitPane trackerSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         trackerSplitPane.setDividerLocation(200);
         trackerSplitPane.setLeftComponent(tableListScrollPane);
@@ -270,10 +270,7 @@ public class ViewSoftwareListTab extends JPanel {
         currentView.add(trackerSplitPane, BorderLayout.CENTER);
         add(currentView, BorderLayout.CENTER);
 
-        // Update table list selection listener to call updateTable on LicenseKeyTracker
-        tableList.clearSelection();
-        tableList.setSelectedValue(tableName, true);
-        // Remove existing listeners to avoid duplicates
+        // Remove existing listeners and add the tracker-specific listener
         for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
             tableList.removeListSelectionListener(listener);
         }
@@ -285,6 +282,9 @@ public class ViewSoftwareListTab extends JPanel {
                 }
             }
         });
+
+        tableList.clearSelection();
+        tableList.setSelectedValue(tableName, true);
 
         revalidate();
         repaint();
@@ -318,18 +318,19 @@ public class ViewSoftwareListTab extends JPanel {
         newTableList.setFixedCellWidth(180);
         newTableList.setFixedCellHeight(25);
 
-        newTableList.addListSelectionListener(e -> {
+        // Define and save the original listener
+        originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedTable = newTableList.getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     updateTableView(selectedTable);
                 }
             }
-        });
+        };
+        newTableList.addListSelectionListener(originalTableListListener);
 
         if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
             newTableList.setSelectedIndex(0);
-            // Explicitly set the initial table in TableManager
             String initialTable = newTableList.getSelectedValue();
             if (initialTable != null) {
                 tableManager.setTableName(initialTable);
@@ -350,7 +351,6 @@ public class ViewSoftwareListTab extends JPanel {
 
     private void initialize() {
         System.out.println("ViewSoftwareListTab: Initializing table");
-        // Moved table initialization to createTableListScrollPane to ensure selection triggers data load
     }
 
     public void refreshDataAndTabs() {
@@ -394,15 +394,23 @@ public class ViewSoftwareListTab extends JPanel {
         remove(currentView);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
-        // Ensure the table list is visible
         mainSplitPane.setLeftComponent(tableListScrollPane);
-        // Reselect the current table to trigger data refresh
+
+        // Remove existing listeners and restore the original listener
+        for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
+            tableList.removeListSelectionListener(listener);
+        }
+        tableList.addListSelectionListener(originalTableListListener);
+
+        // Reselect the current table and refresh data
         String currentTable = tableManager.getTableName();
         if (currentTable != null) {
             tableList.clearSelection();
             tableList.setSelectedValue(currentTable, true);
+            tableManager.setTableName(currentTable);
+            refreshDataAndTabs();
         }
-        refreshDataAndTabs();
+
         revalidate();
         repaint();
     }

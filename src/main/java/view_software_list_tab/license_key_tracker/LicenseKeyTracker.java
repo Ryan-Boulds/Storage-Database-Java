@@ -53,24 +53,20 @@ public class LicenseKeyTracker extends JPanel {
     }
 
     private void initializeUI() {
-        // Title with table name
         JLabel titleLabel = new JLabel("License Key Tracker: " + tableManager.getTableName());
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
-        // Close button
         JButton closeButton = new JButton("Close License Key Tracker");
         closeButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
         closeButton.addActionListener(e -> parentTab.showMainView());
 
-        // Top panel with title and close button
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.add(closeButton, BorderLayout.WEST);
         topPanel.add(titleLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        // List configuration
         keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        keyList.setFixedCellWidth(300); // Increased width to accommodate NumOfUses
+        keyList.setFixedCellWidth(300);
         keyList.setFixedCellHeight(25);
 
         keyList.setCellRenderer(new DefaultListCellRenderer() {
@@ -79,7 +75,6 @@ public class LicenseKeyTracker extends JPanel {
                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 String entry = value.toString();
                 
-                // Check if the entry is a valid license key entry (contains "NumOfUses")
                 if (entry.contains("NumOfUses")) {
                     String key = entry.substring(0, entry.indexOf(" NumOfUses")).trim();
                     Integer count = keyUsageCounts.getOrDefault(key, 0);
@@ -98,7 +93,6 @@ public class LicenseKeyTracker extends JPanel {
                         c.setForeground(Color.BLACK);
                     }
                 } else {
-                    // For error messages or other non-standard entries, use default colors
                     if (isSelected) {
                         c.setBackground(list.getSelectionBackground());
                         c.setForeground(list.getSelectionForeground());
@@ -111,16 +105,13 @@ public class LicenseKeyTracker extends JPanel {
             }
         });
 
-        // Scroll pane for the key list
         JScrollPane listScrollPane = new JScrollPane(keyList);
         listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         listScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         add(listScrollPane, BorderLayout.CENTER);
 
-        // Bottom panel for filter buttons and action buttons
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
-        // Filter buttons panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 12);
 
@@ -158,7 +149,6 @@ public class LicenseKeyTracker extends JPanel {
 
         bottomPanel.add(filterPanel, BorderLayout.NORTH);
 
-        // Action buttons panel
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         openButton = new JButton("Open Entries");
@@ -225,7 +215,6 @@ public class LicenseKeyTracker extends JPanel {
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
 
-        // Update title with current table name
         ((JLabel) ((JPanel) getComponent(0)).getComponent(1)).setText("License Key Tracker: " + tableName);
 
         String[] columns = tableManager.getColumns();
@@ -252,7 +241,7 @@ public class LicenseKeyTracker extends JPanel {
                     JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                     SwingUtilities.invokeLater(() -> {
                         tableManager.refreshDataAndTabs();
-                        loadLicenseKeys(); // Refresh the tracker to show the updated data
+                        loadLicenseKeys();
                     });
                 } catch (SQLException ex) {
                     System.err.println("LicenseKeyTracker: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
@@ -293,7 +282,6 @@ public class LicenseKeyTracker extends JPanel {
                 }
 
                 if (addKey) {
-                    // Format the entry with NumOfUses on the right
                     String formattedEntry = String.format("%-30s NumOfUses: %d%s", licenseKey, count, label);
                     keyListModel.addElement(formattedEntry);
                 }
@@ -317,7 +305,6 @@ public class LicenseKeyTracker extends JPanel {
     }
 
     private void showKeyDetails(String selectedKey) {
-        // Check if the selected entry is a valid license key entry
         if (selectedKey != null && selectedKey.contains("NumOfUses")) {
             String cleanKey = selectedKey.substring(0, selectedKey.indexOf(" NumOfUses")).trim();
             LicenseKeyDetailsPanel detailsPanel = new LicenseKeyDetailsPanel(null, cleanKey, tableManager);

@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-12T13:55:18</date>
-  <millis>1755024918111</millis>
+  <date>2025-08-12T14:03:39</date>
+  <millis>1755025419872</millis>
   <sequence>0</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -13,8 +13,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:18</date>
-  <millis>1755024918170</millis>
+  <date>2025-08-12T14:03:39</date>
+  <millis>1755025419932</millis>
   <sequence>1</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -24,8 +24,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:18</date>
-  <millis>1755024918171</millis>
+  <date>2025-08-12T14:03:39</date>
+  <millis>1755025419933</millis>
   <sequence>2</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -35,8 +35,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919451</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421608</millis>
   <sequence>3</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -46,8 +46,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919481</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421642</millis>
   <sequence>4</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -57,8 +57,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919494</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421654</millis>
   <sequence>5</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -68,8 +68,8 @@
   <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919516</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421676</millis>
   <sequence>6</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -79,8 +79,8 @@
   <message>loadDevices: Retrieved 321 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919519</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421679</millis>
   <sequence>7</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -90,8 +90,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919531</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421688</millis>
   <sequence>8</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -101,8 +101,8 @@
   <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919542</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421701</millis>
   <sequence>9</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -112,8 +112,8 @@
   <message>loadDevices: Retrieved 321 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919550</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421708</millis>
   <sequence>10</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -123,8 +123,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919561</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421719</millis>
   <sequence>11</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -134,8 +134,8 @@
   <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919569</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421726</millis>
   <sequence>12</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -145,8 +145,8 @@
   <message>loadDevices: Retrieved 321 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919592</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421747</millis>
   <sequence>13</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -156,8 +156,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919602</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421757</millis>
   <sequence>14</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -167,8 +167,8 @@
   <message>loadDevices: Columns fetched for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919608</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421763</millis>
   <sequence>15</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -178,8 +178,8 @@
   <message>loadDevices: Retrieved 321 devices from table Inventory</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919665</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421818</millis>
   <sequence>16</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -189,8 +189,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919709</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421859</millis>
   <sequence>17</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -200,8 +200,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919714</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421864</millis>
   <sequence>18</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -211,8 +211,8 @@
   <message>Retrieved table names: [ABCD, Accessories, Adapters, Cables, Chrome, demo, edge, egde, Inventory, LicenseKeyRules, Templates, test, testthis123]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919720</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421870</millis>
   <sequence>19</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -222,8 +222,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919750</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421903</millis>
   <sequence>20</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -233,8 +233,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919765</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421917</millis>
   <sequence>21</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -244,8 +244,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919792</millis>
+  <date>2025-08-12T14:03:41</date>
+  <millis>1755025421945</millis>
   <sequence>22</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -255,8 +255,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919877</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422047</millis>
   <sequence>23</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -266,8 +266,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919883</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422055</millis>
   <sequence>24</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -277,8 +277,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919895</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422073</millis>
   <sequence>25</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -288,8 +288,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919948</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422151</millis>
   <sequence>26</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -299,8 +299,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919951</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422155</millis>
   <sequence>27</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -310,8 +310,8 @@
   <message>Retrieved table names: [ABCD, Accessories, Adapters, Cables, Chrome, demo, edge, egde, Inventory, LicenseKeyRules, Templates, test, testthis123]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:19</date>
-  <millis>1755024919966</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422178</millis>
   <sequence>28</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -321,8 +321,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920016</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422219</millis>
   <sequence>29</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -332,8 +332,8 @@
   <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920022</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422226</millis>
   <sequence>30</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -343,8 +343,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920034</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422235</millis>
   <sequence>31</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -354,8 +354,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920046</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422243</millis>
   <sequence>32</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -365,8 +365,8 @@
   <message>Retrieved columns for table Inventory: [Status, Processor, Description, OS, Memory, Device_Type, Last_Successful_Scan, AssetName, IP_Address, Proc, Department, Username, Manufacturer, Model, Domain, SP, Location, Created_at, IPLocation, software]</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920048</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422245</millis>
   <sequence>33</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -376,8 +376,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:20</date>
-  <millis>1755024920051</millis>
+  <date>2025-08-12T14:03:42</date>
+  <millis>1755025422247</millis>
   <sequence>34</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -387,8 +387,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:22</date>
-  <millis>1755024922896</millis>
+  <date>2025-08-12T14:03:44</date>
+  <millis>1755025424479</millis>
   <sequence>35</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -398,8 +398,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:24</date>
-  <millis>1755024924303</millis>
+  <date>2025-08-12T14:03:45</date>
+  <millis>1755025425671</millis>
   <sequence>36</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -409,8 +409,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:24</date>
-  <millis>1755024924314</millis>
+  <date>2025-08-12T14:03:45</date>
+  <millis>1755025425682</millis>
   <sequence>37</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -420,8 +420,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:24</date>
-  <millis>1755024924830</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426218</millis>
   <sequence>38</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -431,8 +431,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:24</date>
-  <millis>1755024924836</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426232</millis>
   <sequence>39</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -442,8 +442,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:25</date>
-  <millis>1755024925200</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426240</millis>
   <sequence>40</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -453,8 +453,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:25</date>
-  <millis>1755024925205</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426245</millis>
   <sequence>41</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -464,8 +464,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:25</date>
-  <millis>1755024925601</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426248</millis>
   <sequence>42</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -475,8 +475,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:25</date>
-  <millis>1755024925605</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426943</millis>
   <sequence>43</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -486,8 +486,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:26</date>
-  <millis>1755024926606</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426948</millis>
   <sequence>44</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -497,8 +497,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:26</date>
-  <millis>1755024926610</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426964</millis>
   <sequence>45</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -508,8 +508,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927022</millis>
+  <date>2025-08-12T14:03:46</date>
+  <millis>1755025426972</millis>
   <sequence>46</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -519,8 +519,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927029</millis>
+  <date>2025-08-12T14:03:47</date>
+  <millis>1755025427870</millis>
   <sequence>47</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -530,8 +530,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927510</millis>
+  <date>2025-08-12T14:03:47</date>
+  <millis>1755025427874</millis>
   <sequence>48</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -541,8 +541,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927516</millis>
+  <date>2025-08-12T14:03:47</date>
+  <millis>1755025427878</millis>
   <sequence>49</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -552,8 +552,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927902</millis>
+  <date>2025-08-12T14:03:47</date>
+  <millis>1755025427885</millis>
   <sequence>50</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -563,8 +563,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:27</date>
-  <millis>1755024927907</millis>
+  <date>2025-08-12T14:03:47</date>
+  <millis>1755025427889</millis>
   <sequence>51</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -574,8 +574,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928190</millis>
+  <date>2025-08-12T14:03:48</date>
+  <millis>1755025428405</millis>
   <sequence>52</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -585,8 +585,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928194</millis>
+  <date>2025-08-12T14:03:48</date>
+  <millis>1755025428410</millis>
   <sequence>53</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -596,8 +596,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928829</millis>
+  <date>2025-08-12T14:03:48</date>
+  <millis>1755025428422</millis>
   <sequence>54</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -607,8 +607,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928837</millis>
+  <date>2025-08-12T14:03:48</date>
+  <millis>1755025428428</millis>
   <sequence>55</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -618,8 +618,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928843</millis>
+  <date>2025-08-12T14:03:49</date>
+  <millis>1755025429197</millis>
   <sequence>56</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -629,8 +629,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:28</date>
-  <millis>1755024928847</millis>
+  <date>2025-08-12T14:03:49</date>
+  <millis>1755025429201</millis>
   <sequence>57</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -640,8 +640,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:29</date>
-  <millis>1755024929598</millis>
+  <date>2025-08-12T14:03:49</date>
+  <millis>1755025429797</millis>
   <sequence>58</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -651,8 +651,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:29</date>
-  <millis>1755024929602</millis>
+  <date>2025-08-12T14:03:49</date>
+  <millis>1755025429800</millis>
   <sequence>59</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -662,8 +662,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:29</date>
-  <millis>1755024929605</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430197</millis>
   <sequence>60</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -673,8 +673,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930038</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430203</millis>
   <sequence>61</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -684,8 +684,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930043</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430518</millis>
   <sequence>62</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -695,8 +695,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930046</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430524</millis>
   <sequence>63</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -706,8 +706,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930462</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430911</millis>
   <sequence>64</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -717,8 +717,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930466</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430913</millis>
   <sequence>65</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -728,8 +728,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930468</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430916</millis>
   <sequence>66</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -739,8 +739,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930798</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430920</millis>
   <sequence>67</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -750,8 +750,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930806</millis>
+  <date>2025-08-12T14:03:50</date>
+  <millis>1755025430924</millis>
   <sequence>68</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -761,8 +761,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:30</date>
-  <millis>1755024930808</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431501</millis>
   <sequence>69</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -772,8 +772,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:31</date>
-  <millis>1755024931313</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431506</millis>
   <sequence>70</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -783,8 +783,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:31</date>
-  <millis>1755024931319</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431509</millis>
   <sequence>71</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -794,8 +794,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:31</date>
-  <millis>1755024931322</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431884</millis>
   <sequence>72</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -805,8 +805,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:31</date>
-  <millis>1755024931324</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431889</millis>
   <sequence>73</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -816,8 +816,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932253</millis>
+  <date>2025-08-12T14:03:51</date>
+  <millis>1755025431892</millis>
   <sequence>74</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -827,8 +827,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932258</millis>
+  <date>2025-08-12T14:03:52</date>
+  <millis>1755025432300</millis>
   <sequence>75</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -838,8 +838,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932260</millis>
+  <date>2025-08-12T14:03:52</date>
+  <millis>1755025432304</millis>
   <sequence>76</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -849,8 +849,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932719</millis>
+  <date>2025-08-12T14:03:52</date>
+  <millis>1755025432306</millis>
   <sequence>77</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -860,8 +860,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932722</millis>
+  <date>2025-08-12T14:03:52</date>
+  <millis>1755025432653</millis>
   <sequence>78</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -871,8 +871,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:32</date>
-  <millis>1755024932724</millis>
+  <date>2025-08-12T14:03:52</date>
+  <millis>1755025432657</millis>
   <sequence>79</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -882,8 +882,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933326</millis>
+  <date>2025-08-12T14:03:56</date>
+  <millis>1755025436278</millis>
   <sequence>80</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -893,8 +893,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933330</millis>
+  <date>2025-08-12T14:03:56</date>
+  <millis>1755025436280</millis>
   <sequence>81</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -904,8 +904,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933331</millis>
+  <date>2025-08-12T14:03:56</date>
+  <millis>1755025436282</millis>
   <sequence>82</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -915,8 +915,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933678</millis>
+  <date>2025-08-12T14:03:56</date>
+  <millis>1755025436283</millis>
   <sequence>83</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -926,8 +926,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933683</millis>
+  <date>2025-08-12T14:03:57</date>
+  <millis>1755025437116</millis>
   <sequence>84</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -937,9 +937,207 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-12T13:55:33</date>
-  <millis>1755024933685</millis>
+  <date>2025-08-12T14:03:57</date>
+  <millis>1755025437118</millis>
   <sequence>85</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:57</date>
+  <millis>1755025437781</millis>
+  <sequence>86</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:57</date>
+  <millis>1755025437788</millis>
+  <sequence>87</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438213</millis>
+  <sequence>88</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438218</millis>
+  <sequence>89</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438637</millis>
+  <sequence>90</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438642</millis>
+  <sequence>91</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438948</millis>
+  <sequence>92</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:58</date>
+  <millis>1755025438951</millis>
+  <sequence>93</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:59</date>
+  <millis>1755025439293</millis>
+  <sequence>94</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:59</date>
+  <millis>1755025439296</millis>
+  <sequence>95</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:59</date>
+  <millis>1755025439989</millis>
+  <sequence>96</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:03:59</date>
+  <millis>1755025439992</millis>
+  <sequence>97</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:00</date>
+  <millis>1755025440324</millis>
+  <sequence>98</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:00</date>
+  <millis>1755025440328</millis>
+  <sequence>99</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:00</date>
+  <millis>1755025440606</millis>
+  <sequence>100</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:00</date>
+  <millis>1755025440610</millis>
+  <sequence>101</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:01</date>
+  <millis>1755025441445</millis>
+  <sequence>102</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-12T14:04:01</date>
+  <millis>1755025441455</millis>
+  <sequence>103</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
