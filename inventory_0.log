@@ -2,432 +2,553 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-12T08:38:31</date>
-  <millis>1755005911540</millis>
-  <sequence>0</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415797</millis>
+  <sequence>355</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>29</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:31</date>
-  <millis>1755005911604</millis>
-  <sequence>1</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>29</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:31</date>
-  <millis>1755005911607</millis>
-  <sequence>2</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913141</millis>
-  <sequence>3</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913180</millis>
-  <sequence>4</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913198</millis>
-  <sequence>5</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913201</millis>
-  <sequence>6</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Retrieved 1 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913202</millis>
-  <sequence>7</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913218</millis>
-  <sequence>8</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913219</millis>
-  <sequence>9</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Retrieved 1 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913228</millis>
-  <sequence>10</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913235</millis>
-  <sequence>11</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913237</millis>
-  <sequence>12</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Retrieved 1 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913257</millis>
-  <sequence>13</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913268</millis>
-  <sequence>14</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913270</millis>
-  <sequence>15</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
-  <thread>29</thread>
-  <message>loadDevices: Retrieved 1 devices from table Inventory</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913291</millis>
-  <sequence>16</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913333</millis>
-  <sequence>17</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913337</millis>
-  <sequence>18</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getTableNames</method>
-  <thread>29</thread>
-  <message>Retrieved table names: [Accessories, Adapters, Cables, Inventory, Templates, TestTableName]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913354</millis>
-  <sequence>19</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913434</millis>
-  <sequence>20</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913443</millis>
-  <sequence>21</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913459</millis>
-  <sequence>22</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913521</millis>
-  <sequence>23</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913525</millis>
-  <sequence>24</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getTableNames</method>
-  <thread>29</thread>
-  <message>Retrieved table names: [Accessories, Adapters, Cables, Inventory, Templates, TestTableName]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913547</millis>
-  <sequence>25</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913568</millis>
-  <sequence>26</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913574</millis>
-  <sequence>27</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913607</millis>
-  <sequence>28</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913621</millis>
-  <sequence>29</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913627</millis>
-  <sequence>30</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:33</date>
-  <millis>1755005913631</millis>
-  <sequence>31</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-12T08:38:36</date>
-  <millis>1755005916023</millis>
-  <sequence>32</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Row 55 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:37</date>
-  <millis>1755005917544</millis>
-  <sequence>33</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415798</millis>
+  <sequence>356</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Row 56 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:37</date>
-  <millis>1755005917555</millis>
-  <sequence>34</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415798</millis>
+  <sequence>357</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Row 57 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:40</date>
-  <millis>1755005920825</millis>
-  <sequence>35</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415798</millis>
+  <sequence>358</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Row 58 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:40</date>
-  <millis>1755005920830</millis>
-  <sequence>36</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415799</millis>
+  <sequence>359</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>loadDevices: Columns fetched for table Inventory: [Device_Type, Device_Name, Brand, Model, Serial_Number, Building_Location, Room_Desk, Specification, Processor_Type, Storage_Capacity, Network_Address, OS_Version, Department, Added_Memory, Status, Assigned_User, Warranty_Expiry_Date, Last_Maintenance, Maintenance_Due, Date_Of_Purchase, Purchase_Cost, Vendor, Memory_RAM]</message>
+  <message>Row 59 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:40</date>
-  <millis>1755005920832</millis>
-  <sequence>37</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415799</millis>
+  <sequence>360</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>loadDevices</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>loadDevices: Retrieved 1 devices from table Inventory</message>
+  <message>Row 60 status computed as: white</message>
 </record>
 <record>
-  <date>2025-08-12T08:38:59</date>
-  <millis>1755005939494</millis>
-  <sequence>38</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415799</millis>
+  <sequence>361</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Row 61 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415799</millis>
+  <sequence>362</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 62 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415799</millis>
+  <sequence>363</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 63 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415800</millis>
+  <sequence>364</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 64 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415800</millis>
+  <sequence>365</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 65 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415800</millis>
+  <sequence>366</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 66 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415801</millis>
+  <sequence>367</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 67 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415801</millis>
+  <sequence>368</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 68 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415801</millis>
+  <sequence>369</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 69 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415801</millis>
+  <sequence>370</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 70 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415802</millis>
+  <sequence>371</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 71 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415802</millis>
+  <sequence>372</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 72 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415802</millis>
+  <sequence>373</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 73 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415802</millis>
+  <sequence>374</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 74 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415803</millis>
+  <sequence>375</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 75 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415803</millis>
+  <sequence>376</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 76 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415803</millis>
+  <sequence>377</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 77 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415804</millis>
+  <sequence>378</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 78 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415804</millis>
+  <sequence>379</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 79 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415804</millis>
+  <sequence>380</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 80 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415804</millis>
+  <sequence>381</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 81 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415805</millis>
+  <sequence>382</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 82 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415805</millis>
+  <sequence>383</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 83 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415805</millis>
+  <sequence>384</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 84 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415805</millis>
+  <sequence>385</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 85 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415806</millis>
+  <sequence>386</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 86 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415806</millis>
+  <sequence>387</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 87 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415806</millis>
+  <sequence>388</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 88 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415806</millis>
+  <sequence>389</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 89 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415806</millis>
+  <sequence>390</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 90 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415807</millis>
+  <sequence>391</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 91 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415807</millis>
+  <sequence>392</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 92 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415807</millis>
+  <sequence>393</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 93 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415807</millis>
+  <sequence>394</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 94 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415808</millis>
+  <sequence>395</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 95 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415808</millis>
+  <sequence>396</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 96 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415808</millis>
+  <sequence>397</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 97 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415808</millis>
+  <sequence>398</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 98 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415808</millis>
+  <sequence>399</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 99 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415809</millis>
+  <sequence>400</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 100 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415809</millis>
+  <sequence>401</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Row 101 status computed as: white</message>
+</record>
+<record>
+  <date>2025-08-12T08:46:55</date>
+  <millis>1755006415809</millis>
+  <sequence>402</sequence>
+  <logger>data_importing_tabs.DataDisplayManager</logger>
+  <level>INFO</level>
+  <class>data_importing_tabs.DataDisplayManager</class>
+  <method>displayData</method>
+  <thread>16</thread>
+  <message>Successfully displayed 102 rows for review in table ABCD.</message>
+</record>
+<record>
+  <date>2025-08-12T08:47:08</date>
+  <millis>1755006428745</millis>
+  <sequence>403</sequence>
+  <logger>inventory_data_importer.ui.MappingDialog</logger>
+  <level>INFO</level>
+  <class>inventory_data_importer.ui.MappingDialog</class>
+  <method>lambda$4</method>
+  <thread>16</thread>
+  <message>Mapping cancelled, mappings cleared.</message>
+</record>
+<record>
+  <date>2025-08-12T08:47:08</date>
+  <millis>1755006428755</millis>
+  <sequence>404</sequence>
+  <logger>inventory_data_importer.DataImporter</logger>
+  <level>WARNING</level>
+  <class>inventory_data_importer.DataImporter</class>
+  <method>importData</method>
+  <thread>16</thread>
+  <message>Mapping cancelled or no columns mapped.</message>
 </record>
 </log>

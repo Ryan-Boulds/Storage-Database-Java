@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -22,6 +23,7 @@ import utils.TablesNotIncludedList;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewSoftwareListTab extends JPanel {
+
     private final JTable table;
     private final TableManager tableManager;
     private final JPanel mainPanel;
@@ -44,8 +46,8 @@ public class ViewSoftwareListTab extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
 
         FilterPanel filterPanel = new FilterPanel(
-            (search, status, dept) -> updateTables(search),
-            this::refreshDataAndTabs
+                (search, status, dept) -> updateTables(search),
+                this::refreshDataAndTabs
         );
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -68,14 +70,18 @@ public class ViewSoftwareListTab extends JPanel {
             public void mousePressed(MouseEvent e) {
                 handleMouseEvent(e);
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 handleMouseEvent(e);
             }
+
             private void handleMouseEvent(MouseEvent e) {
                 int columnIndex = table.columnAtPoint(e.getPoint());
                 int rowIndex = table.rowAtPoint(e.getPoint());
-                if (rowIndex < 0 || columnIndex < 0) return;
+                if (rowIndex < 0 || columnIndex < 0) {
+                    return;
+                }
 
                 if (e.isPopupTrigger()) {
                     if (!table.isRowSelected(rowIndex)) {
@@ -144,10 +150,16 @@ public class ViewSoftwareListTab extends JPanel {
         try {
             List<String> tableNames = DatabaseUtils.getTableNames();
             List<String> excluded = TablesNotIncludedList.getExcludedTablesForSoftwareImporter();
+            List<String> validTables = new ArrayList<>();
             for (String table : tableNames) {
-                if (!excluded.contains(table)) {
-                    listModel.addElement(table);
+                if (!excluded.contains(table) && !table.equals("Inventory")) {
+                    validTables.add(table);
                 }
+            }
+            // Sort tables alphabetically
+            validTables.sort(String::compareToIgnoreCase);
+            for (String table : validTables) {
+                listModel.addElement(table);
             }
             if (listModel.isEmpty()) {
                 listModel.addElement("No tables available");
@@ -171,8 +183,10 @@ public class ViewSoftwareListTab extends JPanel {
             }
         });
 
-        // Initial selection
-        tableList.setSelectedValue("Chrome", true);
+        // Select the first table alphabetically if available
+        if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
+            tableList.setSelectedIndex(0);
+        }
 
         return new JScrollPane(tableList);
     }
