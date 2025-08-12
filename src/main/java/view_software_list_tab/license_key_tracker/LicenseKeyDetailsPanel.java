@@ -1,18 +1,25 @@
 package view_software_list_tab.license_key_tracker;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FontMetrics;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import view_software_list_tab.TableManager;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
 import utils.DatabaseUtils;
+import view_software_list_tab.TableManager;
 
 public class LicenseKeyDetailsPanel extends JDialog {
-    private final LicenseKeyTracker parent;
     private final String licenseKey;
     private final TableManager tableManager;
     private final JTable table;
@@ -20,7 +27,6 @@ public class LicenseKeyDetailsPanel extends JDialog {
 
     public LicenseKeyDetailsPanel(LicenseKeyTracker parent, String licenseKey, TableManager tableManager) {
         super(parent, "Details for License Key: " + licenseKey, true);
-        this.parent = parent;
         this.licenseKey = licenseKey;
         this.tableManager = tableManager;
         this.tableModel = new DefaultTableModel();
@@ -54,9 +60,23 @@ public class LicenseKeyDetailsPanel extends JDialog {
         }
 
         String tableName = tableManager.getTableName();
+        String licenseKeyColumn = null;
+        for (String column : columns) {
+            if (column.equalsIgnoreCase("License_Key")) {
+                licenseKeyColumn = column; // Use exact column name
+                break;
+            }
+        }
+
+        if (licenseKeyColumn == null) {
+            System.err.println("LicenseKeyDetailsPanel: License_Key column not found in table '" + tableName + "'");
+            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " WHERE License_Key = '" + licenseKey.replace("'", "''") + "'")) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " WHERE " + licenseKeyColumn + " = '" + licenseKey.replace("'", "''") + "'")) {
             while (rs.next()) {
                 Object[] row = new Object[columns.length];
                 for (int i = 0; i < columns.length; i++) {
@@ -65,7 +85,7 @@ public class LicenseKeyDetailsPanel extends JDialog {
                 tableModel.addRow(row);
             }
         } catch (SQLException e) {
-            System.err.println("LicenseKeyDetailsPanel: Error fetching entries for license key " + licenseKey + ": " + e.getMessage());
+            System.err.println("LicenseKeyDetailsPanel: Error fetching entries for license key " + licenseKey + " in table '" + tableName + "': " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error fetching entries: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 

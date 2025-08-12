@@ -81,6 +81,15 @@ public class ViewSoftwareListTab extends JPanel {
             String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
             if (newColumnName != null && !newColumnName.trim().isEmpty()) {
                 newColumnName = newColumnName.trim();
+                // Check for case-insensitive column existence
+                String[] columns = tableManager.getColumns();
+                for (String column : columns) {
+                    if (column.equalsIgnoreCase(newColumnName)) {
+                        JOptionPane.showMessageDialog(this, "Error: Column '" + newColumnName + "' already exists (case-insensitive)", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.err.println("ViewSoftwareListTab: Attempted to add existing column '" + newColumnName + "' to table '" + tableName + "'");
+                        return;
+                    }
+                }
                 try (Connection conn = DatabaseUtils.getConnection()) {
                     String sql = "ALTER TABLE " + tableName + " ADD " + newColumnName + " VARCHAR(255)";
                     conn.createStatement().executeUpdate(sql);
@@ -244,44 +253,45 @@ public class ViewSoftwareListTab extends JPanel {
         }
 
         String[] columns = tableManager.getColumns();
-        boolean hasLicenseKeyColumn = false;
+        String licenseKeyColumn = null;
         for (String column : columns) {
-            if (column.equals("License_Key")) {
-                hasLicenseKeyColumn = true;
+            if (column.equalsIgnoreCase("License_Key")) {
+                licenseKeyColumn = column; // Store actual column name for queries
                 break;
             }
         }
 
-        if (!hasLicenseKeyColumn) {
-            int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
-                "Add License Key Column",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
-                try (Connection conn = DatabaseUtils.getConnection()) {
-                    String sql = "ALTER TABLE " + tableName + " ADD License_Key VARCHAR(255)";
-                    conn.createStatement().executeUpdate(sql);
-                    JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    SwingUtilities.invokeLater(() -> {
-                        tableManager.setTableName(tableName);
-                        tableManager.refreshDataAndTabs();
-                        // Open LicenseKeyTracker after adding column
-                        LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
-                        tracker.setVisible(true);
-                    });
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("ViewSoftwareListTab: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
-                }
-            }
+        if (licenseKeyColumn != null) {
+            // Column exists (case-insensitive), proceed to open LicenseKeyTracker
+            LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
+            tracker.setVisible(true);
             return;
         }
 
-        LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
-        tracker.setVisible(true);
+        // Column doesn't exist, prompt to add it
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
+            "Add License Key Column",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection conn = DatabaseUtils.getConnection()) {
+                String sql = "ALTER TABLE " + tableName + " ADD License_Key VARCHAR(255)";
+                conn.createStatement().executeUpdate(sql);
+                JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                SwingUtilities.invokeLater(() -> {
+                    tableManager.setTableName(tableName);
+                    tableManager.refreshDataAndTabs();
+                    LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
+                    tracker.setVisible(true);
+                });
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
+            }
+        }
     }
 
     private JScrollPane createTableListScrollPane() {

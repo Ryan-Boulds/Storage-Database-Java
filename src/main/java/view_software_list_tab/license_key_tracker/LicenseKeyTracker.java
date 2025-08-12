@@ -36,6 +36,7 @@ public class LicenseKeyTracker extends JDialog {
         this.keyListModel = new DefaultListModel<>();
         this.keyList = new JList<>(keyListModel);
         initializeUI();
+        loadLicenseKeyRules(); // Load usage limits from LicenseKeyRules table
         loadLicenseKeys();
     }
 
@@ -60,7 +61,7 @@ public class LicenseKeyTracker extends JDialog {
         add(listScrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        JButton settingsButton = new JButton("Key Rules");
+        JButton settingsButton = new JButton("License Key Rules");
         settingsButton.addActionListener(e -> openSettingsDialog());
         buttonPanel.add(settingsButton, BorderLayout.WEST);
 
@@ -71,22 +72,52 @@ public class LicenseKeyTracker extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private void loadLicenseKeyRules() {
+        keyUsageLimits.clear();
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement()) {
+            // Create LicenseKeyRules table if it doesn't exist
+            String createTableSQL = "CREATE TABLE LicenseKeyRules (TableName VARCHAR(255), LicenseKey VARCHAR(255), UsageLimit INTEGER, PRIMARY KEY (TableName, LicenseKey))";
+            try {
+                stmt.executeUpdate(createTableSQL);
+                System.out.println("LicenseKeyTracker: Created LicenseKeyRules table");
+            } catch (SQLException e) {
+                if (!e.getMessage().contains("already exists")) {
+                    System.err.println("LicenseKeyTracker: Error creating LicenseKeyRules table: " + e.getMessage());
+                }
+            }
+
+            // Load usage limits for the current table
+            String tableName = tableManager.getTableName();
+            String sql = "SELECT LicenseKey, UsageLimit FROM LicenseKeyRules WHERE TableName = '" + tableName.replace("'", "''") + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                String licenseKey = rs.getString("LicenseKey");
+                int limit = rs.getInt("UsageLimit");
+                keyUsageLimits.put(licenseKey, limit);
+            }
+        } catch (SQLException e) {
+            System.err.println("LicenseKeyTracker: Error loading license key rules: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading license key rules: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadLicenseKeys() {
         keyListModel.clear();
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
 
-        // Check if License_Key column exists
+        // Find the actual License_Key column name (case-sensitive)
         String[] columns = tableManager.getColumns();
-        boolean hasLicenseKeyColumn = false;
+        String licenseKeyColumn = null;
         for (String column : columns) {
-            if (column.equals("License_Key")) {
-                hasLicenseKeyColumn = true;
+            if (column.equalsIgnoreCase("License_Key")) {
+                licenseKeyColumn = column; // Use the exact column name
                 break;
             }
         }
 
-        if (!hasLicenseKeyColumn) {
+        if (licenseKeyColumn == null) {
             keyListModel.addElement("Error: License_Key column not found in table '" + tableName + "'");
             System.err.println("LicenseKeyTracker: License_Key column not found in table '" + tableName + "'");
             JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
@@ -95,18 +126,18 @@ public class LicenseKeyTracker extends JDialog {
 
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT License_Key, COUNT(*) as usage_count FROM " + tableName + " WHERE License_Key IS NOT NULL AND License_Key != '' GROUP BY License_Key")) {
+             ResultSet rs = stmt.executeQuery("SELECT " + licenseKeyColumn + ", COUNT(*) as usage_count FROM " + tableName + " WHERE " + licenseKeyColumn + " IS NOT NULL AND " + licenseKeyColumn + " != '' GROUP BY " + licenseKeyColumn)) {
             while (rs.next()) {
-                String licenseKey = rs.getString("License_Key");
+                String licenseKey = rs.getString(licenseKeyColumn);
                 int count = rs.getInt("usage_count");
                 keyUsageCounts.put(licenseKey, count);
                 keyListModel.addElement(licenseKey + (isViolation(licenseKey, count) ? " (Violation)" : ""));
             }
             if (keyListModel.isEmpty()) {
                 keyListModel.addElement("No license keys found");
-            } else {
-                keyList.setSelectedIndex(0);
             }
+            // Ensure the list is shown initially without selecting an item
+            keyList.clearSelection();
         } catch (SQLException e) {
             keyListModel.addElement("Error: " + e.getMessage());
             System.err.println("LicenseKeyTracker: Error fetching license keys from table '" + tableName + "': " + e.getMessage());
@@ -120,9 +151,10 @@ public class LicenseKeyTracker extends JDialog {
     }
 
     private void openSettingsDialog() {
-        LicenseKeySettingsDialog settingsDialog = new LicenseKeySettingsDialog(this, keyUsageLimits);
+        LicenseKeySettingsDialog settingsDialog = new LicenseKeySettingsDialog(this, tableManager, keyUsageLimits);
         settingsDialog.showDialog();
-        loadLicenseKeys();
+        loadLicenseKeyRules(); // Reload rules after settings dialog closes
+        loadLicenseKeys(); // Refresh the list to reflect updated limits
     }
 
     private void showKeyDetails(String licenseKey) {

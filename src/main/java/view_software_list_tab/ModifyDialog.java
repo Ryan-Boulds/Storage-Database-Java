@@ -81,24 +81,7 @@ public class ModifyDialog extends JDialog {
 
             gbc.gridx = 1;
             gbc.weightx = 1;
-            if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP) {
-                JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
-                JTextField dateField = (JTextField) datePicker.getComponent(0);
-                dateField.setText(device.getOrDefault(key, ""));
-                dateField.setPreferredSize(new java.awt.Dimension(200, 30));
-                input = datePicker;
-            } else if (sqlType == Types.DOUBLE || sqlType == Types.FLOAT || 
-                       sqlType == Types.DECIMAL || sqlType == Types.NUMERIC) {
-                JTextField doubleField = UIComponentUtils.createFormattedTextField();
-                doubleField.setText(device.getOrDefault(key, ""));
-                doubleField.setPreferredSize(new java.awt.Dimension(200, 30));
-                input = doubleField;
-            } else if (sqlType == Types.BIT || sqlType == Types.BOOLEAN) {
-                JCheckBox checkBox = new JCheckBox();
-                checkBox.setSelected(Boolean.parseBoolean(device.getOrDefault(key, "false")));
-                checkBox.setPreferredSize(new java.awt.Dimension(200, 30));
-                input = checkBox;
-            } else {
+            if (null == sqlType) {
                 JTextField textField = UIComponentUtils.createFormattedTextField();
                 textField.setText(device.getOrDefault(key, ""));
                 textField.setPreferredSize(new java.awt.Dimension(200, 30));
@@ -107,6 +90,40 @@ public class ModifyDialog extends JDialog {
                     textField.setBackground(Color.LIGHT_GRAY);
                 }
                 input = textField;
+            } else switch (sqlType) {
+                case Types.DATE:
+                case Types.TIMESTAMP:
+                    JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
+                    JTextField dateField = (JTextField) datePicker.getComponent(0);
+                    dateField.setText(device.getOrDefault(key, ""));
+                    dateField.setPreferredSize(new java.awt.Dimension(200, 30));
+                    input = datePicker;
+                    break;
+                case Types.DOUBLE:
+                case Types.FLOAT:
+                case Types.DECIMAL:
+                case Types.NUMERIC:
+                    JTextField doubleField = UIComponentUtils.createFormattedTextField();
+                    doubleField.setText(device.getOrDefault(key, ""));
+                    doubleField.setPreferredSize(new java.awt.Dimension(200, 30));
+                    input = doubleField;
+                    break;
+                case Types.BIT:
+                case Types.BOOLEAN:
+                    JCheckBox checkBox = new JCheckBox();
+                    checkBox.setSelected(Boolean.parseBoolean(device.getOrDefault(key, "false")));
+                    checkBox.setPreferredSize(new java.awt.Dimension(200, 30));
+                    input = checkBox;
+                    break;
+                default:
+                    JTextField textField = UIComponentUtils.createFormattedTextField();
+                    textField.setText(device.getOrDefault(key, ""));
+                    textField.setPreferredSize(new java.awt.Dimension(200, 30));
+                    if (fieldName.equals(primaryKeyColumn)) {
+                        textField.setEditable(false);
+                        textField.setBackground(Color.LIGHT_GRAY);
+                    }   input = textField;
+                    break;
             }
             inputs[i] = input;
             panel.add(input, gbc);
