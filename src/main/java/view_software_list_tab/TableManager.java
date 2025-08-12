@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
@@ -34,6 +33,7 @@ public class TableManager {
     private final List<Integer> sortColumnIndices = new ArrayList<>();
     private final List<SortOrder> sortOrders = new ArrayList<>();
     private String tableName;
+    private String whereClause = "";
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
@@ -60,6 +60,10 @@ public class TableManager {
     public void setTableName(String tableName) {
         this.tableName = tableName != null ? tableName : "Inventory";
         initializeColumns();
+    }
+
+    public void setWhereClause(String whereClause) {
+        this.whereClause = whereClause;
     }
 
     private void initializeColumns() {
@@ -113,17 +117,16 @@ public class TableManager {
         if (table == null || table.getColumnModel() == null) {
             return;
         }
-        DefaultTableColumnModel columnModel = (DefaultTableColumnModel) table.getColumnModel();
         FontMetrics fontMetrics = table.getFontMetrics(table.getFont());
         int padding = 20;
-
-        for (int i = 0; i < columnModel.getColumnCount(); i++) {
-            TableColumn column = columnModel.getColumn(i);
-            String header = i == 0 ? "Edit" : columns[i - 1];
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            TableColumn column = table.getColumnModel().getColumn(i);
+            String header = table.getColumnName(i);
             int maxWidth = fontMetrics.stringWidth(header) + padding;
-
             if (i == 0) {
-                maxWidth = Math.max(maxWidth, fontMetrics.stringWidth("Edit") + padding + 20);
+                maxWidth = Math.max(maxWidth, 100);
+                column.setPreferredWidth(maxWidth);
+                continue;
             } else {
                 for (int row = 0; row < table.getRowCount(); row++) {
                     Object value = table.getValueAt(row, i);
@@ -151,7 +154,7 @@ public class TableManager {
         ArrayList<HashMap<String, String>> devices = new ArrayList<>();
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName)) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + (whereClause != null && !whereClause.isEmpty() ? " WHERE " + whereClause : ""))) {
             while (rs.next()) {
                 HashMap<String, String> device = new HashMap<>();
                 for (String column : columns) {

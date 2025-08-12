@@ -37,7 +37,7 @@ public class ViewSoftwareListTab extends JPanel {
     private JScrollPane tableListScrollPane;
     private JList<String> tableList;
     private JSplitPane mainSplitPane;
-    private ListSelectionListener originalTableListListener; // Store the original listener
+    private ListSelectionListener originalTableListListener;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -270,7 +270,6 @@ public class ViewSoftwareListTab extends JPanel {
         currentView.add(trackerSplitPane, BorderLayout.CENTER);
         add(currentView, BorderLayout.CENTER);
 
-        // Remove existing listeners and add the tracker-specific listener
         for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
             tableList.removeListSelectionListener(listener);
         }
@@ -318,7 +317,6 @@ public class ViewSoftwareListTab extends JPanel {
         newTableList.setFixedCellWidth(180);
         newTableList.setFixedCellHeight(25);
 
-        // Define and save the original listener
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedTable = newTableList.getSelectedValue();
@@ -396,13 +394,11 @@ public class ViewSoftwareListTab extends JPanel {
         add(currentView, BorderLayout.CENTER);
         mainSplitPane.setLeftComponent(tableListScrollPane);
 
-        // Remove existing listeners and restore the original listener
         for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
             tableList.removeListSelectionListener(listener);
         }
         tableList.addListSelectionListener(originalTableListListener);
 
-        // Reselect the current table and refresh data
         String currentTable = tableManager.getTableName();
         if (currentTable != null) {
             tableList.clearSelection();

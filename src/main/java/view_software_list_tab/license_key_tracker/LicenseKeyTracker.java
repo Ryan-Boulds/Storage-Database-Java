@@ -60,9 +60,17 @@ public class LicenseKeyTracker extends JPanel {
         closeButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
         closeButton.addActionListener(e -> parentTab.showMainView());
 
+        JButton undocumentedButton = new JButton("Undocumented Installations");
+        undocumentedButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        undocumentedButton.addActionListener(e -> {
+            UndocumentedInstallationsDialog dialog = new UndocumentedInstallationsDialog(parentTab, tableManager.getTableName());
+            dialog.setVisible(true);
+        });
+
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.add(closeButton, BorderLayout.WEST);
         topPanel.add(titleLabel, BorderLayout.CENTER);
+        topPanel.add(undocumentedButton, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
         keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -115,108 +123,90 @@ public class LicenseKeyTracker extends JPanel {
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 12);
 
-        JButton violationsButton = new JButton("Show Violations");
+        JButton allButton = new JButton("All");
+        allButton.setFont(buttonFont);
+        allButton.addActionListener(e -> setFilter("all"));
+
+        JButton violationsButton = new JButton("Violations");
         violationsButton.setFont(buttonFont);
-        violationsButton.addActionListener(e -> {
-            currentFilter = "violations";
-            loadLicenseKeys();
-        });
-        filterPanel.add(violationsButton);
+        violationsButton.addActionListener(e -> setFilter("violations"));
 
-        JButton maxUsageButton = new JButton("Show Maximum Usages");
-        maxUsageButton.setFont(buttonFont);
-        maxUsageButton.addActionListener(e -> {
-            currentFilter = "max";
-            loadLicenseKeys();
-        });
-        filterPanel.add(maxUsageButton);
+        JButton maxButton = new JButton("Max Utilized");
+        maxButton.setFont(buttonFont);
+        maxButton.addActionListener(e -> setFilter("max"));
 
-        JButton underutilizedButton = new JButton("Show Underutilized Keys");
+        JButton underutilizedButton = new JButton("Underutilized");
         underutilizedButton.setFont(buttonFont);
-        underutilizedButton.addActionListener(e -> {
-            currentFilter = "underutilized";
-            loadLicenseKeys();
-        });
+        underutilizedButton.addActionListener(e -> setFilter("underutilized"));
+
+        filterPanel.add(allButton);
+        filterPanel.add(violationsButton);
+        filterPanel.add(maxButton);
         filterPanel.add(underutilizedButton);
 
-        JButton allKeysButton = new JButton("Show All Keys");
-        allKeysButton.setFont(buttonFont);
-        allKeysButton.addActionListener(e -> {
-            currentFilter = "all";
-            loadLicenseKeys();
-        });
-        filterPanel.add(allKeysButton);
+        bottomPanel.add(filterPanel, BorderLayout.CENTER);
 
-        bottomPanel.add(filterPanel, BorderLayout.NORTH);
-
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        openButton = new JButton("Open Entries");
-        openButton.setFont(buttonFont);
-        openButton.setEnabled(false);
-        openButton.addActionListener(e -> {
-            String selectedKey = keyList.getSelectedValue();
-            if (selectedKey != null) {
-                showKeyDetails(selectedKey);
-            }
-        });
-        actionPanel.add(openButton);
-
-        JButton settingsButton = new JButton("License Key Rules");
+        JPanel settingsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton settingsButton = new JButton("Settings");
         settingsButton.setFont(buttonFont);
         settingsButton.addActionListener(e -> openSettingsDialog());
-        actionPanel.add(settingsButton);
 
-        bottomPanel.add(actionPanel, BorderLayout.CENTER);
+        openButton = new JButton("Open Selected");
+        openButton.setFont(buttonFont);
+        openButton.setEnabled(false);
+        openButton.addActionListener(e -> showKeyDetails(keyList.getSelectedValue()));
+
+        settingsPanel.add(settingsButton);
+        settingsPanel.add(openButton);
+
+        bottomPanel.add(settingsPanel, BorderLayout.EAST);
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        keyList.addListSelectionListener((ListSelectionEvent e) -> {
-            if (!e.getValueIsAdjusting()) {
-                String selectedValue = keyList.getSelectedValue();
-                openButton.setEnabled(selectedValue != null && selectedValue.contains("NumOfUses"));
+        keyList.addListSelectionListener(e -> updateOpenButton(e));
+    }
+
+    private void updateOpenButton(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            String selected = keyList.getSelectedValue();
+            openButton.setEnabled(selected != null && selected.contains("NumOfUses"));
+        }
+    }
+
+    private void setFilter(String filter) {
+        currentFilter = filter;
+        loadLicenseKeys();
+    }
+
+    private void loadLicenseKeyRules() {
+        String tableName = tableManager.getTableName();
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT UsageLimit FROM LicenseKeyRules WHERE TableName = '" + tableName.replace("'", "''") + "'")) {
+            if (rs.next()) {
+                usageLimit = rs.getInt("UsageLimit");
+            } else {
+                usageLimit = 10; // Default if no rule exists
             }
-        });
+        } catch (SQLException e) {
+            System.err.println("LicenseKeyTracker: Error loading LicenseKeyRules for table '" + tableName + "': " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading license key rules: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            usageLimit = 10;
+        }
     }
 
     public void updateTable(String tableName) {
         tableManager.setTableName(tableName);
         loadLicenseKeyRules();
         loadLicenseKeys();
-    }
-
-    private void loadLicenseKeyRules() {
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement()) {
-            String createTableSQL = "CREATE TABLE LicenseKeyRules (TableName VARCHAR(255), UsageLimit INTEGER, PRIMARY KEY (TableName))";
-            try {
-                stmt.executeUpdate(createTableSQL);
-                System.out.println("LicenseKeyTracker: Created LicenseKeyRules table");
-            } catch (SQLException e) {
-                if (!e.getMessage().contains("already exists")) {
-                    System.err.println("LicenseKeyTracker: Error creating LicenseKeyRules table: " + e.getMessage());
-                }
-            }
-
-            String tableName = tableManager.getTableName();
-            String sql = "SELECT UsageLimit FROM LicenseKeyRules WHERE TableName = '" + tableName.replace("'", "''") + "'";
-            ResultSet rs = stmt.executeQuery(sql);
-            if (rs.next()) {
-                usageLimit = rs.getInt("UsageLimit");
-            }
-        } catch (SQLException e) {
-            System.err.println("LicenseKeyTracker: Error loading license key rules: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error loading license key rules: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        JLabel titleLabel = (JLabel) ((JPanel) getComponent(0)).getComponent(1); // Update title
+        titleLabel.setText("License Key Tracker: " + tableName);
     }
 
     private void loadLicenseKeys() {
         keyListModel.clear();
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
-
-        ((JLabel) ((JPanel) getComponent(0)).getComponent(1)).setText("License Key Tracker: " + tableName);
-
         String[] columns = tableManager.getColumns();
         String licenseKeyColumn = null;
         for (String column : columns) {
