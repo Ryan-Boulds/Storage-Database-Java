@@ -113,6 +113,10 @@ public class MappingDialog {
             });
         }
 
+        JScrollPane mappingScrollPane = new JScrollPane(mappingPanel);
+        mappingScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mappingScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
         JPanel buttonPanel = new JPanel();
         JButton okButton = new JButton("Save Mappings");
         JButton cancelButton = new JButton("Cancel");
@@ -121,7 +125,7 @@ public class MappingDialog {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(previewScrollPane, BorderLayout.WEST);
-        mainPanel.add(mappingPanel, BorderLayout.CENTER);
+        mainPanel.add(mappingScrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Map Columns to Database Fields", true);
