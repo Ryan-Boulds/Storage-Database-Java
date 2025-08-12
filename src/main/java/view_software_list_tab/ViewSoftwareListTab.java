@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,6 +19,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -28,11 +28,15 @@ import utils.TablesNotIncludedList;
 import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
+@SuppressWarnings("this-escape")
 public class ViewSoftwareListTab extends JPanel {
     private final JTable table;
     private final TableManager tableManager;
     private final JPanel mainPanel;
     private JPanel currentView;
+    private JScrollPane tableListScrollPane;
+    private JList<String> tableList;
+    private JSplitPane mainSplitPane; // Store the main split pane
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -54,11 +58,14 @@ public class ViewSoftwareListTab extends JPanel {
                 this::refreshDataAndTabs
         );
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-        splitPane.setDividerLocation(200);
+        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        mainSplitPane.setDividerLocation(200);
 
-        JScrollPane listScrollPane = createTableListScrollPane();
-        splitPane.setLeftComponent(listScrollPane);
+        tableListScrollPane = createTableListScrollPane();
+        mainSplitPane.setLeftComponent(tableListScrollPane);
+        @SuppressWarnings("unchecked")
+        JList<String> newTableList = (JList<String>) tableListScrollPane.getViewport().getView();
+        tableList = newTableList;
 
         JPanel tablePanel = new JPanel(new BorderLayout());
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -81,7 +88,6 @@ public class ViewSoftwareListTab extends JPanel {
             String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
             if (newColumnName != null && !newColumnName.trim().isEmpty()) {
                 newColumnName = newColumnName.trim();
-                // Check for case-insensitive column existence
                 String[] columns = tableManager.getColumns();
                 for (String column : columns) {
                     if (column.equalsIgnoreCase(newColumnName)) {
@@ -158,9 +164,9 @@ public class ViewSoftwareListTab extends JPanel {
         topPanel.add(filterPanel.getPanel(), BorderLayout.CENTER);
         tablePanel.add(topPanel, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
-        splitPane.setRightComponent(tablePanel);
+        mainSplitPane.setRightComponent(tablePanel);
 
-        mainPanel.add(splitPane, BorderLayout.CENTER);
+        mainPanel.add(mainSplitPane, BorderLayout.CENTER);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
 
@@ -244,7 +250,7 @@ public class ViewSoftwareListTab extends JPanel {
         initialize();
     }
 
-    private void showLicenseKeyTracker() {
+    public void showLicenseKeyTracker() {
         String tableName = tableManager.getTableName();
         if ("Inventory".equals(tableName)) {
             JOptionPane.showMessageDialog(this, "Error: License Key Tracker is not available for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
@@ -252,46 +258,36 @@ public class ViewSoftwareListTab extends JPanel {
             return;
         }
 
-        String[] columns = tableManager.getColumns();
-        String licenseKeyColumn = null;
-        for (String column : columns) {
-            if (column.equalsIgnoreCase("License_Key")) {
-                licenseKeyColumn = column; // Store actual column name for queries
-                break;
-            }
-        }
+        // Create a new split pane for the LicenseKeyTracker view
+        JSplitPane trackerSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        trackerSplitPane.setDividerLocation(200);
+        trackerSplitPane.setLeftComponent(tableListScrollPane);
+        LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
+        trackerSplitPane.setRightComponent(tracker);
 
-        if (licenseKeyColumn != null) {
-            // Column exists (case-insensitive), proceed to open LicenseKeyTracker
-            LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
-            tracker.setVisible(true);
-            return;
-        }
+        remove(currentView);
+        currentView = new JPanel(new BorderLayout());
+        currentView.add(trackerSplitPane, BorderLayout.CENTER);
+        add(currentView, BorderLayout.CENTER);
 
-        // Column doesn't exist, prompt to add it
-        int confirm = JOptionPane.showConfirmDialog(
-            this,
-            "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
-            "Add License Key Column",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-        );
-        if (confirm == JOptionPane.YES_OPTION) {
-            try (Connection conn = DatabaseUtils.getConnection()) {
-                String sql = "ALTER TABLE " + tableName + " ADD License_Key VARCHAR(255)";
-                conn.createStatement().executeUpdate(sql);
-                JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
-                    tableManager.refreshDataAndTabs();
-                    LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
-                    tracker.setVisible(true);
-                });
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("ViewSoftwareListTab: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
-            }
+        // Update table list selection listener to call updateTable on LicenseKeyTracker
+        tableList.clearSelection();
+        tableList.setSelectedValue(tableName, true);
+        // Remove existing listeners to avoid duplicates
+        for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
+            tableList.removeListSelectionListener(listener);
         }
+        tableList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedTable = tableList.getSelectedValue();
+                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
+                    tracker.updateTable(selectedTable);
+                }
+            }
+        });
+
+        revalidate();
+        repaint();
     }
 
     private JScrollPane createTableListScrollPane() {
@@ -317,14 +313,14 @@ public class ViewSoftwareListTab extends JPanel {
             listModel.addElement("Error: " + e.getMessage());
         }
 
-        JList<String> localTableList = new JList<>(listModel);
-        localTableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        localTableList.setFixedCellWidth(180);
-        localTableList.setFixedCellHeight(25);
+        JList<String> newTableList = new JList<>(listModel);
+        newTableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        newTableList.setFixedCellWidth(180);
+        newTableList.setFixedCellHeight(25);
 
-        localTableList.addListSelectionListener(e -> {
+        newTableList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                String selectedTable = localTableList.getSelectedValue();
+                String selectedTable = newTableList.getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     updateTableView(selectedTable);
                 }
@@ -332,10 +328,19 @@ public class ViewSoftwareListTab extends JPanel {
         });
 
         if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
-            localTableList.setSelectedIndex(0);
+            newTableList.setSelectedIndex(0);
+            // Explicitly set the initial table in TableManager
+            String initialTable = newTableList.getSelectedValue();
+            if (initialTable != null) {
+                tableManager.setTableName(initialTable);
+                tableManager.refreshDataAndTabs();
+            }
         }
 
-        return new JScrollPane(localTableList);
+        JScrollPane scrollPane = new JScrollPane(newTableList);
+        tableListScrollPane = scrollPane;
+        tableList = newTableList;
+        return scrollPane;
     }
 
     private void updateTableView(String tableName) {
@@ -345,7 +350,7 @@ public class ViewSoftwareListTab extends JPanel {
 
     private void initialize() {
         System.out.println("ViewSoftwareListTab: Initializing table");
-        refreshDataAndTabs();
+        // Moved table initialization to createTableListScrollPane to ensure selection triggers data load
     }
 
     public void refreshDataAndTabs() {
@@ -389,6 +394,14 @@ public class ViewSoftwareListTab extends JPanel {
         remove(currentView);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
+        // Ensure the table list is visible
+        mainSplitPane.setLeftComponent(tableListScrollPane);
+        // Reselect the current table to trigger data refresh
+        String currentTable = tableManager.getTableName();
+        if (currentTable != null) {
+            tableList.clearSelection();
+            tableList.setSelectedValue(currentTable, true);
+        }
         refreshDataAndTabs();
         revalidate();
         repaint();

@@ -26,7 +26,7 @@ public class LicenseKeyDetailsPanel extends JDialog {
     private final DefaultTableModel tableModel;
 
     public LicenseKeyDetailsPanel(LicenseKeyTracker parent, String licenseKey, TableManager tableManager) {
-        super(parent, "Details for License Key: " + licenseKey, true);
+        super();
         this.licenseKey = licenseKey;
         this.tableManager = tableManager;
         this.tableModel = new DefaultTableModel();

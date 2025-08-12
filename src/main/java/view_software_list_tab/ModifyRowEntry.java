@@ -27,7 +27,7 @@ import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
-public class ModifyDialog extends JDialog {
+public class ModifyRowEntry extends JDialog {
     private final HashMap<String, String> device;
     private final String[] columnNames;
     private final Map<String, Integer> columnTypes;
@@ -37,8 +37,8 @@ public class ModifyDialog extends JDialog {
     private final TableManager tableManager;
     private final String primaryKeyColumn = "AssetName";
 
-    public ModifyDialog(JFrame parent, HashMap<String, String> device, String deviceType, TableManager tableManager) {
-        super(parent, "Modify Device", true);
+    public ModifyRowEntry(JFrame parent, HashMap<String, String> device, String deviceType, TableManager tableManager) {
+        super(parent, "Modify Row Entry", true);
         this.parent = parent;
         this.device = new HashMap<>(device);
         this.originalValues = new HashMap<>(device);
@@ -414,7 +414,7 @@ public class ModifyDialog extends JDialog {
     }
 
     public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
-        ModifyDialog dialog = new ModifyDialog(parent, device, null, tableManager);
+        ModifyRowEntry dialog = new ModifyRowEntry(parent, device, null, tableManager);
         dialog.setVisible(true);
     }
 }

@@ -25,12 +25,9 @@ import view_software_list_tab.TableManager;
 public class LicenseKeySettingsDialog extends JDialog {
     private final TableManager tableManager;
     private final JSpinner limitSpinner;
-    private int usageLimit;
-
     public LicenseKeySettingsDialog(JDialog parent, TableManager tableManager, int usageLimit) {
         super(parent, "License Key Rules", true);
         this.tableManager = tableManager;
-        this.usageLimit = usageLimit;
         this.limitSpinner = new JSpinner(new SpinnerNumberModel(usageLimit, 1, Integer.MAX_VALUE, 1));
         initializeUI();
     }
@@ -101,7 +98,6 @@ public class LicenseKeySettingsDialog extends JDialog {
             }
 
             stmt.executeUpdate(sql);
-            usageLimit = limit;
             JOptionPane.showMessageDialog(this, "Usage limit saved: " + limit, "Success", JOptionPane.INFORMATION_MESSAGE);
             limitSpinner.setValue(limit);
             dispose();

@@ -15,83 +15,114 @@ import java.util.Map;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import utils.DatabaseUtils;
 import view_software_list_tab.TableManager;
+import view_software_list_tab.ViewSoftwareListTab;
 
-public class LicenseKeyTracker extends JDialog {
+public class LicenseKeyTracker extends JPanel {
     private final JList<String> keyList;
     private final DefaultListModel<String> keyListModel;
     private final TableManager tableManager;
+    private final ViewSoftwareListTab parentTab;
     private final Map<String, Integer> keyUsageCounts;
     private int usageLimit;
     private String currentFilter = "all";
     private JButton openButton;
 
-    public LicenseKeyTracker(JFrame parent, TableManager tableManager) {
-        super(parent, "License Key Tracker", true);
+    public LicenseKeyTracker(ViewSoftwareListTab parentTab, TableManager tableManager) {
+        this.parentTab = parentTab;
         this.tableManager = tableManager;
         this.keyUsageCounts = new HashMap<>();
         this.keyListModel = new DefaultListModel<>();
         this.keyList = new JList<>(keyListModel);
         this.usageLimit = 10; // Default limit
+        setLayout(new BorderLayout(10, 10));
         initializeUI();
         loadLicenseKeyRules();
         loadLicenseKeys();
     }
 
     private void initializeUI() {
-        setLayout(new BorderLayout());
-        setSize(800, 600); // Increased window size
-        setLocationRelativeTo(null);
+        // Title with table name
+        JLabel titleLabel = new JLabel("License Key Tracker: " + tableManager.getTableName());
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
+        // Close button
+        JButton closeButton = new JButton("Close License Key Tracker");
+        closeButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        closeButton.addActionListener(e -> parentTab.showMainView());
+
+        // Top panel with title and close button
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.add(closeButton, BorderLayout.WEST);
+        topPanel.add(titleLabel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
+
+        // List configuration
         keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        keyList.setFixedCellWidth(180);
+        keyList.setFixedCellWidth(300); // Increased width to accommodate NumOfUses
         keyList.setFixedCellHeight(25);
 
         keyList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                String key = value.toString().replace(" (Violation)", "").replace(" (Fully Utilized)", "").replace(" (Underutilized)", "");
-                Integer count = keyUsageCounts.getOrDefault(key, 0);
+                String entry = value.toString();
                 
-                if (isSelected) {
-                    c.setBackground(list.getSelectionBackground());
-                    c.setForeground(list.getSelectionForeground());
-                } else {
-                    if (count > usageLimit) {
-                        c.setBackground(Color.RED);
-                    } else if (count == usageLimit) {
-                        c.setBackground(Color.GREEN);
+                // Check if the entry is a valid license key entry (contains "NumOfUses")
+                if (entry.contains("NumOfUses")) {
+                    String key = entry.substring(0, entry.indexOf(" NumOfUses")).trim();
+                    Integer count = keyUsageCounts.getOrDefault(key, 0);
+                    
+                    if (isSelected) {
+                        c.setBackground(list.getSelectionBackground());
+                        c.setForeground(list.getSelectionForeground());
                     } else {
-                        c.setBackground(Color.YELLOW);
+                        if (count > usageLimit) {
+                            c.setBackground(Color.RED);
+                        } else if (count == usageLimit) {
+                            c.setBackground(Color.GREEN);
+                        } else {
+                            c.setBackground(Color.YELLOW);
+                        }
+                        c.setForeground(Color.BLACK);
                     }
-                    c.setForeground(Color.BLACK); // Keep font color black
+                } else {
+                    // For error messages or other non-standard entries, use default colors
+                    if (isSelected) {
+                        c.setBackground(list.getSelectionBackground());
+                        c.setForeground(list.getSelectionForeground());
+                    } else {
+                        c.setBackground(list.getBackground());
+                        c.setForeground(list.getForeground());
+                    }
                 }
                 return c;
             }
         });
 
-        // Ensure vertical scrolling is enabled
+        // Scroll pane for the key list
         JScrollPane listScrollPane = new JScrollPane(keyList);
         listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        listScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        listScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         add(listScrollPane, BorderLayout.CENTER);
 
-        // Top panel for filter buttons
+        // Bottom panel for filter buttons and action buttons
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+
+        // Filter buttons panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        Font buttonFont = new Font("SansSerif", Font.PLAIN, 12); // Consistent font for all buttons
+        Font buttonFont = new Font("SansSerif", Font.PLAIN, 12);
 
         JButton violationsButton = new JButton("Show Violations");
         violationsButton.setFont(buttonFont);
@@ -125,10 +156,10 @@ public class LicenseKeyTracker extends JDialog {
         });
         filterPanel.add(allKeysButton);
 
-        add(filterPanel, BorderLayout.NORTH);
+        bottomPanel.add(filterPanel, BorderLayout.NORTH);
 
-        // Bottom panel for action buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        // Action buttons panel
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         openButton = new JButton("Open Entries");
         openButton.setFont(buttonFont);
@@ -139,28 +170,29 @@ public class LicenseKeyTracker extends JDialog {
                 showKeyDetails(selectedKey);
             }
         });
-        buttonPanel.add(openButton);
+        actionPanel.add(openButton);
 
         JButton settingsButton = new JButton("License Key Rules");
         settingsButton.setFont(buttonFont);
         settingsButton.addActionListener(e -> openSettingsDialog());
-        buttonPanel.add(settingsButton);
+        actionPanel.add(settingsButton);
 
-        JButton closeButton = new JButton("Close License Key Tracker");
-        closeButton.setFont(buttonFont);
-        closeButton.addActionListener(e -> dispose());
-        buttonPanel.add(closeButton);
+        bottomPanel.add(actionPanel, BorderLayout.CENTER);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        keyList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    openButton.setEnabled(keyList.getSelectedValue() != null && !keyList.getSelectedValue().startsWith("Error"));
-                }
+        keyList.addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedValue = keyList.getSelectedValue();
+                openButton.setEnabled(selectedValue != null && selectedValue.contains("NumOfUses"));
             }
         });
+    }
+
+    public void updateTable(String tableName) {
+        tableManager.setTableName(tableName);
+        loadLicenseKeyRules();
+        loadLicenseKeys();
     }
 
     private void loadLicenseKeyRules() {
@@ -193,6 +225,9 @@ public class LicenseKeyTracker extends JDialog {
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
 
+        // Update title with current table name
+        ((JLabel) ((JPanel) getComponent(0)).getComponent(1)).setText("License Key Tracker: " + tableName);
+
         String[] columns = tableManager.getColumns();
         String licenseKeyColumn = null;
         for (String column : columns) {
@@ -203,9 +238,30 @@ public class LicenseKeyTracker extends JDialog {
         }
 
         if (licenseKeyColumn == null) {
-            keyListModel.addElement("Error: License_Key column not found in table '" + tableName + "'");
-            System.err.println("LicenseKeyTracker: License_Key column not found in table '" + tableName + "'");
-            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
+                "Add License Key Column",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    String sql = "ALTER TABLE " + tableName + " ADD License_Key VARCHAR(255)";
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.refreshDataAndTabs();
+                        loadLicenseKeys(); // Refresh the tracker to show the updated data
+                    });
+                } catch (SQLException ex) {
+                    System.err.println("LicenseKeyTracker: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
+                    JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                keyListModel.addElement("Error: License_Key column not found in table '" + tableName + "'");
+                System.err.println("LicenseKeyTracker: License_Key column not found in table '" + tableName + "'");
+            }
             return;
         }
 
@@ -237,7 +293,9 @@ public class LicenseKeyTracker extends JDialog {
                 }
 
                 if (addKey) {
-                    keyListModel.addElement(licenseKey + label);
+                    // Format the entry with NumOfUses on the right
+                    String formattedEntry = String.format("%-30s NumOfUses: %d%s", licenseKey, count, label);
+                    keyListModel.addElement(formattedEntry);
                 }
             }
             if (keyListModel.isEmpty()) {
@@ -252,15 +310,20 @@ public class LicenseKeyTracker extends JDialog {
     }
 
     private void openSettingsDialog() {
-        LicenseKeySettingsDialog settingsDialog = new LicenseKeySettingsDialog(this, tableManager, usageLimit);
+        LicenseKeySettingsDialog settingsDialog = new LicenseKeySettingsDialog(null, tableManager, usageLimit);
         settingsDialog.showDialog();
         loadLicenseKeyRules();
         loadLicenseKeys();
     }
 
-    private void showKeyDetails(String licenseKey) {
-        String cleanKey = licenseKey.replace(" (Violation)", "").replace(" (Fully Utilized)", "").replace(" (Underutilized)", "");
-        LicenseKeyDetailsPanel detailsPanel = new LicenseKeyDetailsPanel(this, cleanKey, tableManager);
-        detailsPanel.showPanel();
+    private void showKeyDetails(String selectedKey) {
+        // Check if the selected entry is a valid license key entry
+        if (selectedKey != null && selectedKey.contains("NumOfUses")) {
+            String cleanKey = selectedKey.substring(0, selectedKey.indexOf(" NumOfUses")).trim();
+            LicenseKeyDetailsPanel detailsPanel = new LicenseKeyDetailsPanel(null, cleanKey, tableManager);
+            detailsPanel.showPanel();
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a valid license key.", "Invalid Selection", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

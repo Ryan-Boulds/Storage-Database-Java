@@ -27,7 +27,7 @@ public class RowEditButtonEditor extends AbstractCellEditor implements TableCell
                 device.put(columnName, value != null ? value.toString() : "");
             }
             System.out.println("RowEditButtonEditor: Opening ModifyDialog for row " + row + ", device: " + device); // Debug
-            ModifyDialog.showModifyDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(table), device, tableManager);
+            ModifyRowEntry.showModifyDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(table), device, tableManager);
         });
     }
 
