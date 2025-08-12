@@ -37,7 +37,7 @@ public class MultiRenameDialog extends JDialog {
         this.columnName = columnName;
         this.originalAssetNames = originalAssetNames;
         this.tableManager = tableManager;
-        System.out.println("MultiRenameDialog: columnName='" + columnName + "', assetNames=" + originalAssetNames + ", cellValues=" + originalCellValues); // Debug
+        System.out.println("MultiRenameDialog: columnName='" + columnName + "', assetNames=" + originalAssetNames + ", cellValues=" + originalCellValues);
         initializeComponents();
         populateFields();
         setLocationRelativeTo(parent);
@@ -73,16 +73,22 @@ public class MultiRenameDialog extends JDialog {
     }
 
     private void populateFields() {
-        // If all selected cells have the same value, pre-populate the field
         HashSet<String> uniqueValues = new HashSet<>(originalCellValues);
         if (uniqueValues.size() == 1) {
             String commonValue = uniqueValues.iterator().next();
             valueField.setText(commonValue);
-            System.out.println("MultiRenameDialog: Pre-populated with common value: '" + commonValue + "'"); // Debug
+            System.out.println("MultiRenameDialog: Pre-populated with common value: '" + commonValue + "'");
         }
     }
 
     private void saveChanges() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            statusLabel.setText("Error: Editing is not allowed for the Inventory table");
+            System.err.println("MultiRenameDialog: Attempted to edit in Inventory table, which is not allowed");
+            return;
+        }
+
         String newValue = valueField.getText().trim();
         if (newValue.isEmpty() && columnName.equals("AssetName")) {
             statusLabel.setText("Error: Asset Name cannot be empty");
@@ -92,24 +98,23 @@ public class MultiRenameDialog extends JDialog {
         try {
             for (int i = 0; i < originalAssetNames.size(); i++) {
                 String originalAssetName = originalAssetNames.get(i);
-                HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName("Inventory", originalAssetName);
+                HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName(tableName, originalAssetName);
                 if (device == null) {
-                    System.err.println("MultiRenameDialog: Device not found for AssetName='" + originalAssetName + "'"); // Debug
+                    System.err.println("MultiRenameDialog: Device not found for AssetName='" + originalAssetName + "' in table '" + tableName + "'");
                     statusLabel.setText("Error: Device not found for AssetName: " + originalAssetName);
                     return;
                 }
-                System.out.println("MultiRenameDialog: Device found, updating " + columnName + " from '" + originalCellValues.get(i) + "' to '" + newValue + "' for AssetName='" + originalAssetName + "'"); // Debug
+                System.out.println("MultiRenameDialog: Device found, updating " + columnName + " from '" + originalCellValues.get(i) + "' to '" + newValue + "' for AssetName='" + originalAssetName + "' in table '" + tableName + "'");
 
                 device.put(columnName, newValue);
-                // Validate AssetName uniqueness only for AssetName column
                 String validationError = columnName.equals("AssetName") ? DataUtils.validateDevice(device, originalAssetName) : null;
                 if (validationError != null) {
-                    System.err.println("MultiRenameDialog: Validation error for '" + originalAssetName + "': " + validationError); // Debug
+                    System.err.println("MultiRenameDialog: Validation error for '" + originalAssetName + "': " + validationError);
                     statusLabel.setText("Error for " + originalAssetName + ": " + validationError);
                     return;
                 }
 
-                DatabaseUtils.updateDevice("Inventory", device);
+                DatabaseUtils.updateDevice(tableName, device);
             }
             statusLabel.setText(columnName + " values updated successfully");
             if (tableManager != null) {
@@ -117,7 +122,7 @@ public class MultiRenameDialog extends JDialog {
             }
             dispose();
         } catch (SQLException e) {
-            System.err.println("MultiRenameDialog: SQLException: " + e.getMessage()); // Debug
+            System.err.println("MultiRenameDialog: SQLException in table '" + tableName + "': " + e.getMessage());
             statusLabel.setText("Error: " + e.getMessage());
         }
     }

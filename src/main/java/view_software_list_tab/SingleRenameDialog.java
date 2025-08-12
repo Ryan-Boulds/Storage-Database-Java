@@ -35,7 +35,7 @@ public class SingleRenameDialog extends JDialog {
         this.columnName = columnName;
         this.originalAssetName = originalAssetName;
         this.tableManager = tableManager;
-        System.out.println("SingleRenameDialog: originalAssetName='" + originalAssetName + "', columnName='" + columnName + "', originalValue='" + originalValue + "'"); // Debug
+        System.out.println("SingleRenameDialog: originalAssetName='" + originalAssetName + "', columnName='" + columnName + "', originalValue='" + originalValue + "'");
         initializeComponents();
         populateFields();
         setLocationRelativeTo(parent);
@@ -75,6 +75,13 @@ public class SingleRenameDialog extends JDialog {
     }
 
     private void saveChanges() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            statusLabel.setText("Error: Editing is not allowed for the Inventory table");
+            System.err.println("SingleRenameDialog: Attempted to edit in Inventory table, which is not allowed");
+            return;
+        }
+
         String newValue = valueField.getText().trim();
         if (newValue.isEmpty() && columnName.equals("AssetName")) {
             statusLabel.setText("Error: Asset Name cannot be empty");
@@ -82,30 +89,30 @@ public class SingleRenameDialog extends JDialog {
         }
 
         try {
-            HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName("Inventory", originalAssetName);
+            HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName(tableName, originalAssetName);
             if (device == null) {
-                System.err.println("SingleRenameDialog: Device not found for AssetName='" + originalAssetName + "'"); // Debug
+                System.err.println("SingleRenameDialog: Device not found for AssetName='" + originalAssetName + "' in table '" + tableName + "'");
                 statusLabel.setText("Error: Device not found for AssetName: " + originalAssetName);
                 return;
             }
-            System.out.println("SingleRenameDialog: Device found, updating " + columnName + " from '" + originalValue + "' to '" + newValue + "'"); // Debug
+            System.out.println("SingleRenameDialog: Device found, updating " + columnName + " from '" + originalValue + "' to '" + newValue + "' in table '" + tableName + "'");
 
             device.put(columnName, newValue);
             String validationError = DataUtils.validateDevice(device, originalAssetName);
             if (validationError != null) {
-                System.err.println("SingleRenameDialog: Validation error: " + validationError); // Debug
+                System.err.println("SingleRenameDialog: Validation error: " + validationError);
                 statusLabel.setText("Error: " + validationError);
                 return;
             }
 
-            DatabaseUtils.updateDevice("Inventory", device);
+            DatabaseUtils.updateDevice(tableName, device);
             statusLabel.setText(columnName + " updated successfully");
             if (tableManager != null) {
                 tableManager.refreshDataAndTabs();
             }
             dispose();
         } catch (SQLException e) {
-            System.err.println("SingleRenameDialog: SQLException: " + e.getMessage()); // Debug
+            System.err.println("SingleRenameDialog: SQLException in table '" + tableName + "': " + e.getMessage());
             statusLabel.setText("Error: " + e.getMessage());
         }
     }

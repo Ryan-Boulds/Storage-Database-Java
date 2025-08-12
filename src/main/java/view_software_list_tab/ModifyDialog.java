@@ -7,7 +7,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
@@ -28,8 +27,7 @@ import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
-public class ModifyDialog {
-    private final JDialog dialog;
+public class ModifyDialog extends JDialog {
     private final HashMap<String, String> device;
     private final String[] columnNames;
     private final Map<String, Integer> columnTypes;
@@ -40,6 +38,7 @@ public class ModifyDialog {
     private final String primaryKeyColumn = "AssetName";
 
     public ModifyDialog(JFrame parent, HashMap<String, String> device, String deviceType, TableManager tableManager) {
+        super(parent, "Modify Device", true);
         this.parent = parent;
         this.device = new HashMap<>(device);
         this.originalValues = new HashMap<>(device);
@@ -47,10 +46,9 @@ public class ModifyDialog {
         this.columnNames = tableManager.getColumns();
         this.columnTypes = tableManager.getColumnTypes();
 
-        dialog = new JDialog(parent, "Modify Device", true);
-        dialog.setLayout(new BorderLayout());
-        dialog.setSize(600, 800);
-        dialog.setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
+        setSize(600, 800);
+        setLocationRelativeTo(parent);
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -83,23 +81,19 @@ public class ModifyDialog {
 
             gbc.gridx = 1;
             gbc.weightx = 1;
-            if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || 
-                key.equals("Warranty_Expiry_Date") || key.equals("Last_Maintenance") || 
-                key.equals("Maintenance_Due") || key.equals("Date_Of_Purchase")) {
+            if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP) {
                 JPanel datePicker = UIComponentUtils.createFormattedDatePicker();
                 JTextField dateField = (JTextField) datePicker.getComponent(0);
                 dateField.setText(device.getOrDefault(key, ""));
                 dateField.setPreferredSize(new java.awt.Dimension(200, 30));
                 input = datePicker;
             } else if (sqlType == Types.DOUBLE || sqlType == Types.FLOAT || 
-                       sqlType == Types.DECIMAL || sqlType == Types.NUMERIC || 
-                       key.equals("Purchase_Cost")) {
+                       sqlType == Types.DECIMAL || sqlType == Types.NUMERIC) {
                 JTextField doubleField = UIComponentUtils.createFormattedTextField();
                 doubleField.setText(device.getOrDefault(key, ""));
                 doubleField.setPreferredSize(new java.awt.Dimension(200, 30));
                 input = doubleField;
-            } else if (sqlType == Types.BIT || sqlType == Types.BOOLEAN || 
-                       key.equals("Added_Memory")) {
+            } else if (sqlType == Types.BIT || sqlType == Types.BOOLEAN) {
                 JCheckBox checkBox = new JCheckBox();
                 checkBox.setSelected(Boolean.parseBoolean(device.getOrDefault(key, "false")));
                 checkBox.setPreferredSize(new java.awt.Dimension(200, 30));
@@ -119,7 +113,7 @@ public class ModifyDialog {
         }
 
         JScrollPane scrollPane = new JScrollPane(panel);
-        dialog.add(scrollPane, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         JButton saveButton = new JButton("Save");
@@ -130,7 +124,7 @@ public class ModifyDialog {
         cancelButton.addActionListener(e -> cancelAction());
         buttonPanel.add(cancelButton);
 
-        JButton deleteButton = new JButton("Delete");
+        JButton deleteButton = new JButton("Delete Entry");
         deleteButton.addActionListener(e -> deleteAction());
         buttonPanel.add(deleteButton);
 
@@ -138,66 +132,25 @@ public class ModifyDialog {
         addColumnButton.addActionListener(e -> addColumnAction());
         buttonPanel.add(addColumnButton);
 
+        JButton deleteColumnButton = new JButton("Delete Column");
+        deleteColumnButton.addActionListener(e -> deleteColumnAction());
+        buttonPanel.add(deleteColumnButton);
+
         JButton renameColumnButton = new JButton("Rename Column");
         renameColumnButton.addActionListener(e -> renameColumnAction());
         buttonPanel.add(renameColumnButton);
 
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-        dialog.setVisible(true);
-    }
-
-    public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
-        new ModifyDialog(parent, device, "Inventory", tableManager);
-    }
-
-    private void addColumnAction() {
-        String columnName = JOptionPane.showInputDialog(dialog, "Enter new column name:");
-        if (columnName != null && !columnName.trim().isEmpty()) {
-            String tableName = tableManager.getTableName();
-            String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + columnName + "] VARCHAR(255)";
-            try (Connection conn = DatabaseUtils.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.executeUpdate();
-                JOptionPane.showMessageDialog(dialog, "Column added successfully");
-                dialog.dispose();
-                SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
-                    tableManager.refreshDataAndTabs();
-                });
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(dialog, "Error adding column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void renameColumnAction() {
-        String oldName = (String) JOptionPane.showInputDialog(dialog, "Select column to rename:", "Rename Column", JOptionPane.PLAIN_MESSAGE, null, columnNames, columnNames[0]);
-        if (oldName != null) {
-            if (oldName.equals(primaryKeyColumn)) {
-                JOptionPane.showMessageDialog(dialog, "Cannot rename primary key column", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            String newName = JOptionPane.showInputDialog(dialog, "Enter new name for " + oldName + ":");
-            if (newName != null && !newName.trim().isEmpty()) {
-                String tableName = tableManager.getTableName();
-                String sql = "ALTER TABLE [" + tableName + "] RENAME COLUMN [" + oldName + "] TO [" + newName + "]";
-                try (Connection conn = DatabaseUtils.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.executeUpdate();
-                    JOptionPane.showMessageDialog(dialog, "Column renamed successfully");
-                    dialog.dispose();
-                    SwingUtilities.invokeLater(() -> {
-                        tableManager.setTableName(tableName);
-                        tableManager.refreshDataAndTabs();
-                    });
-                } catch (SQLException e) {
-                    JOptionPane.showMessageDialog(dialog, "Error renaming column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private void saveAction() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: Editing is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to edit in Inventory table, which is not allowed");
+            return;
+        }
+
         HashMap<String, String> updatedDevice = new HashMap<>();
         for (int i = 0; i < columnNames.length; i++) {
             String key = columnNames[i];
@@ -216,46 +169,44 @@ public class ModifyDialog {
 
         if (updatedDevice.equals(originalValues)) {
             int confirm = JOptionPane.showConfirmDialog(
-                dialog,
+                this,
                 "No changes detected. Do you want to close the dialog?",
                 "No Changes",
                 JOptionPane.YES_NO_OPTION
             );
             if (confirm == JOptionPane.YES_OPTION) {
-                dialog.dispose();
-                return;
+                this.dispose();
             }
-        } else {
-            dialog.dispose();
             return;
         }
 
         String primaryKey = device.get(primaryKeyColumn);
         String error = DataUtils.validateDevice(updatedDevice, primaryKey);
         if (error != null) {
-            JOptionPane.showMessageDialog(dialog, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: " + error, "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
             if (primaryKey != null) {
-                DatabaseUtils.deleteDevice("Inventory", primaryKey);
-                DatabaseUtils.saveDevice("Inventory", updatedDevice);
-                JOptionPane.showMessageDialog(dialog, "Device updated successfully");
-                dialog.dispose();
+                DatabaseUtils.deleteDevice(tableName, primaryKey);
+                DatabaseUtils.saveDevice(tableName, updatedDevice);
+                JOptionPane.showMessageDialog(this, "Device updated successfully");
+                this.dispose();
                 SwingUtilities.invokeLater(() -> {
                     if (tableManager != null) {
-                        System.out.println("Refreshing table after modify for " + primaryKey);
+                        System.out.println("Refreshing table after modify for " + primaryKey + " in table '" + tableName + "'");
                         tableManager.refreshDataAndTabs();
                     } else {
                         System.err.println("Error: TableManager is null during refresh");
                     }
                 });
             } else {
-                JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Update Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error: " + primaryKeyColumn + " not found", "Update Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(dialog, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error updating device: " + e.getMessage(), "Update Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: SQLException in table '" + tableName + "': " + e.getMessage());
         }
     }
 
@@ -282,7 +233,7 @@ public class ModifyDialog {
 
         if (hasChanges) {
             int confirm = JOptionPane.showConfirmDialog(
-                dialog,
+                this,
                 "Are you sure you want to cancel? Any changes made will be lost.",
                 "Confirm Cancel",
                 JOptionPane.YES_NO_OPTION
@@ -291,10 +242,17 @@ public class ModifyDialog {
                 return;
             }
         }
-        dialog.dispose();
+        this.dispose();
     }
 
     private void deleteAction() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: Deletion is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to delete in Inventory table, which is not allowed");
+            return;
+        }
+
         String primaryKey = device.get(primaryKeyColumn);
         if (primaryKey != null) {
             JOptionPane optionPane = new JOptionPane(
@@ -308,13 +266,13 @@ public class ModifyDialog {
             Integer confirm = (Integer) optionPane.getValue();
             if (confirm != null && confirm == JOptionPane.YES_OPTION) {
                 try {
-                    System.out.println("Deleting device with " + primaryKeyColumn + ": " + primaryKey);
-                    DatabaseUtils.deleteDevice("Inventory", primaryKey);
+                    System.out.println("Deleting device with " + primaryKeyColumn + ": " + primaryKey + " from table '" + tableName + "'");
+                    DatabaseUtils.deleteDevice(tableName, primaryKey);
                     JOptionPane.showMessageDialog(parent, "Device deleted successfully");
-                    dialog.dispose();
+                    this.dispose();
                     SwingUtilities.invokeLater(() -> {
                         if (tableManager != null) {
-                            System.out.println("Refreshing table after delete for " + primaryKey);
+                            System.out.println("Refreshing table after delete for " + primaryKey + " in table '" + tableName + "'");
                             tableManager.refreshDataAndTabs();
                         } else {
                             System.err.println("Error: TableManager is null during refresh");
@@ -322,10 +280,124 @@ public class ModifyDialog {
                     });
                 } catch (SQLException e) {
                     JOptionPane.showMessageDialog(parent, "Error deleting device: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ModifyDialog: SQLException in table '" + tableName + "': " + e.getMessage());
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(dialog, "Error: " + primaryKeyColumn + " not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: " + primaryKeyColumn + " not found", "Delete Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void addColumnAction() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: Adding columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to add column in Inventory table, which is not allowed");
+            return;
+        }
+
+        String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
+        if (newColumnName != null && !newColumnName.trim().isEmpty()) {
+            newColumnName = newColumnName.trim();
+            try (Connection conn = DatabaseUtils.getConnection()) {
+                String sql = "ALTER TABLE " + tableName + " ADD " + newColumnName + " VARCHAR(255)";
+                conn.createStatement().executeUpdate(sql);
+                JOptionPane.showMessageDialog(this, "Column added successfully");
+                SwingUtilities.invokeLater(() -> {
+                    tableManager.setTableName(tableName);
+                    tableManager.refreshDataAndTabs();
+                });
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error adding column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ModifyDialog: SQLException adding column to table '" + tableName + "': " + e.getMessage());
+            }
+        }
+    }
+
+    private void deleteColumnAction() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: Deleting columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to delete column in Inventory table, which is not allowed");
+            return;
+        }
+
+        String columnToDelete = (String) JOptionPane.showInputDialog(
+            this,
+            "Select column to delete:",
+            "Delete Column",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            columnNames,
+            columnNames[0]
+        );
+        if (columnToDelete != null && !columnToDelete.equals(primaryKeyColumn)) {
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
+                "Confirm Delete Column",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    String sql = "ALTER TABLE " + tableName + " DROP COLUMN " + columnToDelete;
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "Column '" + columnToDelete + "' deleted successfully");
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "Error deleting column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ModifyDialog: SQLException deleting column in table '" + tableName + "': " + e.getMessage());
+                }
+            }
+        } else if (columnToDelete != null && columnToDelete.equals(primaryKeyColumn)) {
+            JOptionPane.showMessageDialog(this, "Error: Cannot delete the primary key column '" + primaryKeyColumn + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to delete primary key column '" + primaryKeyColumn + "' in table '" + tableName + "'");
+        }
+    }
+
+    private void renameColumnAction() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: Renaming columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ModifyDialog: Attempted to rename column in Inventory table, which is not allowed");
+            return;
+        }
+
+        String oldColumnName = (String) JOptionPane.showInputDialog(
+            this,
+            "Select column to rename:",
+            "Rename Column",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            columnNames,
+            columnNames[0]
+        );
+        if (oldColumnName != null && !oldColumnName.equals(primaryKeyColumn)) {
+            String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name for " + oldColumnName + ":");
+            if (newColumnName != null && !newColumnName.trim().isEmpty()) {
+                newColumnName = newColumnName.trim();
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    String sql = "ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnName;
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "Column renamed successfully");
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "Error renaming column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ModifyDialog: SQLException renaming column in table '" + tableName + "': " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public static void showModifyDialog(JFrame parent, HashMap<String, String> device, TableManager tableManager) {
+        ModifyDialog dialog = new ModifyDialog(parent, device, null, tableManager);
+        dialog.setVisible(true);
     }
 }

@@ -75,6 +75,24 @@ public class LicenseKeyTracker extends JDialog {
         keyListModel.clear();
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
+
+        // Check if License_Key column exists
+        String[] columns = tableManager.getColumns();
+        boolean hasLicenseKeyColumn = false;
+        for (String column : columns) {
+            if (column.equals("License_Key")) {
+                hasLicenseKeyColumn = true;
+                break;
+            }
+        }
+
+        if (!hasLicenseKeyColumn) {
+            keyListModel.addElement("Error: License_Key column not found in table '" + tableName + "'");
+            System.err.println("LicenseKeyTracker: License_Key column not found in table '" + tableName + "'");
+            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT License_Key, COUNT(*) as usage_count FROM " + tableName + " WHERE License_Key IS NOT NULL AND License_Key != '' GROUP BY License_Key")) {
@@ -91,7 +109,7 @@ public class LicenseKeyTracker extends JDialog {
             }
         } catch (SQLException e) {
             keyListModel.addElement("Error: " + e.getMessage());
-            System.err.println("LicenseKeyTracker: Error fetching license keys: " + e.getMessage());
+            System.err.println("LicenseKeyTracker: Error fetching license keys from table '" + tableName + "': " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error fetching license keys: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }

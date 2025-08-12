@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -31,6 +33,7 @@ public class ViewSoftwareListTab extends JPanel {
     private final TableManager tableManager;
     private final JPanel mainPanel;
     private JPanel currentView;
+
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
 
@@ -59,11 +62,90 @@ public class ViewSoftwareListTab extends JPanel {
 
         JPanel tablePanel = new JPanel(new BorderLayout());
         JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
         JButton licenseKeyButton = new JButton("License Key Tracker");
-        licenseKeyButton.addActionListener(e -> {
-            showLicenseKeyTracker();
+        licenseKeyButton.addActionListener(e -> showLicenseKeyTracker());
+        buttonPanel.add(licenseKeyButton);
+
+        JButton addColumnButton = new JButton("Add Column");
+        addColumnButton.addActionListener(e -> {
+            String tableName = tableManager.getTableName();
+            if ("Inventory".equals(tableName)) {
+                JOptionPane.showMessageDialog(this, "Error: Adding columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: Attempted to add column in Inventory table, which is not allowed");
+                return;
+            }
+
+            String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
+            if (newColumnName != null && !newColumnName.trim().isEmpty()) {
+                newColumnName = newColumnName.trim();
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    String sql = "ALTER TABLE " + tableName + " ADD " + newColumnName + " VARCHAR(255)";
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "Column added successfully");
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Error adding column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: SQLException adding column to table '" + tableName + "': " + ex.getMessage());
+                }
+            }
         });
-        topPanel.add(licenseKeyButton, BorderLayout.WEST);
+        buttonPanel.add(addColumnButton);
+
+        JButton deleteColumnButton = new JButton("Delete Column");
+        deleteColumnButton.addActionListener(e -> {
+            String tableName = tableManager.getTableName();
+            if ("Inventory".equals(tableName)) {
+                JOptionPane.showMessageDialog(this, "Error: Deleting columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: Attempted to delete column in Inventory table, which is not allowed");
+                return;
+            }
+
+            String[] columnNames = tableManager.getColumns();
+            String columnToDelete = (String) JOptionPane.showInputDialog(
+                this,
+                "Select column to delete:",
+                "Delete Column",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                columnNames,
+                columnNames[0]
+            );
+            if (columnToDelete != null && !columnToDelete.equals("AssetName")) {
+                int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
+                    "Confirm Delete Column",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try (Connection conn = DatabaseUtils.getConnection()) {
+                        String sql = "ALTER TABLE " + tableName + " DROP COLUMN " + columnToDelete;
+                        conn.createStatement().executeUpdate(sql);
+                        JOptionPane.showMessageDialog(this, "Column '" + columnToDelete + "' deleted successfully");
+                        SwingUtilities.invokeLater(() -> {
+                            tableManager.setTableName(tableName);
+                            tableManager.refreshDataAndTabs();
+                        });
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Error deleting column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        System.err.println("ViewSoftwareListTab: SQLException deleting column in table '" + tableName + "': " + ex.getMessage());
+                    }
+                }
+            } else if (columnToDelete != null && columnToDelete.equals("AssetName")) {
+                JOptionPane.showMessageDialog(this, "Error: Cannot delete the primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: Attempted to delete primary key column 'AssetName' in table '" + tableName + "'");
+            }
+        });
+        buttonPanel.add(deleteColumnButton);
+
+        topPanel.add(buttonPanel, BorderLayout.WEST);
         topPanel.add(filterPanel.getPanel(), BorderLayout.CENTER);
         tablePanel.add(topPanel, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
@@ -154,6 +236,50 @@ public class ViewSoftwareListTab extends JPanel {
     }
 
     private void showLicenseKeyTracker() {
+        String tableName = tableManager.getTableName();
+        if ("Inventory".equals(tableName)) {
+            JOptionPane.showMessageDialog(this, "Error: License Key Tracker is not available for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("ViewSoftwareListTab: Attempted to access License Key Tracker for Inventory table");
+            return;
+        }
+
+        String[] columns = tableManager.getColumns();
+        boolean hasLicenseKeyColumn = false;
+        for (String column : columns) {
+            if (column.equals("License_Key")) {
+                hasLicenseKeyColumn = true;
+                break;
+            }
+        }
+
+        if (!hasLicenseKeyColumn) {
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
+                "Add License Key Column",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    String sql = "ALTER TABLE " + tableName + " ADD License_Key VARCHAR(255)";
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "License_Key column added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                        // Open LicenseKeyTracker after adding column
+                        LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
+                        tracker.setVisible(true);
+                    });
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
+                }
+            }
+            return;
+        }
+
         LicenseKeyTracker tracker = new LicenseKeyTracker((JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
         tracker.setVisible(true);
     }
