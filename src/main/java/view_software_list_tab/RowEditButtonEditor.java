@@ -15,7 +15,10 @@ public class RowEditButtonEditor extends AbstractCellEditor implements TableCell
 
     public RowEditButtonEditor(JTable table, TableManager tableManager) {
         button = new JButton("Edit");
+        button.setFocusPainted(false); // Improve button appearance
+        button.setBorderPainted(true); // Ensure button border is visible
         button.addActionListener(e -> {
+            System.out.println("RowEditButtonEditor: Edit button clicked for row " + row); // Debug
             fireEditingStopped();
             HashMap<String, String> device = new HashMap<>();
             for (int i = 1; i < table.getColumnCount(); i++) { // Skip Edit column
@@ -23,6 +26,7 @@ public class RowEditButtonEditor extends AbstractCellEditor implements TableCell
                 Object value = table.getValueAt(row, i);
                 device.put(columnName, value != null ? value.toString() : "");
             }
+            System.out.println("RowEditButtonEditor: Opening ModifyDialog for row " + row + ", device: " + device); // Debug
             ModifyDialog.showModifyDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(table), device, tableManager);
         });
     }
@@ -30,6 +34,7 @@ public class RowEditButtonEditor extends AbstractCellEditor implements TableCell
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         this.row = row;
+        System.out.println("RowEditButtonEditor: Getting editor component for row " + row + ", column " + column); // Debug
         return button;
     }
 

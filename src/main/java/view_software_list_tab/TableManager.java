@@ -46,9 +46,6 @@ public class TableManager {
             table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             initializeColumns();
-            TableColumn editColumn = table.getColumnModel().getColumn(0);
-            editColumn.setCellRenderer(new RowEditButtonRenderer());
-            editColumn.setCellEditor(new RowEditButtonEditor(table, this));
         }
     }
 
@@ -91,6 +88,14 @@ public class TableManager {
                 columns = new String[0];
                 columnTypes.clear();
             }
+
+            // Apply renderer and editor after adding all columns
+            if (table.getColumnModel().getColumnCount() > 0) {
+                TableColumn editColumn = table.getColumnModel().getColumn(0);
+                editColumn.setCellRenderer(new RowEditButtonRenderer());
+                editColumn.setCellEditor(new RowEditButtonEditor(table, this));
+                editColumn.setPreferredWidth(100); // Set a reasonable width for visibility
+            }
         }
     }
 
@@ -116,7 +121,7 @@ public class TableManager {
             int maxWidth = fontMetrics.stringWidth(header) + padding;
 
             if (i == 0) {
-                maxWidth = fontMetrics.stringWidth("Edit") + padding + 20;
+                maxWidth = Math.max(maxWidth, fontMetrics.stringWidth("Edit") + padding + 20);
             } else {
                 for (int row = 0; row < table.getRowCount(); row++) {
                     Object value = table.getValueAt(row, i);

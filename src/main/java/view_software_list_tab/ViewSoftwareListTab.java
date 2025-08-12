@@ -1,6 +1,7 @@
 package view_software_list_tab;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
@@ -85,30 +86,38 @@ public class ViewSoftwareListTab extends JPanel {
                 }
 
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (e.isControlDown()) {
-                        if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                            return;
-                        }
-                        if (table.isCellSelected(rowIndex, columnIndex)) {
-                            table.removeRowSelectionInterval(rowIndex, rowIndex);
-                        } else {
-                            table.addRowSelectionInterval(rowIndex, rowIndex);
-                            table.addColumnSelectionInterval(columnIndex, columnIndex);
-                        }
-                    } else if (e.isShiftDown()) {
-                        if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                            return;
-                        }
-                        int anchorRow = table.getSelectionModel().getAnchorSelectionIndex();
-                        if (anchorRow >= 0) {
-                            int start = Math.min(anchorRow, rowIndex);
-                            int end = Math.max(anchorRow, rowIndex);
-                            table.setRowSelectionInterval(start, end);
-                            table.setColumnSelectionInterval(columnIndex, columnIndex);
+                    if (columnIndex == 0) {
+                        table.changeSelection(rowIndex, columnIndex, false, false);
+                        if (table.editCellAt(rowIndex, columnIndex)) {
+                            Component editor = table.getEditorComponent();
+                            editor.requestFocusInWindow();
                         }
                     } else {
-                        table.setRowSelectionInterval(rowIndex, rowIndex);
-                        table.setColumnSelectionInterval(columnIndex, columnIndex);
+                        if (e.isControlDown()) {
+                            if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
+                                return;
+                            }
+                            if (table.isCellSelected(rowIndex, columnIndex)) {
+                                table.removeRowSelectionInterval(rowIndex, rowIndex);
+                            } else {
+                                table.addRowSelectionInterval(rowIndex, rowIndex);
+                                table.addColumnSelectionInterval(columnIndex, columnIndex);
+                            }
+                        } else if (e.isShiftDown()) {
+                            if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
+                                return;
+                            }
+                            int anchorRow = table.getSelectionModel().getAnchorSelectionIndex();
+                            if (anchorRow >= 0) {
+                                int start = Math.min(anchorRow, rowIndex);
+                                int end = Math.max(anchorRow, rowIndex);
+                                table.setRowSelectionInterval(start, end);
+                                table.setColumnSelectionInterval(columnIndex, columnIndex);
+                            }
+                        } else {
+                            table.setRowSelectionInterval(rowIndex, rowIndex);
+                            table.setColumnSelectionInterval(columnIndex, columnIndex);
+                        }
                     }
                 }
             }
@@ -163,7 +172,7 @@ public class ViewSoftwareListTab extends JPanel {
         });
 
         // Initial selection
-        tableList.setSelectedValue("Inventory", true);
+        tableList.setSelectedValue("Chrome", true);
 
         return new JScrollPane(tableList);
     }
