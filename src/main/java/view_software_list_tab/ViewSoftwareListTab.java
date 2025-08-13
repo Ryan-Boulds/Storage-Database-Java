@@ -1,7 +1,6 @@
 package view_software_list_tab;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -69,13 +68,11 @@ public class ViewSoftwareListTab extends JPanel {
         tableList = newTableList;
 
         JPanel tablePanel = new JPanel(new BorderLayout());
-        JPanel topPanel = new JPanel(new BorderLayout());
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        JPanel topPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        JPanel buttonPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
         JButton licenseKeyButton = new JButton("License Key Tracker");
         licenseKeyButton.addActionListener(e -> showLicenseKeyTracker());
-        buttonPanel.add(licenseKeyButton);
 
         JButton addColumnButton = new JButton("Add Column");
         addColumnButton.addActionListener(e -> {
@@ -115,6 +112,7 @@ public class ViewSoftwareListTab extends JPanel {
 
         JButton deleteColumnButton = new JButton("Delete Column");
         deleteColumnButton.addActionListener(e -> {
+            String[] ANSWERS = { "Yes", "No" };
             String tableName = tableManager.getTableName();
             if ("Inventory".equals(tableName)) {
                 JOptionPane.showMessageDialog(this, "Error: Deleting columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
@@ -133,12 +131,15 @@ public class ViewSoftwareListTab extends JPanel {
                 columnNames[0]
             );
             if (columnToDelete != null && !columnToDelete.equals("AssetName")) {
-                int confirm = JOptionPane.showConfirmDialog(
+                int confirm = JOptionPane.showOptionDialog(
                     this,
                     "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
                     "Confirm Delete Column",
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    ANSWERS,
+                    ANSWERS[1]
                 );
                 if (confirm == JOptionPane.YES_OPTION) {
                     try (Connection conn = DatabaseUtils.getConnection()) {
@@ -154,81 +155,54 @@ public class ViewSoftwareListTab extends JPanel {
                         System.err.println("ViewSoftwareListTab: SQLException deleting column in table '" + tableName + "': " + ex.getMessage());
                     }
                 }
-            } else if (columnToDelete != null && columnToDelete.equals("AssetName")) {
-                JOptionPane.showMessageDialog(this, "Error: Cannot delete the primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("ViewSoftwareListTab: Attempted to delete primary key column 'AssetName' in table '" + tableName + "'");
+            } else if (columnToDelete != null) {
+                JOptionPane.showMessageDialog(this, "Cannot delete primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         buttonPanel.add(deleteColumnButton);
 
-        topPanel.add(buttonPanel, BorderLayout.WEST);
-        topPanel.add(filterPanel.getPanel(), BorderLayout.CENTER);
+        JButton addRowButton = new JButton("Add New Entry");
+        addRowButton.addActionListener(e -> {
+            String tableName = tableManager.getTableName();
+            if ("Inventory".equals(tableName)) {
+                JOptionPane.showMessageDialog(this, "Error: Adding rows is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: Attempted to add row in Inventory table, which is not allowed");
+                return;
+            }
+            AddRowEntry.showAddDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
+        });
+        buttonPanel.add(addRowButton);
+
+        topPanel.add(licenseKeyButton);
+        topPanel.add(filterPanel.getPanel());
+        topPanel.add(buttonPanel);
         tablePanel.add(topPanel, BorderLayout.NORTH);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
-        mainSplitPane.setRightComponent(tablePanel);
 
+        mainSplitPane.setRightComponent(tablePanel);
         mainPanel.add(mainSplitPane, BorderLayout.CENTER);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent e) {
-                handleMouseEvent(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                handleMouseEvent(e);
-            }
-
-            private void handleMouseEvent(MouseEvent e) {
-                int columnIndex = table.columnAtPoint(e.getPoint());
-                int rowIndex = table.rowAtPoint(e.getPoint());
-                if (rowIndex < 0 || columnIndex < 0) {
-                    return;
-                }
-
-                if (e.isPopupTrigger()) {
-                    if (!table.isRowSelected(rowIndex)) {
-                        table.setRowSelectionInterval(rowIndex, rowIndex);
-                        table.setColumnSelectionInterval(columnIndex, columnIndex);
-                    }
-                    return;
-                }
-
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (columnIndex == 0) {
-                        table.changeSelection(rowIndex, columnIndex, false, false);
-                        if (table.editCellAt(rowIndex, columnIndex)) {
-                            Component editor = table.getEditorComponent();
-                            editor.requestFocusInWindow();
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    int column = table.columnAtPoint(e.getPoint());
+                    if (row >= 0 && column > 0) {
+                        int primaryKeyColumnIndex = -1;
+                        for (int i = 0; i < table.getColumnCount(); i++) {
+                            if ("AssetName".equals(table.getColumnName(i))) {
+                                primaryKeyColumnIndex = i;
+                                break;
+                            }
                         }
-                    } else {
-                        if (e.isControlDown()) {
-                            if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                                return;
+                        if (primaryKeyColumnIndex != -1) {
+                            String assetName = (String) table.getValueAt(row, primaryKeyColumnIndex);
+                            if (assetName != null && !assetName.trim().isEmpty()) {
+                                showDeviceDetails(assetName);
                             }
-                            if (table.isCellSelected(rowIndex, columnIndex)) {
-                                table.removeRowSelectionInterval(rowIndex, rowIndex);
-                            } else {
-                                table.addRowSelectionInterval(rowIndex, rowIndex);
-                                table.addColumnSelectionInterval(columnIndex, columnIndex);
-                            }
-                        } else if (e.isShiftDown()) {
-                            if (table.getSelectedColumn() != columnIndex && table.getSelectedColumnCount() > 0) {
-                                return;
-                            }
-                            int anchorRow = table.getSelectionModel().getAnchorSelectionIndex();
-                            if (anchorRow >= 0) {
-                                int start = Math.min(anchorRow, rowIndex);
-                                int end = Math.max(anchorRow, rowIndex);
-                                table.setRowSelectionInterval(start, end);
-                                table.setColumnSelectionInterval(columnIndex, columnIndex);
-                            }
-                        } else {
-                            table.setRowSelectionInterval(rowIndex, rowIndex);
-                            table.setColumnSelectionInterval(columnIndex, columnIndex);
                         }
                     }
                 }
@@ -251,7 +225,7 @@ public class ViewSoftwareListTab extends JPanel {
         initialize();
     }
 
-    public void showLicenseKeyTracker() {
+    private void showLicenseKeyTracker() {
         String tableName = tableManager.getTableName();
         if ("Inventory".equals(tableName)) {
             JOptionPane.showMessageDialog(this, "Error: License Key Tracker is not available for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
@@ -312,33 +286,33 @@ public class ViewSoftwareListTab extends JPanel {
             listModel.addElement("Error: " + e.getMessage());
         }
 
-        JList<String> newTableList = new JList<>(listModel);
-        newTableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        newTableList.setFixedCellWidth(180);
-        newTableList.setFixedCellHeight(25);
+        JList<String> localTableList = new JList<>(listModel);
+        localTableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        localTableList.setFixedCellWidth(180);
+        localTableList.setFixedCellHeight(25);
 
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
-                String selectedTable = newTableList.getSelectedValue();
+                String selectedTable = localTableList.getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     updateTableView(selectedTable);
                 }
             }
         };
-        newTableList.addListSelectionListener(originalTableListListener);
+        localTableList.addListSelectionListener(originalTableListListener);
 
         if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
-            newTableList.setSelectedIndex(0);
-            String initialTable = newTableList.getSelectedValue();
+            localTableList.setSelectedIndex(0);
+            String initialTable = localTableList.getSelectedValue();
             if (initialTable != null) {
                 tableManager.setTableName(initialTable);
                 tableManager.refreshDataAndTabs();
             }
         }
 
-        JScrollPane scrollPane = new JScrollPane(newTableList);
+        JScrollPane scrollPane = new JScrollPane(localTableList);
         tableListScrollPane = scrollPane;
-        tableList = newTableList;
+        tableList = localTableList;
         return scrollPane;
     }
 

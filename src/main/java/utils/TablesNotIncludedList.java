@@ -8,7 +8,7 @@ import java.util.List;
 //This is useful for keeping the code clean and avoiding hardcoded table names scattered throughout the codebase.
 public class TablesNotIncludedList {
     private static final List<String> EXCLUDED_TABLES_FOR_SOFTWARE_IMPORTER = Arrays.asList(
-        "Inventory", "Accessories", "Adapters", "Cables", "Templates"
+        "Inventory", "Accessories", "Adapters", "Cables", "Templates", "LicenseKeyRules"
     );
     
     //This is an example of another list for a different tab, such as "Other Tab".
