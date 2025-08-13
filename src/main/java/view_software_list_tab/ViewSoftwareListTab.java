@@ -8,8 +8,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,6 +39,7 @@ public class ViewSoftwareListTab extends JPanel {
     private JList<String> tableList;
     private JSplitPane mainSplitPane;
     private ListSelectionListener originalTableListListener;
+    private JPanel leftPanel;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -62,7 +65,54 @@ public class ViewSoftwareListTab extends JPanel {
         mainSplitPane.setDividerLocation(200);
 
         tableListScrollPane = createTableListScrollPane();
-        mainSplitPane.setLeftComponent(tableListScrollPane);
+        leftPanel = new JPanel(new BorderLayout());
+        JPanel topLeftPanel = new JPanel();
+        topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
+        JLabel softwareListLabel = new JLabel("Software list:");
+        JButton addNewTableButton = new JButton("Add New");
+        addNewTableButton.addActionListener(e -> {
+            String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
+            if (inputTableName != null && !inputTableName.trim().isEmpty()) {
+                final String newTableName = inputTableName.trim();
+                if (newTableName.equalsIgnoreCase("Inventory")) {
+                    JOptionPane.showMessageDialog(this, "Error: Table name 'Inventory' is reserved", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: Attempted to create reserved table 'Inventory'");
+                    return;
+                }
+                if (newTableName.matches("\\d+")) {
+                    JOptionPane.showMessageDialog(this, "Error: Table name cannot be purely numeric", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: Attempted to create numeric table name '" + newTableName + "'");
+                    return;
+                }
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    // Check if table already exists
+                    List<String> existingTables = DatabaseUtils.getTableNames();
+                    if (existingTables.stream().anyMatch(t -> t.equalsIgnoreCase(newTableName))) {
+                        JOptionPane.showMessageDialog(this, "Error: Table '" + newTableName + "' already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.err.println("ViewSoftwareListTab: Attempted to create existing table '" + newTableName + "'");
+                        return;
+                    }
+                    // Create new table with AssetName as primary key
+                    String sql = "CREATE TABLE [" + newTableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "Table '" + newTableName + "' created successfully");
+                    SwingUtilities.invokeLater(() -> {
+                        refreshTableList();
+                        tableManager.setTableName(newTableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Error creating table: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: SQLException creating table '" + newTableName + "': " + ex.getMessage());
+                }
+            }
+        });
+        topLeftPanel.add(softwareListLabel);
+        topLeftPanel.add(addNewTableButton);
+        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
+        leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
+        mainSplitPane.setLeftComponent(leftPanel);
+
         @SuppressWarnings("unchecked")
         JList<String> newTableList = (JList<String>) tableListScrollPane.getViewport().getView();
         tableList = newTableList;
@@ -290,7 +340,8 @@ public class ViewSoftwareListTab extends JPanel {
 
         JSplitPane trackerSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         trackerSplitPane.setDividerLocation(200);
-        trackerSplitPane.setLeftComponent(tableListScrollPane);
+        trackerSplitPane.setLeftComponent(leftPanel); // Use leftPanel instead of tableListScrollPane
+
         LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
         trackerSplitPane.setRightComponent(tracker);
 
@@ -371,6 +422,40 @@ public class ViewSoftwareListTab extends JPanel {
         return scrollPane;
     }
 
+    private void refreshTableList() {
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        try {
+            List<String> tableNames = DatabaseUtils.getTableNames();
+            List<String> excluded = TablesNotIncludedList.getExcludedTablesForSoftwareImporter();
+            List<String> validTables = new ArrayList<>();
+            for (String table : tableNames) {
+                if (!excluded.contains(table) && !table.equals("Inventory")) {
+                    validTables.add(table);
+                }
+            }
+            validTables.sort(String::compareToIgnoreCase);
+            for (String table : validTables) {
+                listModel.addElement(table);
+            }
+            if (listModel.isEmpty()) {
+                listModel.addElement("No tables available");
+            }
+        } catch (SQLException e) {
+            System.err.println("ViewSoftwareListTab: Error fetching table names: " + e.getMessage());
+            listModel.addElement("Error: " + e.getMessage());
+        }
+
+        tableList.setModel(listModel);
+        if (!listModel.isEmpty() && !listModel.getElementAt(0).startsWith("Error") && !listModel.getElementAt(0).equals("No tables available")) {
+            tableList.setSelectedIndex(0);
+            String selectedTable = tableList.getSelectedValue();
+            if (selectedTable != null) {
+                tableManager.setTableName(selectedTable);
+                tableManager.refreshDataAndTabs();
+            }
+        }
+    }
+
     private void updateTableView(String tableName) {
         tableManager.setTableName(tableName);
         refreshDataAndTabs();
@@ -421,7 +506,7 @@ public class ViewSoftwareListTab extends JPanel {
         remove(currentView);
         currentView = mainPanel;
         add(currentView, BorderLayout.CENTER);
-        mainSplitPane.setLeftComponent(tableListScrollPane);
+        mainSplitPane.setLeftComponent(leftPanel);
 
         for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
             tableList.removeListSelectionListener(listener);
