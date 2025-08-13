@@ -95,7 +95,7 @@ public class ViewSoftwareListTab extends JPanel {
                     }
                 }
                 try (Connection conn = DatabaseUtils.getConnection()) {
-                    String sql = "ALTER TABLE " + tableName + " ADD " + newColumnName + " VARCHAR(255)";
+                    String sql = "ALTER TABLE [" + tableName + "] ADD [" + newColumnName + "] VARCHAR(255)";
                     conn.createStatement().executeUpdate(sql);
                     JOptionPane.showMessageDialog(this, "Column added successfully");
                     SwingUtilities.invokeLater(() -> {
@@ -112,7 +112,6 @@ public class ViewSoftwareListTab extends JPanel {
 
         JButton deleteColumnButton = new JButton("Delete Column");
         deleteColumnButton.addActionListener(e -> {
-            String[] ANSWERS = { "Yes", "No" };
             String tableName = tableManager.getTableName();
             if ("Inventory".equals(tableName)) {
                 JOptionPane.showMessageDialog(this, "Error: Deleting columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
@@ -121,6 +120,12 @@ public class ViewSoftwareListTab extends JPanel {
             }
 
             String[] columnNames = tableManager.getColumns();
+            if (columnNames == null || columnNames.length == 0) {
+                JOptionPane.showMessageDialog(this, "Error: No columns available to delete", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: No columns available for table '" + tableName + "'");
+                return;
+            }
+
             String columnToDelete = (String) JOptionPane.showInputDialog(
                 this,
                 "Select column to delete:",
@@ -130,33 +135,83 @@ public class ViewSoftwareListTab extends JPanel {
                 columnNames,
                 columnNames[0]
             );
-            if (columnToDelete != null && !columnToDelete.equals("AssetName")) {
-                int confirm = JOptionPane.showOptionDialog(
-                    this,
-                    "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
-                    "Confirm Delete Column",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE,
-                    null,
-                    ANSWERS,
-                    ANSWERS[1]
-                );
-                if (confirm == JOptionPane.YES_OPTION) {
-                    try (Connection conn = DatabaseUtils.getConnection()) {
-                        String sql = "ALTER TABLE " + tableName + " DROP COLUMN " + columnToDelete;
-                        conn.createStatement().executeUpdate(sql);
-                        JOptionPane.showMessageDialog(this, "Column '" + columnToDelete + "' deleted successfully");
-                        SwingUtilities.invokeLater(() -> {
-                            tableManager.setTableName(tableName);
-                            tableManager.refreshDataAndTabs();
-                        });
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(this, "Error deleting column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        System.err.println("ViewSoftwareListTab: SQLException deleting column in table '" + tableName + "': " + ex.getMessage());
+            if (columnToDelete == null) {
+                return; // User canceled
+            }
+            if (columnToDelete.equals("AssetName")) {
+                JOptionPane.showMessageDialog(this, "Error: Cannot delete primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("ViewSoftwareListTab: Attempted to delete primary key column 'AssetName' in table '" + tableName + "'");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
+                "Confirm Delete Column",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection conn = DatabaseUtils.getConnection()) {
+                    // Get all columns except the one to delete
+                    List<String> remainingColumns = new ArrayList<>();
+                    for (String col : columnNames) {
+                        if (!col.equals(columnToDelete)) {
+                            remainingColumns.add(col);
+                        }
                     }
+                    if (remainingColumns.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Error: Cannot delete the last column in the table", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.err.println("ViewSoftwareListTab: Attempted to delete last column '" + columnToDelete + "' in table '" + tableName + "'");
+                        return;
+                    }
+
+                    // Create a temporary table with remaining columns
+                    String tempTableName = tableName + "_temp";
+                    StringBuilder createSql = new StringBuilder("CREATE TABLE [" + tempTableName + "] (");
+                    for (int i = 0; i < remainingColumns.size(); i++) {
+                        createSql.append("[").append(remainingColumns.get(i)).append("] VARCHAR(255)");
+                        if (remainingColumns.get(i).equals("AssetName")) {
+                            createSql.append(" PRIMARY KEY");
+                        }
+                        if (i < remainingColumns.size() - 1) {
+                            createSql.append(", ");
+                        }
+                    }
+                    createSql.append(")");
+                    conn.createStatement().executeUpdate(createSql.toString());
+
+                    // Copy data to temporary table
+                    StringBuilder selectColumns = new StringBuilder();
+                    for (int i = 0; i < remainingColumns.size(); i++) {
+                        selectColumns.append("[").append(remainingColumns.get(i)).append("]");
+                        if (i < remainingColumns.size() - 1) {
+                            selectColumns.append(", ");
+                        }
+                    }
+                    String insertSql = "INSERT INTO [" + tempTableName + "] (" + selectColumns + ") SELECT " + selectColumns + " FROM [" + tableName + "]";
+                    conn.createStatement().executeUpdate(insertSql);
+
+                    // Drop original table
+                    conn.createStatement().executeUpdate("DROP TABLE [" + tableName + "]");
+
+                    // Rename temporary table to original name
+                    String renameSql = "ALTER TABLE [" + tempTableName + "] RENAME TO [" + tableName + "]";
+                    conn.createStatement().executeUpdate(renameSql);
+
+                    JOptionPane.showMessageDialog(this, "Column '" + columnToDelete + "' deleted successfully");
+                    SwingUtilities.invokeLater(() -> {
+                        tableManager.setTableName(tableName);
+                        tableManager.refreshDataAndTabs();
+                    });
+                } catch (SQLException ex) {
+                    String errorMessage = ex.getMessage();
+                    if (errorMessage.contains("FeatureNotSupportedException")) {
+                        errorMessage = "This version of UCanAccess does not support dropping columns directly. Please contact the administrator or update the database driver.";
+                    }
+                    JOptionPane.showMessageDialog(this, "Error deleting column: " + errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println("ViewSoftwareListTab: SQLException deleting column '" + columnToDelete + "' in table '" + tableName + "': " + ex.getMessage());
                 }
-            } else if (columnToDelete != null) {
-                JOptionPane.showMessageDialog(this, "Cannot delete primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         buttonPanel.add(deleteColumnButton);
