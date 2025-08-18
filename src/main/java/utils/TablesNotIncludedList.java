@@ -11,6 +11,12 @@ public class TablesNotIncludedList {
         "Inventory", "Accessories", "Adapters", "Cables", "Templates", "LicenseKeyRules"
     );
     
+
+    
+    private static final List<String> INCLUDED_TABLES_FOR_INVENTORY = Arrays.asList(
+        "Computers", "Printers", "Docks", "Switches"
+    );
+
     //This is an example of another list for a different tab, such as "Other Tab".
     // private static final List<String> EXCLUDED_TABLES_FOR_OTHER_TAB = Arrays.asList(
     //     "OtherTable1", "OtherTable2"
@@ -20,6 +26,10 @@ public class TablesNotIncludedList {
         return EXCLUDED_TABLES_FOR_SOFTWARE_IMPORTER;
     }
 
+    public static List<String> getIncludedTablesForInventory() {
+        return INCLUDED_TABLES_FOR_INVENTORY;
+    }
+    
     // This method can be used to get the list of excluded tables for other tabs if needed.
     // public static List<String> getExcludedTablesForOtherTab() {
     //     return EXCLUDED_TABLES_FOR_OTHER_TAB;

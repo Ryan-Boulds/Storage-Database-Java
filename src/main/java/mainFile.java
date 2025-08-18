@@ -20,7 +20,7 @@ import log_cables.LogCablesTab;
 import mass_entry_modifier.MassEntryModifierTab;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
-import view_inventorytab.ViewInventoryTab;
+import view_inventory_tab.ViewInventoryTab;
 import view_software_list_tab.ViewSoftwareListTab;
 
 public class mainFile {
