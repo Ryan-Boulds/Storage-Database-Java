@@ -6,13 +6,18 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,13 +30,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import utils.DataUtils;
 import utils.DatabaseUtils;
-import utils.SQLGenerator;
 import utils.UIComponentUtils;
 
 public class AddRowEntry extends JDialog {
-    private final HashMap<String, String> device;
     private String[] columnNames;
     private final Map<String, Integer> columnTypes;
     private JComponent[] inputs;
@@ -42,7 +44,6 @@ public class AddRowEntry extends JDialog {
 
     public AddRowEntry(JFrame parent, TableManager tableManager) {
         super(parent, "Add Row Entry", true);
-        this.device = new HashMap<>();
         this.tableManager = tableManager;
         this.columnNames = tableManager.getColumns();
         this.columnTypes = tableManager.getColumnTypes();
@@ -82,9 +83,10 @@ public class AddRowEntry extends JDialog {
     }
 
     private void refreshInputFields() {
-        inputPanel.removeAll();
-        columnNames = tableManager.getColumns();
+        LOGGER.log(Level.INFO, "refreshInputFields: Starting refresh, current columns: {0}", String.join(", ", columnNames));
+        columnNames = tableManager.getColumns(); // Refresh columns from TableManager
         inputs = new JComponent[columnNames.length];
+        inputPanel.removeAll(); // Clear existing components
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -99,132 +101,129 @@ public class AddRowEntry extends JDialog {
 
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
-            int sqlType = columnTypes.getOrDefault(columnName, Types.VARCHAR);
-            System.out.println("AddDialog: Column " + columnName + " SQL type: " + sqlType);
-
             gbc.gridx = 0;
             gbc.gridy = i;
-            gbc.weightx = 0.0;
-            gbc.fill = GridBagConstraints.NONE;
+            gbc.anchor = GridBagConstraints.EAST;
             inputPanel.add(UIComponentUtils.createAlignedLabel(columnName), gbc);
 
             gbc.gridx = 1;
-            gbc.weightx = 1.0;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-
-            if (sqlType == Types.BIT || sqlType == Types.BOOLEAN) {
-                JCheckBox checkBox = new JCheckBox();
-                checkBox.setSelected(device.getOrDefault(columnName, "false").equalsIgnoreCase("true"));
-                inputs[i] = checkBox;
+            gbc.anchor = GridBagConstraints.WEST;
+            Integer sqlType = columnTypes.get(columnName);
+            if (sqlType != null && sqlType == Types.BIT) {
+                inputs[i] = new JCheckBox();
             } else {
-                JTextField textField = new JTextField(20);
-                textField.setText(device.getOrDefault(columnName, ""));
-                inputs[i] = textField;
+                inputs[i] = UIComponentUtils.createFormattedTextField();
+                ((JTextField) inputs[i]).setColumns(20);
             }
             inputPanel.add(inputs[i], gbc);
         }
 
+        // Force UI update
         inputPanel.revalidate();
         inputPanel.repaint();
+        scrollPane.revalidate();
+        scrollPane.repaint();
+        SwingUtilities.invokeLater(() -> {
+            inputPanel.revalidate();
+            inputPanel.repaint();
+            scrollPane.revalidate();
+            scrollPane.repaint();
+            LOGGER.log(Level.INFO, "refreshInputFields: Completed UI refresh, new columns: {0}", String.join(", ", columnNames));
+        });
     }
 
     private void saveAction() {
         String tableName = tableManager.getTableName();
-        Map<String, String> data = new HashMap<>();
+        Map<String, String> values = new HashMap<>();
         for (int i = 0; i < columnNames.length; i++) {
-            String value;
-            if (inputs[i] instanceof JCheckBox) {
-                value = ((JCheckBox) inputs[i]).isSelected() ? "true" : "false";
-            } else {
-                value = ((JTextField) inputs[i]).getText();
+            String columnName = columnNames[i];
+            if (inputs[i] instanceof JTextField) {
+                String text = ((JTextField) inputs[i]).getText().trim();
+                values.put(columnName, text.isEmpty() ? null : text);
+            } else if (inputs[i] instanceof JCheckBox) {
+                values.put(columnName, ((JCheckBox) inputs[i]).isSelected() ? "true" : "false");
             }
-            data.put(columnNames[i], value);
         }
 
-        String validationResult = DataUtils.validateDevice(data, tableName);
-        if (validationResult != null) {
-            JOptionPane.showMessageDialog(this, validationResult, "Validation Error", JOptionPane.ERROR_MESSAGE);
+        String assetName = values.get("AssetName");
+        if (assetName == null || assetName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Error: AssetName is required", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Attempted to save empty AssetName in table '{0}'", tableName);
             return;
         }
 
-        String sql = SQLGenerator.generateInsertSQL(tableName, data);
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (int i = 0; i < columnNames.length; i++) {
-                String value = data.get(columnNames[i]);
-                int sqlType = columnTypes.getOrDefault(columnNames[i], Types.VARCHAR);
-                if (value == null || value.trim().isEmpty()) {
-                    ps.setNull(i + 1, sqlType);
-                } else if (sqlType == Types.BIT || sqlType == Types.BOOLEAN) {
-                    ps.setBoolean(i + 1, Boolean.parseBoolean(value));
-                } else {
-                    ps.setString(i + 1, value);
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            StringBuilder sql = new StringBuilder("INSERT INTO [" + tableName + "] (");
+            StringBuilder placeholders = new StringBuilder();
+            List<String> columns = new ArrayList<>();
+            List<String> parameters = new ArrayList<>();
+            for (String column : columnNames) {
+                columns.add("[" + column + "]");
+                placeholders.append("?");
+                parameters.add(values.get(column));
+                if (!column.equals(columnNames[columnNames.length - 1])) {
+                    placeholders.append(", ");
                 }
             }
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Row added successfully");
+            sql.append(String.join(", ", columns)).append(") VALUES (").append(placeholders).append(")");
+            try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                for (int i = 0; i < parameters.size(); i++) {
+                    ps.setString(i + 1, parameters.get(i));
+                }
+                ps.executeUpdate();
+            }
+            JOptionPane.showMessageDialog(this, "Row added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
             SwingUtilities.invokeLater(() -> {
                 tableManager.refreshDataAndTabs();
                 dispose();
             });
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error saving entry to table {0}: {1}", new Object[]{tableName, e.getMessage()});
-            JOptionPane.showMessageDialog(this, "Error saving entry: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error adding row: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "SQLException adding row to table '{0}': {1}", new Object[]{tableName, e.getMessage()});
         }
     }
 
     private void addColumnAction() {
-        String tableName = tableManager.getTableName();
-        String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
-        if (newColumnName != null && !newColumnName.trim().isEmpty()) {
-            newColumnName = newColumnName.trim();
-            for (String column : columnNames) {
-                if (column.equalsIgnoreCase(newColumnName)) {
-                    JOptionPane.showMessageDialog(this, "Error: Column '" + newColumnName + "' already exists (case-insensitive)", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("AddDialog: Attempted to add existing column '" + newColumnName + "' to table '" + tableName + "'");
-                    return;
-                }
+        String inputColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
+        if (inputColumnName != null && !inputColumnName.trim().isEmpty()) {
+            final String newColumnName = inputColumnName.trim();
+            String tableName = tableManager.getTableName();
+            if (Arrays.asList(columnNames).contains(newColumnName)) {
+                JOptionPane.showMessageDialog(this, "Error: Column '" + newColumnName + "' already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.SEVERE, "Attempted to add duplicate column '{0}' to table '{1}'", new Object[]{newColumnName, tableName});
+                return;
             }
             try (Connection conn = DatabaseUtils.getConnection()) {
-                String sql = "ALTER TABLE [" + tableName + "] ADD [" + newColumnName + "] VARCHAR(255)";
+                String sql = "ALTER TABLE [" + tableName + "] ADD COLUMN [" + newColumnName + "] VARCHAR(255)";
                 conn.createStatement().executeUpdate(sql);
-                JOptionPane.showMessageDialog(this, "Column added successfully");
+                JOptionPane.showMessageDialog(this, "Column '" + newColumnName + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
+                    tableManager.setTableName(tableName); // Force schema reload
                     tableManager.refreshDataAndTabs();
                     refreshInputFields();
+                    LOGGER.log(Level.INFO, "addColumnAction: Added column '{0}' to table '{1}' and refreshed UI", new Object[]{newColumnName, tableName});
                 });
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Error adding column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("AddDialog: SQLException adding column to table '" + tableName + "': " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "SQLException adding column '{0}' to table '{1}': {2}", new Object[]{newColumnName, tableName, e.getMessage()});
             }
         }
     }
 
     private void deleteColumnAction() {
         String tableName = tableManager.getTableName();
-        String[] columns = tableManager.getColumns();
-        if (columns == null || columns.length == 0) {
-            JOptionPane.showMessageDialog(this, "Error: No columns available to delete", "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println("AddDialog: No columns available for table '" + tableName + "'");
-            return;
-        }
-
         String columnToDelete = (String) JOptionPane.showInputDialog(
             this,
             "Select column to delete:",
             "Delete Column",
             JOptionPane.PLAIN_MESSAGE,
             null,
-            columns,
-            columns[0]
+            columnNames,
+            columnNames[0]
         );
-        if (columnToDelete == null) {
-            return; // User canceled
-        }
-        if (columnToDelete.equals("AssetName")) {
-            JOptionPane.showMessageDialog(this, "Error: Cannot delete primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println("AddDialog: Attempted to delete primary key column 'AssetName' in table '" + tableName + "'");
+        if (columnToDelete == null || columnToDelete.equals("AssetName")) {
+            JOptionPane.showMessageDialog(this, "Error: Cannot delete the primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Attempted to delete primary key column 'AssetName' in table '{0}'", tableName);
             return;
         }
 
@@ -237,27 +236,35 @@ public class AddRowEntry extends JDialog {
         );
         if (confirm == JOptionPane.YES_OPTION) {
             try (Connection conn = DatabaseUtils.getConnection()) {
-                String[] newColumns = new String[columns.length - 1];
-                int index = 0;
-                for (String col : columns) {
+                List<String> remainingColumns = new ArrayList<>();
+                for (String col : columnNames) {
                     if (!col.equals(columnToDelete)) {
-                        newColumns[index++] = col;
+                        remainingColumns.add(col);
                     }
                 }
-                if (newColumns.length == 0) {
+                if (remainingColumns.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Error: Cannot delete the last column in the table", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("AddDialog: Attempted to delete last column '" + columnToDelete + "' in table '" + tableName + "'");
+                    LOGGER.log(Level.SEVERE, "Attempted to delete last column '{0}' in table '{1}'", new Object[]{columnToDelete, tableName});
                     return;
                 }
 
                 String tempTableName = tableName + "_temp";
+                // Drop temporary table if it exists
+                DatabaseMetaData meta = conn.getMetaData();
+                try (ResultSet rs = meta.getTables(null, null, tempTableName, new String[]{"TABLE"})) {
+                    if (rs.next()) {
+                        conn.createStatement().executeUpdate("DROP TABLE [" + tempTableName + "]");
+                        LOGGER.log(Level.INFO, "Dropped existing temporary table '{0}'", tempTableName);
+                    }
+                }
+
                 StringBuilder createSql = new StringBuilder("CREATE TABLE [" + tempTableName + "] (");
-                for (int i = 0; i < newColumns.length; i++) {
-                    createSql.append("[").append(newColumns[i]).append("] VARCHAR(255)");
-                    if (newColumns[i].equals("AssetName")) {
+                for (int i = 0; i < remainingColumns.size(); i++) {
+                    createSql.append("[").append(remainingColumns.get(i)).append("] VARCHAR(255)");
+                    if (remainingColumns.get(i).equals("AssetName")) {
                         createSql.append(" PRIMARY KEY");
                     }
-                    if (i < newColumns.length - 1) {
+                    if (i < remainingColumns.size() - 1) {
                         createSql.append(", ");
                     }
                 }
@@ -265,9 +272,9 @@ public class AddRowEntry extends JDialog {
                 conn.createStatement().executeUpdate(createSql.toString());
 
                 StringBuilder selectColumns = new StringBuilder();
-                for (int i = 0; i < newColumns.length; i++) {
-                    selectColumns.append("[").append(newColumns[i]).append("]");
-                    if (i < newColumns.length - 1) {
+                for (int i = 0; i < remainingColumns.size(); i++) {
+                    selectColumns.append("[").append(remainingColumns.get(i)).append("]");
+                    if (i < remainingColumns.size() - 1) {
                         selectColumns.append(", ");
                     }
                 }
@@ -279,11 +286,12 @@ public class AddRowEntry extends JDialog {
                 String renameSql = "ALTER TABLE [" + tempTableName + "] RENAME TO [" + tableName + "]";
                 conn.createStatement().executeUpdate(renameSql);
 
-                JOptionPane.showMessageDialog(this, "Column deleted successfully");
+                JOptionPane.showMessageDialog(this, "Column '" + columnToDelete + "' deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
+                    tableManager.setTableName(tableName); // Force schema reload
                     tableManager.refreshDataAndTabs();
                     refreshInputFields();
+                    LOGGER.log(Level.INFO, "deleteColumnAction: Deleted column '{0}' from table '{1}' and refreshed UI", new Object[]{columnToDelete, tableName});
                 });
             } catch (SQLException e) {
                 String errorMessage = e.getMessage();
@@ -291,118 +299,43 @@ public class AddRowEntry extends JDialog {
                     errorMessage = "This version of UCanAccess does not support dropping columns directly. Please contact the administrator or update the database driver.";
                 }
                 JOptionPane.showMessageDialog(this, "Error deleting column: " + errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("AddDialog: SQLException deleting column '" + columnToDelete + "' in table '" + tableName + "': " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "SQLException deleting column '{0}' in table '{1}': {2}", new Object[]{columnToDelete, tableName, e.getMessage()});
             }
         }
     }
 
     private void renameColumnAction() {
         String tableName = tableManager.getTableName();
-        String[] columns = tableManager.getColumns();
-        if (columns == null || columns.length == 0) {
-            JOptionPane.showMessageDialog(this, "Error: No columns available to rename", "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println("AddDialog: No columns available for table '" + tableName + "'");
-            return;
-        }
-
         String oldColumnName = (String) JOptionPane.showInputDialog(
             this,
             "Select column to rename:",
             "Rename Column",
             JOptionPane.PLAIN_MESSAGE,
             null,
-            columns,
-            columns[0]
+            columnNames,
+            columnNames[0]
         );
-        if (oldColumnName == null) {
-            return; // User canceled
-        }
-        if (oldColumnName.equals("AssetName")) {
-            JOptionPane.showMessageDialog(this, "Error: Cannot rename primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println("AddDialog: Attempted to rename primary key column 'AssetName' in table '" + tableName + "'");
-            return;
-        }
-
-        String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
-        if (newColumnName != null && !newColumnName.trim().isEmpty()) {
-            newColumnName = newColumnName.trim();
-            for (String column : columns) {
-                if (column.equalsIgnoreCase(newColumnName)) {
-                    JOptionPane.showMessageDialog(this, "Error: Column '" + newColumnName + "' already exists (case-insensitive)", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("AddDialog: Attempted to rename to existing column '" + newColumnName + "' in table '" + tableName + "'");
-                    return;
-                }
-            }
-
-            int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to rename the column '" + oldColumnName + "' to '" + newColumnName + "'?",
-                "Confirm Rename Column",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
+        if (oldColumnName != null && !oldColumnName.equals("AssetName")) {
+            String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
+            if (newColumnName != null && !newColumnName.trim().isEmpty()) {
+                final String finalNewColumnName = newColumnName.trim();
                 try (Connection conn = DatabaseUtils.getConnection()) {
-                    String[] newColumns = new String[columns.length];
-                    for (int i = 0; i < columns.length; i++) {
-                        if (columns[i].equals(oldColumnName)) {
-                            newColumns[i] = newColumnName;
-                        } else {
-                            newColumns[i] = columns[i];
-                        }
-                    }
-
-                    String tempTableName = tableName + "_temp";
-                    StringBuilder createSql = new StringBuilder("CREATE TABLE [" + tempTableName + "] (");
-                    for (int i = 0; i < newColumns.length; i++) {
-                        createSql.append("[").append(newColumns[i]).append("] VARCHAR(255)");
-                        if (newColumns[i].equals("AssetName")) {
-                            createSql.append(" PRIMARY KEY");
-                        }
-                        if (i < newColumns.length - 1) {
-                            createSql.append(", ");
-                        }
-                    }
-                    createSql.append(")");
-                    conn.createStatement().executeUpdate(createSql.toString());
-
-                    StringBuilder selectColumns = new StringBuilder();
-                    for (int i = 0; i < columns.length; i++) {
-                        selectColumns.append("[").append(columns[i]).append("]");
-                        if (i < columns.length - 1) {
-                            selectColumns.append(", ");
-                        }
-                    }
-                    StringBuilder insertColumns = new StringBuilder();
-                    for (int i = 0; i < newColumns.length; i++) {
-                        insertColumns.append("[").append(newColumns[i]).append("]");
-                        if (i < newColumns.length - 1) {
-                            insertColumns.append(", ");
-                        }
-                    }
-                    String insertSql = "INSERT INTO [" + tempTableName + "] (" + insertColumns + ") SELECT " + selectColumns + " FROM [" + tableName + "]";
-                    conn.createStatement().executeUpdate(insertSql);
-
-                    conn.createStatement().executeUpdate("DROP TABLE [" + tableName + "]");
-
-                    String renameSql = "ALTER TABLE [" + tempTableName + "] RENAME TO [" + tableName + "]";
-                    conn.createStatement().executeUpdate(renameSql);
-
-                    JOptionPane.showMessageDialog(this, "Column renamed successfully");
+                    String sql = "ALTER TABLE [" + tableName + "] RENAME COLUMN [" + oldColumnName + "] TO [" + finalNewColumnName + "]";
+                    conn.createStatement().executeUpdate(sql);
+                    JOptionPane.showMessageDialog(this, "Column renamed successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                     SwingUtilities.invokeLater(() -> {
-                        tableManager.setTableName(tableName);
+                        tableManager.setTableName(tableName); // Force schema reload
                         tableManager.refreshDataAndTabs();
                         refreshInputFields();
+                        LOGGER.log(Level.INFO, "renameColumnAction: Renamed column '{0}' to '{1}' in table '{2}' and refreshed UI", new Object[]{oldColumnName, finalNewColumnName, tableName});
                     });
                 } catch (SQLException e) {
-                    String errorMessage = e.getMessage();
-                    if (errorMessage.contains("FeatureNotSupportedException")) {
-                        errorMessage = "This version of UCanAccess does not support renaming columns directly. Please contact the administrator or update the database driver.";
-                    }
-                    JOptionPane.showMessageDialog(this, "Error renaming column: " + errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("AddDialog: SQLException renaming column '" + oldColumnName + "' to '" + newColumnName + "' in table '" + tableName + "': " + e.getMessage());
+                    JOptionPane.showMessageDialog(this, "Error renaming column: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    LOGGER.log(Level.SEVERE, "Error renaming column '{0}' in table '{1}': {2}", new Object[]{oldColumnName, tableName, e.getMessage()});
                 }
             }
+        } else if (oldColumnName != null) {
+            JOptionPane.showMessageDialog(this, "Error: Cannot rename the primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

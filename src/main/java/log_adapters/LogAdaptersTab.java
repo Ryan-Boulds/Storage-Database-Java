@@ -147,7 +147,7 @@ public final class LogAdaptersTab extends JPanel {
                     JOptionPane.showMessageDialog(dialog, "Adapter type already exists", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        DatabaseUtils.updatePeripheralCount(newType, 0, "Adapter");
+                        DatabaseUtils.updatePeripheral(newType, 0, "Adapter");
                         JOptionPane.showMessageDialog(dialog, "Adapter type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
                         refresh();
@@ -174,7 +174,7 @@ public final class LogAdaptersTab extends JPanel {
             String type = (String) tableModel.getValueAt(selectedRow, 0);
             int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
             try {
-                DatabaseUtils.updatePeripheralCount(type, 1, "Adapter");
+                DatabaseUtils.updatePeripheral(type, 1, "Adapter");
                 tableModel.setValueAt(currentCount + 1, selectedRow, 1);
                 statusLabel.setText("Successfully added 1 to " + type);
             } catch (SQLException ex) {
@@ -198,7 +198,7 @@ public final class LogAdaptersTab extends JPanel {
                 return;
             }
             try {
-                DatabaseUtils.updatePeripheralCount(type, -1, "Adapter");
+                DatabaseUtils.updatePeripheral(type, -1, "Adapter");
                 tableModel.setValueAt(currentCount - 1, selectedRow, 1);
                 statusLabel.setText("Successfully removed 1 from " + type);
             } catch (SQLException ex) {

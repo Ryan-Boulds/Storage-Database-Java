@@ -147,7 +147,7 @@ public final class LogCablesTab extends JPanel {
                     JOptionPane.showMessageDialog(dialog, "Cable type already exists", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        DatabaseUtils.updatePeripheralCount(newType, 0, "Cable");
+                        DatabaseUtils.updatePeripheral(newType, 0, "Cable");
                         JOptionPane.showMessageDialog(dialog, "Cable type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
                         refresh();
@@ -174,7 +174,7 @@ public final class LogCablesTab extends JPanel {
             String type = (String) tableModel.getValueAt(selectedRow, 0);
             int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
             try {
-                DatabaseUtils.updatePeripheralCount(type, 1, "Cable");
+                DatabaseUtils.updatePeripheral(type, 1, "Cable");
                 tableModel.setValueAt(currentCount + 1, selectedRow, 1);
                 statusLabel.setText("Successfully added 1 to " + type);
             } catch (SQLException ex) {
@@ -198,7 +198,7 @@ public final class LogCablesTab extends JPanel {
                 return;
             }
             try {
-                DatabaseUtils.updatePeripheralCount(type, -1, "Cable");
+                DatabaseUtils.updatePeripheral(type, -1, "Cable");
                 tableModel.setValueAt(currentCount - 1, selectedRow, 1);
                 statusLabel.setText("Successfully removed 1 from " + type);
             } catch (SQLException ex) {

@@ -33,17 +33,13 @@ public class PeripheralUtils {
         return 0;
     }
 
-    public static void updatePeripheralCount(String peripheralType, int countDelta, ArrayList<HashMap<String, String>> peripherals, JLabel statusLabel) {
-        try {
-            String category = peripherals == InventoryData.getCables() ? "Cable" : "Accessory";
-            DatabaseUtils.updatePeripheralCount(peripheralType, countDelta, category);
-            statusLabel.setText("Successfully updated " + peripheralType + " count");
-        } catch (SQLException e) {
-            statusLabel.setText("Error: " + e.getMessage());
-        }
+    public static void updatePeripheralCount(String peripheralType, int countDelta, ArrayList<HashMap<String, String>> peripherals, JLabel statusLabel) throws SQLException {
+        String category = peripherals.equals(DatabaseUtils.loadPeripherals("Cable")) ? "Cable" : "Accessory";
+        DatabaseUtils.updatePeripheral(peripheralType, countDelta, category);
+        statusLabel.setText("Successfully updated " + peripheralType + " count");
     }
 
-    public static void addNewPeripheralType(JTextField newTypeField, JComboBox<String> comboBox, JLabel statusLabel, ArrayList<HashMap<String, String>> peripherals, ArrayList<String> existingTypes) {
+    public static void addNewPeripheralType(JTextField newTypeField, JComboBox<String> comboBox, JLabel statusLabel, ArrayList<HashMap<String, String>> peripherals, ArrayList<String> existingTypes) throws SQLException {
         String newType = newTypeField.getText().trim();
         if (newType.isEmpty()) {
             statusLabel.setText("Error: New type cannot be empty");
@@ -53,17 +49,13 @@ public class PeripheralUtils {
             statusLabel.setText("Error: Type already exists");
             return;
         }
-        try {
-            String category = peripherals == InventoryData.getCables() ? "Cable" : "Accessory";
-            DatabaseUtils.updatePeripheralCount(newType, 0, category);
-            existingTypes.add(newType);
-            comboBox.addItem(newType);
-            comboBox.setSelectedItem(newType);
-            newTypeField.setText("");
-            newTypeField.setVisible(false);
-            statusLabel.setText("Successfully added new type: " + newType);
-        } catch (SQLException e) {
-            statusLabel.setText("Error: " + e.getMessage());
-        }
+        String category = peripherals.equals(DatabaseUtils.loadPeripherals("Cable")) ? "Cable" : "Accessory";
+        DatabaseUtils.updatePeripheral(newType, 0, category);
+        existingTypes.add(newType);
+        comboBox.addItem(newType);
+        comboBox.setSelectedItem(newType);
+        newTypeField.setText("");
+        newTypeField.setVisible(false);
+        statusLabel.setText("Successfully added new type: " + newType);
     }
 }

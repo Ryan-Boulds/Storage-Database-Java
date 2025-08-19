@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -28,6 +30,7 @@ public class SingleRenameDialog extends JDialog {
     private final String columnName;
     private final String originalAssetName;
     private final TableManager tableManager;
+    private static final Logger LOGGER = Logger.getLogger(SingleRenameDialog.class.getName());
 
     public SingleRenameDialog(Frame parent, String originalValue, String columnName, String originalAssetName, JTable deviceTable, TableManager tableManager) {
         super(parent, "Modify " + columnName, true);
@@ -35,7 +38,7 @@ public class SingleRenameDialog extends JDialog {
         this.columnName = columnName;
         this.originalAssetName = originalAssetName;
         this.tableManager = tableManager;
-        System.out.println("SingleRenameDialog: originalAssetName='" + originalAssetName + "', columnName='" + columnName + "', originalValue='" + originalValue + "'");
+        LOGGER.log(Level.INFO, "SingleRenameDialog: originalAssetName=''{0}'', columnName=''{1}'', originalValue=''{2}''", new Object[]{originalAssetName, columnName, originalValue});
         initializeComponents();
         populateFields();
         setLocationRelativeTo(parent);
@@ -78,31 +81,34 @@ public class SingleRenameDialog extends JDialog {
         String tableName = tableManager.getTableName();
         if ("Inventory".equals(tableName)) {
             statusLabel.setText("Error: Editing is not allowed for the Inventory table");
-            System.err.println("SingleRenameDialog: Attempted to edit in Inventory table, which is not allowed");
+            LOGGER.severe("SingleRenameDialog: Attempted to edit in Inventory table, which is not allowed");
             return;
         }
 
         String newValue = valueField.getText().trim();
         if (newValue.isEmpty() && columnName.equals("AssetName")) {
             statusLabel.setText("Error: Asset Name cannot be empty");
+            LOGGER.severe("SingleRenameDialog: Asset Name cannot be empty");
             return;
         }
 
         try {
             HashMap<String, String> device = DatabaseUtils.getDeviceByAssetName(tableName, originalAssetName);
             if (device == null) {
-                System.err.println("SingleRenameDialog: Device not found for AssetName='" + originalAssetName + "' in table '" + tableName + "'");
+                LOGGER.log(Level.SEVERE, "SingleRenameDialog: Device not found for AssetName=''{0}'' in table ''{1}''", new Object[]{originalAssetName, tableName});
                 statusLabel.setText("Error: Device not found for AssetName: " + originalAssetName);
                 return;
             }
-            System.out.println("SingleRenameDialog: Device found, updating " + columnName + " from '" + originalValue + "' to '" + newValue + "' in table '" + tableName + "'");
+            LOGGER.log(Level.INFO, "SingleRenameDialog: Device found, updating {0} from ''{1}'' to ''{2}'' in table ''{3}''", new Object[]{columnName, originalValue, newValue, tableName});
 
             device.put(columnName, newValue);
-            String validationError = DataUtils.validateDevice(device, originalAssetName);
-            if (validationError != null) {
-                System.err.println("SingleRenameDialog: Validation error: " + validationError);
-                statusLabel.setText("Error: " + validationError);
-                return;
+            if (columnName.equals("AssetName")) {
+                String validationError = DataUtils.validateDevice(device, originalAssetName);
+                if (validationError != null) {
+                    LOGGER.log(Level.SEVERE, "SingleRenameDialog: Validation error: {0}", validationError);
+                    statusLabel.setText("Error: " + validationError);
+                    return;
+                }
             }
 
             DatabaseUtils.updateDevice(tableName, device);
@@ -112,7 +118,7 @@ public class SingleRenameDialog extends JDialog {
             }
             dispose();
         } catch (SQLException e) {
-            System.err.println("SingleRenameDialog: SQLException in table '" + tableName + "': " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "SingleRenameDialog: SQLException in table ''{0}'': {1}", new Object[]{tableName, e.getMessage()});
             statusLabel.setText("Error: " + e.getMessage());
         }
     }

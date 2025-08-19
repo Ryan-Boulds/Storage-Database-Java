@@ -5,19 +5,32 @@ import java.util.Map;
 public class SQLGenerator {
     public static String generateInsertSQL(String tableName, Map<String, String> data) {
         StringBuilder columns = new StringBuilder();
-        StringBuilder placeholders = new StringBuilder();
-        for (String column : data.keySet()) {
-            if (columns.length() > 0) {
+        StringBuilder values = new StringBuilder();
+        boolean first = true;
+        for (String key : data.keySet()) {
+            if (!first) {
                 columns.append(", ");
-                placeholders.append(", ");
+                values.append(", ");
             }
-            columns.append("[").append(column).append("]");
-            placeholders.append("?");
+            columns.append("[").append(key).append("]");
+            values.append("?");
+            first = false;
         }
-        return String.format("INSERT INTO [%s] (%s) VALUES (%s)", tableName, columns, placeholders);
+        return "INSERT INTO [" + tableName + "] (" + columns + ") VALUES (" + values + ")";
     }
 
-    public static String formatDeviceSQL(String tableName, Map<String, String> data) {
-        return generateInsertSQL(tableName != null ? tableName : "Computers", data);
+    public static String generateUpdateSQL(String tableName, Map<String, String> data) {
+        StringBuilder setClause = new StringBuilder();
+        boolean first = true;
+        for (String key : data.keySet()) {
+            if (!key.equals("AssetName")) {
+                if (!first) {
+                    setClause.append(", ");
+                }
+                setClause.append("[").append(key).append("] = ?");
+                first = false;
+            }
+        }
+        return "UPDATE [" + tableName + "] SET " + setClause + " WHERE AssetName = ?";
     }
 }

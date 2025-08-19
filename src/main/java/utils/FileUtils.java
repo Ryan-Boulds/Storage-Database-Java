@@ -35,7 +35,7 @@ public class FileUtils {
     }
 
     public static ArrayList<HashMap<String, String>> loadDevices() throws SQLException {
-        return DatabaseUtils.loadDevices("Inventory");
+        return DatabaseUtils.loadDevices("Computers");
     }
 
     public static ArrayList<HashMap<String, String>> loadAccessories() throws SQLException {

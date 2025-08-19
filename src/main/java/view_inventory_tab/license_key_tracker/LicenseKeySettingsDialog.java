@@ -3,7 +3,6 @@ package view_inventory_tab.license_key_tracker;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,6 +24,7 @@ import view_inventory_tab.TableManager;
 public class LicenseKeySettingsDialog extends JDialog {
     private final TableManager tableManager;
     private final JSpinner limitSpinner;
+
     public LicenseKeySettingsDialog(JDialog parent, TableManager tableManager, int usageLimit) {
         super(parent, "License Key Rules", true);
         this.tableManager = tableManager;
@@ -72,7 +72,7 @@ public class LicenseKeySettingsDialog extends JDialog {
                 JOptionPane.showMessageDialog(this, "Number of allowed uses must be a positive integer", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } catch (HeadlessException | ParseException e) {
+        } catch (ParseException e) {
             JOptionPane.showMessageDialog(this, "Number of allowed uses must be a valid number", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -95,12 +95,12 @@ public class LicenseKeySettingsDialog extends JDialog {
             }
 
             stmt.executeUpdate(sql);
-            JOptionPane.showMessageDialog(this, "Usage limit saved: " + limit, "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, String.format("Usage limit saved: %d", limit), "Success", JOptionPane.INFORMATION_MESSAGE);
             limitSpinner.setValue(limit);
             dispose();
         } catch (SQLException e) {
-            System.err.println("LicenseKeySettingsDialog: Error saving to LicenseKeyRules for table '" + tableName + "': " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error saving usage limit: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(String.format("LicenseKeySettingsDialog: Error saving to LicenseKeyRules for table '%s': %s", tableName, e.getMessage()));
+            JOptionPane.showMessageDialog(this, String.format("Error saving usage limit: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

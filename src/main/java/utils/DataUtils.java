@@ -4,79 +4,127 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.sql.Types;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataUtils {
     private static final Logger LOGGER = Logger.getLogger(DataUtils.class.getName());
 
-    public static String capitalizeWords(String input) {
-        if (input == null || input.trim().isEmpty()) return input;
-        return Arrays.stream(input.trim().split("\\s+"))
-                .map(word -> word.isEmpty() ? word : Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase())
-                .collect(Collectors.joining(" "));
-    }
-
     public static String validateDevice(Map<String, String> data, String originalAssetName, String tableName) {
-        String assetName = data.get("AssetName");
-        String ipAddress = data.get("IP_Address");
-
-        if (assetName == null || assetName.trim().isEmpty()) {
-            return "AssetName is required";
+        if (data == null || tableName == null || tableName.trim().isEmpty()) {
+            return "Invalid data or table name";
         }
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT AssetName FROM [" + tableName + "] WHERE AssetName = ?")) {
-            ps.setString(1, assetName);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String existingAssetName = rs.getString("AssetName");
-                    if (originalAssetName == null || !existingAssetName.equals(originalAssetName)) {
-                        return "AssetName '" + assetName + "' already exists in table " + tableName;
+        if (data.containsKey("AssetName")) {
+            String newAssetName = data.get("AssetName");
+            if (newAssetName != null && !newAssetName.trim().isEmpty() && !newAssetName.equals(originalAssetName)) {
+                try (Connection conn = DatabaseUtils.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement("SELECT AssetName FROM [" + tableName + "] WHERE AssetName = ?")) {
+                    stmt.setString(1, newAssetName);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            return "AssetName '" + newAssetName + "' already exists in table '" + tableName + "'";
+                        }
                     }
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error validating AssetName: {0}", e.getMessage());
+                    return "Database error: " + e.getMessage();
                 }
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error validating device in table {0}: {1}", new Object[]{tableName, e.getMessage()});
-            return "Error validating device: " + e.getMessage();
         }
-        if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-            if (!Pattern.matches("^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|([0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}))$", ipAddress)) {
-                return "IP Address must be a valid IP or MAC address";
-            }
-        }
-        return null;
+        return null; // No validation errors
     }
 
-    public static String validateDevice(Map<String, String> data, String tableName) {
-        return validateDevice(data, null, tableName);
+    public static String validateDevice(Map<String, String> data, String originalAssetName) {
+        String tableName = data.getOrDefault("TableName", null);
+        if (tableName == null) {
+            LOGGER.warning("TableName not provided in device data for validation");
+            return "Table name is required for validation";
+        }
+        return validateDevice(data, originalAssetName, tableName);
     }
 
-    public static String validatePeripheral(Map<String, String> data) {
-        String peripheralName = data.get("Peripheral_Type");
-        String count = data.get("Count");
-        if (peripheralName == null || peripheralName.trim().isEmpty()) {
-            return "Peripheral Type is required";
+    public static String validateData(HashMap<String, String> data, Map<String, Integer> columnTypes) {
+        if (data == null || columnTypes == null) {
+            return "Invalid data or column types";
         }
-        if (count != null && !count.trim().isEmpty()) {
-            try {
-                int c = Integer.parseInt(count);
-                if (c < 0) {
-                    return "Count cannot be negative";
+        if (!data.containsKey("AssetName") || data.get("AssetName") == null || data.get("AssetName").trim().isEmpty()) {
+            return "AssetName is required and cannot be empty";
+        }
+        for (Map.Entry<String, Integer> entry : columnTypes.entrySet()) {
+            String column = entry.getKey();
+            Integer sqlType = entry.getValue();
+            String value = data.get(column);
+            if (value != null && !value.trim().isEmpty()) {
+                switch (sqlType) {
+                    case Types.INTEGER:
+                        try {
+                            Integer.valueOf(value);
+                        } catch (NumberFormatException e) {
+                            return "Invalid INTEGER value for column " + column + ": " + value;
+                        }
+                        break;
+                    case Types.DOUBLE:
+                    case Types.FLOAT:
+                    case Types.DECIMAL:
+                    case Types.NUMERIC:
+                        try {
+                            Double.valueOf(value);
+                        } catch (NumberFormatException e) {
+                            return "Invalid numeric value for column " + column + ": " + value;
+                        }
+                        break;
+                    case Types.DATE:
+                    case Types.TIMESTAMP:
+                        try {
+                            String[] formats = {"MM/dd/yyyy", "yyyy-MM-dd", "MM-dd-yyyy"};
+                            boolean valid = false;
+                            for (String format : formats) {
+                                try {
+                                    new java.text.SimpleDateFormat(format).parse(value);
+                                    valid = true;
+                                    break;
+                                } catch (java.text.ParseException ignored) {
+                                }
+                            }
+                            if (!valid) {
+                                return "Invalid date format for column " + column + ": " + value;
+                            }
+                        } catch (Exception e) {
+                            return "Invalid date value for column " + column + ": " + value;
+                        }
+                        break;
+                    case Types.BOOLEAN:
+                        if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
+                            return "Invalid BOOLEAN value for column " + column + ": " + value;
+                        }
+                        break;
                 }
-            } catch (NumberFormatException e) {
-                return "Count must be a valid number";
             }
         }
-        return null;
+        return null; // No validation errors
     }
 
-    public static String normalizeColumnName(String csvColumn) {
-        if (csvColumn == null) return "";
-        String normalized = csvColumn.trim().toLowerCase().replaceAll("[^a-zA-Z0-9]", "_");
-        return normalized.isEmpty() ? "unnamed_column" : normalized;
+    public static String capitalizeWords(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            LOGGER.warning("Attempted to capitalize null or empty string");
+            return input;
+        }
+        String[] words = input.trim().toLowerCase().split("(?=\\s+|-|_)+");
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.isEmpty()) continue;
+            result.append(word.substring(0, 1).toUpperCase())
+                  .append(word.substring(1));
+            if (i < words.length - 1) {
+                result.append(word.matches("[-_]+") ? word : " ");
+            }
+        }
+        String capitalized = result.toString();
+        LOGGER.log(Level.INFO, "Capitalized ''{0}'' to ''{1}''", new Object[]{input, capitalized});
+        return capitalized;
     }
 }

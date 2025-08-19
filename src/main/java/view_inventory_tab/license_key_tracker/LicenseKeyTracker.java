@@ -39,13 +39,13 @@ public class LicenseKeyTracker extends JPanel {
     private String currentFilter = "all";
     private JButton openButton;
 
-    public LicenseKeyTracker(ViewInventoryTab parentTab, view_inventory_tab.TableManager tableManager2) {
+    public LicenseKeyTracker(ViewInventoryTab parentTab, TableManager tableManager) {
         this.parentTab = parentTab;
-        this.tableManager = tableManager2;
+        this.tableManager = tableManager;
         this.keyUsageCounts = new HashMap<>();
         this.keyListModel = new DefaultListModel<>();
         this.keyList = new JList<>(keyListModel);
-        this.usageLimit = 10; // Default limit
+        this.usageLimit = 10;
         setLayout(new BorderLayout(10, 10));
         initializeUI();
         loadLicenseKeyRules();
@@ -53,7 +53,7 @@ public class LicenseKeyTracker extends JPanel {
     }
 
     private void initializeUI() {
-        JLabel titleLabel = new JLabel("License Key Tracker: " + tableManager.getTableName());
+        JLabel titleLabel = new JLabel(String.format("License Key Tracker: %s", tableManager.getTableName()));
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
         JButton closeButton = new JButton("Close License Key Tracker");
@@ -163,7 +163,7 @@ public class LicenseKeyTracker extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        keyList.addListSelectionListener(e -> updateOpenButton(e));
+        keyList.addListSelectionListener(this::updateOpenButton);
     }
 
     private void updateOpenButton(ListSelectionEvent e) {
@@ -186,11 +186,11 @@ public class LicenseKeyTracker extends JPanel {
             if (rs.next()) {
                 usageLimit = rs.getInt("UsageLimit");
             } else {
-                usageLimit = 10; // Default if no rule exists
+                usageLimit = 10;
             }
         } catch (SQLException e) {
-            System.err.println("LicenseKeyTracker: Error loading LicenseKeyRules for table '" + tableName + "': " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error loading license key rules: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(String.format("LicenseKeyTracker: Error loading LicenseKeyRules for table '%s': %s", tableName, e.getMessage()));
+            JOptionPane.showMessageDialog(this, String.format("Error loading license key rules: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
             usageLimit = 10;
         }
     }
@@ -199,8 +199,8 @@ public class LicenseKeyTracker extends JPanel {
         tableManager.setTableName(tableName);
         loadLicenseKeyRules();
         loadLicenseKeys();
-        JLabel titleLabel = (JLabel) ((JPanel) getComponent(0)).getComponent(1); // Update title
-        titleLabel.setText("License Key Tracker: " + tableName);
+        JLabel titleLabel = (JLabel) ((JPanel) getComponent(0)).getComponent(1);
+        titleLabel.setText(String.format("License Key Tracker: %s", tableName));
     }
 
     private void loadLicenseKeys() {
@@ -219,7 +219,7 @@ public class LicenseKeyTracker extends JPanel {
         if (licenseKeyColumn == null) {
             int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "The License_Key column does not exist in table '" + tableName + "'. Do you want to add a License_Key column?",
+                String.format("The License_Key column does not exist in table '%s'. Do you want to add a License_Key column?", tableName),
                 "Add License Key Column",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
@@ -234,12 +234,12 @@ public class LicenseKeyTracker extends JPanel {
                         loadLicenseKeys();
                     });
                 } catch (SQLException ex) {
-                    System.err.println("LicenseKeyTracker: SQLException adding License_Key column to table '" + tableName + "': " + ex.getMessage());
-                    JOptionPane.showMessageDialog(this, "Error adding License_Key column: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    System.err.println(String.format("LicenseKeyTracker: SQLException adding License_Key column to table '%s': %s", tableName, ex.getMessage()));
+                    JOptionPane.showMessageDialog(this, String.format("Error adding License_Key column: %s", ex.getMessage()), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
-                keyListModel.addElement("Error: License_Key column not found in table '" + tableName + "'");
-                System.err.println("LicenseKeyTracker: License_Key column not found in table '" + tableName + "'");
+                keyListModel.addElement(String.format("Error: License_Key column not found in table '%s'", tableName));
+                System.err.println(String.format("LicenseKeyTracker: License_Key column not found in table '%s'", tableName));
             }
             return;
         }
@@ -281,9 +281,9 @@ public class LicenseKeyTracker extends JPanel {
             }
             keyList.clearSelection();
         } catch (SQLException e) {
-            keyListModel.addElement("Error: " + e.getMessage());
-            System.err.println("LicenseKeyTracker: Error fetching license keys from table '" + tableName + "': " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error fetching license keys: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            keyListModel.addElement(String.format("Error: %s", e.getMessage()));
+            System.err.println(String.format("LicenseKeyTracker: Error fetching license keys from table '%s': %s", tableName, e.getMessage()));
+            JOptionPane.showMessageDialog(this, String.format("Error fetching license keys: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

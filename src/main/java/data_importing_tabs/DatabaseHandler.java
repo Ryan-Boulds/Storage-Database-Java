@@ -28,12 +28,7 @@ public class DatabaseHandler {
 
     public void updateDeviceInDB(String tableName, HashMap<String, String> device) throws SQLException {
         tableName = tableName.replace(" ", "_");
-        try {
-            DatabaseUtils.updateDevice(tableName, device);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating device in table {0}: {1}", new Object[]{tableName, e.getMessage()});
-            throw e;
-        }
+        DatabaseUtils.updateDevice(tableName, device);
     }
 
     public HashMap<String, String> getDeviceByAssetNameFromDB(String tableName, String assetName) throws SQLException {

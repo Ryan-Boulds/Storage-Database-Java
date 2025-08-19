@@ -1,135 +1,92 @@
 package view_inventory_tab;
 
-import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 public class PopupHandler {
-    private static final String PRIMARY_KEY_COLUMN = "AssetName";
+    private static final Logger LOGGER = Logger.getLogger(PopupHandler.class.getName());
 
-    public static void addTablePopup(JTable table, ViewInventoryTab viewInventoryTab, TableManager tableManager) {
+    public static void addTablePopup(JTable table, ViewInventoryTab viewInventoryTab) {
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem detailsItem = new JMenuItem("View Details");
-        JMenuItem modifyItem = new JMenuItem("Modify/Rename");
+        TableManager tableManager = viewInventoryTab.getTableManager();
 
-        popupMenu.addPopupMenuListener(new PopupMenuListener() {
-            @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                detailsItem.setEnabled(table.getSelectedRowCount() == 1);
-            }
-            @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
-            @Override
-            public void popupMenuCanceled(PopupMenuEvent e) {}
-        });
-
-        detailsItem.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0) {
-                int primaryKeyColumnIndex = -1;
-                for (int i = 0; i < table.getColumnCount(); i++) {
-                    if (PRIMARY_KEY_COLUMN.equals(table.getColumnName(i))) {
-                        primaryKeyColumnIndex = i;
-                        break;
-                    }
-                }
-                if (primaryKeyColumnIndex == -1) {
-                    JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " column not found", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("PopupHandler: " + PRIMARY_KEY_COLUMN + " column not found");
-                    return;
-                }
-                Object primaryKeyValue = table.getValueAt(selectedRow, primaryKeyColumnIndex);
-                if (primaryKeyValue == null || primaryKeyValue.toString().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " is missing for selected row", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("PopupHandler: Missing " + PRIMARY_KEY_COLUMN + " for row " + (selectedRow + 1));
-                    return;
-                }
-                String assetName = primaryKeyValue.toString().trim();
-                viewInventoryTab.showDeviceDetails(assetName);
+        JMenuItem addRowItem = new JMenuItem("Add Row");
+        addRowItem.addActionListener(e -> {
+            String tableName = tableManager.getTableName();
+            if (tableName != null && !tableName.isEmpty()) {
+                AddRowEntry.showAddDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(table), tableManager);
+                LOGGER.log(Level.INFO, "Opened AddRowEntry dialog for table '{0}'", tableName);
             } else {
-                JOptionPane.showMessageDialog(table, "Please select a row first", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(table, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to add row without selecting a valid table");
             }
         });
+        popupMenu.add(addRowItem);
 
-        modifyItem.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            int selectedColumn = table.getSelectedColumn();
-            if (selectedRow >= 0 && selectedColumn >= 1) {
-                String columnName = table.getColumnName(selectedColumn);
-                ArrayList<String> tableColumns = new ArrayList<>();
-                for (int i = 0; i < table.getColumnCount(); i++) {
-                    tableColumns.add(table.getColumnName(i));
-                }
-                System.out.println("PopupHandler: Table columns: " + tableColumns);
-                int primaryKeyColumnIndex = -1;
-                for (int i = 0; i < table.getColumnCount(); i++) {
-                    if (PRIMARY_KEY_COLUMN.equals(table.getColumnName(i))) {
-                        primaryKeyColumnIndex = i;
-                        break;
-                    }
-                }
-                if (primaryKeyColumnIndex == -1) {
-                    JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " column not found in table", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("PopupHandler: " + PRIMARY_KEY_COLUMN + " column not found in table columns: " + tableColumns);
-                    return;
-                }
-                int[] selectedRows = table.getSelectedRows();
-                if (selectedRows.length > 1) {
-                    ArrayList<String> cellValues = new ArrayList<>();
-                    ArrayList<String> primaryKeys = new ArrayList<>();
-                    for (int row : selectedRows) {
-                        Object cellValue = table.getValueAt(row, selectedColumn);
-                        cellValues.add(cellValue != null ? cellValue.toString().trim() : "");
-                        Object primaryKeyValue = table.getValueAt(row, primaryKeyColumnIndex);
-                        if (primaryKeyValue == null || primaryKeyValue.toString().trim().isEmpty()) {
-                            JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " is missing for row " + (row + 1), "Error", JOptionPane.ERROR_MESSAGE);
-                            System.err.println("PopupHandler: Missing " + PRIMARY_KEY_COLUMN + " for row " + (row + 1) + ": " + primaryKeyValue);
-                            return;
+        JMenuItem deleteRowItem = new JMenuItem("Delete Row");
+        deleteRowItem.addActionListener(e -> {
+            int[] selectedRows = table.getSelectedRows();
+            if (selectedRows.length == 0) {
+                JOptionPane.showMessageDialog(table, "No rows selected", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            int confirm = JOptionPane.showConfirmDialog(
+                table,
+                "Are you sure you want to delete the selected row(s)?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+            );
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (java.sql.Connection conn = utils.DatabaseUtils.getConnection()) {
+                    String tableName = tableManager.getTableName();
+                    String sql = "DELETE FROM [" + tableName + "] WHERE [AssetName] = ?";
+                    try (java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+                        for (int row : selectedRows) {
+                            String assetName = (String) table.getValueAt(row, table.getColumn("AssetName").getModelIndex());
+                            ps.setString(1, assetName);
+                            ps.executeUpdate();
                         }
-                        String primaryKey = primaryKeyValue.toString().trim();
-                        primaryKeys.add(primaryKey);
                     }
-                    System.out.println("PopupHandler: Opening MultiRenameDialog for column=" + columnName + ", primaryKeys=" + primaryKeys + ", cellValues=" + cellValues);
-                    MultiRenameDialog.showRenameDialog(
-                        (javax.swing.JFrame) SwingUtilities.getWindowAncestor(table),
-                        table,
-                        cellValues,
-                        columnName,
-                        primaryKeys,
-                        tableManager
-                    );
-                } else {
-                    Object cellValue = table.getValueAt(selectedRow, selectedColumn);
-                    Object primaryKeyValue = table.getValueAt(selectedRow, primaryKeyColumnIndex);
-                    if (primaryKeyValue == null || primaryKeyValue.toString().trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(table, "Error: " + PRIMARY_KEY_COLUMN + " is missing for selected row", "Error", JOptionPane.ERROR_MESSAGE);
-                        System.err.println("PopupHandler: Missing " + PRIMARY_KEY_COLUMN + " for row " + (selectedRow + 1) + ": " + primaryKeyValue);
-                        return;
-                    }
-                    String primaryKey = primaryKeyValue.toString().trim();
-                    System.out.println("PopupHandler: Opening SingleRenameDialog for column=" + columnName + ", primaryKey='" + primaryKey + "', cellValue=" + cellValue);
-                    SingleRenameDialog.showRenameDialog(
-                        (javax.swing.JFrame) SwingUtilities.getWindowAncestor(table),
-                        table,
-                        cellValue != null ? cellValue.toString().trim() : "",
-                        columnName,
-                        primaryKey,
-                        tableManager
-                    );
+                    tableManager.refreshDataAndTabs();
+                    JOptionPane.showMessageDialog(table, "Row(s) deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (java.sql.SQLException ex) {
+                    JOptionPane.showMessageDialog(table, "Error deleting row(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    LOGGER.log(Level.SEVERE, "SQLException deleting rows: {0}", ex.getMessage());
                 }
-            } else {
-                JOptionPane.showMessageDialog(table, "Please select a cell first", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        popupMenu.add(deleteRowItem);
 
-        popupMenu.add(detailsItem);
-        popupMenu.add(modifyItem);
-        table.setComponentPopupMenu(popupMenu);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPopup(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPopup(e);
+                }
+            }
+
+            private void showPopup(MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                if (row >= 0 && !table.isRowSelected(row)) {
+                    table.setRowSelectionInterval(row, row);
+                }
+                popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
     }
 }

@@ -13,11 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
@@ -29,15 +32,17 @@ public class TableManager {
     private final DefaultTableModel model;
     private String[] columns;
     private final Map<String, Integer> columnTypes;
-    private TableRowSorter<DefaultTableModel> sorter;
+    private TableRowSorter<DefaultTableModel> sorter = null;
     private final List<Integer> sortColumnIndices = new ArrayList<>();
     private final List<SortOrder> sortOrders = new ArrayList<>();
     private String tableName;
-    private String whereClause = "";
+    private String whereClause;
+    private static final Logger LOGGER = Logger.getLogger(TableManager.class.getName());
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
         this.tableName = tableName != null ? tableName : "Inventory";
+        this.whereClause = "";
         this.model = new DefaultTableModel();
         this.columnTypes = new HashMap<>();
         if (table != null) {
@@ -63,7 +68,7 @@ public class TableManager {
     }
 
     public void setWhereClause(String whereClause) {
-        this.whereClause = whereClause;
+        this.whereClause = whereClause == null ? "" : whereClause.trim();
     }
 
     private void initializeColumns() {
@@ -71,12 +76,13 @@ public class TableManager {
             model.setRowCount(0);
             model.setColumnCount(0);
             model.addColumn("Edit");
+            columns = new String[0]; // Clear existing columns
+            columnTypes.clear(); // Clear existing column types
             try (Connection conn = DatabaseUtils.getConnection();
-                 ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE 1=0")) {
+                 ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
                 List<String> columnList = new ArrayList<>();
-                columnTypes.clear();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
                     int sqlType = metaData.getColumnType(i);
@@ -84,14 +90,14 @@ public class TableManager {
                     columnTypes.put(columnName, sqlType);
                 }
                 columns = columnList.toArray(new String[0]);
-                for (String column : columns) {
+                for (String column : columnList) {
                     model.addColumn(column);
                 }
-                System.out.println("TableManager: Initialized columns from database table " + tableName + ": " + String.join(", ", columns));
-                System.out.println("TableManager: Column types: " + columnTypes);
+                LOGGER.log(Level.INFO, "Initialized columns from database table %s: %s", tableName);
+                LOGGER.log(Level.INFO, "Column types: %s", columnTypes);
             } catch (SQLException e) {
-                System.err.println("TableManager: Error fetching columns from database for table " + tableName + ": " + e.getMessage());
-                JOptionPane.showMessageDialog(table, "Error fetching table columns: " + e.getMessage() + ". Please check database connection and table " + tableName + ".", "Database Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.SEVERE, "Error fetching columns from database for table %s: %s", new Object[]{tableName, e.getMessage()});
+                JOptionPane.showMessageDialog(table, String.format("Error fetching table columns: %s. Please check database connection and table %s.", e.getMessage(), tableName), "Database Error", JOptionPane.ERROR_MESSAGE);
                 columns = new String[0];
                 columnTypes.clear();
             }
@@ -127,26 +133,28 @@ public class TableManager {
                 maxWidth = Math.max(maxWidth, 100);
                 column.setPreferredWidth(maxWidth);
                 continue;
-            } else {
-                for (int row = 0; row < table.getRowCount(); row++) {
-                    Object value = table.getValueAt(row, i);
-                    String text = value != null ? value.toString() : "";
-                    int textWidth = fontMetrics.stringWidth(text) + padding;
-                    maxWidth = Math.max(maxWidth, textWidth);
-                }
             }
-
+            for (int row = 0; row < table.getRowCount(); row++) {
+                Object value = table.getValueAt(row, i);
+                String text = value != null ? value.toString() : "";
+                int textWidth = fontMetrics.stringWidth(text) + padding;
+                maxWidth = Math.max(maxWidth, textWidth);
+            }
             column.setPreferredWidth(maxWidth);
         }
     }
 
     public void refreshDataAndTabs() {
         if (table == null || model == null) {
-            System.err.println("TableManager: Table or model is null during refresh");
+            LOGGER.log(Level.SEVERE, "Table or model is null during refresh");
             return;
         }
+        // Reinitialize columns to reflect any schema changes
+        initializeColumns();
+
         if (columns == null || columns.length == 0) {
-            System.err.println("TableManager: No columns defined for table " + tableName + ", skipping data refresh");
+            LOGGER.log(Level.SEVERE, "No columns defined for table %s, skipping data refresh", tableName);
+            JOptionPane.showMessageDialog(table, "No columns defined for table " + tableName, "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         int[] selectedRows = table.getSelectedRows();
@@ -154,7 +162,7 @@ public class TableManager {
         ArrayList<HashMap<String, String>> devices = new ArrayList<>();
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + (whereClause != null && !whereClause.isEmpty() ? " WHERE " + whereClause : ""))) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "]" + (whereClause.isEmpty() ? "" : " WHERE " + whereClause))) {
             while (rs.next()) {
                 HashMap<String, String> device = new HashMap<>();
                 for (String column : columns) {
@@ -163,14 +171,16 @@ public class TableManager {
                 }
                 devices.add(device);
             }
-            System.out.println("TableManager: Retrieved " + devices.size() + " devices from table " + tableName);
+            LOGGER.log(Level.INFO, "Retrieved %d devices from table %s", new Object[]{devices.size(), tableName});
         } catch (SQLException e) {
-            System.err.println("TableManager: Error fetching devices from table " + tableName + ": " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error fetching devices from table %s: %s", new Object[]{tableName, e.getMessage()});
+            JOptionPane.showMessageDialog(table, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             devices = null;
         }
 
         if (devices == null || devices.isEmpty()) {
-            System.err.println("TableManager: No devices retrieved from table " + tableName);
+            LOGGER.log(Level.INFO, "No devices retrieved from table %s", tableName);
+            JOptionPane.showMessageDialog(table, "No data available in table " + tableName, "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
@@ -204,8 +214,18 @@ public class TableManager {
             }
         }
         adjustColumnWidths();
-        table.revalidate();
-        table.repaint();
+        // Ensure cell renderer and editor are reapplied
+        if (table.getColumnModel().getColumnCount() > 0) {
+            TableColumn editColumn = table.getColumnModel().getColumn(0);
+            editColumn.setCellRenderer(new RowEditButtonRenderer());
+            editColumn.setCellEditor(new RowEditButtonEditor(table, this));
+            editColumn.setPreferredWidth(100);
+        }
+        SwingUtilities.invokeLater(() -> {
+            table.revalidate();
+            table.repaint();
+            LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", tableName);
+        });
     }
 
     public void sortTable(int columnIndex) {
