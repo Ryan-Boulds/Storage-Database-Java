@@ -24,17 +24,14 @@ public class FieldDialog extends JDialog {
         
         setLayout(new GridLayout(3, 2));
         
-        // Field Name
         add(new JLabel("Field Name:"));
         fieldNameField = new JTextField();
         add(fieldNameField);
         
-        // Field Type
         add(new JLabel("Field Type:"));
         fieldTypeCombo = new JComboBox<>(new String[]{"TEXT", "INTEGER", "DATE", "BOOLEAN"});
         add(fieldTypeCombo);
         
-        // Buttons
         JPanel buttonPanel = new JPanel();
         JButton okButton = new JButton("OK");
         JButton cancelButton = new JButton("Cancel");
@@ -42,7 +39,6 @@ public class FieldDialog extends JDialog {
         buttonPanel.add(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
         
-        // Button actions
         okButton.addActionListener(e -> onOk());
         cancelButton.addActionListener(e -> onCancel());
     }

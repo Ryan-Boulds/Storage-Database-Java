@@ -42,19 +42,16 @@ public class TableUIComponents {
         };
         fieldsTable = new JTable(tableModel);
 
-        // Table selection
         JPanel topPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         tableComboBox = new JComboBox<>();
         tableComboBox.addActionListener(e -> operationHandler.loadTableSchema());
         topPanel.add(new JLabel("Select Table:"));
         topPanel.add(tableComboBox);
 
-        // New table input
         JTextField newTableNameField = UIComponentUtils.createFormattedTextField();
         topPanel.add(new JLabel("New Table Name:"));
         topPanel.add(newTableNameField);
 
-        // Field input for new tables
         JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         JTextField fieldNameField = UIComponentUtils.createFormattedTextField();
         JComboBox<String> fieldTypeComboBox = new JComboBox<>(new String[]{"TEXT", "INTEGER", "DOUBLE", "DATE", "VARCHAR(255)"});
@@ -66,7 +63,6 @@ public class TableUIComponents {
         inputPanel.add(new JLabel("Primary Key:"));
         inputPanel.add(primaryKeyComboBox);
 
-        // Buttons
         JPanel buttonPanel = new JPanel();
         JButton addFieldButton = UIComponentUtils.createFormattedButton("Add Field");
         addFieldButton.addActionListener(e -> {
@@ -90,7 +86,6 @@ public class TableUIComponents {
         controlPanel.add(inputPanel, BorderLayout.CENTER);
         controlPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Fields table with context menu
         columnMenu = new JPopupMenu();
         JMenuItem renameItem = new JMenuItem("Rename Column");
         renameItem.addActionListener(e -> operationHandler.renameColumn());

@@ -1,10 +1,13 @@
 package view_inventory_tab.view_software_details;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +16,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -22,13 +24,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 import utils.DatabaseUtils;
-import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
 import view_inventory_tab.ViewInventoryTab;
 
@@ -36,7 +34,6 @@ public class DeviceDetailsPanel extends JPanel {
     private final String assetName;
     private final ViewInventoryTab parentTab;
     private static final int CONTENT_WIDTH = 800;
-    private static final int SPECS_HEIGHT = 200;
     private static final int LIST_HEIGHT = 400;
     private static final int LIST_WIDTH = 200;
     private static final Logger LOGGER = Logger.getLogger(DeviceDetailsPanel.class.getName());
@@ -64,18 +61,8 @@ public class DeviceDetailsPanel extends JPanel {
 
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setPreferredSize(new Dimension(CONTENT_WIDTH, SPECS_HEIGHT + LIST_HEIGHT + 50));
+        contentPanel.setPreferredSize(new Dimension(CONTENT_WIDTH, LIST_HEIGHT + 50));
         contentPanel.setMaximumSize(new Dimension(CONTENT_WIDTH, Integer.MAX_VALUE));
-
-        JTextArea inventorySpecsArea = new JTextArea();
-        inventorySpecsArea.setEditable(false);
-        inventorySpecsArea.setLineWrap(true);
-        inventorySpecsArea.setWrapStyleWord(true);
-        Border border = new LineBorder(Color.GRAY, 1);
-        inventorySpecsArea.setBorder(border);
-        inventorySpecsArea.setPreferredSize(new Dimension(CONTENT_WIDTH, SPECS_HEIGHT));
-        contentPanel.add(inventorySpecsArea);
-        contentPanel.add(Box.createVerticalStrut(10));
 
         tableList = new JList<>();
         tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -93,55 +80,27 @@ public class DeviceDetailsPanel extends JPanel {
         dataListPanel = new JPanel();
         dataListPanel.setLayout(new BoxLayout(dataListPanel, BoxLayout.Y_AXIS));
         JScrollPane dataListScrollPane = new JScrollPane(dataListPanel);
-        dataListScrollPane.setPreferredSize(new Dimension(CONTENT_WIDTH - LIST_WIDTH, LIST_HEIGHT));
+        dataListScrollPane.setPreferredSize(new Dimension(CONTENT_WIDTH - LIST_WIDTH - 10, LIST_HEIGHT));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableListScrollPane, dataListScrollPane);
         splitPane.setDividerLocation(LIST_WIDTH);
+        splitPane.setResizeWeight(0.3);
         contentPanel.add(splitPane);
 
-        add(contentPanel, BorderLayout.CENTER);
+        JScrollPane contentScrollPane = new JScrollPane(contentPanel);
+        add(contentScrollPane, BorderLayout.CENTER);
 
-        refreshTableList();
-        updateInventorySpecs();
-        if (!tableList.isSelectionEmpty()) {
-            tableList.setSelectedIndex(0);
-        }
+        loadTableList();
     }
 
-    private void updateInventorySpecs() {
-        try {
-            HashMap<String, String> inventoryEntry = DatabaseUtils.getDeviceByAssetName("Inventory", assetName);
-            if (inventoryEntry != null && !inventoryEntry.isEmpty()) {
-                StringBuilder specs = new StringBuilder();
-                for (String column : inventoryEntry.keySet()) {
-                    String value = inventoryEntry.get(column);
-                    if (value != null && !value.trim().isEmpty()) {
-                        specs.append(column).append(": ").append(value).append("\n");
-                    }
-                }
-                JTextArea inventorySpecsArea = (JTextArea) ((JPanel) getComponent(1)).getComponent(0);
-                inventorySpecsArea.setText(specs.toString());
-                LOGGER.log(Level.INFO, "Inventory specs loaded for AssetName {0}: {1}", new Object[]{assetName, specs.toString()});
-            } else {
-                JTextArea inventorySpecsArea = (JTextArea) ((JPanel) getComponent(1)).getComponent(0);
-                inventorySpecsArea.setText("No Inventory data found for AssetName: " + assetName);
-                LOGGER.log(Level.WARNING, "No Inventory data found for AssetName {0}", assetName);
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error querying Inventory table for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
-            JTextArea inventorySpecsArea = (JTextArea) ((JPanel) getComponent(1)).getComponent(0);
-            inventorySpecsArea.setText("Error loading Inventory data: " + e.getMessage());
-        }
-    }
-
-    private void refreshTableList() {
+    private void loadTableList() {
         DefaultListModel<String> listModel = new DefaultListModel<>();
         try {
             List<String> tableNames = DatabaseUtils.getTableNames();
-            List<String> includedTables = TablesNotIncludedList.getIncludedTablesForInventory();
+            List<String> includedTables = getIncludedInventoryTables();
             List<String> validTables = new ArrayList<>();
             for (String table : tableNames) {
-                if (includedTables.contains(table)) {
+                if (includedTables.contains(table) && !isExcludedTable(table)) {
                     validTables.add(table);
                 }
             }
@@ -161,27 +120,6 @@ public class DeviceDetailsPanel extends JPanel {
 
     private void updateDataList(String tableName) {
         dataListPanel.removeAll();
-        Set<String> inventoryNonEmptyColumns = new HashSet<>();
-        try {
-            HashMap<String, String> inventoryEntry = DatabaseUtils.getDeviceByAssetName("Inventory", assetName);
-            if (inventoryEntry != null && !inventoryEntry.isEmpty()) {
-                for (String column : inventoryEntry.keySet()) {
-                    String value = inventoryEntry.get(column);
-                    if (value != null && !value.trim().isEmpty()) {
-                        inventoryNonEmptyColumns.add(column);
-                    }
-                }
-                LOGGER.log(Level.INFO, "Inventory columns with non-empty values: {0}", inventoryNonEmptyColumns);
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error querying Inventory table: {0}", e.getMessage());
-            JLabel errorLabel = new JLabel("Error loading data: " + e.getMessage());
-            dataListPanel.add(errorLabel);
-            dataListPanel.revalidate();
-            dataListPanel.repaint();
-            return;
-        }
-
         HashMap<String, String> entry;
         try {
             entry = DatabaseUtils.getDeviceByAssetName(tableName, assetName);
@@ -205,7 +143,7 @@ public class DeviceDetailsPanel extends JPanel {
 
         Set<String> columns = new HashSet<>();
         for (String column : entry.keySet()) {
-            if (!column.equals("AssetName") && !column.equals("TableName") && !inventoryNonEmptyColumns.contains(column)) {
+            if (!column.equals("AssetName") && !column.equals("TableName")) {
                 String value = entry.get(column);
                 if (value != null && !value.trim().isEmpty()) {
                     columns.add(column);
@@ -225,5 +163,46 @@ public class DeviceDetailsPanel extends JPanel {
 
         dataListPanel.revalidate();
         dataListPanel.repaint();
+    }
+
+    private boolean isExcludedTable(String tableName) {
+        return tableName.equalsIgnoreCase("Settings") ||
+               tableName.equalsIgnoreCase("LicenseKeyRules") ||
+               tableName.equalsIgnoreCase("Templates");
+    }
+
+    private List<String> getIncludedInventoryTables() {
+        List<String> tables = new ArrayList<>();
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            if (!tableExists("Settings", conn)) {
+                createSettingsTable(conn);
+            }
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT InventoryTables FROM Settings WHERE InventoryTables IS NOT NULL")) {
+                while (rs.next()) {
+                    String tableName = rs.getString("InventoryTables");
+                    if (tableName != null && !tableName.trim().isEmpty()) {
+                        tables.add(tableName);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error fetching included inventory tables: {0}", e.getMessage());
+        }
+        return tables;
+    }
+
+    private boolean tableExists(String tableName, Connection conn) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
+            return rs.next();
+        }
+    }
+
+    private void createSettingsTable(Connection conn) throws SQLException {
+        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, InventoryTables VARCHAR(255))";
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createSql);
+        }
     }
 }

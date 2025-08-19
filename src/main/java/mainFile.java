@@ -14,7 +14,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import accessories_count.AccessoriesCountTab;
 import database_creator.DatabaseCreatorTab;
-import device_logging.LogNewDeviceTab;
+//import device_logging.LogNewDeviceTab;
 import log_adapters.LogAdaptersTab;
 import log_cables.LogCablesTab;
 import mass_entry_modifier.MassEntryModifierTab;
@@ -62,7 +62,7 @@ public class mainFile {
                         JLabel statusLabel = new JLabel("Ready");
                         ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
                         ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
-                        LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
+                        //LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
                         AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
                         LogCablesTab logCablesTab = new LogCablesTab();
                         LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
@@ -76,7 +76,7 @@ public class mainFile {
                             databaseCreatorTab,
                             viewInventoryTab,
                             viewSoftwareListTab,
-                            logNewDeviceTab,
+                            //logNewDeviceTab,
                             accessoriesCountTab,
                             logCablesTab,
                             logAdaptersTab,

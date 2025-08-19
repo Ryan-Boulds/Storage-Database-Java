@@ -14,10 +14,10 @@ public class SQLGenerator {
             columns.append("[").append(column).append("]");
             placeholders.append("?");
         }
-        return String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, columns, placeholders);
+        return String.format("INSERT INTO [%s] (%s) VALUES (%s)", tableName, columns, placeholders);
     }
 
-    public static String formatDeviceSQL(Map<String, String> data) {
-        return generateInsertSQL("Inventory", data);
+    public static String formatDeviceSQL(String tableName, Map<String, String> data) {
+        return generateInsertSQL(tableName != null ? tableName : "Computers", data);
     }
 }

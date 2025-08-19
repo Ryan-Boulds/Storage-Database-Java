@@ -18,7 +18,7 @@ public class FieldsTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 2; // Name and Type columns
+        return 2;
     }
 
     @Override

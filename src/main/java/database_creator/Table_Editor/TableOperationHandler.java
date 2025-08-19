@@ -5,7 +5,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +15,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import database_creator.FieldDialog;
 import utils.DatabaseUtils;
-import utils.DefaultColumns;
 
 public class TableOperationHandler {
     private final TableEditor editor;
@@ -46,26 +45,73 @@ public class TableOperationHandler {
         fields.clear();
         tableModel.setRowCount(0);
 
-        // Pre-populate fields for Inventory or Templates
-        if (tableName.equalsIgnoreCase("Inventory") || tableName.equalsIgnoreCase("Templates")) {
-            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
-            if (tableName.equalsIgnoreCase("Templates")) {
-                Map<String, String> field = new HashMap<>();
-                field.put("name", "Template_Name");
-                field.put("type", "TEXT");
-                field.put("primaryKey", "Yes");
-                fields.add(field);
-                tableModel.addRow(new Object[]{"Template_Name", "TEXT", "Yes"});
-            }
-            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
-                Map<String, String> field = new HashMap<>();
-                field.put("name", entry.getKey());
-                field.put("type", entry.getValue());
-                field.put("primaryKey", tableName.equalsIgnoreCase("Inventory") && entry.getKey().equals("AssetName") ? "Yes" : "No");
-                fields.add(field);
-                tableModel.addRow(new Object[]{entry.getKey(), entry.getValue(), field.get("primaryKey")});
-            }
+        if (tableName.equalsIgnoreCase("Templates")) {
+            Map<String, String> field = new HashMap<>();
+            field.put("name", "Template_Name");
+            field.put("type", "TEXT");
+            field.put("primaryKey", "Yes");
+            fields.add(field);
+            tableModel.addRow(new Object[]{"Template_Name", "TEXT", "Yes"});
+            editor.showMessageDialog("Status", "Default fields for Templates loaded. Click 'Create New Table' to confirm.", 1);
+            return;
+        } else if (tableName.equalsIgnoreCase("Settings")) {
+            Map<String, String> idField = new HashMap<>();
+            idField.put("name", "ID");
+            idField.put("type", "INTEGER");
+            idField.put("primaryKey", "Yes");
+            fields.add(idField);
+            tableModel.addRow(new Object[]{"ID", "INTEGER", "Yes"});
+            Map<String, String> invField = new HashMap<>();
+            invField.put("name", "InventoryTables");
+            invField.put("type", "TEXT");
+            invField.put("primaryKey", "No");
+            fields.add(invField);
+            tableModel.addRow(new Object[]{"InventoryTables", "TEXT", "No"});
+            Map<String, String> softField = new HashMap<>();
+            softField.put("name", "SoftwareTables");
+            softField.put("type", "TEXT");
+            softField.put("primaryKey", "No");
+            fields.add(softField);
+            tableModel.addRow(new Object[]{"SoftwareTables", "TEXT", "No"});
+            editor.showMessageDialog("Status", "Default fields for Settings loaded. Click 'Create New Table' to confirm.", 1);
+            return;
+        } else if (tableName.equalsIgnoreCase("Accessories") || tableName.equalsIgnoreCase("Cables") || tableName.equalsIgnoreCase("Adapters")) {
+            String typeField = tableName.equalsIgnoreCase("Accessories") ? "Peripheral_Type" : 
+                              tableName.equalsIgnoreCase("Cables") ? "Cable_Type" : "Adapter_Type";
+            Map<String, String> field = new HashMap<>();
+            field.put("name", typeField);
+            field.put("type", "TEXT");
+            field.put("primaryKey", "Yes");
+            fields.add(field);
+            tableModel.addRow(new Object[]{typeField, "TEXT", "Yes"});
+            Map<String, String> countField = new HashMap<>();
+            countField.put("name", "Count");
+            countField.put("type", "INTEGER");
+            countField.put("primaryKey", "No");
+            fields.add(countField);
+            tableModel.addRow(new Object[]{"Count", "INTEGER", "No"});
             editor.showMessageDialog("Status", "Default fields for " + tableName + " loaded. Click 'Create New Table' to confirm.", 1);
+            return;
+        } else if (tableName.equalsIgnoreCase("LicenseKeyRules")) {
+            Map<String, String> idField = new HashMap<>();
+            idField.put("name", "Rule_ID");
+            idField.put("type", "INTEGER");
+            idField.put("primaryKey", "Yes");
+            fields.add(idField);
+            tableModel.addRow(new Object[]{"Rule_ID", "INTEGER", "Yes"});
+            Map<String, String> nameField = new HashMap<>();
+            nameField.put("name", "Rule_Name");
+            nameField.put("type", "TEXT");
+            nameField.put("primaryKey", "No");
+            fields.add(nameField);
+            tableModel.addRow(new Object[]{"Rule_Name", "TEXT", "No"});
+            Map<String, String> descField = new HashMap<>();
+            descField.put("name", "Rule_Description");
+            descField.put("type", "TEXT");
+            descField.put("primaryKey", "No");
+            fields.add(descField);
+            tableModel.addRow(new Object[]{"Rule_Description", "TEXT", "No"});
+            editor.showMessageDialog("Status", "Default fields for LicenseKeyRules loaded. Click 'Create New Table' to confirm.", 1);
             return;
         }
 
@@ -173,33 +219,27 @@ public class TableOperationHandler {
         }
     }
 
-    public boolean isValidDataType(String dataType) {
-        List<String> validTypes = Arrays.asList("TEXT", "INTEGER", "DOUBLE", "DATE", "VARCHAR(255)");
-        return validTypes.contains(dataType.toUpperCase());
-    }
-
     public void addColumn() {
-        String tableName = (String) tableComboBox.getSelectedItem();
-        if (tableName == null) {
-            editor.showMessageDialog("Error", "No table selected.", 0);
-            return;
-        }
-        String newColumnName = JOptionPane.showInputDialog(editor, "Enter new column name:");
-        if (newColumnName == null || newColumnName.trim().isEmpty()) {
-            editor.showMessageDialog("Error", "Column name cannot be empty.", 0);
-            return;
-        }
-        String dataType = JOptionPane.showInputDialog(editor, "Enter data type (TEXT, INTEGER, DOUBLE, DATE):", "TEXT");
-        if (dataType == null || !isValidDataType(dataType)) {
-            editor.showMessageDialog("Error", "Invalid data type.", 0);
-            return;
-        }
-        try {
-            DatabaseUtils.addNewField(tableName, newColumnName, dataType);
-            loadTableSchema();
-            editor.showMessageDialog("Success", "Column " + newColumnName + " added successfully.", 1);
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Failed to add column: " + e.getMessage(), 0);
+        FieldDialog dialog = new FieldDialog();
+        dialog.setVisible(true);
+        if (dialog.isConfirmed()) {
+            database_creator.Field field = dialog.getField();
+            String tableName = (String) tableComboBox.getSelectedItem();
+            if (tableName == null) {
+                editor.showMessageDialog("Error", "No table selected.", 0);
+                return;
+            }
+            try {
+                String sql = String.format("ALTER TABLE %s ADD %s %s", tableName, field.getName(), field.getType());
+                try (Connection conn = DatabaseUtils.getConnection();
+                     Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate(sql);
+                    loadTableSchema();
+                    editor.showMessageDialog("Success", "Column added successfully.", 1);
+                }
+            } catch (SQLException e) {
+                editor.showMessageDialog("Error", "Failed to add column: " + e.getMessage(), 0);
+            }
         }
     }
 
@@ -218,13 +258,14 @@ public class TableOperationHandler {
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DROP TABLE " + tableName);
-            schemaManager.loadTableList();
-            fields.clear();
-            tableModel.setRowCount(0);
-            editor.showMessageDialog("Success", "Table " + tableName + " deleted successfully.", 1);
+        try {
+            String sql = "DROP TABLE " + tableName;
+            try (Connection conn = DatabaseUtils.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                schemaManager.loadTableList();
+                editor.showMessageDialog("Success", "Table deleted successfully.", 1);
+            }
         } catch (SQLException e) {
             editor.showMessageDialog("Error", "Failed to delete table: " + e.getMessage(), 0);
         }
@@ -237,22 +278,22 @@ public class TableOperationHandler {
             return;
         }
         String tableName = (String) tableComboBox.getSelectedItem();
-        String oldName = (String) tableModel.getValueAt(selectedRow, 0);
-        if (isProtectedColumn(tableName, oldName)) {
-            editor.showMessageDialog("Error", "Cannot rename protected column: " + oldName, 0);
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot rename protected column: " + columnName, 0);
             return;
         }
-        String newName = JOptionPane.showInputDialog(editor, "Enter new column name:", oldName);
+        String newName = JOptionPane.showInputDialog(editor, "Enter new column name:", columnName);
         if (newName == null || newName.trim().isEmpty()) {
-            editor.showMessageDialog("Error", "New column name cannot be empty.", 0);
             return;
         }
         try {
-            String sql = String.format("ALTER TABLE %s RENAME COLUMN %s TO %s", tableName, oldName, newName);
+            String sql = String.format("ALTER TABLE %s RENAME COLUMN %s TO %s", tableName, columnName, newName);
             try (Connection conn = DatabaseUtils.getConnection();
                  Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                loadTableSchema();
+                fields.get(selectedRow).put("name", newName);
+                tableModel.setValueAt(newName, selectedRow, 0);
                 editor.showMessageDialog("Success", "Column renamed successfully.", 1);
             }
         } catch (SQLException e) {
@@ -269,13 +310,13 @@ public class TableOperationHandler {
         String tableName = (String) tableComboBox.getSelectedItem();
         String columnName = (String) tableModel.getValueAt(selectedRow, 0);
         if (isProtectedColumn(tableName, columnName)) {
-            editor.showMessageDialog("Error", "Cannot change type of protected column: " + columnName, 0);
+            editor.showMessageDialog("Error", "Cannot modify protected column: " + columnName, 0);
             return;
         }
-        String newType = JOptionPane.showInputDialog(editor, "Enter new data type (TEXT, INTEGER, DOUBLE, DATE):", 
-                tableModel.getValueAt(selectedRow, 1));
-        if (newType == null || !isValidDataType(newType)) {
-            editor.showMessageDialog("Error", "Invalid data type.", 0);
+        String[] types = {"TEXT", "INTEGER", "DOUBLE", "DATE", "VARCHAR(255)"};
+        String newType = (String) JOptionPane.showInputDialog(editor, "Select new type:", "Change Column Type", 
+                JOptionPane.PLAIN_MESSAGE, null, types, types[0]);
+        if (newType == null) {
             return;
         }
         try {
@@ -283,7 +324,8 @@ public class TableOperationHandler {
             try (Connection conn = DatabaseUtils.getConnection();
                  Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sql);
-                loadTableSchema();
+                fields.get(selectedRow).put("type", newType);
+                tableModel.setValueAt(newType, selectedRow, 1);
                 editor.showMessageDialog("Success", "Column type changed successfully.", 1);
             }
         } catch (SQLException e) {
@@ -306,7 +348,6 @@ public class TableOperationHandler {
         tableModel.removeRow(selectedRow);
         tableModel.insertRow(newIndex, new Object[]{field.get("name"), field.get("type"), field.get("primaryKey")});
         fieldsTable.setRowSelectionInterval(newIndex, newIndex);
-        // Note: Actual column reordering in the database may require recreating the table
     }
 
     public void setPrimaryKey() {
@@ -394,19 +435,23 @@ public class TableOperationHandler {
 
     private boolean isProtectedColumn(String tableName, String columnName) {
         if (tableName == null) return false;
-        if (tableName.equalsIgnoreCase("Inventory") && columnName.equals("AssetName")) return true;
-        if (tableName.equalsIgnoreCase("Templates") && (columnName.equals("Template_Name") || columnName.equals("AssetName"))) return true;
+        if (tableName.equalsIgnoreCase("Settings") && 
+            (columnName.equals("ID") || columnName.equals("InventoryTables") || columnName.equals("SoftwareTables"))) return true;
+        if (tableName.equalsIgnoreCase("Templates") && columnName.equals("Template_Name")) return true;
         if (tableName.equalsIgnoreCase("Accessories") && columnName.equals("Peripheral_Type")) return true;
         if (tableName.equalsIgnoreCase("Cables") && columnName.equals("Cable_Type")) return true;
-        return tableName.equalsIgnoreCase("Adapters") && columnName.equals("Adapter_Type");
+        if (tableName.equalsIgnoreCase("Adapters") && columnName.equals("Adapter_Type")) return true;
+        return tableName.equalsIgnoreCase("LicenseKeyRules") && 
+                (columnName.equals("Rule_ID") || columnName.equals("Rule_Name") || columnName.equals("Rule_Description"));
     }
 
     private boolean isProtectedTable(String tableName) {
-        return tableName.equalsIgnoreCase("Inventory") || 
+        return tableName.equalsIgnoreCase("Settings") || 
                tableName.equalsIgnoreCase("Templates") || 
                tableName.equalsIgnoreCase("Accessories") || 
                tableName.equalsIgnoreCase("Cables") || 
-               tableName.equalsIgnoreCase("Adapters");
+               tableName.equalsIgnoreCase("Adapters") || 
+               tableName.equalsIgnoreCase("LicenseKeyRules");
     }
 
     private boolean isPrimaryKey(String tableName, String columnName) {

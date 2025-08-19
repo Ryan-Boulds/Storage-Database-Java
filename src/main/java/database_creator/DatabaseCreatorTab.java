@@ -8,7 +8,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -20,17 +19,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import database_creator.Table_Editor.TableEditor;
 import utils.DatabaseUtils;
-import utils.DefaultColumns;
 import utils.UIComponentUtils;
 
 public class DatabaseCreatorTab extends JPanel {
     private final JTextField dbPathField;
-    private final JLabel statusLabel;
+    private JLabel statusLabel = new JLabel();
 
     public DatabaseCreatorTab() {
         setLayout(new BorderLayout(10, 10));
 
-        // Input panel for database path
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         dbPathField = UIComponentUtils.createFormattedTextField();
         dbPathField.setColumns(30);
@@ -40,8 +37,10 @@ public class DatabaseCreatorTab extends JPanel {
         JButton createButton = UIComponentUtils.createFormattedButton("Create Tables");
         createButton.addActionListener(e -> {
             try {
-                createMissingTables();
+                createDefaultTables();
             } catch (SQLException ex) {
+                statusLabel.setText("Error: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error creating tables: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         JButton designButton = UIComponentUtils.createFormattedButton("Design Database");
@@ -52,7 +51,6 @@ public class DatabaseCreatorTab extends JPanel {
         inputPanel.add(createButton);
         inputPanel.add(designButton);
 
-        // Status panel
         statusLabel = new JLabel("Checking database...");
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         statusPanel.add(new JLabel("Status:"));
@@ -61,7 +59,6 @@ public class DatabaseCreatorTab extends JPanel {
         add(inputPanel, BorderLayout.NORTH);
         add(statusPanel, BorderLayout.SOUTH);
 
-        // Initialize database tables on tab creation
         initializeDatabase();
     }
 
@@ -69,7 +66,7 @@ public class DatabaseCreatorTab extends JPanel {
         if (validateDatabasePath()) {
             DatabaseUtils.setDatabasePath(dbPathField.getText().trim());
             try {
-                createMissingTables();
+                createDefaultTables();
                 statusLabel.setText("Database initialized successfully.");
             } catch (SQLException e) {
                 statusLabel.setText("Error: " + e.getMessage());
@@ -103,7 +100,7 @@ public class DatabaseCreatorTab extends JPanel {
             DatabaseUtils.setDatabasePath(selectedFile.getAbsolutePath());
             statusLabel.setText("Selected database: " + selectedFile.getName());
             try {
-                createMissingTables();
+                createDefaultTables();
                 statusLabel.setText("Database initialized successfully.");
             } catch (SQLException e) {
                 statusLabel.setText("Error: " + e.getMessage());
@@ -112,7 +109,7 @@ public class DatabaseCreatorTab extends JPanel {
         }
     }
 
-    public void createMissingTables() throws SQLException {
+    public void createDefaultTables() throws SQLException {
         if (!validateDatabasePath()) {
             statusLabel.setText("Invalid database path.");
             throw new SQLException("Please enter a valid .accdb file path.");
@@ -120,12 +117,13 @@ public class DatabaseCreatorTab extends JPanel {
 
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            createInventoryTable(conn, metaData);
+            createSettingsTable(conn, metaData);
             createAccessoriesTable(conn, metaData);
             createCablesTable(conn, metaData);
             createAdaptersTable(conn, metaData);
             createTemplatesTable(conn, metaData);
-            statusLabel.setText("Tables checked/created successfully.");
+            createLicenseKeyRulesTable(conn, metaData);
+            statusLabel.setText("Default tables checked/created successfully.");
         } catch (SQLException e) {
             statusLabel.setText("Error: " + e.getMessage());
             throw e;
@@ -138,27 +136,15 @@ public class DatabaseCreatorTab extends JPanel {
         }
     }
 
-    private void createInventoryTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
-        if (!tableExists(metaData, "Inventory")) {
-            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
-            StringBuilder sql = new StringBuilder("CREATE TABLE Inventory (");
-            int i = 0;
-            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
-                String column = entry.getKey().equals("IP Address") || entry.getKey().equals("Created at") || 
-                               entry.getKey().equals("Last Successful Scan") || entry.getKey().equals("Device Type") ? 
-                               "[" + entry.getKey() + "]" : entry.getKey();
-                sql.append(column).append(" ").append(entry.getValue());
-                if (entry.getKey().equals("AssetName")) {
-                    sql.append(" PRIMARY KEY");
-                }
-                if (i < columnDefs.size() - 1) {
-                    sql.append(", ");
-                }
-                i++;
-            }
-            sql.append(")");
+    private void createSettingsTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+        if (!tableExists(metaData, "Settings")) {
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(sql.toString());
+                stmt.executeUpdate(
+                    "CREATE TABLE Settings (" +
+                    "ID INTEGER PRIMARY KEY, " +
+                    "InventoryTables TEXT, " +
+                    "SoftwareTables TEXT)"
+                );
             }
         }
     }
@@ -201,22 +187,24 @@ public class DatabaseCreatorTab extends JPanel {
 
     private void createTemplatesTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
         if (!tableExists(metaData, "Templates")) {
-            Map<String, String> columnDefs = DefaultColumns.getInventoryColumnDefinitions();
-            StringBuilder sql = new StringBuilder("CREATE TABLE Templates (Template_Name TEXT PRIMARY KEY, ");
-            int i = 0;
-            for (Map.Entry<String, String> entry : columnDefs.entrySet()) {
-                String column = entry.getKey().equals("IP Address") || entry.getKey().equals("Created at") || 
-                               entry.getKey().equals("Last Successful Scan") || entry.getKey().equals("Device Type") ? 
-                               "[" + entry.getKey() + "]" : entry.getKey();
-                sql.append(column).append(" ").append(entry.getValue());
-                if (i < columnDefs.size() - 1) {
-                    sql.append(", ");
-                }
-                i++;
-            }
-            sql.append(")");
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(sql.toString());
+                stmt.executeUpdate(
+                    "CREATE TABLE Templates (" +
+                    "Template_Name TEXT PRIMARY KEY)"
+                );
+            }
+        }
+    }
+
+    private void createLicenseKeyRulesTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+        if (!tableExists(metaData, "LicenseKeyRules")) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                    "CREATE TABLE LicenseKeyRules (" +
+                    "Rule_ID INTEGER PRIMARY KEY, " +
+                    "Rule_Name TEXT, " +
+                    "Rule_Description TEXT)"
+                );
             }
         }
     }

@@ -1,3 +1,4 @@
+//Try to get rid of this file entirely. It is from early development and will hopefully be no longer needed one day.
 package utils;
 
 import java.sql.SQLException;

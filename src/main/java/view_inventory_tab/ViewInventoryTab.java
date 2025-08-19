@@ -4,7 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +29,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
-import utils.TablesNotIncludedList;
 import view_inventory_tab.license_key_tracker.LicenseKeyTracker;
 import view_inventory_tab.view_software_details.DeviceDetailsPanel;
 
@@ -74,11 +77,6 @@ public class ViewInventoryTab extends JPanel {
             String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
             if (inputTableName != null && !inputTableName.trim().isEmpty()) {
                 final String newTableName = inputTableName.trim();
-                if (newTableName.equalsIgnoreCase("Inventory")) {
-                    JOptionPane.showMessageDialog(this, "Error: Table name 'Inventory' is reserved", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("ViewInventoryTab: Attempted to create reserved table 'Inventory'");
-                    return;
-                }
                 if (newTableName.matches("\\d+")) {
                     JOptionPane.showMessageDialog(this, "Error: Table name cannot be purely numeric", "Error", JOptionPane.ERROR_MESSAGE);
                     System.err.println("ViewInventoryTab: Attempted to create numeric table name '" + newTableName + "'");
@@ -95,6 +93,22 @@ public class ViewInventoryTab extends JPanel {
                     // Create new table with AssetName as primary key
                     String sql = "CREATE TABLE [" + newTableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
                     conn.createStatement().executeUpdate(sql);
+                    // Add to Settings table with numeric ID
+                    try {
+                        if (!tableExists("Settings", conn)) {
+                            createSettingsTable(conn);
+                        }
+                        // Get the next available ID
+                        int nextId = getNextSettingsId(conn);
+                        try (PreparedStatement insertPs = conn.prepareStatement("INSERT INTO Settings (ID, InventoryTables) VALUES (?, ?)")) {
+                            insertPs.setInt(1, nextId);
+                            insertPs.setString(2, newTableName);
+                            insertPs.executeUpdate();
+                        }
+                    } catch (SQLException ex) {
+                        System.err.println("ViewInventoryTab: Error adding new table to Settings: " + ex.getMessage());
+                        JOptionPane.showMessageDialog(this, "Error adding to Settings: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                     JOptionPane.showMessageDialog(this, "Table '" + newTableName + "' created successfully");
                     SwingUtilities.invokeLater(() -> {
                         refreshTableList();
@@ -127,12 +141,6 @@ public class ViewInventoryTab extends JPanel {
         JButton addColumnButton = new JButton("Add Column");
         addColumnButton.addActionListener(e -> {
             String tableName = tableManager.getTableName();
-            if ("Inventory".equals(tableName)) {
-                JOptionPane.showMessageDialog(this, "Error: Adding columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("ViewInventoryTab: Attempted to add column in Inventory table, which is not allowed");
-                return;
-            }
-
             String newColumnName = JOptionPane.showInputDialog(this, "Enter new column name:");
             if (newColumnName != null && !newColumnName.trim().isEmpty()) {
                 newColumnName = newColumnName.trim();
@@ -163,12 +171,6 @@ public class ViewInventoryTab extends JPanel {
         JButton deleteColumnButton = new JButton("Delete Column");
         deleteColumnButton.addActionListener(e -> {
             String tableName = tableManager.getTableName();
-            if ("Inventory".equals(tableName)) {
-                JOptionPane.showMessageDialog(this, "Error: Deleting columns is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("ViewInventoryTab: Attempted to delete column in Inventory table, which is not allowed");
-                return;
-            }
-
             String[] columnNames = tableManager.getColumns();
             if (columnNames == null || columnNames.length == 0) {
                 JOptionPane.showMessageDialog(this, "Error: No columns available to delete", "Error", JOptionPane.ERROR_MESSAGE);
@@ -268,12 +270,6 @@ public class ViewInventoryTab extends JPanel {
 
         JButton addRowButton = new JButton("Add New Entry");
         addRowButton.addActionListener(e -> {
-            String tableName = tableManager.getTableName();
-            if ("Inventory".equals(tableName)) {
-                JOptionPane.showMessageDialog(this, "Error: Adding rows is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("ViewInventoryTab: Attempted to add row in Inventory table, which is not allowed");
-                return;
-            }
             AddRowEntry.showAddDialog((javax.swing.JFrame) SwingUtilities.getWindowAncestor(this), tableManager);
         });
         buttonPanel.add(addRowButton);
@@ -331,15 +327,9 @@ public class ViewInventoryTab extends JPanel {
 
     private void showLicenseKeyTracker() {
         String tableName = tableManager.getTableName();
-        if ("Inventory".equals(tableName)) {
-            JOptionPane.showMessageDialog(this, "Error: License Key Tracker is not available for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println("ViewInventoryTab: Attempted to access License Key Tracker for Inventory table");
-            return;
-        }
-
         JSplitPane trackerSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         trackerSplitPane.setDividerLocation(200);
-        trackerSplitPane.setLeftComponent(leftPanel); // Use leftPanel instead of tableListScrollPane
+        trackerSplitPane.setLeftComponent(leftPanel);
 
         LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
         trackerSplitPane.setRightComponent(tracker);
@@ -372,10 +362,10 @@ public class ViewInventoryTab extends JPanel {
         DefaultListModel<String> listModel = new DefaultListModel<>();
         try {
             List<String> tableNames = DatabaseUtils.getTableNames();
-            List<String> includedTables = TablesNotIncludedList.getIncludedTablesForInventory();
+            List<String> includedTables = getIncludedInventoryTables();
             List<String> validTables = new ArrayList<>();
             for (String table : tableNames) {
-                if (includedTables.contains(table)) {
+                if (includedTables.contains(table) && !isExcludedTable(table)) {
                     validTables.add(table);
                 }
             }
@@ -425,10 +415,10 @@ public class ViewInventoryTab extends JPanel {
         DefaultListModel<String> listModel = new DefaultListModel<>();
         try {
             List<String> tableNames = DatabaseUtils.getTableNames();
-            List<String> includedTables = TablesNotIncludedList.getIncludedTablesForInventory();
+            List<String> includedTables = getIncludedInventoryTables();
             List<String> validTables = new ArrayList<>();
             for (String table : tableNames) {
-                if (includedTables.contains(table)) {
+                if (includedTables.contains(table) && !isExcludedTable(table)) {
                     validTables.add(table);
                 }
             }
@@ -455,6 +445,57 @@ public class ViewInventoryTab extends JPanel {
         }
     }
 
+    private boolean isExcludedTable(String tableName) {
+        return tableName.equalsIgnoreCase("Settings") ||
+               tableName.equalsIgnoreCase("LicenseKeyRules") ||
+               tableName.equalsIgnoreCase("Templates");
+    }
+
+    private List<String> getIncludedInventoryTables() {
+        List<String> tables = new ArrayList<>();
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            if (!tableExists("Settings", conn)) {
+                createSettingsTable(conn);
+            }
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT InventoryTables FROM Settings WHERE InventoryTables IS NOT NULL")) {
+                while (rs.next()) {
+                    String tableName = rs.getString("InventoryTables");
+                    if (tableName != null && !tableName.trim().isEmpty()) {
+                        tables.add(tableName);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("ViewInventoryTab: Error fetching included inventory tables: " + e.getMessage());
+        }
+        return tables;
+    }
+
+    private boolean tableExists(String tableName, Connection conn) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
+            return rs.next();
+        }
+    }
+
+    private void createSettingsTable(Connection conn) throws SQLException {
+        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, InventoryTables VARCHAR(255))";
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createSql);
+        }
+    }
+
+    private int getNextSettingsId(Connection conn) throws SQLException {
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+            return 1; // Start with 1 if no records exist
+        }
+    }
+
     private void updateTableView(String tableName) {
         tableManager.setTableName(tableName);
         refreshDataAndTabs();
@@ -462,6 +503,12 @@ public class ViewInventoryTab extends JPanel {
 
     private void initialize() {
         System.out.println("ViewInventoryTab: Initializing table");
+        List<String> validTables = getIncludedInventoryTables();
+        validTables.removeIf(this::isExcludedTable);
+        if (!validTables.isEmpty()) {
+            tableManager.setTableName(validTables.get(0));
+            tableManager.refreshDataAndTabs();
+        }
     }
 
     public void refreshDataAndTabs() {

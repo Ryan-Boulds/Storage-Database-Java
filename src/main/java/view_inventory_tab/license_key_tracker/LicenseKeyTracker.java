@@ -26,8 +26,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
 import utils.DatabaseUtils;
-import view_inventory_tab.ViewInventoryTab;
 import view_inventory_tab.TableManager;
+import view_inventory_tab.ViewInventoryTab;
 
 public class LicenseKeyTracker extends JPanel {
     private final JList<String> keyList;

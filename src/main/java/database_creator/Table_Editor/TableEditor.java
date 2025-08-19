@@ -13,19 +13,15 @@ public final class TableEditor extends JPanel {
     public TableEditor() {
         setLayout(new BorderLayout(10, 10));
 
-        // Initialize components
         uiComponents = new TableUIComponents(this);
         schemaManager = new TableSchemaManager(uiComponents.getTableComboBox());
         operationHandler = new TableOperationHandler(this, uiComponents.getTableComboBox(), uiComponents.getFieldsTable(), uiComponents.getTableModel(), uiComponents.getFields(), schemaManager);
 
-        // Set operation handler in UI components
         uiComponents.setOperationHandler(operationHandler);
 
-        // Add components to panel
         add(uiComponents.getControlPanel(), BorderLayout.NORTH);
         add(uiComponents.getTableScrollPane(), BorderLayout.CENTER);
 
-        // Load initial table list
         try {
             schemaManager.loadTableList();
         } catch (SQLException e) {
