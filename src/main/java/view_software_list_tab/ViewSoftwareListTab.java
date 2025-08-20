@@ -1,7 +1,6 @@
 package view_software_list_tab;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -31,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
+import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewSoftwareListTab extends JPanel {
@@ -66,7 +66,7 @@ public class ViewSoftwareListTab extends JPanel {
         mainSplitPane.setDividerLocation(200);
         mainSplitPane.setResizeWeight(0.3);
 
-        // Set up left panel with software list and button
+        // Set up left panel with software list and buttons
         leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));
         JPanel topLeftPanel = new JPanel();
@@ -80,115 +80,65 @@ public class ViewSoftwareListTab extends JPanel {
         tableListScrollPane = createTableListScrollPane();
         leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
 
+        // Add action listener for Add New Table button
+        addNewTableButton.addActionListener(e -> addNewTable());
+
+        JButton licenseKeyTrackerButton = new JButton("License Key Tracker");
+
+        // Add action listener for License Key Tracker button
+        licenseKeyTrackerButton.addActionListener(e -> showLicenseKeyTracker());
+
         // Set up filter panel after left panel to avoid leaking 'this'
         FilterPanel filterPanel = new FilterPanel(
                 (search, status, dept) -> updateTables(search),
                 this::refreshDataAndTabs,
                 tableManager
         );
+        filterPanel.getPanel().add(licenseKeyTrackerButton, 0);
 
         // Set up main panel with filter at top and table below
         mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Set split pane components
         mainSplitPane.setLeftComponent(leftPanel);
         mainSplitPane.setRightComponent(mainPanel);
-
-        // Add action listener for new table button after filter panel initialization
-        addNewTableButton.addActionListener(e -> {
-            String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
-            if (inputTableName != null && !inputTableName.trim().isEmpty()) {
-                final String newTableName = inputTableName.trim();
-                if (newTableName.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Error: Table name cannot be purely numeric", "Error", JOptionPane.ERROR_MESSAGE);
-                    LOGGER.log(Level.SEVERE, "Attempted to create numeric table name '{0}'", newTableName);
-                    return;
-                }
-                try (Connection conn = DatabaseUtils.getConnection()) {
-                    List<String> existingTables = DatabaseUtils.getTableNames();
-                    if (existingTables.stream().anyMatch(t -> t.equalsIgnoreCase(newTableName))) {
-                        JOptionPane.showMessageDialog(this, "Error: Table '" + newTableName + "' already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                        LOGGER.log(Level.SEVERE, "Attempted to create existing table '{0}'", newTableName);
-                        return;
-                    }
-                    String sql = "CREATE TABLE [" + newTableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
-                    conn.createStatement().executeUpdate(sql);
-                    try {
-                        if (!tableExists("Settings", conn)) {
-                            createSettingsTable(conn);
-                        }
-                        int nextId = getNextSettingsId(conn);
-                        try (PreparedStatement insertPs = conn.prepareStatement("INSERT INTO Settings (ID, SoftwareTables) VALUES (?, ?)")) {
-                            insertPs.setInt(1, nextId);
-                            insertPs.setString(2, newTableName);
-                            insertPs.executeUpdate();
-                        }
-                        refreshTableList();
-                        tableList.setSelectedValue(newTableName, true);
-                        tableManager.setTableName(newTableName);
-                        filterPanel.setTableName(newTableName);
-                        refreshDataAndTabs();
-                    } catch (SQLException ex) {
-                        LOGGER.log(Level.SEVERE, "Error adding new table to Settings: {0}", ex.getMessage());
-                        JOptionPane.showMessageDialog(this, "Error adding new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (SQLException ex) {
-                    LOGGER.log(Level.SEVERE, "Error creating new table '{0}': {1}", new Object[]{newTableName, ex.getMessage()});
-                    JOptionPane.showMessageDialog(this, "Error creating new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
         currentView = mainSplitPane;
         add(currentView, BorderLayout.CENTER);
 
-        PopupHandler.addTablePopup(table, this);
-    }
-
-    private JScrollPane createTableListScrollPane() {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        List<String> tables = getIncludedSoftwareTables();
-        for (String table : tables) {
-            if (!isExcludedTable(table)) {
-                listModel.addElement(table);
-            }
-        }
-        JList<String> softwareList = new JList<>(listModel);
-        tableList = softwareList;
-        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableList.setFixedCellWidth(180);
-        tableList.setFixedCellHeight(25);
-        tableList.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        // Initialize table list and set up listeners
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedTable = tableList.getSelectedValue();
-                tableManager.setTableName(selectedTable);
-                refreshDataAndTabs();
+                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
+                    tableManager.setTableName(selectedTable);
+                    refreshDataAndTabs();
+                }
             }
         };
         tableList.addListSelectionListener(originalTableListListener);
-        tableListScrollPane = new JScrollPane(softwareList);
+
+        // Load initial table list
+        updateTableList();
+    }
+
+    private JScrollPane createTableListScrollPane() {
+        tableList = new JList<>(new DefaultListModel<>());
+        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableListScrollPane = new JScrollPane(tableList);
         return tableListScrollPane;
     }
 
-    private void refreshTableList() {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
+    private void updateTableList() {
+        DefaultListModel<String> model = (DefaultListModel<String>) tableList.getModel();
+        model.clear();
         List<String> tables = getIncludedSoftwareTables();
-        for (String table : tables) {
-            if (!isExcludedTable(table)) {
-                listModel.addElement(table);
+        if (tables.isEmpty()) {
+            model.addElement("No tables available");
+        } else {
+            for (String table : tables) {
+                model.addElement(table);
             }
         }
-        tableList.setModel(listModel);
-        tableList.revalidate();
-        tableList.repaint();
-    }
-
-    private boolean isExcludedTable(String tableName) {
-        return tableName == null || tableName.equalsIgnoreCase("Settings") ||
-               tableName.equalsIgnoreCase("LicenseKeyRules") ||
-               tableName.equalsIgnoreCase("Templates");
     }
 
     private List<String> getIncludedSoftwareTables() {
@@ -300,7 +250,63 @@ public class ViewSoftwareListTab extends JPanel {
         repaint();
     }
 
+    private void showLicenseKeyTracker() {
+        String tableName = tableManager.getTableName();
+        if (tableName == null || tableName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
+            return;
+        }
+        remove(currentView);
+        currentView = new LicenseKeyTracker(this, tableManager);
+        add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+        LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
+    }
+
     public TableManager getTableManager() {
         return tableManager;
+    }
+
+    private void addNewTable() {
+        String newTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
+        if (newTableName == null || newTableName.trim().isEmpty()) {
+            return;
+        }
+        newTableName = newTableName.trim();
+
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            if (tableExists(newTableName, conn)) {
+                JOptionPane.showMessageDialog(this, "Table already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to create existing table '{0}'", newTableName);
+                return;
+            }
+
+            // Create table
+            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY)";
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(createSql);
+                LOGGER.log(Level.INFO, "Created new table '{0}'", newTableName);
+            }
+
+            // Add to Settings
+            int nextId = getNextSettingsId(conn);
+            String insertSql = "INSERT INTO Settings (ID, SoftwareTables) VALUES (?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, nextId);
+                ps.setString(2, newTableName);
+                ps.executeUpdate();
+                LOGGER.log(Level.INFO, "Added table '{0}' to Settings with ID {1}", new Object[]{newTableName, nextId});
+            }
+
+            updateTableList();
+            tableList.setSelectedValue(newTableName, true);
+            tableManager.setTableName(newTableName);
+            refreshDataAndTabs();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, e.getMessage()});
+        }
     }
 }

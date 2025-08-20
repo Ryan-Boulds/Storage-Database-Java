@@ -3,7 +3,6 @@ package view_software_list_tab;
 import java.awt.FontMetrics;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -29,7 +27,7 @@ import utils.DatabaseUtils;
 
 public final class TableManager {
     private final JTable table;
-    private final DefaultTableModel model;
+    protected final DefaultTableModel model;
     private String[] columns;
     private final Map<String, Integer> columnTypes;
     private TableRowSorter<DefaultTableModel> sorter = null;
@@ -68,7 +66,7 @@ public final class TableManager {
         this.tableName = tableName;
         if (this.tableName != null && !this.tableName.isEmpty()) {
             initializeColumns();
-            refreshDataAndTabs(); // Ensure data is refreshed after setting table name
+            refreshDataAndTabs();
         } else {
             model.setRowCount(0);
             model.setColumnCount(0);
@@ -83,7 +81,7 @@ public final class TableManager {
         this.whereClause = whereClause == null ? "" : whereClause.trim();
     }
 
-    public void initializeColumns() {
+    private void initializeColumns() {
         if (tableName == null || tableName.isEmpty()) {
             model.setRowCount(0);
             model.setColumnCount(0);
@@ -93,124 +91,80 @@ public final class TableManager {
             }
             return;
         }
-        if (model != null) {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            model.addColumn("Edit");
-            columns = new String[0];
-            columnTypes.clear();
-            try (Connection conn = DatabaseUtils.getConnection();
-                 ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                List<String> columnList = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    int sqlType = metaData.getColumnType(i);
-                    columnList.add(columnName);
-                    columnTypes.put(columnName, sqlType);
-                }
-                columns = columnList.toArray(new String[0]);
-                for (String column : columnList) {
-                    model.addColumn(column);
-                }
-                LOGGER.log(Level.INFO, "Initialized columns from database table %s: %s", new Object[]{tableName, String.join(", ", columns)});
-                LOGGER.log(Level.INFO, "Column types: %s", columnTypes);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching columns from database for table %s: %s", new Object[]{tableName, e.getMessage()});
-                JOptionPane.showMessageDialog(table, String.format("Error fetching table columns: %s. Please check database connection and table %s.", e.getMessage(), tableName), "Database Error", JOptionPane.ERROR_MESSAGE);
-                columns = new String[0];
-                columnTypes.clear();
-            }
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("Edit");
+        columns = getTableColumns(tableName);
+        for (String column : columns) {
+            model.addColumn(column);
+        }
+    }
 
+    private String[] getTableColumns(String tableName) {
+        List<String> columnList = new ArrayList<>();
+        try (Connection conn = DatabaseUtils.getConnection();
+             ResultSet rs = conn.getMetaData().getColumns(null, null, tableName, null)) {
+            while (rs.next()) {
+                String columnName = rs.getString("COLUMN_NAME");
+                int sqlType = rs.getInt("DATA_TYPE");
+                columnList.add(columnName);
+                columnTypes.put(columnName, sqlType);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error fetching columns for table {0}: {1}", new Object[]{tableName, e.getMessage()});
+        }
+        return columnList.toArray(new String[0]);
+    }
+
+    public void refreshDataAndTabs() {
+        initializeColumns();
+        String sql = "SELECT * FROM [" + tableName + "]" + (whereClause.isEmpty() ? "" : " WHERE " + whereClause);
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            while (rs.next()) {
+                Object[] row = new Object[columns.length + 1];
+                row[0] = "Edit";
+                for (int i = 0; i < columns.length; i++) {
+                    String column = columns[i];
+                    Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
+                    if (sqlType == Types.BOOLEAN) {
+                        row[i + 1] = rs.getBoolean(column);
+                    } else if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || column.equals("Warranty_Expiry_Date") || 
+                        column.equals("Last_Maintenance") || column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
+                        String dateStr = rs.getString(column);
+                        if (dateStr != null && !dateStr.isEmpty()) {
+                            try {
+                                row[i + 1] = outputFormat.format(inputFormat.parse(dateStr));
+                            } catch (ParseException e) {
+                                row[i + 1] = dateStr;
+                            }
+                        } else {
+                            row[i + 1] = "";
+                        }
+                    } else {
+                        row[i + 1] = rs.getString(column);
+                    }
+                }
+                model.addRow(row);
+            }
+            adjustColumnWidths();
             if (table.getColumnModel().getColumnCount() > 0) {
                 TableColumn editColumn = table.getColumnModel().getColumn(0);
                 editColumn.setCellRenderer(new RowEditButtonRenderer());
                 editColumn.setCellEditor(new RowEditButtonEditor(table, this));
+                editColumn.setPreferredWidth(100);
             }
-        }
-    }
-
-    public void refreshDataAndTabs() {
-        if (tableName == null || tableName.isEmpty()) {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            if (table != null) {
+            SwingUtilities.invokeLater(() -> {
                 table.revalidate();
                 table.repaint();
-            }
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: No table selected, cleared table display");
-            return;
-        }
-        initializeColumns(); // Reload schema every refresh to handle added/removed columns
-        int[] selectedRows = table.getSelectedRows();
-        model.setRowCount(0);
-        ArrayList<HashMap<String, String>> devices = new ArrayList<>();
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "]" + (whereClause.isEmpty() ? "" : " WHERE " + whereClause))) {
-            while (rs.next()) {
-                HashMap<String, String> device = new HashMap<>();
-                for (String column : columns) {
-                    String value = rs.getString(column);
-                    device.put(column, value != null ? value : "");
-                }
-                devices.add(device);
-            }
-            LOGGER.log(Level.INFO, "Retrieved %d devices from table %s", new Object[]{devices.size(), tableName});
+                LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", new Object[]{tableName, String.join(", ", columns)});
+            });
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching devices from table %s: %s", new Object[]{tableName, e.getMessage()});
-            JOptionPane.showMessageDialog(table, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            devices = null;
+            LOGGER.log(Level.SEVERE, "Error refreshing data for table {0}: {1}", new Object[]{tableName, e.getMessage()});
         }
-
-        if (devices == null || devices.isEmpty()) {
-            LOGGER.log(Level.INFO, "No devices retrieved from table %s", tableName);
-            JOptionPane.showMessageDialog(table, "No data available in table " + tableName, "Info", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-        inputFormat.setLenient(false);
-        for (Map<String, String> device : devices) {
-            if (device == null) continue;
-            Object[] row = new Object[columns.length + 1];
-            row[0] = "Edit";
-            for (int i = 0; i < columns.length; i++) {
-                String column = columns[i];
-                Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
-                String value = device.getOrDefault(column, "");
-                if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || column.equals("Warranty_Expiry_Date") || 
-                    column.equals("Last_Maintenance") || column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
-                    try {
-                        row[i + 1] = value != null && !value.isEmpty() ? outputFormat.format(inputFormat.parse(value)) : "";
-                    } catch (ParseException e) {
-                        row[i + 1] = value;
-                    }
-                } else {
-                    row[i + 1] = value;
-                }
-            }
-            model.addRow(row);
-        }
-        for (int row : selectedRows) {
-            if (row < table.getRowCount()) {
-                table.addRowSelectionInterval(row, row);
-            }
-        }
-        adjustColumnWidths();
-        if (table.getColumnModel().getColumnCount() > 0) {
-            TableColumn editColumn = table.getColumnModel().getColumn(0);
-            editColumn.setCellRenderer(new RowEditButtonRenderer());
-            editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-            editColumn.setPreferredWidth(100);
-        }
-        SwingUtilities.invokeLater(() -> {
-            table.revalidate();
-            table.repaint();
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", new Object[]{tableName, String.join(", ", columns)});
-        });
     }
 
     private void adjustColumnWidths() {

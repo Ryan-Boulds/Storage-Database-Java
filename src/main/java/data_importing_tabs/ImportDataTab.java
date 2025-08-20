@@ -1,10 +1,14 @@
 package data_importing_tabs;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -15,8 +19,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import data_importing_tabs.ui.ComparisonDialog;
+import utils.DataEntry;
 import utils.DatabaseUtils;
-import utils.TablesNotIncludedList;
 import utils.UIComponentUtils;
 
 public class ImportDataTab extends javax.swing.JPanel {
@@ -112,24 +116,26 @@ public class ImportDataTab extends javax.swing.JPanel {
         javax.swing.JMenuItem compareItem = new javax.swing.JMenuItem("Compare and Resolve");
         compareItem.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
-            if (selectedRow >= 0 && renderer.isYellowOrOrange(selectedRow)) {
-                ComparisonDialog dialog = new ComparisonDialog(this, dataDisplayManager.getOriginalData().get(selectedRow), tableColumns);
-                utils.DataEntry resolvedEntry = dialog.showDialog();
+            if (selectedRow >= 0 && dataDisplayManager.getRowStatus().get(selectedRow) != null && 
+                dataDisplayManager.getRowStatus().get(selectedRow).equals("yellow")) {
+                DataEntry entry = dataDisplayManager.getOriginalData().get(selectedRow);
+                ComparisonDialog dialog = new ComparisonDialog(this, entry, tableColumns);
+                DataEntry resolvedEntry = dialog.showDialog();
                 if (resolvedEntry != null) {
+                    dataDisplayManager.getOriginalData().set(selectedRow, resolvedEntry);
                     resolvedEntry.setResolved(true);
-                    List<utils.DataEntry> originalData = dataDisplayManager.getOriginalData();
-                    originalData.set(selectedRow, resolvedEntry);
-                    String status = dataDisplayManager.computeRowStatus(selectedRow, resolvedEntry);
-                    dataDisplayManager.getRowStatus().put(selectedRow, status);
+                    String newStatus = dataDisplayManager.computeRowStatus(selectedRow, resolvedEntry);
+                    dataDisplayManager.getRowStatus().put(selectedRow, newStatus);
                     dataDisplayManager.updateTableDisplay();
-                    statusLabel.setText("Row " + (selectedRow + 1) + " resolved, status: " + status);
-                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
-                        java.util.logging.Level.INFO, "Resolved row {0} for AssetName: {1}, new status: {2}",
-                        new Object[]{selectedRow, resolvedEntry.getData().get("AssetName"), status});
+                    statusLabel.setText("Row " + (selectedRow + 1) + " resolved.");
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a row with conflicts (yellow) to resolve.", 
+                    "Invalid Selection", JOptionPane.WARNING_MESSAGE);
             }
         });
         popupMenu.add(compareItem);
+
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -137,55 +143,62 @@ public class ImportDataTab extends javax.swing.JPanel {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row >= 0) {
                         table.setRowSelectionInterval(row, row);
-                        compareItem.setEnabled(renderer.isYellowOrOrange(row));
-                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                        popupMenu.show(table, e.getX(), e.getY());
                     }
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     int row = table.rowAtPoint(e.getPoint());
                     if (row >= 0) {
                         table.setRowSelectionInterval(row, row);
-                        compareItem.setEnabled(renderer.isYellowOrOrange(row));
-                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                        popupMenu.show(table, e.getX(), e.getY());
                     }
                 }
             }
         });
 
-        javax.swing.JScrollPane tableScrollPane = UIComponentUtils.createScrollableContentPanel(table);
-        add(tableScrollPane, BorderLayout.CENTER);
+        add(new javax.swing.JScrollPane(table), BorderLayout.CENTER);
     }
 
     private void createNewTable() {
-        String tableName = JOptionPane.showInputDialog(this, "Enter new table name:");
-        if (tableName != null && !tableName.trim().isEmpty()) {
-            String sanitizedTableName = tableName.trim().replace(" ", "_");
-            try {
-                // Create the table with sanitized name
-                DatabaseUtils.createTable(sanitizedTableName);
-                
-                // Set selectedTable to sanitized name
-                selectedTable = sanitizedTableName;
-                
-                // Temporarily remove ActionListener to prevent premature update
-                ActionListener[] listeners = tableSelector.getActionListeners();
-                for (ActionListener listener : listeners) {
-                    tableSelector.removeActionListener(listener);
+        String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
+        if (inputTableName != null && !inputTableName.trim().isEmpty()) {
+            String sanitizedTableName = inputTableName.trim().replace(" ", "_");
+            if (sanitizedTableName.matches("\\d+")) {
+                String errorMessage = "Error: Table name cannot be purely numeric";
+                statusLabel.setText(errorMessage);
+                java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                    java.util.logging.Level.SEVERE, "Attempted to create numeric table name '{0}'", sanitizedTableName);
+                JOptionPane.showMessageDialog(this, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try (Connection conn = DatabaseUtils.getConnection()) {
+                List<String> existingTables = DatabaseUtils.getTableNames();
+                if (existingTables.stream().anyMatch(t -> t.equalsIgnoreCase(sanitizedTableName))) {
+                    String errorMessage = "Error: Table '" + sanitizedTableName + "' already exists";
+                    statusLabel.setText(errorMessage);
+                    java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
+                        java.util.logging.Level.SEVERE, "Attempted to create existing table '{0}'", sanitizedTableName);
+                    JOptionPane.showMessageDialog(this, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-                
-                // Update table selector and set the selected item
+                String sql = "CREATE TABLE [" + sanitizedTableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
+                conn.createStatement().executeUpdate(sql);
+                if (!tableExists("Settings", conn)) {
+                    createSettingsTable(conn);
+                }
+                int nextId = getNextSettingsId(conn);
+                try (PreparedStatement insertPs = conn.prepareStatement("INSERT INTO Settings (ID, SoftwareTables) VALUES (?, ?)")) {
+                    insertPs.setInt(1, nextId);
+                    insertPs.setString(2, sanitizedTableName);
+                    insertPs.executeUpdate();
+                }
+                selectedTable = sanitizedTableName;
                 updateTableSelectorOptions();
                 tableSelector.setSelectedItem(sanitizedTableName);
-                
-                // Restore ActionListeners
-                for (ActionListener listener : listeners) {
-                    tableSelector.addActionListener(listener);
-                }
-                
-                // Now update columns
                 updateTableColumns();
                 statusLabel.setText("Table '" + sanitizedTableName + "' created and selected.");
                 java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
@@ -202,19 +215,51 @@ public class ImportDataTab extends javax.swing.JPanel {
         }
     }
 
+    private boolean tableExists(String tableName, Connection conn) throws SQLException {
+        java.sql.DatabaseMetaData meta = conn.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
+            return rs.next();
+        }
+    }
+
+    private void createSettingsTable(Connection conn) throws SQLException {
+        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255))";
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createSql);
+        }
+    }
+
+    private int getNextSettingsId(Connection conn) throws SQLException {
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+            return 1;
+        }
+    }
+
     private void updateTableSelectorOptions() {
         tableSelector.removeAllItems();
-        try {
-            List<String> tableNames = DatabaseUtils.getTableNames();
-            List<String> excludedTables = TablesNotIncludedList.getExcludedTablesForSoftwareImporter();
-            for (String tableName : tableNames) {
-                String sanitizedTableName = tableName.replace(" ", "_");
-                if (!excludedTables.contains(sanitizedTableName)) {
-                    tableSelector.addItem(sanitizedTableName);
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            if (!tableExists("Settings", conn)) {
+                createSettingsTable(conn);
+            }
+            List<String> tables = new ArrayList<>();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT SoftwareTables FROM Settings WHERE SoftwareTables IS NOT NULL")) {
+                while (rs.next()) {
+                    String tableName = rs.getString("SoftwareTables");
+                    if (tableName != null && !tableName.trim().isEmpty()) {
+                        tables.add(tableName);
+                    }
                 }
             }
+            for (String tableName : tables) {
+                tableSelector.addItem(tableName);
+            }
             if (tableSelector.getItemCount() > 0) {
-                if (selectedTable == null || !tableNames.contains(selectedTable.replace(" ", "_")) || excludedTables.contains(selectedTable.replace(" ", "_"))) {
+                if (selectedTable == null || !tables.contains(selectedTable)) {
                     selectedTable = (String) tableSelector.getItemAt(0);
                     tableSelector.setSelectedItem(selectedTable);
                 }
@@ -222,12 +267,12 @@ public class ImportDataTab extends javax.swing.JPanel {
                 selectedTable = null;
                 statusLabel.setText("No tables available. Please create a new table.");
                 java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
-                    java.util.logging.Level.WARNING, "No non-excluded tables available in the database");
+                    java.util.logging.Level.WARNING, "No software tables available in Settings");
             }
         } catch (SQLException e) {
             java.util.logging.Logger.getLogger(ImportDataTab.class.getName()).log(
-                java.util.logging.Level.SEVERE, "Error retrieving table names: {0}", e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error retrieving table names: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                java.util.logging.Level.SEVERE, "Error retrieving software tables: {0}", e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error retrieving software tables: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
