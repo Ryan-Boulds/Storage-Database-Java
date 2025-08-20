@@ -57,7 +57,7 @@ public class DuplicateManager {
         DefaultTableModel tableModel = parent.getTableModel();
         tableModel.setRowCount(0);
         TableColorRenderer renderer = (TableColorRenderer) parent.getTable().getDefaultRenderer(Object.class);
-        renderer.setRowStatus(parent.getRowStatus()); // Sync renderer with updated status
+        renderer.setRowStatus(parent.getRowStatus());
         for (int i = 0; i < parent.getOriginalData().size(); i++) {
             utils.DataEntry entry = parent.getOriginalData().get(i);
             if (showDuplicates || !renderer.isExactDuplicate(i)) {

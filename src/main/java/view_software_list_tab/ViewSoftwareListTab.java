@@ -38,10 +38,10 @@ public class ViewSoftwareListTab extends JPanel {
     protected final TableManager tableManager;
     private final JPanel mainPanel;
     private JComponent currentView;
-    private JScrollPane tableListScrollPane;
-    private JList<String> tableList;
+    private final JScrollPane tableListScrollPane;
+    private final JList<String> tableList;
     private final JSplitPane mainSplitPane;
-    private ListSelectionListener originalTableListListener;
+    private final ListSelectionListener originalTableListListener;
     private final JPanel leftPanel;
     private static final Logger LOGGER = Logger.getLogger(ViewSoftwareListTab.class.getName());
 
@@ -61,6 +61,11 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Initialize table list and scroll pane
+        tableList = new JList<>(new DefaultListModel<>());
+        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableListScrollPane = new JScrollPane(tableList);
+
         // Initialize split pane for left (software list) and right (main panel)
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         mainSplitPane.setDividerLocation(200);
@@ -72,12 +77,11 @@ public class ViewSoftwareListTab extends JPanel {
         JPanel topLeftPanel = new JPanel();
         topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
         topLeftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        JLabel softwareListLabel = new JLabel("Inventory list:");
+        JLabel softwareListLabel = new JLabel("software list:");
         JButton addNewTableButton = new JButton("Add New Table");
         topLeftPanel.add(softwareListLabel);
         topLeftPanel.add(addNewTableButton);
         leftPanel.add(topLeftPanel, BorderLayout.NORTH);
-        tableListScrollPane = createTableListScrollPane();
         leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
 
         // Add action listener for Add New Table button
@@ -88,24 +92,26 @@ public class ViewSoftwareListTab extends JPanel {
         // Add action listener for License Key Tracker button
         licenseKeyTrackerButton.addActionListener(e -> showLicenseKeyTracker());
 
-        // Set up filter panel after left panel to avoid leaking 'this'
+        // Set up main panel with table
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainSplitPane.setLeftComponent(leftPanel);
+        mainSplitPane.setRightComponent(mainPanel);
+        currentView = mainSplitPane;
+        add(currentView, BorderLayout.CENTER);
+
+        // Initialize table list
+        updateTableList();
+
+        // Set up filter panel after all fields are initialized to avoid leaking 'this'
         FilterPanel filterPanel = new FilterPanel(
                 (search, status, dept) -> updateTables(search),
                 this::refreshDataAndTabs,
                 tableManager
         );
         filterPanel.getPanel().add(licenseKeyTrackerButton, 0);
-
-        // Set up main panel with filter at top and table below
         mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        mainSplitPane.setLeftComponent(leftPanel);
-        mainSplitPane.setRightComponent(mainPanel);
-        currentView = mainSplitPane;
-        add(currentView, BorderLayout.CENTER);
-
-        // Initialize table list and set up listeners
+        // Initialize listeners
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedTable = tableList.getSelectedValue();
@@ -117,15 +123,8 @@ public class ViewSoftwareListTab extends JPanel {
         };
         tableList.addListSelectionListener(originalTableListListener);
 
-        // Load initial table list
-        updateTableList();
-    }
-
-    private JScrollPane createTableListScrollPane() {
-        tableList = new JList<>(new DefaultListModel<>());
-        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableListScrollPane = new JScrollPane(tableList);
-        return tableListScrollPane;
+        // Attach popup menu handler
+        PopupHandler.addTablePopup(table, this);
     }
 
     private void updateTableList() {
@@ -195,17 +194,17 @@ public class ViewSoftwareListTab extends JPanel {
     @SuppressWarnings("unchecked")
     public void updateTables(String searchTerm) {
         refreshDataAndTabs();
-        String text = searchTerm.toLowerCase();
+        String searchText = searchTerm.toLowerCase();
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
         if (sorter != null) {
             javax.swing.RowFilter<DefaultTableModel, Integer> filter = null;
-            if (!text.isEmpty()) {
+            if (!searchText.isEmpty()) {
                 filter = new javax.swing.RowFilter<DefaultTableModel, Integer>() {
                     @Override
                     public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
                         for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
                             Object value = entry.getValue(i);
-                            if (value != null && value.toString().toLowerCase().contains(text)) {
+                            if (value != null && value.toString().toLowerCase().contains(searchText)) {
                                 return true;
                             }
                         }
@@ -265,10 +264,6 @@ public class ViewSoftwareListTab extends JPanel {
         LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
     }
 
-    public TableManager getTableManager() {
-        return tableManager;
-    }
-
     private void addNewTable() {
         String newTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
         if (newTableName == null || newTableName.trim().isEmpty()) {
@@ -308,5 +303,17 @@ public class ViewSoftwareListTab extends JPanel {
             JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, e.getMessage()});
         }
+    }
+
+    public TableManager getTableManager() {
+        return tableManager;
+    }
+
+    public JComponent getCurrentView() {
+        return currentView;
+    }
+
+    public void setCurrentView(JComponent currentView) {
+        this.currentView = currentView;
     }
 }

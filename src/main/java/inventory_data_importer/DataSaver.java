@@ -51,18 +51,39 @@ public class DataSaver {
             }
         }
 
+        String tableName = parent.getSelectedTable().replace(" ", "_");
         if (allGreenOrWhite) {
             int savedCount = 0;
             List<utils.DataEntry> dataToRemove = new ArrayList<>();
             for (utils.DataEntry entry : whiteRows) {
                 try {
                     HashMap<String, String> cleanedDevice = cleanDeviceData(entry.getData());
-                    parent.getDatabaseHandler().saveDevice(cleanedDevice);
-                    savedCount++;
-                    dataToRemove.add(entry);
+                    String assetName = cleanedDevice.get("AssetName");
+                    HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(tableName, assetName);
+                    if (existingDevice != null) {
+                        // Duplicate found: update existing record instead of inserting
+                        for (Map.Entry<String, String> field : cleanedDevice.entrySet()) {
+                            String key = field.getKey();
+                            String newValue = field.getValue();
+                            if (newValue != null && !newValue.trim().isEmpty()) {
+                                existingDevice.put(key, newValue);
+                            }
+                        }
+                        utils.DatabaseUtils.updateDevice(tableName, existingDevice);
+                        savedCount++;
+                        dataToRemove.add(entry);
+                        LOGGER.log(Level.INFO, "Updated existing device for AssetName {0} in table {1}.", 
+                                   new Object[]{assetName, tableName});
+                    } else {
+                        utils.DatabaseUtils.saveDevice(tableName, cleanedDevice);
+                        savedCount++;
+                        dataToRemove.add(entry);
+                        LOGGER.log(Level.INFO, "Inserted new device for AssetName {0} into table {1}.", 
+                                   new Object[]{assetName, tableName});
+                    }
                 } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, "Error saving new device for AssetName {0}: {1}", 
-                               new Object[]{entry.getData().get("AssetName"), e.getMessage()});
+                    LOGGER.log(Level.SEVERE, "Error saving new device for AssetName {0} to table {1}: {2}", 
+                               new Object[]{entry.getData().get("AssetName"), tableName, e.getMessage()});
                     String errorMessage = "Error saving new device for AssetName " + entry.getData().get("AssetName") + ": " + e.getMessage();
                     statusLabel.setText(errorMessage);
                     JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
@@ -72,19 +93,20 @@ public class DataSaver {
             for (utils.DataEntry entry : greenRows) {
                 try {
                     HashMap<String, String> cleanedDevice = cleanDeviceData(entry.getData());
-                    parent.getDatabaseHandler().updateDeviceInDB(cleanedDevice);
+                    utils.DatabaseUtils.updateDevice(tableName, cleanedDevice);
                     savedCount++;
                     dataToRemove.add(entry);
+                    LOGGER.log(Level.INFO, "Updated device for AssetName {0} in table {1}.", 
+                               new Object[]{entry.getData().get("AssetName"), tableName});
                 } catch (SQLException e) {
-                    LOGGER.log(Level.SEVERE, "Error updating device for AssetName {0}: {1}", 
-                               new Object[]{entry.getData().get("AssetName"), e.getMessage()});
+                    LOGGER.log(Level.SEVERE, "Error updating device for AssetName {0} in table {1}: {2}", 
+                               new Object[]{entry.getData().get("AssetName"), tableName, e.getMessage()});
                     String errorMessage = "Error updating device for AssetName " + entry.getData().get("AssetName") + ": " + e.getMessage();
                     statusLabel.setText(errorMessage);
                     JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
-            // Remove saved entries and update display
             parent.getOriginalData().removeAll(dataToRemove);
             parent.getRowStatus().clear();
             for (int i = 0; i < parent.getOriginalData().size(); i++) {
@@ -92,10 +114,12 @@ public class DataSaver {
                 parent.getRowStatus().put(i, status);
             }
             parent.dataDisplayManager.updateTableDisplay();
+            // parent.getDataImporter().clearImportedData(); // Clear importedData to skip confirmation dialog
 
-            statusLabel.setText("Data saved to database successfully!");
-            LOGGER.log(Level.INFO, "Successfully saved {0} devices to database.", savedCount);
-            JOptionPane.showMessageDialog(parent, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            String message = "Successfully saved " + savedCount + " devices to table " + tableName + ".";
+            statusLabel.setText(message);
+            LOGGER.log(Level.INFO, message);
+            JOptionPane.showMessageDialog(parent, message, "Success", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
@@ -119,22 +143,20 @@ public class DataSaver {
                     dataToSave.addAll(greenRows);
                     for (utils.DataEntry entry : yellowRows) {
                         HashMap<String, String> mergedDevice = new HashMap<>();
-                        HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(entry.getData().get("AssetName"));
+                        HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(tableName, entry.getData().get("AssetName"));
                         if (existingDevice != null) {
-                            mergedDevice.putAll(existingDevice); // Start with existing data
+                            mergedDevice.putAll(existingDevice);
                             for (Map.Entry<String, String> field : entry.getData().entrySet()) {
                                 String key = field.getKey();
                                 String newValue = field.getValue();
                                 if (newValue != null && !newValue.trim().isEmpty() && 
                                     (mergedDevice.get(key) == null || mergedDevice.get(key).trim().isEmpty())) {
-                                    mergedDevice.put(key, newValue); // Update only if existing is blank
+                                    mergedDevice.put(key, newValue);
                                 }
                             }
                             dataToSave.add(new utils.DataEntry(entry.getValues(), mergedDevice));
                         }
                     }
-                    // Add all yellowRows to dataToSave to ensure they are processed and removed
-                    dataToSave.addAll(yellowRows);
                     break;
                 case 1: // Overwrite Conflicts
                     dataToSave.addAll(whiteRows);
@@ -159,25 +181,28 @@ public class DataSaver {
                 HashMap<String, String> device = entry.getData();
                 String assetName = device.get("AssetName");
                 if (assetName != null && !assetName.trim().isEmpty()) {
-                    HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(assetName);
+                    HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(tableName, assetName);
                     try {
                         if (existingDevice != null) {
                             HashMap<String, String> cleanedDevice = cleanDeviceData(device);
-                            parent.getDatabaseHandler().updateDeviceInDB(cleanedDevice);
+                            utils.DatabaseUtils.updateDevice(tableName, cleanedDevice);
+                            LOGGER.log(Level.INFO, "Updated existing device for AssetName {0} in table {1}.", 
+                                       new Object[]{assetName, tableName});
                         } else {
                             HashMap<String, String> cleanedDevice = cleanDeviceData(device);
-                            parent.getDatabaseHandler().saveDevice(cleanedDevice);
+                            utils.DatabaseUtils.saveDevice(tableName, cleanedDevice);
+                            LOGGER.log(Level.INFO, "Inserted new device for AssetName {0} into table {1}.", 
+                                       new Object[]{assetName, tableName});
                         }
                         savedCount++;
                         dataToRemove.add(entry);
                     } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE, "Error saving/updating device for AssetName {0}: {1}", 
-                                   new Object[]{assetName, e.getMessage()});
-                        throw e; // Re-throw to handle in the catch block below
+                        LOGGER.log(Level.SEVERE, "Error saving/updating device for AssetName {0} in table {1}: {2}", 
+                                   new Object[]{assetName, tableName, e.getMessage()});
+                        throw e;
                     }
                 }
             }
-            // Remove saved entries and update display
             parent.getOriginalData().removeAll(dataToRemove);
             parent.getRowStatus().clear();
             for (int i = 0; i < parent.getOriginalData().size(); i++) {
@@ -185,26 +210,30 @@ public class DataSaver {
                 parent.getRowStatus().put(i, status);
             }
             parent.dataDisplayManager.updateTableDisplay();
+            parent.getDataImporter().getImportedData(); // Clear importedData to skip confirmation dialog
 
-            statusLabel.setText("Data saved to database successfully!");
-            LOGGER.log(Level.INFO, "Successfully saved {0} devices to database after conflict resolution.", savedCount);
-            JOptionPane.showMessageDialog(parent, "Data saved to database successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            String successMsg = "Successfully saved " + savedCount + " devices to table " + tableName + " after conflict resolution.";
+            statusLabel.setText(successMsg);
+            LOGGER.log(Level.INFO, successMsg);
+            JOptionPane.showMessageDialog(parent, successMsg, "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error saving to database: {0}", e.getMessage());
-            String errorMessage = "Error saving to database: " + e.getMessage();
+            LOGGER.log(Level.SEVERE, "Error saving to table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            String errorMessage = "Error saving to table " + tableName + ": " + e.getMessage();
             statusLabel.setText(errorMessage);
             JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private HashMap<String, String> cleanDeviceData(HashMap<String, String> device) {
-        HashMap<String, String> cleanedDevice = new HashMap<>(device);
-        for (Map.Entry<String, String> entry : cleanedDevice.entrySet()) {
-            String field = entry.getKey();
+        HashMap<String, String> cleanedDevice = new HashMap<>();
+        for (Map.Entry<String, String> entry : device.entrySet()) {
+            String field = entry.getKey().replace(" ", "_");
             String value = entry.getValue();
             String fieldType = parent.getFieldTypes().getOrDefault(field, "");
-            if (fieldType.equalsIgnoreCase("DATETIME") && (value == null || value.trim().isEmpty())) {
+            if (fieldType.equalsIgnoreCase("DATE") && (value == null || value.trim().isEmpty())) {
                 cleanedDevice.put(field, null);
+            } else {
+                cleanedDevice.put(field, value);
             }
         }
         return cleanedDevice;

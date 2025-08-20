@@ -29,27 +29,25 @@ public class DataDisplayManager {
         this.rowStatus = new HashMap<>();
     }
 
-    public void displayData(Map<String, String> columnMappings, Map<String, String> newFields, Map<String, String> deviceTypeMappings, List<String[]> importedData) {
+    public void displayData(Map<String, String> columnMappings, Map<String, String> deviceTypeMappings, 
+                           List<String[]> importedData, String tableName) {
+        tableName = tableName.replace(" ", "_");
         DefaultTableModel tableModel = parent.getTableModel();
         tableModel.setRowCount(0);
         fieldTypes.clear();
-        fieldTypes.putAll(newFields);
-        rowStatus.clear();
-
-        for (Map.Entry<String, String> entry : newFields.entrySet()) {
-            try {
-                parent.getDatabaseHandler().addNewField("Inventory", entry.getKey(), entry.getValue());
-            } catch (SQLException e) {
-                String errorMessage = "Error adding new field '" + entry.getKey() + "': " + e.getMessage();
-                statusLabel.setText(errorMessage);
-                LOGGER.log(Level.SEVERE, "Error adding new field {0}: {1}", new Object[]{entry.getKey(), e.getMessage()});
-                JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        try {
+            fieldTypes.putAll(utils.DatabaseUtils.getInventoryColumnTypes(tableName));
+        } catch (SQLException e) {
+            String errorMessage = "Error retrieving column types for table " + tableName + ": " + e.getMessage();
+            statusLabel.setText(errorMessage);
+            LOGGER.log(Level.SEVERE, errorMessage, e);
+            JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         originalData.clear();
-        originalData.addAll(new DataProcessor().processData(importedData, columnMappings, deviceTypeMappings, parent.getTableColumns(), fieldTypes));
+        originalData.addAll(new DataProcessor().processData(importedData, columnMappings, deviceTypeMappings, 
+                                                           parent.getTableColumns(), fieldTypes));
         for (int i = 0; i < originalData.size(); i++) {
             rowStatus.put(i, computeRowStatus(i, originalData.get(i)));
             LOGGER.log(Level.INFO, "Row {0} status computed as: {1}", new Object[]{i, rowStatus.get(i)});
@@ -57,32 +55,15 @@ public class DataDisplayManager {
         updateTableDisplay();
 
         statusLabel.setText("Data displayed for review with " + originalData.size() + " rows.");
-        LOGGER.log(Level.INFO, "Successfully displayed {0} rows for review.", new Object[]{originalData.size()});
-
-        if (!newFields.isEmpty()) {
-            StringBuilder newFieldsMessage = new StringBuilder("New fields added to database schema:\n");
-            for (Map.Entry<String, String> entry : newFields.entrySet()) {
-                newFieldsMessage.append(entry.getKey()).append(" (").append(entry.getValue()).append(")\n");
-            }
-            statusLabel.setText("New fields added.");
-            JOptionPane.showMessageDialog(parent, newFieldsMessage.toString(), "New Fields Added", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        if (!deviceTypeMappings.isEmpty()) {
-            StringBuilder newTypesMessage = new StringBuilder("New Device Types added:\n");
-            for (String newType : deviceTypeMappings.values()) {
-                newTypesMessage.append(newType).append("\n");
-            }
-            statusLabel.setText("New device types added.");
-            JOptionPane.showMessageDialog(parent, newTypesMessage.toString(), "New Device Types Added", JOptionPane.INFORMATION_MESSAGE);
-        }
+        LOGGER.log(Level.INFO, "Successfully displayed {0} rows for review in table {1}.", 
+                   new Object[]{originalData.size(), tableName});
     }
 
     public String normalizeDateValue(String value, String field) {
         if (value == null || value.trim().isEmpty()) {
             return "";
         }
-        if (utils.DefaultColumns.getInventoryColumnDefinitions().getOrDefault(field, "").equals("DATE")) {
+        if (fieldTypes.getOrDefault(field, "").equals("DATE")) {
             try {
                 if (value.contains(" ")) {
                     value = value.split(" ")[0];
@@ -110,7 +91,11 @@ public class DataDisplayManager {
         String status = "white"; // Default to white (new entry)
         if (assetName != null && !assetName.trim().isEmpty()) {
             try {
-                HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(assetName);
+                HashMap<String, String> existingDevice = parent.getDatabaseHandler().getDeviceByAssetNameFromDB(
+                    parent.getSelectedTable().replace(" ", "_"), assetName);
+                LOGGER.log(Level.FINE, "Checking duplicate for AssetName {0} in table {1}: {2}", 
+                           new Object[]{assetName, parent.getSelectedTable().replace(" ", "_"), 
+                                        existingDevice != null ? "Found" : "Not found"});
                 if (existingDevice != null) {
                     boolean isExactMatch = true;
                     boolean hasNewData = false;
@@ -141,7 +126,8 @@ public class DataDisplayManager {
                     }
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error checking row status for AssetName {0}: {1}", new Object[]{assetName, e.getMessage()});
+                LOGGER.log(Level.SEVERE, "Error checking row status for AssetName {0} in table {1}: {2}", 
+                           new Object[]{assetName, parent.getSelectedTable().replace(" ", "_"), e.getMessage()});
             }
         }
         if (entry.isResolved()) {

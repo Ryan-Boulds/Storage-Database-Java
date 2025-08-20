@@ -43,8 +43,14 @@ public class DataProcessor {
         for (int i = 0; i < headers.length; i++) {
             String mappedField = columnMappings.get(headers[i]);
             if (mappedField != null) {
-                columnIndexToDbField.put(i, mappedField);
+                columnIndexToDbField.put(i, mappedField.replace(" ", "_"));
             }
+        }
+
+        // Convert tableColumns to use underscores
+        String[] dbTableColumns = new String[tableColumns.length];
+        for (int i = 0; i < tableColumns.length; i++) {
+            dbTableColumns[i] = tableColumns[i].replace(" ", "_");
         }
 
         // Process each data row
@@ -53,7 +59,7 @@ public class DataProcessor {
             HashMap<String, String> deviceData = new HashMap<>();
             
             // Initialize all table columns with empty strings
-            for (String column : tableColumns) {
+            for (String column : dbTableColumns) {
                 deviceData.put(column, "");
             }
 
@@ -78,7 +84,7 @@ public class DataProcessor {
             // Create DataEntry with values in table column order
             String[] values = new String[tableColumns.length];
             for (int j = 0; j < tableColumns.length; j++) {
-                values[j] = deviceData.getOrDefault(tableColumns[j], "");
+                values[j] = deviceData.getOrDefault(dbTableColumns[j], "");
             }
             processedData.add(new DataEntry(values, deviceData));
         }

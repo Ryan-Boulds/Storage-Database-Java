@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 
+import inventory_data_importer.DatabaseHandler;
 import inventory_data_importer.ImportDataTab;
 import utils.DataEntry;
 import utils.UIComponentUtils;
@@ -41,7 +42,7 @@ public class ComparisonDialog {
 
     public DataEntry showDialog() {
         try {
-            HashMap<String, String> oldDevice = new inventory_data_importer.DatabaseHandler().getDeviceByAssetNameFromDB(assetName);
+            HashMap<String, String> oldDevice = new DatabaseHandler().getDeviceByAssetNameFromDB(parent.getSelectedTable(), assetName);
             if (oldDevice == null) {
                 String errorMessage = "No existing device found for AssetName: " + assetName;
                 LOGGER.warning(errorMessage);
@@ -49,14 +50,12 @@ public class ComparisonDialog {
                 return null;
             }
 
-            // Create dialog
             dialog = new JDialog(JOptionPane.getFrameForComponent(parent), "Compare and Resolve: " + assetName, true);
             dialog.setLayout(new BorderLayout());
             dialog.setSize(800, 400);
             dialog.setMinimumSize(new Dimension(400, 300));
             dialog.setResizable(true);
 
-            // Create comparison panel
             JPanel panel = new JPanel(new GridLayout(0, 4, 5, 5));
             panel.add(new JLabel("Field"));
             panel.add(new JLabel("Old Value (Database)"));
@@ -105,7 +104,6 @@ public class ComparisonDialog {
             JScrollPane scrollPane = UIComponentUtils.createScrollableContentPanel(panel);
             dialog.add(scrollPane, BorderLayout.CENTER);
 
-            // Add buttons
             JPanel buttonPanel = new JPanel();
             JButton okButton = UIComponentUtils.createFormattedButton("OK");
             JButton cancelButton = UIComponentUtils.createFormattedButton("Cancel");
@@ -113,7 +111,6 @@ public class ComparisonDialog {
             buttonPanel.add(cancelButton);
             dialog.add(buttonPanel, BorderLayout.SOUTH);
 
-            // Button actions
             okButton.addActionListener(e -> {
                 resolvedDevice = new HashMap<>();
                 resolvedValues = new String[tableColumns.length];

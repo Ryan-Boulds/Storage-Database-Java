@@ -84,13 +84,13 @@ public class PreviewDialog {
         if (csvData.isEmpty()) return result;
 
         HashMap<String, String> firstRow = csvData.get(0);
-        String[] headers = firstRow.keySet().toArray(new String[firstRow.size()]);
+        String[] headers = firstRow.keySet().stream().map(h -> h.replace(" ", "_")).toArray(String[]::new);
         result.add(headers);
 
         for (HashMap<String, String> row : csvData) {
             String[] rowData = new String[headers.length];
             for (int i = 0; i < headers.length; i++) {
-                rowData[i] = row.getOrDefault(headers[i], "");
+                rowData[i] = row.getOrDefault(headers[i].replace("_", " "), "");
             }
             result.add(rowData);
         }
@@ -109,7 +109,7 @@ public class PreviewDialog {
             int colCount = headerRow.getPhysicalNumberOfCells();
             String[] headers = new String[colCount];
             for (int i = 0; i < colCount; i++) {
-                headers[i] = getCellValue(headerRow.getCell(i));
+                headers[i] = getCellValue(headerRow.getCell(i)).replace(" ", "_");
             }
             excelData.add(headers);
 
@@ -150,8 +150,12 @@ public class PreviewDialog {
 
         String[] csvColumns = data.get(0);
         List<String[]> dataRows = data.subList(1, data.size());
+        String[] displayColumns = new String[csvColumns.length];
+        for (int i = 0; i < csvColumns.length; i++) {
+            displayColumns[i] = csvColumns[i].replace("_", " ");
+        }
 
-        DefaultTableModel previewModel = new DefaultTableModel(csvColumns, 0) {
+        DefaultTableModel previewModel = new DefaultTableModel(displayColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -170,9 +174,9 @@ public class PreviewDialog {
         previewScrollPane.setPreferredSize(new Dimension(800, 400));
 
         JPanel checkboxPanel = new JPanel(new GridLayout(0, 1));
-        JCheckBox[] columnCheckboxes = new JCheckBox[csvColumns.length];
-        for (int i = 0; i < csvColumns.length; i++) {
-            columnCheckboxes[i] = new JCheckBox(csvColumns[i], true);
+        JCheckBox[] columnCheckboxes = new JCheckBox[displayColumns.length];
+        for (int i = 0; i < displayColumns.length; i++) {
+            columnCheckboxes[i] = new JCheckBox(displayColumns[i], true);
             checkboxPanel.add(columnCheckboxes[i]);
         }
         JScrollPane checkboxScrollPane = UIComponentUtils.createScrollableContentPanel(checkboxPanel);

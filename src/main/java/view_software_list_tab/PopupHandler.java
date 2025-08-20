@@ -1,19 +1,17 @@
 package view_software_list_tab;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -23,7 +21,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.table.TableCellRenderer;
 
 import utils.DatabaseUtils;
 
@@ -34,6 +31,7 @@ public class PopupHandler {
         JPopupMenu popupMenu = new JPopupMenu();
         TableManager tableManager = viewInventoryTab.getTableManager();
 
+        // Add Row menu item
         JMenuItem addRowItem = new JMenuItem("Add Row");
         addRowItem.addActionListener(e -> {
             String tableName = tableManager.getTableName();
@@ -47,6 +45,7 @@ public class PopupHandler {
         });
         popupMenu.add(addRowItem);
 
+        // Delete Row menu item
         JMenuItem deleteRowItem = new JMenuItem("Delete Row");
         deleteRowItem.addActionListener(e -> {
             int[] selectedRows = table.getSelectedRows();
@@ -81,32 +80,143 @@ public class PopupHandler {
         });
         popupMenu.add(deleteRowItem);
 
+        // Rename Cell menu item
+        JMenuItem renameCellItem = new JMenuItem("Rename Cell");
+        renameCellItem.addActionListener(e -> {
+            int[] selectedRows = table.getSelectedRows();
+            int selectedColumn = table.getSelectedColumn();
+            if (selectedRows.length == 0 || selectedColumn == -1) {
+                JOptionPane.showMessageDialog(table, "Please select one or more cells to rename", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to rename cell without selecting a cell");
+                return;
+            }
+            String tableName = tableManager.getTableName();
+            if ("Inventory".equals(tableName)) {
+                JOptionPane.showMessageDialog(table, "Error: Editing is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.severe("Attempted to rename cell in Inventory table, which is not allowed");
+                return;
+            }
+            String columnName = table.getColumnName(selectedColumn);
+            if (selectedColumn == 0 || columnName.equals("Edit")) {
+                JOptionPane.showMessageDialog(table, "Cannot rename the Edit column", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to rename Edit column");
+                return;
+            }
+            ArrayList<String> cellValues = new ArrayList<>();
+            ArrayList<String> assetNames = new ArrayList<>();
+            for (int row : selectedRows) {
+                String cellValue = table.getValueAt(row, selectedColumn) != null ? 
+                    table.getValueAt(row, selectedColumn).toString() : "";
+                String assetName = (String) table.getValueAt(row, table.getColumn("AssetName").getModelIndex());
+                cellValues.add(cellValue);
+                assetNames.add(assetName);
+            }
+            if (selectedRows.length == 1) {
+                SingleRenameDialog.showRenameDialog(
+                    (javax.swing.JFrame) SwingUtilities.getWindowAncestor(table),
+                    table,
+                    cellValues.get(0),
+                    columnName,
+                    assetNames.get(0),
+                    tableManager
+                );
+                LOGGER.log(Level.INFO, "Opened SingleRenameDialog for table '{0}', AssetName='{1}', column='{2}'", 
+                    new Object[]{tableName, assetNames.get(0), columnName});
+            } else {
+                MultiRenameDialog.showRenameDialog(
+                    (javax.swing.JFrame) SwingUtilities.getWindowAncestor(table),
+                    table,
+                    cellValues,
+                    columnName,
+                    assetNames,
+                    tableManager
+                );
+                LOGGER.log(Level.INFO, "Opened MultiRenameDialog for table '{0}', column='{1}', assetNames={2}", 
+                    new Object[]{tableName, columnName, assetNames});
+            }
+        });
+        popupMenu.add(renameCellItem);
+
+        // Edit Row menu item
+        JMenuItem editRowItem = new JMenuItem("Edit Row");
+        editRowItem.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(table, "Please select a row to edit", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to edit row without selecting a row");
+                return;
+            }
+            String tableName = tableManager.getTableName();
+            if ("Inventory".equals(tableName)) {
+                JOptionPane.showMessageDialog(table, "Error: Editing is not allowed for the Inventory table", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.severe("Attempted to edit row in Inventory table, which is not allowed");
+                return;
+            }
+            String assetName = (String) table.getValueAt(selectedRow, table.getColumn("AssetName").getModelIndex());
+            HashMap<String, String> device = new HashMap<>();
+            for (int i = 1; i < table.getColumnCount(); i++) { // Skip Edit column
+                String columnName = table.getColumnName(i);
+                Object value = table.getValueAt(selectedRow, i);
+                device.put(columnName, value != null ? value.toString() : "");
+            }
+            ModifyRowEntry.showModifyDialog(
+                (javax.swing.JFrame) SwingUtilities.getWindowAncestor(table),
+                device,
+                tableManager
+            );
+            LOGGER.log(Level.INFO, "Opened ModifyRowEntry dialog for table '{0}', AssetName='{1}'", 
+                new Object[]{tableName, assetName});
+        });
+        popupMenu.add(editRowItem);
+
+        // Device Details menu item
+        JMenuItem deviceDetailsItem = new JMenuItem("Device Details");
+        deviceDetailsItem.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(table, "Please select a row to view details", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to view device details without selecting a row");
+                return;
+            }
+            String tableName = tableManager.getTableName();
+            String assetName = (String) table.getValueAt(selectedRow, table.getColumn("AssetName").getModelIndex());
+            viewInventoryTab.showDeviceDetails(assetName);
+            LOGGER.log(Level.INFO, "Opened DeviceDetailsPanel for table '{0}', AssetName='{1}'", 
+                new Object[]{tableName, assetName});
+        });
+        popupMenu.add(deviceDetailsItem);
+
+        // Mouse listener to show popup on right-click
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    showPopup(e);
+                    handlePopup(e);
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    showPopup(e);
+                    handlePopup(e);
                 }
             }
 
-            private void showPopup(MouseEvent e) {
+            private void handlePopup(MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
-                if (row >= 0 && !table.isRowSelected(row)) {
-                    table.setRowSelectionInterval(row, row);
+                int column = table.columnAtPoint(e.getPoint());
+                if (row >= 0 && row < table.getRowCount() && column >= 0 && column < table.getColumnCount()) {
+                    if (!table.isRowSelected(row)) {
+                        table.setRowSelectionInterval(row, row);
+                    }
+                    table.setColumnSelectionInterval(column, column);
                 }
                 popupMenu.show(e.getComponent(), e.getX(), e.getY());
             }
         });
     }
 
-    public static class ButtonRenderer extends JButton implements TableCellRenderer {
+    public static class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
         public ButtonRenderer() {
             setOpaque(true);
             setText("Edit");
@@ -125,7 +235,7 @@ public class PopupHandler {
         }
     }
 
-    public static class ButtonEditor extends DefaultCellEditor {
+    public static class ButtonEditor extends javax.swing.DefaultCellEditor {
         private final JButton button;
         private final JTable table;
         private final TableManager tableManager;
@@ -134,17 +244,12 @@ public class PopupHandler {
         private static final Logger LOGGER = Logger.getLogger(ButtonEditor.class.getName());
 
         public ButtonEditor(JTable table, TableManager tableManager) {
-            super(new JCheckBox());
+            super(new javax.swing.JCheckBox());
             this.table = table;
             this.tableManager = tableManager;
             this.button = new JButton();
             button.setOpaque(true);
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    fireEditingStopped();
-                }
-            });
+            button.addActionListener(e -> fireEditingStopped());
         }
 
         @Override

@@ -2,196 +2,91 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-20T12:03:31</date>
-  <millis>1755709411523</millis>
-  <sequence>0</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-20T15:46:43</date>
+  <millis>1755722803112</millis>
+  <sequence>5220</sequence>
+  <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>29</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <class>view_inventory_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Column types: %s</message>
+  <param>{IPLocation=12, Processor=12, Description=12, OS=12, Memory=12, AssetName=12, IP_Address=12, Proc=12, Username=12, Last_successful_scan=12, Manufacturer=12, Model=12, Domain=12, SP=12, Userdomain=12, Location=12, Created_at=12}</param>
 </record>
 <record>
-  <date>2025-08-20T12:03:31</date>
-  <millis>1755709411596</millis>
-  <sequence>1</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>setDatabasePath</method>
-  <thread>29</thread>
-  <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:31</date>
-  <millis>1755709411599</millis>
-  <sequence>2</sequence>
+  <date>2025-08-20T15:46:43</date>
+  <millis>1755722803113</millis>
+  <sequence>5221</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>getConnection</method>
-  <thread>29</thread>
+  <thread>16</thread>
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414828</millis>
-  <sequence>3</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-08-20T15:46:43</date>
+  <millis>1755722803115</millis>
+  <sequence>5222</sequence>
+  <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <class>view_inventory_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>327</param>
+  <param>tablename</param>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414831</millis>
-  <sequence>4</sequence>
-  <logger>view_inventory_tab.ViewInventoryTab</logger>
+  <date>2025-08-20T15:46:43</date>
+  <millis>1755722803146</millis>
+  <sequence>5223</sequence>
+  <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.ViewInventoryTab</class>
-  <method>getIncludedInventoryTables</method>
-  <thread>29</thread>
-  <message>getIncludedInventoryTables: Fetched tables: [tablename]</message>
+  <class>view_inventory_tab.TableManager</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
+  <param>tablename</param>
+  <param>AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan</param>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414910</millis>
-  <sequence>5</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414915</millis>
-  <sequence>6</sequence>
-  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>getIncludedSoftwareTables</method>
-  <thread>29</thread>
-  <message>getIncludedSoftwareTables: Fetched tables: [Chrome, test, testa, testthis]</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414933</millis>
-  <sequence>7</sequence>
+  <date>2025-08-20T15:46:47</date>
+  <millis>1755722807949</millis>
+  <sequence>5224</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
   <method>refresh</method>
-  <thread>29</thread>
+  <thread>16</thread>
   <message>Refreshing AccessoriesCountTab</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414937</millis>
-  <sequence>8</sequence>
+  <date>2025-08-20T15:46:47</date>
+  <millis>1755722807949</millis>
+  <sequence>5225</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>getConnection</method>
-  <thread>29</thread>
+  <thread>16</thread>
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414939</millis>
-  <sequence>9</sequence>
+  <date>2025-08-20T15:46:47</date>
+  <millis>1755722807951</millis>
+  <sequence>5226</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
   <method>refresh</method>
-  <thread>29</thread>
+  <thread>16</thread>
   <message>No accessories data found</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414945</millis>
-  <sequence>10</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:34</date>
-  <millis>1755709414962</millis>
-  <sequence>11</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:35</date>
-  <millis>1755709415024</millis>
-  <sequence>12</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:35</date>
-  <millis>1755709415046</millis>
-  <sequence>13</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:35</date>
-  <millis>1755709415058</millis>
-  <sequence>14</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: []</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:35</date>
-  <millis>1755709415066</millis>
-  <sequence>15</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:35</date>
-  <millis>1755709415075</millis>
-  <sequence>16</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: []</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:37</date>
-  <millis>1755709417554</millis>
-  <sequence>17</sequence>
+  <date>2025-08-20T15:46:48</date>
+  <millis>1755722808302</millis>
+  <sequence>5227</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -200,31 +95,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:37</date>
-  <millis>1755709417595</millis>
-  <sequence>18</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>SEVERE</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
-  <thread>16</thread>
-  <message>Error refreshing data for table null: UCAExc:::5.0.1 user lacks privilege or object not found: NULL</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419249</millis>
-  <sequence>19</sequence>
-  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
-  <level>WARNING</level>
-  <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>showLicenseKeyTracker</method>
-  <thread>16</thread>
-  <message>Attempted to open LicenseKeyTracker without selecting a valid table</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419865</millis>
-  <sequence>20</sequence>
+  <date>2025-08-20T15:46:48</date>
+  <millis>1755722808308</millis>
+  <sequence>5228</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -233,356 +106,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419883</millis>
-  <sequence>21</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419896</millis>
-  <sequence>22</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419952</millis>
-  <sequence>23</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:39</date>
-  <millis>1755709419966</millis>
-  <sequence>24</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420076</millis>
-  <sequence>25</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>Chrome</param>
-  <param>AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</param>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420076</millis>
-  <sequence>26</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>Chrome</param>
-  <param>AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</param>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420636</millis>
-  <sequence>27</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420638</millis>
-  <sequence>28</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>createLicenseKeyRulesTableIfNotExists</method>
-  <thread>16</thread>
-  <message>Checking for existence of LicenseKeyRules table</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420640</millis>
-  <sequence>29</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>createLicenseKeyRulesTableIfNotExists</method>
-  <thread>16</thread>
-  <message>LicenseKeyRules table already exists</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420651</millis>
-  <sequence>30</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>createLicenseKeyRulesTableIfNotExists</method>
-  <thread>16</thread>
-  <message>LicenseKeyRules table missing required columns, dropping and recreating</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420724</millis>
-  <sequence>31</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>createLicenseKeyRulesTableIfNotExists</method>
-  <thread>16</thread>
-  <message>Successfully dropped LicenseKeyRules table</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420754</millis>
-  <sequence>32</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>createLicenseKeyRulesTableIfNotExists</method>
-  <thread>16</thread>
-  <message>Successfully recreated LicenseKeyRules table with TableName and UsageLimit</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420755</millis>
-  <sequence>33</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420756</millis>
-  <sequence>34</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeyRules</method>
-  <thread>16</thread>
-  <message>Loading license key rules for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420769</millis>
-  <sequence>35</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeyRules</method>
-  <thread>16</thread>
-  <message>Inserted default usage limit 10 for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420771</millis>
-  <sequence>36</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420775</millis>
-  <sequence>37</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeys</method>
-  <thread>16</thread>
-  <message>Loaded 4 license keys for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:40</date>
-  <millis>1755709420777</millis>
-  <sequence>38</sequence>
-  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>showLicenseKeyTracker</method>
-  <thread>16</thread>
-  <message>Opened LicenseKeyTracker for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:48</date>
-  <millis>1755709428026</millis>
-  <sequence>39</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:48</date>
-  <millis>1755709428042</millis>
-  <sequence>40</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeySettingsDialog</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeySettingsDialog</class>
-  <method>saveLimit</method>
-  <thread>16</thread>
-  <message>Updated UsageLimit to 2 for TableName={1}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:49</date>
-  <millis>1755709429002</millis>
-  <sequence>41</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:49</date>
-  <millis>1755709429003</millis>
-  <sequence>42</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeyRules</method>
-  <thread>16</thread>
-  <message>Loading license key rules for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:49</date>
-  <millis>1755709429006</millis>
-  <sequence>43</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeyRules</method>
-  <thread>16</thread>
-  <message>Loaded usage limit 2 for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:49</date>
-  <millis>1755709429007</millis>
-  <sequence>44</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:49</date>
-  <millis>1755709429010</millis>
-  <sequence>45</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeys</method>
-  <thread>16</thread>
-  <message>Loaded 4 license keys for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432098</millis>
-  <sequence>46</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432105</millis>
-  <sequence>47</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432114</millis>
-  <sequence>48</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432132</millis>
-  <sequence>49</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432141</millis>
-  <sequence>50</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432189</millis>
-  <sequence>51</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>Chrome</param>
-  <param>AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</param>
-</record>
-<record>
-  <date>2025-08-20T12:03:52</date>
-  <millis>1755709432189</millis>
-  <sequence>52</sequence>
+  <date>2025-08-20T15:46:48</date>
+  <millis>1755722808335</millis>
+  <sequence>5229</sequence>
   <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_software_list_tab.TableManager</class>
