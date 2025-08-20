@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-20T09:35:25</date>
-  <millis>1755700525175</millis>
+  <date>2025-08-20T09:56:45</date>
+  <millis>1755701805151</millis>
   <sequence>0</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -13,8 +13,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:25</date>
-  <millis>1755700525235</millis>
+  <date>2025-08-20T09:56:45</date>
+  <millis>1755701805195</millis>
   <sequence>1</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -24,8 +24,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:25</date>
-  <millis>1755700525240</millis>
+  <date>2025-08-20T09:56:45</date>
+  <millis>1755701805196</millis>
   <sequence>2</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -35,8 +35,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:27</date>
-  <millis>1755700527516</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806497</millis>
   <sequence>3</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -46,8 +46,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:27</date>
-  <millis>1755700527531</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806512</millis>
   <sequence>4</sequence>
   <logger>view_inventory_tab.ViewInventoryTab</logger>
   <level>INFO</level>
@@ -57,8 +57,8 @@
   <message>getIncludedInventoryTables: Fetched tables: [tablename]</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:27</date>
-  <millis>1755700527583</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806554</millis>
   <sequence>5</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -68,30 +68,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528577</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806561</millis>
   <sequence>6</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>getIncludedSoftwareTables</method>
   <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>getIncludedSoftwareTables: Fetched tables: []</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528583</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806596</millis>
   <sequence>7</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getTableNames</method>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
   <thread>29</thread>
-  <message>Retrieved table names: [Accessories, Adapters, Cables, LicenseKeyRules, Settings, tablename, Templates]</message>
+  <message>Refreshing AccessoriesCountTab</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528587</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806600</millis>
   <sequence>8</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -101,19 +101,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528597</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806606</millis>
   <sequence>9</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
   <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>No accessories data found</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528604</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806612</millis>
   <sequence>10</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -123,8 +123,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528611</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806629</millis>
   <sequence>11</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -134,42 +134,31 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528646</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806700</millis>
   <sequence>12</sequence>
-  <logger>accessories_count.AccessoriesCountTab</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>accessories_count.AccessoriesCountTab</class>
-  <method>refresh</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>29</thread>
-  <message>Refreshing AccessoriesCountTab</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528650</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806705</millis>
   <sequence>13</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <method>getTableNames</method>
   <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Retrieved table names: [Accessories, Adapters, Cables, LicenseKeyRules, Settings, tablename, Templates]</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528655</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806727</millis>
   <sequence>14</sequence>
-  <logger>accessories_count.AccessoriesCountTab</logger>
-  <level>INFO</level>
-  <class>accessories_count.AccessoriesCountTab</class>
-  <method>refresh</method>
-  <thread>29</thread>
-  <message>No accessories data found</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528660</millis>
-  <sequence>15</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -178,8 +167,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528677</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806746</millis>
+  <sequence>15</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>29</thread>
+  <message>Retrieved columns for table Inventory: []</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806756</millis>
   <sequence>16</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -189,75 +189,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528753</millis>
+  <date>2025-08-20T09:56:46</date>
+  <millis>1755701806773</millis>
   <sequence>17</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <method>getInventoryColumnNames</method>
   <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Retrieved columns for table Inventory: []</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528757</millis>
+  <date>2025-08-20T09:56:48</date>
+  <millis>1755701808966</millis>
   <sequence>18</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getTableNames</method>
-  <thread>29</thread>
-  <message>Retrieved table names: [Accessories, Adapters, Cables, LicenseKeyRules, Settings, tablename, Templates]</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528777</millis>
-  <sequence>19</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528790</millis>
-  <sequence>20</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: []</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528803</millis>
-  <sequence>21</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:28</date>
-  <millis>1755700528958</millis>
-  <sequence>22</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: []</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:31</date>
-  <millis>1755700531168</millis>
-  <sequence>23</sequence>
   <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_inventory_tab.TableManager</class>
@@ -266,105 +211,183 @@
   <message>refreshDataAndTabs: No table selected, cleared table display</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:31</date>
-  <millis>1755700531991</millis>
+  <date>2025-08-20T09:56:49</date>
+  <millis>1755701809725</millis>
+  <sequence>19</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>refreshDataAndTabs: No table selected, cleared table display</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815330</millis>
+  <sequence>20</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815332</millis>
+  <sequence>21</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815348</millis>
+  <sequence>22</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getTableNames</method>
+  <thread>16</thread>
+  <message>Retrieved table names: [Accessories, Adapters, Cables, LicenseKeyRules, Settings, tablename, Templates]</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815568</millis>
+  <sequence>23</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815572</millis>
   <sequence>24</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>getIncludedSoftwareTables</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>getIncludedSoftwareTables: Fetched tables: [Chrome]</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:31</date>
-  <millis>1755700531999</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815574</millis>
   <sequence>25</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi</param>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532000</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815578</millis>
   <sequence>26</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Column types: %s</message>
-  <param>{hi=12, test=12, AssetName=12}</param>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>Chrome</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532009</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815579</millis>
   <sequence>27</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532014</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815587</millis>
   <sequence>28</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi</param>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532015</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815590</millis>
   <sequence>29</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Column types: %s</message>
-  <param>{hi=12, test=12, AssetName=12}</param>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>Chrome</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532015</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815591</millis>
   <sequence>30</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532017</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815591</millis>
   <sequence>31</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Retrieved %d devices from table %s</message>
-  <param>4</param>
-  <param>tablename</param>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532019</millis>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815593</millis>
   <sequence>32</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:55</date>
+  <millis>1755701815594</millis>
+  <sequence>33</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No devices retrieved from table %s</message>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816630</millis>
+  <sequence>34</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -373,34 +396,34 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532024</millis>
-  <sequence>33</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816633</millis>
+  <sequence>35</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi</param>
+  <param>Chrome</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532025</millis>
-  <sequence>34</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816633</millis>
+  <sequence>36</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, AssetName=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532025</millis>
-  <sequence>35</sequence>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816634</millis>
+  <sequence>37</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -409,408 +432,385 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532027</millis>
-  <sequence>36</sequence>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816636</millis>
+  <sequence>38</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:56</date>
+  <millis>1755701816637</millis>
+  <sequence>39</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No devices retrieved from table %s</message>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817542</millis>
+  <sequence>40</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817544</millis>
+  <sequence>41</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>Chrome</param>
+  <param>AssetName</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817545</millis>
+  <sequence>42</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817545</millis>
+  <sequence>43</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817547</millis>
+  <sequence>44</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>Chrome</param>
+  <param>AssetName</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817547</millis>
+  <sequence>45</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817547</millis>
+  <sequence>46</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817549</millis>
+  <sequence>47</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:57</date>
+  <millis>1755701817549</millis>
+  <sequence>48</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No devices retrieved from table %s</message>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818949</millis>
+  <sequence>49</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818952</millis>
+  <sequence>50</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818955</millis>
+  <sequence>51</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818958</millis>
+  <sequence>52</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>Chrome</param>
+  <param>AssetName</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818959</millis>
+  <sequence>53</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818960</millis>
+  <sequence>54</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818963</millis>
+  <sequence>55</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:56:58</date>
+  <millis>1755701818964</millis>
+  <sequence>56</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No devices retrieved from table %s</message>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:57:00</date>
+  <millis>1755701820833</millis>
+  <sequence>57</sequence>
   <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_inventory_tab.TableManager</class>
   <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>Retrieved %d devices from table %s</message>
-  <param>4</param>
-  <param>tablename</param>
+  <message>refreshDataAndTabs: No table selected, cleared table display</message>
 </record>
 <record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532039</millis>
-  <sequence>37</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi</param>
-</record>
-<record>
-  <date>2025-08-20T09:35:32</date>
-  <millis>1755700532040</millis>
-  <sequence>38</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi</param>
-</record>
-<record>
-  <date>2025-08-20T09:35:35</date>
-  <millis>1755700535398</millis>
-  <sequence>39</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>refreshInputFields</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Starting refresh, current columns: AssetName, test, hi, pending columns: </message>
-</record>
-<record>
-  <date>2025-08-20T09:35:35</date>
-  <millis>1755700535414</millis>
-  <sequence>40</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>Initialized AddRowEntry dialog for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:35</date>
-  <millis>1755700535430</millis>
-  <sequence>41</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Completed UI refresh, all columns: AssetName, test, hi</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:40</date>
-  <millis>1755700540851</millis>
-  <sequence>42</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>addColumnAction</method>
-  <thread>16</thread>
-  <message>addColumnAction: Added column {0} to pending columns for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:40</date>
-  <millis>1755700540854</millis>
-  <sequence>43</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>refreshInputFields</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Starting refresh, current columns: AssetName, test, hi, pending columns: test1</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:40</date>
-  <millis>1755700540857</millis>
-  <sequence>44</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$5</method>
-  <thread>16</thread>
-  <message>addColumnAction: Refreshed dialog UI with new pending column {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:40</date>
-  <millis>1755700540861</millis>
-  <sequence>45</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Completed UI refresh, all columns: AssetName, test, hi, test1</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:43</date>
-  <millis>1755700543778</millis>
-  <sequence>46</sequence>
-  <logger>view_inventory_tab.FilterPanel</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.FilterPanel</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>Opened AddRowEntry dialog for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:46</date>
-  <millis>1755700546775</millis>
-  <sequence>47</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>refreshInputFields</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Starting refresh, current columns: AssetName, test, hi, pending columns: </message>
-</record>
-<record>
-  <date>2025-08-20T09:35:46</date>
-  <millis>1755700546777</millis>
-  <sequence>48</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>Initialized AddRowEntry dialog for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:46</date>
-  <millis>1755700546791</millis>
-  <sequence>49</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Completed UI refresh, all columns: AssetName, test, hi</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:50</date>
-  <millis>1755700550726</millis>
-  <sequence>50</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>addColumnAction</method>
-  <thread>16</thread>
-  <message>addColumnAction: Added column {0} to pending columns for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:50</date>
-  <millis>1755700550729</millis>
-  <sequence>51</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>refreshInputFields</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Starting refresh, current columns: AssetName, test, hi, pending columns: col1</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:50</date>
-  <millis>1755700550731</millis>
-  <sequence>52</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$5</method>
-  <thread>16</thread>
-  <message>addColumnAction: Refreshed dialog UI with new pending column {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:50</date>
-  <millis>1755700550737</millis>
-  <sequence>53</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Completed UI refresh, all columns: AssetName, test, hi, col1</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:54</date>
-  <millis>1755700554260</millis>
-  <sequence>54</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>addColumnAction</method>
-  <thread>16</thread>
-  <message>addColumnAction: Added column {0} to pending columns for table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:54</date>
-  <millis>1755700554262</millis>
-  <sequence>55</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>refreshInputFields</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Starting refresh, current columns: AssetName, test, hi, pending columns: col1, col2</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:54</date>
-  <millis>1755700554266</millis>
-  <sequence>56</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$5</method>
-  <thread>16</thread>
-  <message>addColumnAction: Refreshed dialog UI with new pending column {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:54</date>
-  <millis>1755700554273</millis>
-  <sequence>57</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>refreshInputFields: Completed UI refresh, all columns: AssetName, test, hi, col1, col2</message>
-</record>
-<record>
-  <date>2025-08-20T09:35:56</date>
-  <millis>1755700556841</millis>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821295</millis>
   <sequence>58</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>SEVERE</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>saveAction</method>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Attempted to save empty AssetName in table {0}</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:00</date>
-  <millis>1755700560623</millis>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821298</millis>
   <sequence>59</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:00</date>
-  <millis>1755700560673</millis>
-  <sequence>60</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>saveAction</method>
-  <thread>16</thread>
-  <message>saveAction: Added column {0} to table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:00</date>
-  <millis>1755700560701</millis>
-  <sequence>61</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>saveAction</method>
-  <thread>16</thread>
-  <message>saveAction: Added column {0} to table {1}</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561880</millis>
-  <sequence>62</sequence>
-  <logger>view_inventory_tab.AddRowEntry</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.AddRowEntry</class>
-  <method>saveAction</method>
-  <thread>16</thread>
-  <message>Saved new row to table {0} with 2 new columns</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561883</millis>
-  <sequence>63</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561886</millis>
-  <sequence>64</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <param>Chrome</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561886</millis>
-  <sequence>65</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821298</millis>
+  <sequence>60</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561886</millis>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821299</millis>
+  <sequence>61</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821300</millis>
+  <sequence>62</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:57:01</date>
+  <millis>1755701821301</millis>
+  <sequence>63</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No devices retrieved from table %s</message>
+  <param>Chrome</param>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826019</millis>
+  <sequence>64</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826020</millis>
+  <sequence>65</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826022</millis>
   <sequence>66</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <method>getTableNames</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+  <message>Retrieved table names: [Accessories, Adapters, Cables, Chrome, LicenseKeyRules, Settings, tablename, Templates]</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561889</millis>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826202</millis>
   <sequence>67</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561889</millis>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826205</millis>
   <sequence>68</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>getIncludedSoftwareTables</method>
   <thread>16</thread>
-  <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <message>getIncludedSoftwareTables: Fetched tables: [Chrome, test]</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561890</millis>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826205</millis>
   <sequence>69</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561892</millis>
-  <sequence>70</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
+  <message>refreshDataAndTabs: No table selected, cleared table display</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561893</millis>
-  <sequence>71</sequence>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826206</millis>
+  <sequence>70</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -819,34 +819,34 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561896</millis>
-  <sequence>72</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826207</millis>
+  <sequence>71</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <param>test</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561896</millis>
-  <sequence>73</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826207</millis>
+  <sequence>72</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561897</millis>
-  <sequence>74</sequence>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826207</millis>
+  <sequence>73</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -855,58 +855,69 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561898</millis>
-  <sequence>75</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826209</millis>
+  <sequence>74</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>test</param>
+  <param>AssetName</param>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826209</millis>
+  <sequence>75</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826209</millis>
+  <sequence>76</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826211</millis>
+  <sequence>77</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
   <method>refreshDataAndTabs</method>
   <thread>16</thread>
   <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
+  <param>0</param>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561909</millis>
-  <sequence>76</sequence>
-  <logger>view_inventory_tab.FilterPanel</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.FilterPanel</class>
-  <method>lambda$3</method>
-  <thread>16</thread>
-  <message>Opened AddRowEntry dialog for table {0}</message>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561915</millis>
-  <sequence>77</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
-</record>
-<record>
-  <date>2025-08-20T09:36:01</date>
-  <millis>1755700561916</millis>
+  <date>2025-08-20T09:57:06</date>
+  <millis>1755701826211</millis>
   <sequence>78</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>No devices retrieved from table %s</message>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567310</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827240</millis>
   <sequence>79</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -916,33 +927,33 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567314</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827242</millis>
   <sequence>80</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <param>test</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567314</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827243</millis>
   <sequence>81</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567315</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827243</millis>
   <sequence>82</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -952,34 +963,33 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567316</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827246</millis>
   <sequence>83</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>refreshDataAndTabs</method>
   <thread>16</thread>
   <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
+  <param>0</param>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567321</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827246</millis>
   <sequence>84</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>No devices retrieved from table %s</message>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567723</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827944</millis>
   <sequence>85</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -989,33 +999,33 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567726</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827946</millis>
   <sequence>86</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <param>test</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567726</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827946</millis>
   <sequence>87</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567727</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827947</millis>
   <sequence>88</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -1025,34 +1035,33 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567728</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827948</millis>
   <sequence>89</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
+  <message>Initialized columns from database table %s: %s</message>
+  <param>test</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:07</date>
-  <millis>1755700567733</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827949</millis>
   <sequence>90</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>Column types: %s</message>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569262</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827950</millis>
   <sequence>91</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -1062,33 +1071,33 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569264</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827951</millis>
   <sequence>92</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>Retrieved %d devices from table %s</message>
+  <param>0</param>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569265</millis>
+  <date>2025-08-20T09:57:07</date>
+  <millis>1755701827952</millis>
   <sequence>93</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>initializeColumns</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <message>No devices retrieved from table %s</message>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569265</millis>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828525</millis>
   <sequence>94</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -1098,35 +1107,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569267</millis>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828527</millis>
   <sequence>95</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
-  <thread>16</thread>
-  <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
-</record>
-<record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569271</millis>
-  <sequence>96</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
-</record>
-<record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569427</millis>
-  <sequence>97</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -1135,34 +1118,45 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569431</millis>
-  <sequence>98</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828528</millis>
+  <sequence>96</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828531</millis>
+  <sequence>97</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Initialized columns from database table %s: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <param>test</param>
+  <param>AssetName</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569431</millis>
-  <sequence>99</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828531</millis>
+  <sequence>98</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>initializeColumns</method>
   <thread>16</thread>
   <message>Column types: %s</message>
-  <param>{hi=12, test=12, col2=12, AssetName=12, col1=12}</param>
+  <param>{AssetName=12}</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569432</millis>
-  <sequence>100</sequence>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828532</millis>
+  <sequence>99</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -1171,29 +1165,27 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569433</millis>
-  <sequence>101</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828533</millis>
+  <sequence>100</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
+  <class>view_software_list_tab.TableManager</class>
   <method>refreshDataAndTabs</method>
   <thread>16</thread>
   <message>Retrieved %d devices from table %s</message>
-  <param>5</param>
-  <param>tablename</param>
+  <param>0</param>
+  <param>test</param>
 </record>
 <record>
-  <date>2025-08-20T09:36:09</date>
-  <millis>1755700569440</millis>
-  <sequence>102</sequence>
-  <logger>view_inventory_tab.TableManager</logger>
+  <date>2025-08-20T09:57:08</date>
+  <millis>1755701828533</millis>
+  <sequence>101</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_inventory_tab.TableManager</class>
-  <method>lambda$0</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
   <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for %s with columns: %s</message>
-  <param>tablename</param>
-  <param>AssetName, test, hi, col1, col2</param>
+  <message>No devices retrieved from table %s</message>
+  <param>test</param>
 </record>
-</log>

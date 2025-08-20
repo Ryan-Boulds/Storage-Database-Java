@@ -2,6 +2,10 @@ package view_software_list_tab.license_key_tracker;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -17,6 +21,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
+import utils.DatabaseUtils;
 import view_software_list_tab.PopupHandler;
 import view_software_list_tab.TableManager;
 import view_software_list_tab.ViewSoftwareListTab;
@@ -77,18 +82,38 @@ public class UndocumentedInstallationsDialog extends JDialog {
         bottomPanel.add(closeButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        PopupHandler.addTablePopup(table, parentTab, tableManager);
+        PopupHandler.addTablePopup(table, parentTab);
     }
 
     private void loadData() {
         String licenseKeyColumn = findLicenseKeyColumn();
         if (licenseKeyColumn == null) {
-            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No License_Key column found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        tableManager.setWhereClause(licenseKeyColumn + " IS NULL OR " + licenseKeyColumn + " = ''");
         tableManager.refreshDataAndTabs();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NULL OR [" + licenseKeyColumn + "] = ''")) {
+            while (rs.next()) {
+                Object[] row = new Object[model.getColumnCount()];
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    if (i == 0) {
+                        row[i] = "Edit";
+                    } else {
+                        row[i] = rs.getString(model.getColumnName(i));
+                    }
+                }
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("UndocumentedInstallationsDialog: Error fetching undocumented installations for table '" + tableName + "': " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private String findLicenseKeyColumn() {
