@@ -3,9 +3,11 @@ package view_software_list_tab.license_key_tracker;
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -24,6 +26,7 @@ public class LicenseKeyDetailsPanel extends JDialog {
     private final TableManager tableManager;
     private final JTable table;
     private final DefaultTableModel tableModel;
+    private static final Logger LOGGER = Logger.getLogger(LicenseKeyDetailsPanel.class.getName());
 
     public LicenseKeyDetailsPanel(LicenseKeyTracker parent, String licenseKey, TableManager tableManager) {
         super();
@@ -69,24 +72,27 @@ public class LicenseKeyDetailsPanel extends JDialog {
         }
 
         if (licenseKeyColumn == null) {
-            System.err.println("LicenseKeyDetailsPanel: License_Key column not found in table '" + tableName + "'");
-            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "License_Key column not found in table '{0}'", tableName);
+            JOptionPane.showMessageDialog(this, String.format("Error: License_Key column not found in table '%s'", tableName), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " WHERE " + licenseKeyColumn + " = '" + licenseKey.replace("'", "''") + "'")) {
-            while (rs.next()) {
-                Object[] row = new Object[columns.length];
-                for (int i = 0; i < columns.length; i++) {
-                    row[i] = rs.getString(columns[i]);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] = ?")) {
+            stmt.setString(1, licenseKey);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Object[] row = new Object[columns.length];
+                    for (int i = 0; i < columns.length; i++) {
+                        row[i] = rs.getString(columns[i]);
+                    }
+                    tableModel.addRow(row);
                 }
-                tableModel.addRow(row);
+                LOGGER.log(Level.INFO, "Loaded entries for license key '{0}' in table '{1}'", new Object[]{licenseKey, tableName});
             }
         } catch (SQLException e) {
-            System.err.println("LicenseKeyDetailsPanel: Error fetching entries for license key " + licenseKey + " in table '" + tableName + "': " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Error fetching entries: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Error fetching entries for license key '{0}' in table '{1}': {2}", new Object[]{licenseKey, tableName, e.getMessage()});
+            JOptionPane.showMessageDialog(this, String.format("Error fetching entries: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 
         FontMetrics fontMetrics = table.getFontMetrics(table.getFont());
