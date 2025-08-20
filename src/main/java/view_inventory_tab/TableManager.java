@@ -27,7 +27,7 @@ import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
 
-public class TableManager {
+public final class TableManager {
     private final JTable table;
     private final DefaultTableModel model;
     private String[] columns;
@@ -41,7 +41,7 @@ public class TableManager {
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
-        this.tableName = tableName != null ? tableName : "Inventory";
+        this.tableName = tableName;
         this.whereClause = "";
         this.model = new DefaultTableModel();
         this.columnTypes = new HashMap<>();
@@ -50,12 +50,14 @@ public class TableManager {
             sorter = new TableRowSorter<>(model);
             table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            initializeColumns();
+            if (this.tableName != null && !this.tableName.isEmpty()) {
+                initializeColumns();
+            }
         }
     }
 
     public TableManager(JTable table) {
-        this(table, "Inventory");
+        this(table, null);
     }
 
     public String getTableName() {
@@ -63,21 +65,40 @@ public class TableManager {
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName != null ? tableName : "Inventory";
-        initializeColumns();
+        this.tableName = tableName;
+        if (this.tableName != null && !this.tableName.isEmpty()) {
+            initializeColumns();
+            refreshDataAndTabs(); // Ensure data is refreshed after setting table name
+        } else {
+            model.setRowCount(0);
+            model.setColumnCount(0);
+            if (table != null) {
+                table.revalidate();
+                table.repaint();
+            }
+        }
     }
 
     public void setWhereClause(String whereClause) {
         this.whereClause = whereClause == null ? "" : whereClause.trim();
     }
 
-    private void initializeColumns() {
+    public void initializeColumns() {
+        if (tableName == null || tableName.isEmpty()) {
+            model.setRowCount(0);
+            model.setColumnCount(0);
+            if (table != null) {
+                table.revalidate();
+                table.repaint();
+            }
+            return;
+        }
         if (model != null) {
             model.setRowCount(0);
             model.setColumnCount(0);
             model.addColumn("Edit");
-            columns = new String[0]; // Clear existing columns
-            columnTypes.clear(); // Clear existing column types
+            columns = new String[0];
+            columnTypes.clear();
             try (Connection conn = DatabaseUtils.getConnection();
                  ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
                 ResultSetMetaData metaData = rs.getMetaData();
@@ -93,7 +114,7 @@ public class TableManager {
                 for (String column : columnList) {
                     model.addColumn(column);
                 }
-                LOGGER.log(Level.INFO, "Initialized columns from database table %s: %s", tableName);
+                LOGGER.log(Level.INFO, "Initialized columns from database table %s: %s", new Object[]{tableName, String.join(", ", columns)});
                 LOGGER.log(Level.INFO, "Column types: %s", columnTypes);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "Error fetching columns from database for table %s: %s", new Object[]{tableName, e.getMessage()});
@@ -106,57 +127,22 @@ public class TableManager {
                 TableColumn editColumn = table.getColumnModel().getColumn(0);
                 editColumn.setCellRenderer(new RowEditButtonRenderer());
                 editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-                editColumn.setPreferredWidth(100);
             }
-        }
-    }
-
-    public String[] getColumns() {
-        return columns != null ? columns.clone() : new String[0];
-    }
-
-    public Map<String, Integer> getColumnTypes() {
-        return new HashMap<>(columnTypes);
-    }
-
-    private void adjustColumnWidths() {
-        if (table == null || table.getColumnModel() == null) {
-            return;
-        }
-        FontMetrics fontMetrics = table.getFontMetrics(table.getFont());
-        int padding = 20;
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            TableColumn column = table.getColumnModel().getColumn(i);
-            String header = table.getColumnName(i);
-            int maxWidth = fontMetrics.stringWidth(header) + padding;
-            if (i == 0) {
-                maxWidth = Math.max(maxWidth, 100);
-                column.setPreferredWidth(maxWidth);
-                continue;
-            }
-            for (int row = 0; row < table.getRowCount(); row++) {
-                Object value = table.getValueAt(row, i);
-                String text = value != null ? value.toString() : "";
-                int textWidth = fontMetrics.stringWidth(text) + padding;
-                maxWidth = Math.max(maxWidth, textWidth);
-            }
-            column.setPreferredWidth(maxWidth);
         }
     }
 
     public void refreshDataAndTabs() {
-        if (table == null || model == null) {
-            LOGGER.log(Level.SEVERE, "Table or model is null during refresh");
+        if (tableName == null || tableName.isEmpty()) {
+            model.setRowCount(0);
+            model.setColumnCount(0);
+            if (table != null) {
+                table.revalidate();
+                table.repaint();
+            }
+            LOGGER.log(Level.INFO, "refreshDataAndTabs: No table selected, cleared table display");
             return;
         }
-        // Reinitialize columns to reflect any schema changes
-        initializeColumns();
-
-        if (columns == null || columns.length == 0) {
-            LOGGER.log(Level.SEVERE, "No columns defined for table %s, skipping data refresh", tableName);
-            JOptionPane.showMessageDialog(table, "No columns defined for table " + tableName, "Info", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
+        initializeColumns(); // Reload schema every refresh to handle added/removed columns
         int[] selectedRows = table.getSelectedRows();
         model.setRowCount(0);
         ArrayList<HashMap<String, String>> devices = new ArrayList<>();
@@ -214,7 +200,6 @@ public class TableManager {
             }
         }
         adjustColumnWidths();
-        // Ensure cell renderer and editor are reapplied
         if (table.getColumnModel().getColumnCount() > 0) {
             TableColumn editColumn = table.getColumnModel().getColumn(0);
             editColumn.setCellRenderer(new RowEditButtonRenderer());
@@ -224,8 +209,24 @@ public class TableManager {
         SwingUtilities.invokeLater(() -> {
             table.revalidate();
             table.repaint();
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", tableName);
+            LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", new Object[]{tableName, String.join(", ", columns)});
         });
+    }
+
+    private void adjustColumnWidths() {
+        if (table == null) return;
+        FontMetrics fm = table.getFontMetrics(table.getFont());
+        for (int col = 0; col < table.getColumnCount(); col++) {
+            TableColumn column = table.getColumnModel().getColumn(col);
+            int maxWidth = fm.stringWidth(column.getHeaderValue().toString()) + 20;
+            for (int row = 0; row < table.getRowCount(); row++) {
+                Object value = table.getValueAt(row, col);
+                if (value != null) {
+                    maxWidth = Math.max(maxWidth, fm.stringWidth(value.toString()) + 20);
+                }
+            }
+            column.setPreferredWidth(maxWidth);
+        }
     }
 
     public void sortTable(int columnIndex) {
@@ -249,5 +250,13 @@ public class TableManager {
         }
         sorter.setSortKeys(sortKeys);
         sorter.sort();
+    }
+
+    public String[] getColumns() {
+        return columns;
+    }
+
+    public Map<String, Integer> getColumnTypes() {
+        return columnTypes;
     }
 }

@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +31,7 @@ import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
 public class FilterPanel {
+
     final JPanel filterPanel;
     private final JTextField searchField;
     private final JComboBox<String> statusFilter;
@@ -94,6 +96,7 @@ public class FilterPanel {
             searchField.setText("");
             statusFilter.setSelectedIndex(0);
             deptFilter.setSelectedIndex(0);
+            tableManager.setTableName(tableManager.getTableName()); // Force schema reload
             refreshAction.run();
         });
 
@@ -168,13 +171,13 @@ public class FilterPanel {
     }
 
     private boolean checkColumnExists(String tableName, String columnName) {
-        if (tableName == null) return false;
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
+        if (tableName == null || tableName.isEmpty()) {
+            return false;
+        }
+        try (Connection conn = DatabaseUtils.getConnection(); ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
             ResultSetMetaData metaData = rs.getMetaData();
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                if (metaData.getColumnName(i).equals(columnName)) {
+                if (metaData.getColumnName(i).equalsIgnoreCase(columnName)) {
                     return true;
                 }
             }
@@ -185,37 +188,36 @@ public class FilterPanel {
     }
 
     private void updateDepartmentFilter(String tableName) {
-        if (tableName == null) return;
-        String[] departments = getDepartments(tableName);
-        deptFilter.setModel(new DefaultComboBoxModel<>(departments));
-    }
-
-    private String[] getDepartments(String tableName) {
-        java.util.List<String> departments = new java.util.ArrayList<>();
-        departments.add("All");
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT DISTINCT Department FROM [" + tableName + "] WHERE Department IS NOT NULL")) {
+        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT DISTINCT [Department] FROM [" + tableName + "] WHERE [Department] IS NOT NULL AND [Department] <> ''")) {
+            List<String> departments = new ArrayList<>();
+            departments.add("All");
             while (rs.next()) {
-                String dept = rs.getString("Department");
-                if (dept != null && !dept.isEmpty() && !departments.contains(dept)) {
+                String dept = rs.getString(1);
+                if (dept != null && !dept.trim().isEmpty()) {
                     departments.add(dept);
                 }
             }
+            statusFilter.setModel(new DefaultComboBoxModel<>(new String[]{"All", "Deployed", "In Storage", "Needs Repair"}));
+            deptFilter.setModel(new DefaultComboBoxModel<>(departments.toArray(new String[0])));
+            LOGGER.log(Level.INFO, "Updated department filter for table '{0}' with values: {1}", new Object[]{tableName, String.join(", ", departments)});
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching departments from table '{0}': {1}", new Object[]{tableName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error updating department filter for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
         }
-        return departments.toArray(new String[0]);
     }
 
     private void addColumnAction() {
         String tableName = tableManager.getTableName();
+        if (tableName == null || tableName.isEmpty()) {
+            JOptionPane.showMessageDialog(filterPanel, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, "Attempted to add column without selecting a valid table");
+            return;
+        }
         String inputColumnName = JOptionPane.showInputDialog(filterPanel, "Enter new column name:");
         if (inputColumnName != null && !inputColumnName.trim().isEmpty()) {
-            final String newColumnName = inputColumnName.trim();
+            final String newColumnName = inputColumnName.trim(); // Use a new final variable
             if (Arrays.asList(tableManager.getColumns()).contains(newColumnName)) {
                 JOptionPane.showMessageDialog(filterPanel, "Error: Column '" + newColumnName + "' already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                LOGGER.log(Level.SEVERE, "Attempted to add duplicate column '{0}' to table '{1}'", new Object[]{newColumnName, tableName});
+                LOGGER.log(Level.WARNING, "Attempted to add duplicate column '{0}' to table '{1}'", new Object[]{newColumnName, tableName});
                 return;
             }
             try (Connection conn = DatabaseUtils.getConnection()) {
@@ -223,7 +225,7 @@ public class FilterPanel {
                 conn.createStatement().executeUpdate(sql);
                 JOptionPane.showMessageDialog(filterPanel, "Column '" + newColumnName + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
+                    tableManager.setTableName(tableName); // Force schema reload
                     tableManager.refreshDataAndTabs();
                     LOGGER.log(Level.INFO, "addColumnAction: Added column '{0}' to table '{1}' and refreshed UI", new Object[]{newColumnName, tableName});
                 });
@@ -238,13 +240,13 @@ public class FilterPanel {
         String tableName = tableManager.getTableName();
         String[] columnNames = tableManager.getColumns();
         String columnToDelete = (String) JOptionPane.showInputDialog(
-            filterPanel,
-            "Select column to delete:",
-            "Delete Column",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            columnNames,
-            columnNames[0]
+                filterPanel,
+                "Select column to delete:",
+                "Delete Column",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                columnNames,
+                columnNames[0]
         );
         if (columnToDelete == null || columnToDelete.equals("AssetName")) {
             JOptionPane.showMessageDialog(filterPanel, "Error: Cannot delete the primary key column 'AssetName'", "Error", JOptionPane.ERROR_MESSAGE);
@@ -253,11 +255,11 @@ public class FilterPanel {
         }
 
         int confirm = JOptionPane.showConfirmDialog(
-            filterPanel,
-            "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
-            "Confirm Delete Column",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE
+                filterPanel,
+                "Are you sure you want to delete the column '" + columnToDelete + "'? This will remove all data in this column.",
+                "Confirm Delete Column",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
         );
         if (confirm == JOptionPane.YES_OPTION) {
             try (Connection conn = DatabaseUtils.getConnection()) {
@@ -273,12 +275,20 @@ public class FilterPanel {
                     return;
                 }
 
-                String tempTableName = tableName + "_temp";
+                // Use a unique temporary table name
+                String tempTableName = tableName + "_temp_" + UUID.randomUUID().toString().replace("-", "");
                 DatabaseMetaData meta = conn.getMetaData();
-                try (ResultSet rs = meta.getTables(null, null, tempTableName, new String[]{"TABLE"})) {
-                    if (rs.next()) {
-                        conn.createStatement().executeUpdate("DROP TABLE [" + tempTableName + "]");
-                        LOGGER.log(Level.INFO, "Dropped existing temporary table '{0}'", tempTableName);
+                try (ResultSet rs = meta.getTables(null, null, null, new String[]{"TABLE"})) {
+                    while (rs.next()) {
+                        String existingTable = rs.getString("TABLE_NAME");
+                        if (existingTable.startsWith(tableName + "_temp")) {
+                            try {
+                                conn.createStatement().executeUpdate("DROP TABLE [" + existingTable + "]");
+                                LOGGER.log(Level.INFO, "Dropped existing temporary table '{0}'", existingTable);
+                            } catch (SQLException ex) {
+                                LOGGER.log(Level.WARNING, "Failed to drop existing temporary table '{0}': {1}", new Object[]{existingTable, ex.getMessage()});
+                            }
+                        }
                     }
                 }
 
@@ -312,7 +322,7 @@ public class FilterPanel {
 
                 JOptionPane.showMessageDialog(filterPanel, "Column '" + columnToDelete + "' deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 SwingUtilities.invokeLater(() -> {
-                    tableManager.setTableName(tableName);
+                    tableManager.setTableName(tableName); // Force schema reload
                     tableManager.refreshDataAndTabs();
                     LOGGER.log(Level.INFO, "deleteColumnAction: Deleted column '{0}' from table '{1}' and refreshed UI", new Object[]{columnToDelete, tableName});
                 });

@@ -1,6 +1,7 @@
 package view_inventory_tab;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -12,9 +13,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -34,7 +37,7 @@ public class ViewInventoryTab extends JPanel {
     private final JTable table;
     protected final TableManager tableManager;
     private final JPanel mainPanel;
-    private JPanel currentView;
+    private JComponent currentView;
     private JScrollPane tableListScrollPane;
     private JList<String> tableList;
     private final JSplitPane mainSplitPane;
@@ -45,6 +48,7 @@ public class ViewInventoryTab extends JPanel {
     public ViewInventoryTab() {
         setLayout(new BorderLayout());
 
+        // Initialize main panel for filter and table
         mainPanel = new JPanel(new BorderLayout());
         table = new JTable() {
             @Override
@@ -57,21 +61,41 @@ public class ViewInventoryTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Initialize split pane for left (software list) and right (main panel)
+        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        mainSplitPane.setDividerLocation(200);
+        mainSplitPane.setResizeWeight(0.3);
+
+        // Set up left panel with software list and button
+        leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));
+        JPanel topLeftPanel = new JPanel();
+        topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
+        topLeftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        JLabel softwareListLabel = new JLabel("Inventory list:");
+        JButton addNewTableButton = new JButton("Add New Table");
+        topLeftPanel.add(softwareListLabel);
+        topLeftPanel.add(addNewTableButton);
+        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
+        tableListScrollPane = createTableListScrollPane();
+        leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
+
+        // Set up filter panel after left panel to avoid leaking 'this'
         FilterPanel filterPanel = new FilterPanel(
                 (search, status, dept) -> updateTables(search),
                 this::refreshDataAndTabs,
                 tableManager
         );
 
-        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-        mainSplitPane.setDividerLocation(200);
+        // Set up main panel with filter at top and table below
+        mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        tableListScrollPane = createTableListScrollPane();
-        leftPanel = new JPanel(new BorderLayout());
-        JPanel topLeftPanel = new JPanel();
-        topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
-        JLabel softwareListLabel = new JLabel("Software list:");
-        JButton addNewTableButton = new JButton("Add New Table");
+        // Set split pane components
+        mainSplitPane.setLeftComponent(leftPanel);
+        mainSplitPane.setRightComponent(mainPanel);
+
+        // Add action listener for new table button after filter panel initialization
         addNewTableButton.addActionListener(e -> {
             String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
             if (inputTableName != null && !inputTableName.trim().isEmpty()) {
@@ -100,58 +124,69 @@ public class ViewInventoryTab extends JPanel {
                             insertPs.setString(2, newTableName);
                             insertPs.executeUpdate();
                         }
-                        tableListScrollPane.setViewportView(createTableListScrollPane().getViewport());
+                        refreshTableList();
+                        tableList.setSelectedValue(newTableName, true);
                         tableManager.setTableName(newTableName);
                         filterPanel.setTableName(newTableName);
                         refreshDataAndTabs();
-                        LOGGER.log(Level.INFO, "Created new table '{0}' and updated UI", newTableName);
                     } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(this, "Error creating table: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, ex.getMessage()});
+                        LOGGER.log(Level.SEVERE, "Error adding new table to Settings: {0}", ex.getMessage());
+                        JOptionPane.showMessageDialog(this, "Error adding new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this, "Error creating table: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, ex.getMessage()});
+                    LOGGER.log(Level.SEVERE, "Error creating new table '{0}': {1}", new Object[]{newTableName, ex.getMessage()});
+                    JOptionPane.showMessageDialog(this, "Error creating new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
-        topLeftPanel.add(softwareListLabel);
-        topLeftPanel.add(addNewTableButton);
-        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
-        leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
-        mainSplitPane.setLeftComponent(leftPanel);
-        mainSplitPane.setRightComponent(mainPanel);
-        mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        currentView = mainPanel;
-        add(mainSplitPane, BorderLayout.CENTER);
+
+        currentView = mainSplitPane;
+        add(currentView, BorderLayout.CENTER);
+
         PopupHandler.addTablePopup(table, this);
     }
 
     private JScrollPane createTableListScrollPane() {
         DefaultListModel<String> listModel = new DefaultListModel<>();
-        for (String tableName : getIncludedInventoryTables()) {
-            if (!isExcludedTable(tableName)) {
-                listModel.addElement(tableName);
+        List<String> tables = getIncludedInventoryTables();
+        for (String table : tables) {
+            if (!isExcludedTable(table)) {
+                listModel.addElement(table);
             }
         }
-        tableList = new JList<>(listModel);
+        JList<String> softwareList = new JList<>(listModel);
+        tableList = softwareList;
         tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableList.setFixedCellWidth(180);
+        tableList.setFixedCellHeight(25);
+        tableList.setFont(new Font("SansSerif", Font.PLAIN, 14));
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedTable = tableList.getSelectedValue();
-                if (selectedTable != null) {
-                    tableManager.setTableName(selectedTable);
-                    refreshDataAndTabs();
-                }
+                tableManager.setTableName(selectedTable);
+                refreshDataAndTabs();
             }
         };
         tableList.addListSelectionListener(originalTableListListener);
-        return new JScrollPane(tableList);
+        tableListScrollPane = new JScrollPane(softwareList);
+        return tableListScrollPane;
+    }
+
+    private void refreshTableList() {
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        List<String> tables = getIncludedInventoryTables();
+        for (String table : tables) {
+            if (!isExcludedTable(table)) {
+                listModel.addElement(table);
+            }
+        }
+        tableList.setModel(listModel);
+        tableList.revalidate();
+        tableList.repaint();
     }
 
     private boolean isExcludedTable(String tableName) {
-        return tableName.equalsIgnoreCase("Settings") ||
+        return tableName == null || tableName.equalsIgnoreCase("Settings") ||
                tableName.equalsIgnoreCase("LicenseKeyRules") ||
                tableName.equalsIgnoreCase("Templates");
     }
@@ -242,9 +277,8 @@ public class ViewInventoryTab extends JPanel {
 
     public void showMainView() {
         remove(currentView);
-        currentView = mainPanel;
+        currentView = mainSplitPane;
         add(currentView, BorderLayout.CENTER);
-        mainSplitPane.setLeftComponent(leftPanel);
 
         for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
             tableList.removeListSelectionListener(listener);
@@ -253,9 +287,12 @@ public class ViewInventoryTab extends JPanel {
 
         String currentTable = tableManager.getTableName();
         if (currentTable != null) {
-            tableList.clearSelection();
             tableList.setSelectedValue(currentTable, true);
             tableManager.setTableName(currentTable);
+            refreshDataAndTabs();
+        } else {
+            tableList.clearSelection();
+            tableManager.setTableName(null);
             refreshDataAndTabs();
         }
 

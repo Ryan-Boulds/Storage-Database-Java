@@ -1,5 +1,5 @@
 {
-  "java.home": "C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/Storage-Database-Java/zulu8.86.0.25-ca-jdk8.0.452-win_x64",
+  //"java.home": "C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Documents/Storage-Database-Java/zulu8.86.0.25-ca-jdk8.0.452-win_x64",
   "java.project.referencedLibraries": [
     "JavaLib/UCanAccess/**/*.jar"
   ],
