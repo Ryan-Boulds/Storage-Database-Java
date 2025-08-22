@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
+import view_software_list_tab.import_spreadsheet_file.ImportDataTab;
 import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
@@ -44,6 +45,8 @@ public class ViewSoftwareListTab extends JPanel {
     private final ListSelectionListener originalTableListListener;
     private final JPanel leftPanel;
     private static final Logger LOGGER = Logger.getLogger(ViewSoftwareListTab.class.getName());
+    private ImportDataTab importDataTab;
+    private FilterPanel filterPanel;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -77,7 +80,7 @@ public class ViewSoftwareListTab extends JPanel {
         JPanel topLeftPanel = new JPanel();
         topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
         topLeftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        JLabel softwareListLabel = new JLabel("software list:");
+        JLabel softwareListLabel = new JLabel("Software List:");
         JButton addNewTableButton = new JButton("Add New Table");
         topLeftPanel.add(softwareListLabel);
         topLeftPanel.add(addNewTableButton);
@@ -87,12 +90,13 @@ public class ViewSoftwareListTab extends JPanel {
         // Add action listener for Add New Table button
         addNewTableButton.addActionListener(e -> addNewTable());
 
-        JButton licenseKeyTrackerButton = new JButton("License Key Tracker");
+        // Initialize status label for ImportDataTab
+        JLabel statusLabelLocal = new JLabel("Ready");
 
-        // Add action listener for License Key Tracker button
-        licenseKeyTrackerButton.addActionListener(e -> showLicenseKeyTracker());
+        // Initialize ImportDataTab with reference to this ViewSoftwareListTab
+        importDataTab = new ImportDataTab(statusLabelLocal, this);
 
-        // Set up main panel with table
+        // Initialize main panel with table
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainSplitPane.setLeftComponent(leftPanel);
         mainSplitPane.setRightComponent(mainPanel);
@@ -102,14 +106,8 @@ public class ViewSoftwareListTab extends JPanel {
         // Initialize table list
         updateTableList();
 
-        // Set up filter panel after all fields are initialized to avoid leaking 'this'
-        FilterPanel filterPanel = new FilterPanel(
-                (search, status, dept) -> updateTables(search),
-                this::refreshDataAndTabs,
-                tableManager
-        );
-        filterPanel.getPanel().add(licenseKeyTrackerButton, 0);
-        mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
+        // Initialize filter panel after all fields are initialized
+        initializeFilterPanel();
 
         // Initialize listeners
         originalTableListListener = e -> {
@@ -117,6 +115,9 @@ public class ViewSoftwareListTab extends JPanel {
                 String selectedTable = tableList.getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     tableManager.setTableName(selectedTable);
+                    if (importDataTab.getTableSelector() != null) {
+                        importDataTab.getTableSelector().setSelectedItem(selectedTable);
+                    }
                     refreshDataAndTabs();
                 }
             }
@@ -125,6 +126,25 @@ public class ViewSoftwareListTab extends JPanel {
 
         // Attach popup menu handler
         PopupHandler.addTablePopup(table, this);
+    }
+
+    private void initializeFilterPanel() {
+        filterPanel = new FilterPanel(
+                (search, status, dept) -> updateTables(search),
+                this::refreshDataAndTabs,
+                tableManager
+        );
+        JPanel filterPanelWithButtons = new JPanel(new BorderLayout());
+        filterPanelWithButtons.add(filterPanel.getPanel(), BorderLayout.CENTER);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(new JButton("License Key Tracker") {{
+            addActionListener(e -> showLicenseKeyTracker());
+        }});
+        buttonPanel.add(new JButton("Import Spreadsheet") {{
+            addActionListener(e -> showImportDataTab());
+        }});
+        filterPanelWithButtons.add(buttonPanel, BorderLayout.EAST);
+        mainPanel.add(filterPanelWithButtons, BorderLayout.NORTH);
     }
 
     private void updateTableList() {
@@ -189,6 +209,8 @@ public class ViewSoftwareListTab extends JPanel {
 
     public void refreshDataAndTabs() {
         tableManager.refreshDataAndTabs();
+        updateTableList();
+        importDataTab.updateTableSelectorOptions();
     }
 
     @SuppressWarnings("unchecked")
@@ -238,10 +260,16 @@ public class ViewSoftwareListTab extends JPanel {
         if (currentTable != null) {
             tableList.setSelectedValue(currentTable, true);
             tableManager.setTableName(currentTable);
+            if (importDataTab.getTableSelector() != null) {
+                importDataTab.getTableSelector().setSelectedItem(currentTable);
+            }
             refreshDataAndTabs();
         } else {
             tableList.clearSelection();
             tableManager.setTableName(null);
+            if (importDataTab.getTableSelector() != null) {
+                importDataTab.getTableSelector().setSelectedItem(null);
+            }
             refreshDataAndTabs();
         }
 
@@ -262,6 +290,19 @@ public class ViewSoftwareListTab extends JPanel {
         revalidate();
         repaint();
         LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
+    }
+
+    private void showImportDataTab() {
+        remove(currentView);
+        currentView = importDataTab;
+        String currentTable = tableManager.getTableName();
+        if (currentTable != null && importDataTab.getTableSelector() != null) {
+            importDataTab.getTableSelector().setSelectedItem(currentTable);
+        }
+        add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+        LOGGER.log(Level.INFO, "Switched to ImportDataTab view");
     }
 
     private void addNewTable() {
@@ -298,6 +339,10 @@ public class ViewSoftwareListTab extends JPanel {
             updateTableList();
             tableList.setSelectedValue(newTableName, true);
             tableManager.setTableName(newTableName);
+            importDataTab.updateTableSelectorOptions();
+            if (importDataTab.getTableSelector() != null) {
+                importDataTab.getTableSelector().setSelectedItem(newTableName);
+            }
             refreshDataAndTabs();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

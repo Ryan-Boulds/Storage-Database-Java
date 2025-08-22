@@ -14,7 +14,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import accessories_count.AccessoriesCountTab;
 import database_creator.DatabaseCreatorTab;
-//import device_logging.LogNewDeviceTab;
 import log_adapters.LogAdaptersTab;
 import log_cables.LogCablesTab;
 import mass_entry_modifier.MassEntryModifierTab;
@@ -67,7 +66,7 @@ public class mainFile {
                         LogCablesTab logCablesTab = new LogCablesTab();
                         LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
                         inventory_data_importer.ImportDataTab importDataTab = new inventory_data_importer.ImportDataTab(statusLabel);
-                        data_importing_tabs.ImportDataTab softwareImportDataTab = new data_importing_tabs.ImportDataTab(statusLabel);
+                        // Removed: data_importing_tabs.ImportDataTab softwareImportDataTab = new data_importing_tabs.ImportDataTab(statusLabel);
                         MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                         loadingWindow.appendLog("Creating main frame...");
@@ -81,13 +80,13 @@ public class mainFile {
                             logCablesTab,
                             logAdaptersTab,
                             importDataTab,
-                            softwareImportDataTab,
+                            // Removed: softwareImportDataTab,
                             massEntryModifierTab
                         );
 
                         JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(importDataTab), "Import Inventory Data");
-                        tabbedPane.setTitleAt(tabbedPane.indexOfComponent(softwareImportDataTab), "Import Software Data");
+                        // Removed: tabbedPane.setTitleAt(tabbedPane.indexOfComponent(softwareImportDataTab), "Import Software Data");
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
                         tabbedPane.addChangeListener(e -> {
                             Component selected = tabbedPane.getSelectedComponent();
@@ -104,6 +103,7 @@ public class mainFile {
                             } else if (selected == logAdaptersTab) {
                                 logAdaptersTab.refresh();
                             }
+                            // Removed: else if (selected == softwareImportDataTab) { ... }
                         });
 
                         // Listen for updates from MassEntryModifierTab
