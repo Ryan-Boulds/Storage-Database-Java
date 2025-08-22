@@ -1,4 +1,4 @@
-package view_software_list_tab;
+package view_software_list_tab.Add_And_Edit_Entries;
 
 import java.awt.BorderLayout;
 import java.awt.FontMetrics;
@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
+import view_software_list_tab.TableManager;
 
 public class ModifyRowEntry extends JDialog {
     private String[] columnNames;

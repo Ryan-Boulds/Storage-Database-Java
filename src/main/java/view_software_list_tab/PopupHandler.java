@@ -23,6 +23,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import utils.DatabaseUtils;
+import view_software_list_tab.Add_And_Edit_Entries.AddRowEntry;
+import view_software_list_tab.Add_And_Edit_Entries.ModifyRowEntry;
+import view_software_list_tab.Add_And_Edit_Entries.MultiRenameDialog;
+import view_software_list_tab.Add_And_Edit_Entries.SingleRenameDialog;
 
 public class PopupHandler {
     private static final Logger LOGGER = Logger.getLogger(PopupHandler.class.getName());

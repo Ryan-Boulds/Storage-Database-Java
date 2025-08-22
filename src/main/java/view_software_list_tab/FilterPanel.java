@@ -29,6 +29,7 @@ import javax.swing.event.DocumentListener;
 
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
+import view_software_list_tab.Add_And_Edit_Entries.AddRowEntry;
 
 public class FilterPanel {
 

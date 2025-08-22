@@ -1,4 +1,4 @@
-package view_software_list_tab;
+package view_software_list_tab.Add_And_Edit_Entries;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -20,6 +20,7 @@ import javax.swing.JTextField;
 import utils.DataUtils;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
+import view_software_list_tab.TableManager;
 
 public class SingleRenameDialog extends JDialog {
     private JTextField valueField;

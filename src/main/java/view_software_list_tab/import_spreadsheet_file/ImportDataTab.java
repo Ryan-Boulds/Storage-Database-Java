@@ -37,11 +37,8 @@ public class ImportDataTab extends javax.swing.JPanel {
     private final JComboBox<String> tableSelector;
     private String selectedTable;
     private final javax.swing.JLabel statusLabel;
-    private final ViewSoftwareListTab viewSoftwareListTab; // Reference to parent tab
-
     public ImportDataTab(javax.swing.JLabel statusLabel, ViewSoftwareListTab viewSoftwareListTab) {
         this.statusLabel = statusLabel;
-        this.viewSoftwareListTab = viewSoftwareListTab;
         this.dataImporter = new DataImporter(this, statusLabel);
         this.dataDisplayManager = new DataDisplayManager(this, statusLabel);
         this.dataSaver = new DataSaver(this, statusLabel);

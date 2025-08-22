@@ -1,24 +1,12 @@
 package view_software_list_tab;
 
 import java.awt.BorderLayout;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,24 +17,22 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-import utils.DatabaseUtils;
 import view_software_list_tab.import_spreadsheet_file.ImportDataTab;
 import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 import view_software_list_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewSoftwareListTab extends JPanel {
+
     private final JTable table;
     protected final TableManager tableManager;
     private final JPanel mainPanel;
     private JComponent currentView;
-    private final JScrollPane tableListScrollPane;
-    private final JList<String> tableList;
     private final JSplitPane mainSplitPane;
     private final ListSelectionListener originalTableListListener;
-    private final JPanel leftPanel;
     private static final Logger LOGGER = Logger.getLogger(ViewSoftwareListTab.class.getName());
     private ImportDataTab importDataTab;
     private FilterPanel filterPanel;
+    private TableListPanel tableListPanel;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
@@ -64,31 +50,19 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Initialize table list and scroll pane
-        tableList = new JList<>(new DefaultListModel<>());
-        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableListScrollPane = new JScrollPane(tableList);
+        // Initialize table list panel
+        tableListPanel = new TableListPanel(this);
 
         // Initialize split pane for left (software list) and right (main panel)
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         mainSplitPane.setDividerLocation(200);
         mainSplitPane.setResizeWeight(0.3);
 
-        // Set up left panel with software list and buttons
-        leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));
-        JPanel topLeftPanel = new JPanel();
-        topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
-        topLeftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        JLabel softwareListLabel = new JLabel("Software List:");
-        JButton addNewTableButton = new JButton("Add New Table");
-        topLeftPanel.add(softwareListLabel);
-        topLeftPanel.add(addNewTableButton);
-        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
-        leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
-
-        // Add action listener for Add New Table button
-        addNewTableButton.addActionListener(e -> addNewTable());
+        // Set up split pane
+        mainSplitPane.setLeftComponent(tableListPanel);
+        mainSplitPane.setRightComponent(mainPanel);
+        currentView = mainSplitPane;
+        add(currentView, BorderLayout.CENTER);
 
         // Initialize status label for ImportDataTab
         JLabel statusLabelLocal = new JLabel("Ready");
@@ -98,13 +72,6 @@ public class ViewSoftwareListTab extends JPanel {
 
         // Initialize main panel with table
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainSplitPane.setLeftComponent(leftPanel);
-        mainSplitPane.setRightComponent(mainPanel);
-        currentView = mainSplitPane;
-        add(currentView, BorderLayout.CENTER);
-
-        // Initialize table list
-        updateTableList();
 
         // Initialize filter panel after all fields are initialized
         initializeFilterPanel();
@@ -112,7 +79,7 @@ public class ViewSoftwareListTab extends JPanel {
         // Initialize listeners
         originalTableListListener = e -> {
             if (!e.getValueIsAdjusting()) {
-                String selectedTable = tableList.getSelectedValue();
+                String selectedTable = tableListPanel.getTableList().getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     tableManager.setTableName(selectedTable);
                     if (importDataTab.getTableSelector() != null) {
@@ -122,7 +89,7 @@ public class ViewSoftwareListTab extends JPanel {
                 }
             }
         };
-        tableList.addListSelectionListener(originalTableListListener);
+        tableListPanel.getTableList().addListSelectionListener(originalTableListListener);
 
         // Attach popup menu handler
         PopupHandler.addTablePopup(table, this);
@@ -137,83 +104,26 @@ public class ViewSoftwareListTab extends JPanel {
         JPanel filterPanelWithButtons = new JPanel(new BorderLayout());
         filterPanelWithButtons.add(filterPanel.getPanel(), BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("License Key Tracker") {{
-            addActionListener(e -> showLicenseKeyTracker());
-        }});
-        buttonPanel.add(new JButton("Import Spreadsheet") {{
-            addActionListener(e -> showImportDataTab());
-        }});
+        buttonPanel.add(new JButton("License Key Tracker") {
+            {
+                addActionListener(e -> showLicenseKeyTracker());
+            }
+        });
+        buttonPanel.add(new JButton("Import Spreadsheet") {
+            {
+                addActionListener(e -> showImportDataTab());
+            }
+        });
         filterPanelWithButtons.add(buttonPanel, BorderLayout.EAST);
         mainPanel.add(filterPanelWithButtons, BorderLayout.NORTH);
     }
 
-    private void updateTableList() {
-        DefaultListModel<String> model = (DefaultListModel<String>) tableList.getModel();
-        model.clear();
-        List<String> tables = getIncludedSoftwareTables();
-        if (tables.isEmpty()) {
-            model.addElement("No tables available");
-        } else {
-            for (String table : tables) {
-                model.addElement(table);
-            }
-        }
-    }
-
-    private List<String> getIncludedSoftwareTables() {
-        List<String> tables = new ArrayList<>();
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            if (!tableExists("Settings", conn)) {
-                createSettingsTable(conn);
-            }
-            try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT SoftwareTables FROM Settings WHERE SoftwareTables IS NOT NULL")) {
-                while (rs.next()) {
-                    String tableName = rs.getString("SoftwareTables");
-                    if (tableName != null && !tableName.trim().isEmpty()) {
-                        tables.add(tableName);
-                    }
-                }
-            }
-            LOGGER.log(Level.INFO, "getIncludedSoftwareTables: Fetched tables: {0}", tables);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching included software tables: {0}", e.getMessage());
-        }
-        System.out.println("ViewSoftwareListTab: Fetched tables: " + tables);
-        return tables;
-    }
-
-    private boolean tableExists(String tableName, Connection conn) throws SQLException {
-        DatabaseMetaData meta = conn.getMetaData();
-        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
-            return rs.next();
-        }
-    }
-
-    private void createSettingsTable(Connection conn) throws SQLException {
-        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255))";
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(createSql);
-        }
-    }
-
-    private int getNextSettingsId(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
-            if (rs.next()) {
-                return rs.getInt(1) + 1;
-            }
-            return 1;
-        }
-    }
-
     public void refreshDataAndTabs() {
         tableManager.refreshDataAndTabs();
-        updateTableList();
+        tableListPanel.updateTableList();
         importDataTab.updateTableSelectorOptions();
     }
 
-    @SuppressWarnings("unchecked")
     public void updateTables(String searchTerm) {
         refreshDataAndTabs();
         String searchText = searchTerm.toLowerCase();
@@ -251,21 +161,21 @@ public class ViewSoftwareListTab extends JPanel {
         currentView = mainSplitPane;
         add(currentView, BorderLayout.CENTER);
 
-        for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
-            tableList.removeListSelectionListener(listener);
+        for (ListSelectionListener listener : tableListPanel.getTableList().getListSelectionListeners()) {
+            tableListPanel.getTableList().removeListSelectionListener(listener);
         }
-        tableList.addListSelectionListener(originalTableListListener);
+        tableListPanel.getTableList().addListSelectionListener(originalTableListListener);
 
         String currentTable = tableManager.getTableName();
         if (currentTable != null) {
-            tableList.setSelectedValue(currentTable, true);
+            tableListPanel.getTableList().setSelectedValue(currentTable, true);
             tableManager.setTableName(currentTable);
             if (importDataTab.getTableSelector() != null) {
                 importDataTab.getTableSelector().setSelectedItem(currentTable);
             }
             refreshDataAndTabs();
         } else {
-            tableList.clearSelection();
+            tableListPanel.getTableList().clearSelection();
             tableManager.setTableName(null);
             if (importDataTab.getTableSelector() != null) {
                 importDataTab.getTableSelector().setSelectedItem(null);
@@ -305,51 +215,6 @@ public class ViewSoftwareListTab extends JPanel {
         LOGGER.log(Level.INFO, "Switched to ImportDataTab view");
     }
 
-    private void addNewTable() {
-        String newTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
-        if (newTableName == null || newTableName.trim().isEmpty()) {
-            return;
-        }
-        newTableName = newTableName.trim();
-
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            if (tableExists(newTableName, conn)) {
-                JOptionPane.showMessageDialog(this, "Table already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                LOGGER.log(Level.WARNING, "Attempted to create existing table '{0}'", newTableName);
-                return;
-            }
-
-            // Create table
-            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY)";
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(createSql);
-                LOGGER.log(Level.INFO, "Created new table '{0}'", newTableName);
-            }
-
-            // Add to Settings
-            int nextId = getNextSettingsId(conn);
-            String insertSql = "INSERT INTO Settings (ID, SoftwareTables) VALUES (?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
-                ps.setInt(1, nextId);
-                ps.setString(2, newTableName);
-                ps.executeUpdate();
-                LOGGER.log(Level.INFO, "Added table '{0}' to Settings with ID {1}", new Object[]{newTableName, nextId});
-            }
-
-            updateTableList();
-            tableList.setSelectedValue(newTableName, true);
-            tableManager.setTableName(newTableName);
-            importDataTab.updateTableSelectorOptions();
-            if (importDataTab.getTableSelector() != null) {
-                importDataTab.getTableSelector().setSelectedItem(newTableName);
-            }
-            refreshDataAndTabs();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, e.getMessage()});
-        }
-    }
-
     public TableManager getTableManager() {
         return tableManager;
     }
@@ -360,5 +225,9 @@ public class ViewSoftwareListTab extends JPanel {
 
     public void setCurrentView(JComponent currentView) {
         this.currentView = currentView;
+    }
+
+    public ImportDataTab getImportDataTab() {
+        return importDataTab;
     }
 }

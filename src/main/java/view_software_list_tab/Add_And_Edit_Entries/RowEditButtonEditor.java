@@ -1,4 +1,4 @@
-package view_software_list_tab;
+package view_software_list_tab.Add_And_Edit_Entries;
 
 import java.awt.Component;
 import java.util.HashMap;
@@ -8,6 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellEditor;
+
+import view_software_list_tab.TableManager;
 
 public class RowEditButtonEditor extends AbstractCellEditor implements TableCellEditor {
     private final JButton button;

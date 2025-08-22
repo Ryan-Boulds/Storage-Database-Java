@@ -242,7 +242,6 @@ public class ViewInventoryTab extends JPanel {
         tableManager.refreshDataAndTabs();
     }
 
-    @SuppressWarnings("unchecked")
     public void updateTables(String searchTerm) {
         refreshDataAndTabs();
         String text = searchTerm.toLowerCase();
