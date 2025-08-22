@@ -2,9 +2,31 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209144</millis>
-  <sequence>555</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460172</millis>
+  <sequence>222</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>resetTrackerState</method>
+  <thread>16</thread>
+  <message>Reset LicenseKeyTracker state for table {0}</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460174</millis>
+  <sequence>223</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>showMainView</method>
+  <thread>16</thread>
+  <message>showMainView: Current table name is {0}</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460175</millis>
+  <sequence>224</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -13,31 +35,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209148</millis>
-  <sequence>556</sequence>
-  <logger>view_software_list_tab.TableListPanel</logger>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460179</millis>
+  <sequence>225</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_software_list_tab.TableListPanel</class>
-  <method>getIncludedSoftwareTables</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>getIncludedSoftwareTables: Fetched tables: [Chrome, test, testa, testthis]</message>
+  <message>Initialized columns for table {0}: Edit, AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209150</millis>
-  <sequence>557</sequence>
-  <logger>view_software_list_tab.import_spreadsheet_file.ImportDataTab</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.import_spreadsheet_file.ImportDataTab</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>Selected table changed to: null</message>
-</record>
-<record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209151</millis>
-  <sequence>558</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460179</millis>
+  <sequence>226</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -46,9 +57,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209153</millis>
-  <sequence>559</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460182</millis>
+  <sequence>227</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: Edit, AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460182</millis>
+  <sequence>228</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -57,9 +79,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209162</millis>
-  <sequence>560</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460188</millis>
+  <sequence>229</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -68,9 +90,9 @@
   <message>Retrieved columns for table Chrome: [AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY]</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209163</millis>
-  <sequence>561</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460188</millis>
+  <sequence>230</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -79,9 +101,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209165</millis>
-  <sequence>562</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460192</millis>
+  <sequence>231</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -90,9 +112,9 @@
   <message>Retrieved column types for table Chrome: {IPLocation=VARCHAR(255), Processor=VARCHAR(255), Description=VARCHAR(255), OS=VARCHAR(255), software=VARCHAR(255), Memory=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), IP_Address=VARCHAR(255), Proc=VARCHAR(255), LICENSE_KEY=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209165</millis>
-  <sequence>563</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460193</millis>
+  <sequence>232</sequence>
   <logger>view_software_list_tab.import_spreadsheet_file.ImportDataTab</logger>
   <level>INFO</level>
   <class>view_software_list_tab.import_spreadsheet_file.ImportDataTab</class>
@@ -101,251 +123,20 @@
   <message>Selected table changed to: Chrome</message>
 </record>
 <record>
-  <date>2025-08-22T12:20:09</date>
-  <millis>1755883209173</millis>
-  <sequence>564</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>lambda$0</method>
-  <thread>16</thread>
-  <message>refreshDataAndTabs: Completed table refresh for Chrome with columns: Edit, AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276457</millis>
-  <sequence>565</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>setLicenseKeyTracker</method>
-  <thread>16</thread>
-  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276457</millis>
-  <sequence>566</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276458</millis>
-  <sequence>567</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>initializeUI</method>
-  <thread>16</thread>
-  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276459</millis>
-  <sequence>568</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Table columns: AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY, column count: 24</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276459</millis>
-  <sequence>569</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>No licenseKey provided, keeping table empty</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276460</millis>
-  <sequence>570</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276462</millis>
-  <sequence>571</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276463</millis>
-  <sequence>572</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276464</millis>
-  <sequence>573</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>loadLicenseKeys</method>
-  <thread>16</thread>
-  <message>Loaded 4 license keys for table {1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276465</millis>
-  <sequence>574</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>setLicenseKeyTracker</method>
-  <thread>16</thread>
-  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276465</millis>
-  <sequence>575</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276466</millis>
-  <sequence>576</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>initializeUI</method>
-  <thread>16</thread>
-  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276466</millis>
-  <sequence>577</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Table columns: AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY, column count: 24</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276466</millis>
-  <sequence>578</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>No licenseKey provided, keeping table empty</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:16</date>
-  <millis>1755883276467</millis>
-  <sequence>579</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460193</millis>
+  <sequence>233</sequence>
   <logger>view_software_list_tab.ViewSoftwareListTab</logger>
   <level>INFO</level>
   <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>showLicenseKeyTracker</method>
+  <method>showMainView</method>
   <thread>16</thread>
-  <message>Opened LicenseKeyTracker for table {0}</message>
+  <message>Restored main view with table {0}</message>
 </record>
 <record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277509</millis>
-  <sequence>580</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>showKeyDetails</method>
-  <thread>16</thread>
-  <message>Calling showKeyDetails with licenseKey={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277510</millis>
-  <sequence>581</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>setLicenseKeyTracker</method>
-  <thread>16</thread>
-  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277511</millis>
-  <sequence>582</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277511</millis>
-  <sequence>583</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>initializeUI</method>
-  <thread>16</thread>
-  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277512</millis>
-  <sequence>584</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Table columns: AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY, column count: 24</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277512</millis>
-  <sequence>585</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Executing query: SELECT * FROM [Chrome] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277512</millis>
-  <sequence>586</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460976</millis>
+  <sequence>234</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -354,97 +145,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277514</millis>
-  <sequence>587</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Loaded 2 rows for licenseKey={1} in table {2}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277514</millis>
-  <sequence>588</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>showKeyDetails</method>
-  <thread>16</thread>
-  <message>Displayed details for license key {0} in table {1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277798</millis>
-  <sequence>589</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>showKeyDetails</method>
-  <thread>16</thread>
-  <message>Calling showKeyDetails with licenseKey={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277799</millis>
-  <sequence>590</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460979</millis>
+  <sequence>235</sequence>
   <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_software_list_tab.TableManager</class>
-  <method>setLicenseKeyTracker</method>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+  <message>Initialized columns for table {0}: Edit, AssetName</message>
 </record>
 <record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277800</millis>
-  <sequence>591</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>&lt;init&gt;</method>
-  <thread>16</thread>
-  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277800</millis>
-  <sequence>592</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>initializeUI</method>
-  <thread>16</thread>
-  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277801</millis>
-  <sequence>593</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Table columns: AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY, column count: 24</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277801</millis>
-  <sequence>594</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
-  <thread>16</thread>
-  <message>Executing query: SELECT * FROM [Chrome] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
-</record>
-<record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277801</millis>
-  <sequence>595</sequence>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460979</millis>
+  <sequence>236</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -453,25 +167,300 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
 </record>
 <record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277803</millis>
-  <sequence>596</sequence>
-  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460981</millis>
+  <sequence>237</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
-  <method>loadData</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
   <thread>16</thread>
-  <message>Loaded 1 rows for licenseKey={1} in table {2}</message>
+  <message>Initialized columns for table {0}: Edit, AssetName</message>
 </record>
 <record>
-  <date>2025-08-22T12:21:17</date>
-  <millis>1755883277803</millis>
-  <sequence>597</sequence>
-  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460982</millis>
+  <sequence>238</sequence>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
-  <method>showKeyDetails</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Displayed details for license key {0} in table {1}</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460988</millis>
+  <sequence>239</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>16</thread>
+  <message>Retrieved columns for table testa: [AssetName]</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460988</millis>
+  <sequence>240</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460990</millis>
+  <sequence>241</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table testa: {AssetName=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460990</millis>
+  <sequence>242</sequence>
+  <logger>view_software_list_tab.import_spreadsheet_file.ImportDataTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.import_spreadsheet_file.ImportDataTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: testa</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:40</date>
+  <millis>1755891460990</millis>
+  <sequence>243</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: testa</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461400</millis>
+  <sequence>244</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461402</millis>
+  <sequence>245</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: Edit, AssetName, column</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461403</millis>
+  <sequence>246</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461405</millis>
+  <sequence>247</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: Edit, AssetName, column</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461405</millis>
+  <sequence>248</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461411</millis>
+  <sequence>249</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>16</thread>
+  <message>Retrieved columns for table test: [AssetName, column]</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461412</millis>
+  <sequence>250</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461413</millis>
+  <sequence>251</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table test: {column=VARCHAR(255), AssetName=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461413</millis>
+  <sequence>252</sequence>
+  <logger>view_software_list_tab.import_spreadsheet_file.ImportDataTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.import_spreadsheet_file.ImportDataTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: test</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461414</millis>
+  <sequence>253</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: test</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461784</millis>
+  <sequence>254</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461787</millis>
+  <sequence>255</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: Edit, AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461788</millis>
+  <sequence>256</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461790</millis>
+  <sequence>257</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: Edit, AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461791</millis>
+  <sequence>258</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461797</millis>
+  <sequence>259</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>16</thread>
+  <message>Retrieved columns for table Chrome: [AssetName, Proc, Processor, Memory, OS, SP, Domain, Username, Userdomain, IP_Address, Description, Manufacturer, Model, Location, IPLocation, Created_at, Last_successful_scan, software, version, IPAddress, Build, OS_Version, LICENSE_KEY]</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461797</millis>
+  <sequence>260</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/InventoryManagement.accdb</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461800</millis>
+  <sequence>261</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnTypes</method>
+  <thread>16</thread>
+  <message>Retrieved column types for table Chrome: {IPLocation=VARCHAR(255), Processor=VARCHAR(255), Description=VARCHAR(255), OS=VARCHAR(255), software=VARCHAR(255), Memory=VARCHAR(255), OS_Version=VARCHAR(255), version=VARCHAR(255), AssetName=VARCHAR(255), IP_Address=VARCHAR(255), Proc=VARCHAR(255), LICENSE_KEY=VARCHAR(255), Username=VARCHAR(255), Last_successful_scan=VARCHAR(255), Build=VARCHAR(255), Manufacturer=VARCHAR(255), Model=VARCHAR(255), Domain=VARCHAR(255), IPAddress=VARCHAR(255), SP=VARCHAR(255), Userdomain=VARCHAR(255), Location=VARCHAR(255), Created_at=VARCHAR(255)}</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461800</millis>
+  <sequence>262</sequence>
+  <logger>view_software_list_tab.import_spreadsheet_file.ImportDataTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.import_spreadsheet_file.ImportDataTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: Chrome</message>
+</record>
+<record>
+  <date>2025-08-22T14:37:41</date>
+  <millis>1755891461800</millis>
+  <sequence>263</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>lambda$0</method>
+  <thread>16</thread>
+  <message>Selected table changed to: Chrome</message>
 </record>
 </log>

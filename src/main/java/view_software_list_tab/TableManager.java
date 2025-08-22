@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -27,6 +28,7 @@ import view_software_list_tab.Add_And_Edit_Entries.RowEditButtonRenderer;
 import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 
 public final class TableManager {
+
     private final JTable table;
     protected final DefaultTableModel model;
     private String[] columns;
@@ -37,7 +39,8 @@ public final class TableManager {
     private String tableName;
     private String whereClause;
     private LicenseKeyTracker licenseKeyTracker;
-    private boolean isInitialized = false; // Track initialization state
+    private boolean isInitialized = false;
+    private ViewSoftwareListTab parentTab;
     private static final Logger LOGGER = Logger.getLogger(TableManager.class.getName());
 
     public TableManager(JTable table, String tableName) {
@@ -61,6 +64,11 @@ public final class TableManager {
         this(table, null);
     }
 
+    public void setParentTab(ViewSoftwareListTab parentTab) {
+        this.parentTab = parentTab;
+        LOGGER.log(Level.INFO, "Set parentTab for TableManager, tableName='{0}'", tableName);
+    }
+
     public void setLicenseKeyTracker(LicenseKeyTracker tracker) {
         this.licenseKeyTracker = tracker;
         LOGGER.log(Level.INFO, "Set LicenseKeyTracker for TableManager, tableName='{0}'", tableName);
@@ -72,8 +80,16 @@ public final class TableManager {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+        isInitialized = false;
         if (this.tableName != null && !this.tableName.isEmpty()) {
             initializeColumns();
+        } else {
+            model.setRowCount(0);
+            model.setColumnCount(0);
+            columns = new String[0];
+            columnTypes.clear();
+            isInitialized = false;
+            LOGGER.log(Level.INFO, "Cleared table data due to null or empty tableName");
         }
     }
 
@@ -87,7 +103,10 @@ public final class TableManager {
     }
 
     public void refreshDataAndTabs() {
+        LOGGER.log(Level.INFO, "refreshDataAndTabs: Attempting to refresh table '{0}'", tableName);
         if (tableName == null || tableName.isEmpty()) {
+            model.setRowCount(0);
+            model.setColumnCount(0);
             LOGGER.log(Level.WARNING, "No table name set for refreshDataAndTabs");
             return;
         }
@@ -96,16 +115,13 @@ public final class TableManager {
             if (!whereClause.isEmpty()) {
                 query.append(whereClause);
             }
-            try (Connection conn = DatabaseUtils.getConnection();
-                 Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                 ResultSet rs = stmt.executeQuery(query.toString())) {
-
+            LOGGER.log(Level.INFO, "refreshDataAndTabs: Executing query '{0}'", query.toString());
+            try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY); ResultSet rs = stmt.executeQuery(query.toString())) {
                 String[] dbColumns = getColumnsFromResultSet(rs);
                 String[] newColumns = new String[dbColumns.length + 1];
                 newColumns[0] = "Edit";
                 System.arraycopy(dbColumns, 0, newColumns, 1, dbColumns.length);
-                
-                // Only update model if columns have changed
+
                 if (!isInitialized || !columnsMatch(newColumns)) {
                     model.setColumnIdentifiers(newColumns);
                     Map<String, Integer> newColumnTypes = new HashMap<>();
@@ -117,10 +133,12 @@ public final class TableManager {
                     columnTypes.putAll(newColumnTypes);
                     columns = dbColumns;
                     isInitialized = true;
+                    LOGGER.log(Level.INFO, "refreshDataAndTabs: Initialized columns for '{0}': {1}",
+                            new Object[]{tableName, String.join(", ", newColumns)});
                 }
-                
-                model.setRowCount(0);
 
+                model.setRowCount(0);
+                int rowCount = 0;
                 while (rs.next()) {
                     Object[] row = new Object[newColumns.length];
                     row[0] = "Edit";
@@ -128,36 +146,40 @@ public final class TableManager {
                         row[i + 1] = rs.getString(dbColumns[i]);
                     }
                     model.addRow(row);
+                    rowCount++;
                 }
+                LOGGER.log(Level.INFO, "refreshDataAndTabs: Loaded {0} rows for table '{1}'",
+                        new Object[]{rowCount, tableName});
 
                 if (table != null) {
                     TableColumn editColumn = table.getColumnModel().getColumn(0);
                     editColumn.setCellRenderer(new RowEditButtonRenderer());
                     editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-                    editColumn.setPreferredWidth(100);
+                    editColumn.setPreferredWidth(120);
                 }
                 adjustColumnWidths();
                 SwingUtilities.invokeLater(() -> {
                     table.revalidate();
                     table.repaint();
-                    LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for {0} with columns: {1}", 
-                        new Object[]{tableName, String.join(", ", newColumns)});
+                    LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for {0} with columns: {1}",
+                            new Object[]{tableName, String.join(", ", newColumns)});
                 });
 
-                if (licenseKeyTracker != null) {
+                if (licenseKeyTracker != null && parentTab != null && parentTab.getCurrentView() instanceof LicenseKeyTracker) {
                     LOGGER.log(Level.INFO, "Notifying LicenseKeyTracker to refresh key list for table '{0}'", tableName);
                     licenseKeyTracker.loadLicenseKeys();
                 }
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error refreshing data for table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(table, "Error loading table data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            });
         }
     }
 
     public void initializeColumns() {
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
+        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
             String[] dbColumns = getColumnsFromResultSet(rs);
             String[] newColumns = new String[dbColumns.length + 1];
             newColumns[0] = "Edit";
@@ -180,17 +202,24 @@ public final class TableManager {
             }
             adjustColumnWidths();
             isInitialized = true;
-            LOGGER.log(Level.INFO, "Initialized columns for table '{0}': {1}", 
-                new Object[]{tableName, String.join(", ", newColumns)});
+            LOGGER.log(Level.INFO, "Initialized columns for table '{0}': {1}",
+                    new Object[]{tableName, String.join(", ", newColumns)});
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error initializing columns for table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            columns = new String[0];
+            columnTypes.clear();
+            isInitialized = false;
         }
     }
 
     private boolean columnsMatch(String[] newColumns) {
-        if (columns == null || newColumns.length != columns.length + 1) return false;
+        if (columns == null || newColumns.length != columns.length + 1) {
+            return false;
+        }
         for (int i = 0; i < columns.length; i++) {
-            if (!columns[i].equals(newColumns[i + 1])) return false;
+            if (!columns[i].equals(newColumns[i + 1])) {
+                return false;
+            }
         }
         return true;
     }
@@ -204,7 +233,9 @@ public final class TableManager {
     }
 
     private void adjustColumnWidths() {
-        if (table == null) return;
+        if (table == null) {
+            return;
+        }
         FontMetrics fm = table.getFontMetrics(table.getFont());
         for (int col = 0; col < table.getColumnCount(); col++) {
             TableColumn column = table.getColumnModel().getColumn(col);
@@ -220,7 +251,9 @@ public final class TableManager {
     }
 
     public void sortTable(int columnIndex) {
-        if (columnIndex == 0) return;
+        if (columnIndex == 0) {
+            return;
+        }
         columnIndex -= 1;
 
         int index = sortColumnIndices.indexOf(columnIndex);

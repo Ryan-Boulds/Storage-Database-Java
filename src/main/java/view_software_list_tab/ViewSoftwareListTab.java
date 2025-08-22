@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -33,11 +34,11 @@ public class ViewSoftwareListTab extends JPanel {
     private ImportDataTab importDataTab;
     private FilterPanel filterPanel;
     private TableListPanel tableListPanel;
+    private boolean isRefreshing = false;
 
     public ViewSoftwareListTab() {
         setLayout(new BorderLayout());
 
-        // Initialize main panel for filter and table
         mainPanel = new JPanel(new BorderLayout());
         table = new JTable() {
             @Override
@@ -50,48 +51,51 @@ public class ViewSoftwareListTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Initialize table list panel
         tableListPanel = new TableListPanel(this);
 
-        // Initialize split pane for left (software list) and right (main panel)
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         mainSplitPane.setDividerLocation(200);
         mainSplitPane.setResizeWeight(0.3);
 
-        // Set up split pane
         mainSplitPane.setLeftComponent(tableListPanel);
         mainSplitPane.setRightComponent(mainPanel);
         currentView = mainSplitPane;
         add(currentView, BorderLayout.CENTER);
 
-        // Initialize status label for ImportDataTab
         JLabel statusLabelLocal = new JLabel("Ready");
-
-        // Initialize ImportDataTab with reference to this ViewSoftwareListTab
         importDataTab = new ImportDataTab(statusLabelLocal, this);
-
-        // Initialize main panel with table
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Initialize filter panel after all fields are initialized
+        // Move initialization out of constructor to avoid leaking 'this'
+        tableManager.setParentTab(this);
         initializeFilterPanel();
 
-        // Initialize listeners
         originalTableListListener = e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting() && !isRefreshing) {
                 String selectedTable = tableListPanel.getTableList().getSelectedValue();
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
-                    tableManager.setTableName(selectedTable);
-                    if (importDataTab.getTableSelector() != null) {
-                        importDataTab.getTableSelector().setSelectedItem(selectedTable);
+                    isRefreshing = true;
+                    try {
+                        tableManager.setTableName(selectedTable);
+                        tableManager.initializeColumns();
+                        if (importDataTab.getTableSelector() != null) {
+                            importDataTab.getTableSelector().setSelectedItem(selectedTable);
+                        }
+                        refreshDataAndTabs();
+                        LOGGER.log(Level.INFO, "Selected table changed to: {0}", selectedTable);
+                    } finally {
+                        isRefreshing = false;
                     }
-                    refreshDataAndTabs();
+                } else {
+                    tableManager.setTableName(null);
+                    table.setModel(new DefaultTableModel());
+                    LOGGER.log(Level.WARNING, "No valid table selected");
                 }
             }
         };
         tableListPanel.getTableList().addListSelectionListener(originalTableListListener);
 
-        // Attach popup menu handler
+        
         PopupHandler.addTablePopup(table, this);
     }
 
@@ -99,7 +103,8 @@ public class ViewSoftwareListTab extends JPanel {
         filterPanel = new FilterPanel(
                 (search, status, dept) -> updateTables(search),
                 this::refreshDataAndTabs,
-                tableManager
+                tableManager,
+                tableListPanel // Pass tableListPanel to FilterPanel
         );
         JPanel filterPanelWithButtons = new JPanel(new BorderLayout());
         filterPanelWithButtons.add(filterPanel.getPanel(), BorderLayout.CENTER);
@@ -119,12 +124,39 @@ public class ViewSoftwareListTab extends JPanel {
     }
 
     public void refreshDataAndTabs() {
-        tableManager.refreshDataAndTabs();
-        tableListPanel.updateTableList();
-        importDataTab.updateTableSelectorOptions();
+        if (isRefreshing) {
+            LOGGER.log(Level.FINE, "Skipping redundant refreshDataAndTabs call");
+            return;
+        }
+        isRefreshing = true;
+        try {
+            tableListPanel.updateTableList();
+            importDataTab.updateTableSelectorOptions();
+            tableManager.refreshDataAndTabs();
+        } finally {
+            isRefreshing = false;
+        }
     }
 
     public void updateTables(String searchTerm) {
+        String currentTable = tableManager.getTableName();
+        if (currentTable == null || currentTable.isEmpty()) {
+            DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
+            if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
+                currentTable = model.getElementAt(0);
+                tableListPanel.getTableList().setSelectedValue(currentTable, true);
+                tableManager.setTableName(currentTable);
+                tableManager.initializeColumns();
+                if (importDataTab.getTableSelector() != null) {
+                    importDataTab.getTableSelector().setSelectedItem(currentTable);
+                }
+                LOGGER.log(Level.INFO, "Selected first table '{0}' due to null/empty current table", currentTable);
+            } else {
+                tableManager.setTableName(null);
+                table.setModel(new DefaultTableModel());
+                LOGGER.log(Level.WARNING, "No valid tables available for updateTables");
+            }
+        }
         refreshDataAndTabs();
         String searchText = searchTerm.toLowerCase();
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
@@ -148,14 +180,6 @@ public class ViewSoftwareListTab extends JPanel {
         }
     }
 
-    public void showDeviceDetails(String assetName) {
-        remove(currentView);
-        currentView = new DeviceDetailsPanel(assetName, this);
-        add(currentView, BorderLayout.CENTER);
-        revalidate();
-        repaint();
-    }
-
     public void showMainView() {
         remove(currentView);
         currentView = mainSplitPane;
@@ -167,35 +191,62 @@ public class ViewSoftwareListTab extends JPanel {
         tableListPanel.getTableList().addListSelectionListener(originalTableListListener);
 
         String currentTable = tableManager.getTableName();
-        if (currentTable != null) {
-            tableListPanel.getTableList().setSelectedValue(currentTable, true);
-            tableManager.setTableName(currentTable);
-            if (importDataTab.getTableSelector() != null) {
-                importDataTab.getTableSelector().setSelectedItem(currentTable);
+        LOGGER.log(Level.INFO, "showMainView: Current table name is '{0}'", currentTable);
+        isRefreshing = true;
+        try {
+            DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
+            if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
+                if (currentTable == null || currentTable.isEmpty() || !model.contains(currentTable)) {
+                    currentTable = model.getElementAt(0);
+                    LOGGER.log(Level.INFO, "showMainView: Selected first available table '{0}'", currentTable);
+                }
+                tableListPanel.getTableList().setSelectedValue(currentTable, true);
+                tableManager.setTableName(currentTable);
+                tableManager.initializeColumns();
+                if (importDataTab.getTableSelector() != null) {
+                    importDataTab.getTableSelector().setSelectedItem(currentTable);
+                }
+            } else {
+                tableListPanel.getTableList().clearSelection();
+                tableManager.setTableName(null);
+                table.setModel(new DefaultTableModel());
+                if (importDataTab.getTableSelector() != null) {
+                    importDataTab.getTableSelector().setSelectedItem(null);
+                }
+                LOGGER.log(Level.WARNING, "showMainView: No valid tables available");
             }
             refreshDataAndTabs();
-        } else {
-            tableListPanel.getTableList().clearSelection();
-            tableManager.setTableName(null);
-            if (importDataTab.getTableSelector() != null) {
-                importDataTab.getTableSelector().setSelectedItem(null);
-            }
-            refreshDataAndTabs();
+        } finally {
+            isRefreshing = false;
         }
-
         revalidate();
         repaint();
+        LOGGER.log(Level.INFO, "Restored main view with table '{0}'", currentTable);
     }
 
     private void showLicenseKeyTracker() {
         String tableName = tableManager.getTableName();
         if (tableName == null || tableName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
-            LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
-            return;
+            DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
+            if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
+                tableName = model.getElementAt(0);
+                tableListPanel.getTableList().setSelectedValue(tableName, true);
+                tableManager.setTableName(tableName);
+                tableManager.initializeColumns();
+                if (importDataTab.getTableSelector() != null) {
+                    importDataTab.getTableSelector().setSelectedItem(tableName);
+                }
+                LOGGER.log(Level.INFO, "Selected first table '{0}' for LicenseKeyTracker", tableName);
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+                LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
+                return;
+            }
         }
         remove(currentView);
-        currentView = new LicenseKeyTracker(this, tableManager);
+        LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
+        currentView = tracker;
+        tableManager.setLicenseKeyTracker(tracker);
         add(currentView, BorderLayout.CENTER);
         revalidate();
         repaint();
@@ -229,5 +280,17 @@ public class ViewSoftwareListTab extends JPanel {
 
     public ImportDataTab getImportDataTab() {
         return importDataTab;
+    }
+
+    public TableListPanel getTableListPanel() {
+        return tableListPanel;
+    }
+
+    public void showDeviceDetails(String assetName) {
+        remove(currentView);
+        currentView = new DeviceDetailsPanel(assetName, this);
+        add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
 }
