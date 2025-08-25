@@ -61,20 +61,6 @@ public class TableListPanel extends JPanel {
 
         // Initialize table list
         updateTableList();
-
-        // Add selection listener
-        tableList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                String selectedTable = tableList.getSelectedValue();
-                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
-                    viewSoftwareListTab.getTableManager().setTableName(selectedTable);
-                    if (viewSoftwareListTab.getImportDataTab() != null && viewSoftwareListTab.getImportDataTab().getTableSelector() != null) {
-                        viewSoftwareListTab.getImportDataTab().getTableSelector().setSelectedItem(selectedTable);
-                    }
-                    viewSoftwareListTab.refreshDataAndTabs();
-                }
-            }
-        });
     }
 
     public final void updateTableList() {
@@ -87,6 +73,10 @@ public class TableListPanel extends JPanel {
         } else {
             for (String table : tables) {
                 model.addElement(table);
+            }
+            // Select the first table by default
+            if (!tables.isEmpty()) {
+                tableList.setSelectedValue(tables.get(0), true);
             }
         }
     }
@@ -109,7 +99,6 @@ public class TableListPanel extends JPanel {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error fetching included software tables: {0}", e.getMessage());
         }
-        System.out.println("TableListPanel: Fetched tables: " + tables);
         return tables;
     }
 
@@ -131,11 +120,9 @@ public class TableListPanel extends JPanel {
     private void ensureSettingsTableSchema() {
         try (Connection conn = DatabaseUtils.getConnection()) {
             if (tableExists("Settings", conn)) {
-                // Check if RequiresLicenseKey column exists
                 DatabaseMetaData meta = conn.getMetaData();
                 try (ResultSet rs = meta.getColumns(null, null, "Settings", "RequiresLicenseKey")) {
                     if (!rs.next()) {
-                        // Add RequiresLicenseKey column
                         try (Statement stmt = conn.createStatement()) {
                             stmt.executeUpdate("ALTER TABLE Settings ADD RequiresLicenseKey YESNO DEFAULT True");
                             LOGGER.log(Level.INFO, "Added RequiresLicenseKey column to Settings table");
@@ -192,13 +179,11 @@ public class TableListPanel extends JPanel {
             }
 
             updateTableList();
-            tableList.setSelectedValue(newTableName, true);
             viewSoftwareListTab.getTableManager().setTableName(newTableName);
             viewSoftwareListTab.getImportDataTab().updateTableSelectorOptions();
             if (viewSoftwareListTab.getImportDataTab().getTableSelector() != null) {
                 viewSoftwareListTab.getImportDataTab().getTableSelector().setSelectedItem(newTableName);
             }
-            viewSoftwareListTab.refreshDataAndTabs();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             LOGGER.log(Level.SEVERE, "SQLException creating table '{0}': {1}", new Object[]{newTableName, e.getMessage()});

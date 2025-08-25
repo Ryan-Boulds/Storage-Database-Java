@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +31,7 @@ import view_software_list_tab.license_key_tracker.LicenseKeyTracker;
 public final class TableManager {
 
     private final JTable table;
-    protected final DefaultTableModel model;
+    protected DefaultTableModel model;
     private String[] columns;
     private final Map<String, Integer> columnTypes;
     private TableRowSorter<DefaultTableModel> sorter = null;
@@ -38,21 +39,16 @@ public final class TableManager {
     private final List<SortOrder> sortOrders = new ArrayList<>();
     private String tableName;
     private String whereClause;
-    private LicenseKeyTracker licenseKeyTracker;
     private boolean isInitialized = false;
-    private ViewSoftwareListTab parentTab;
     private static final Logger LOGGER = Logger.getLogger(TableManager.class.getName());
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
         this.tableName = tableName;
         this.whereClause = "";
-        this.model = new DefaultTableModel();
         this.columnTypes = new HashMap<>();
+        createNewModel();
         if (table != null) {
-            table.setModel(model);
-            sorter = new TableRowSorter<>(model);
-            table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             if (this.tableName != null && !this.tableName.isEmpty()) {
                 initializeColumns();
@@ -64,14 +60,21 @@ public final class TableManager {
         this(table, null);
     }
 
+    private void createNewModel() {
+        model = new DefaultTableModel();
+        if (table != null) {
+            table.setModel(model);
+            sorter = new TableRowSorter<>(model);
+            table.setRowSorter(sorter);
+        }
+    }
+
     public void setParentTab(ViewSoftwareListTab parentTab) {
-        this.parentTab = parentTab;
-        LOGGER.log(Level.INFO, "Set parentTab for TableManager, tableName='{0}'", tableName);
+        LOGGER.log(Level.INFO, "Set parentTab for TableManager, tableName='{0}'", tableName == null ? "null" : tableName);
     }
 
     public void setLicenseKeyTracker(LicenseKeyTracker tracker) {
-        this.licenseKeyTracker = tracker;
-        LOGGER.log(Level.INFO, "Set LicenseKeyTracker for TableManager, tableName='{0}'", tableName);
+        LOGGER.log(Level.INFO, "Set LicenseKeyTracker for TableManager, tableName='{0}'", tableName == null ? "null" : tableName);
     }
 
     public String getTableName() {
@@ -79,136 +82,128 @@ public final class TableManager {
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName;
-        isInitialized = false;
+        if (!Objects.equals(this.tableName, tableName)) {
+            this.tableName = tableName;
+            createNewModel();
+            isInitialized = false;
+            LOGGER.log(Level.INFO, "Table name changed to '{0}'", tableName == null ? "null" : tableName);
+        }
         if (this.tableName != null && !this.tableName.isEmpty()) {
             initializeColumns();
-        } else {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            columns = new String[0];
-            columnTypes.clear();
-            isInitialized = false;
-            LOGGER.log(Level.INFO, "Cleared table data due to null or empty tableName");
         }
     }
 
-    public void setWhereClause(String whereClause) {
-        this.whereClause = whereClause != null ? whereClause : "";
-        LOGGER.log(Level.INFO, "Set whereClause='{0}' for table '{1}'", new Object[]{whereClause, tableName});
-    }
-
-    public String getWhereClause() {
-        return whereClause;
+    public void setWhereClause(String searchText, String statusFilter, String deptFilter) {
+        StringBuilder where = new StringBuilder();
+        if (searchText != null && !searchText.trim().isEmpty()) {
+            where.append(" WHERE (");
+            for (String column : columns) {
+                where.append("[").append(column).append("] LIKE '%").append(searchText.replace("'", "''")).append("%'");
+                where.append(" OR ");
+            }
+            where.setLength(where.length() - 4); // Remove last " OR "
+            where.append(")");
+        }
+        if (statusFilter != null && !statusFilter.equals("All")) {
+            if (where.length() > 0) {
+                where.append(" AND ");
+            } else {
+                where.append(" WHERE ");
+            }
+            where.append("[Status] = '").append(statusFilter.replace("'", "''")).append("'");
+        }
+        if (deptFilter != null && !deptFilter.equals("All")) {
+            if (where.length() > 0) {
+                where.append(" AND ");
+            } else {
+                where.append(" WHERE ");
+            }
+            where.append("[Department] = '").append(deptFilter.replace("'", "''")).append("'");
+        }
+        this.whereClause = where.toString();
+        LOGGER.log(Level.INFO, "Set whereClause for table '{0}': {1}", new Object[]{tableName, whereClause});
     }
 
     public void refreshDataAndTabs() {
-        LOGGER.log(Level.INFO, "refreshDataAndTabs: Attempting to refresh table '{0}'", tableName);
         if (tableName == null || tableName.isEmpty()) {
+            LOGGER.log(Level.WARNING, "No table name set for refreshDataAndTabs");
             model.setRowCount(0);
             model.setColumnCount(0);
-            LOGGER.log(Level.WARNING, "No table name set for refreshDataAndTabs");
+            if (table != null) {
+                table.revalidate();
+                table.repaint();
+            }
             return;
         }
-        try {
-            StringBuilder query = new StringBuilder("SELECT * FROM [" + tableName + "]");
-            if (!whereClause.isEmpty()) {
-                query.append(whereClause);
-            }
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: Executing query '{0}'", query.toString());
-            try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY); ResultSet rs = stmt.executeQuery(query.toString())) {
-                String[] dbColumns = getColumnsFromResultSet(rs);
-                String[] newColumns = new String[dbColumns.length + 1];
-                newColumns[0] = "Edit";
-                System.arraycopy(dbColumns, 0, newColumns, 1, dbColumns.length);
-
-                if (!isInitialized || !columnsMatch(newColumns)) {
-                    model.setColumnIdentifiers(newColumns);
-                    Map<String, Integer> newColumnTypes = new HashMap<>();
-                    newColumnTypes.put("Edit", Types.VARCHAR);
-                    for (String column : dbColumns) {
-                        newColumnTypes.put(column, Types.VARCHAR);
-                    }
-                    columnTypes.clear();
-                    columnTypes.putAll(newColumnTypes);
-                    columns = dbColumns;
-                    isInitialized = true;
-                    LOGGER.log(Level.INFO, "refreshDataAndTabs: Initialized columns for '{0}': {1}",
-                            new Object[]{tableName, String.join(", ", newColumns)});
+        if (!isInitialized) {
+            initializeColumns();
+        }
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = "SELECT * FROM [" + tableName + "]" + whereClause;
+            try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                String[] newColumns = getColumnsFromResultSet(rs);
+                if (!columnsMatch(newColumns)) {
+                    initializeColumns();
                 }
-
                 model.setRowCount(0);
+                Object[] row = new Object[columns.length + 1];
                 int rowCount = 0;
                 while (rs.next()) {
-                    Object[] row = new Object[newColumns.length];
                     row[0] = "Edit";
-                    for (int i = 0; i < dbColumns.length; i++) {
-                        row[i + 1] = rs.getString(dbColumns[i]);
+                    for (int i = 0; i < columns.length; i++) {
+                        row[i + 1] = rs.getObject(i + 1);
                     }
                     model.addRow(row);
                     rowCount++;
                 }
-                LOGGER.log(Level.INFO, "refreshDataAndTabs: Loaded {0} rows for table '{1}'",
-                        new Object[]{rowCount, tableName});
-
-                if (table != null) {
-                    TableColumn editColumn = table.getColumnModel().getColumn(0);
-                    editColumn.setCellRenderer(new RowEditButtonRenderer());
-                    editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-                    editColumn.setPreferredWidth(120);
-                }
-                adjustColumnWidths();
-                SwingUtilities.invokeLater(() -> {
-                    table.revalidate();
-                    table.repaint();
-                    LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for {0} with columns: {1}",
-                            new Object[]{tableName, String.join(", ", newColumns)});
-                });
-
-                if (licenseKeyTracker != null && parentTab != null && parentTab.getCurrentView() instanceof LicenseKeyTracker) {
-                    LOGGER.log(Level.INFO, "Notifying LicenseKeyTracker to refresh key list for table '{0}'", tableName);
-                    licenseKeyTracker.loadLicenseKeys();
+                LOGGER.log(Level.INFO, "Loaded {0} rows for table '{1}'", new Object[]{rowCount, tableName});
+                if (rowCount > 0 && !model.getDataVector().isEmpty()) {
+                    LOGGER.log(Level.INFO, "Sample row data for '{0}': {1}", new Object[]{tableName, model.getDataVector().get(0)});
                 }
             }
+            if (table != null) {
+                table.setModel(model);
+                table.revalidate();
+                table.repaint();
+                LOGGER.log(Level.INFO, "Table UI refreshed for '{0}'", tableName);
+            }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error refreshing data for table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error refreshing data for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
             SwingUtilities.invokeLater(() -> {
-                JOptionPane.showMessageDialog(table, "Error loading table data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(table, "Error loading data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             });
         }
     }
 
     public void initializeColumns() {
-        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
-            String[] dbColumns = getColumnsFromResultSet(rs);
-            String[] newColumns = new String[dbColumns.length + 1];
-            newColumns[0] = "Edit";
-            System.arraycopy(dbColumns, 0, newColumns, 1, dbColumns.length);
-            model.setColumnIdentifiers(newColumns);
-            Map<String, Integer> newColumnTypes = new HashMap<>();
-            newColumnTypes.put("Edit", Types.VARCHAR);
-            for (String column : dbColumns) {
-                newColumnTypes.put(column, Types.VARCHAR);
-            }
-            columnTypes.clear();
-            columnTypes.putAll(newColumnTypes);
-            columns = dbColumns;
-
-            if (table != null) {
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = "SELECT * FROM [" + tableName + "] WHERE 1=0";
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+                String[] newColumns = getColumnsFromResultSet(rs);
+                model.setColumnIdentifiers(new Object[]{"Edit"});
+                columnTypes.clear();
+                for (String column : newColumns) {
+                    model.addColumn(column);
+                    columnTypes.put(column, Types.VARCHAR);
+                }
+                columns = newColumns;
                 TableColumn editColumn = table.getColumnModel().getColumn(0);
                 editColumn.setCellRenderer(new RowEditButtonRenderer());
                 editColumn.setCellEditor(new RowEditButtonEditor(table, this));
                 editColumn.setPreferredWidth(100);
+                adjustColumnWidths();
             }
-            adjustColumnWidths();
             isInitialized = true;
-            LOGGER.log(Level.INFO, "Initialized columns for table '{0}': {1}",
-                    new Object[]{tableName, String.join(", ", newColumns)});
+            LOGGER.log(Level.INFO, "Initialized columns for table '{0}': {1}", new Object[]{tableName, String.join(", ", columns)});
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error initializing columns for table {0}: {1}", new Object[]{tableName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error initializing columns for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
             columns = new String[0];
             columnTypes.clear();
             isInitialized = false;
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(table, "Error initializing columns: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            });
         }
     }
 
@@ -273,6 +268,7 @@ public final class TableManager {
         }
         sorter.setSortKeys(sortKeys);
         sorter.sort();
+        LOGGER.log(Level.INFO, "Sorted table '{0}' on column index {1}", new Object[]{tableName, columnIndex + 1});
     }
 
     public String[] getColumns() {

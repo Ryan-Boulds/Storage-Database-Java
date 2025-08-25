@@ -71,7 +71,7 @@ public class mainFile {
 
                         loadingWindow.appendLog("Creating main frame...");
                         JFrame frame = UIComponentUtils.createMainFrame(
-                            "Inventory Management",
+                            "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
                             databaseCreatorTab,
                             viewInventoryTab,
                             viewSoftwareListTab,
@@ -86,7 +86,6 @@ public class mainFile {
 
                         JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(importDataTab), "Import Inventory Data");
-                        // Removed: tabbedPane.setTitleAt(tabbedPane.indexOfComponent(softwareImportDataTab), "Import Software Data");
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
                         tabbedPane.addChangeListener(e -> {
                             Component selected = tabbedPane.getSelectedComponent();
@@ -126,7 +125,7 @@ public class mainFile {
                         loadingWindow.appendLog("Initialization complete.");
                         // Add a short delay to show logs before closing
                         try {
-                            Thread.sleep(1000); // 1-second delay to ensure logs are visible
+                            Thread.sleep(1500); // 1.5-second delay to ensure logs are visible
                         } catch (InterruptedException e) {
                             LOGGER.log(Level.WARNING, "Delay interrupted: {0}", e.getMessage());
                         }
