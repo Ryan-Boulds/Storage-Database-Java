@@ -3,16 +3,14 @@ package view_inventory_tab;
 import java.awt.FontMetrics;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,10 +24,14 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import utils.DatabaseUtils;
+import view_inventory_tab.Add_And_Edit_Entries.RowEditButtonEditor;
+import view_inventory_tab.Add_And_Edit_Entries.RowEditButtonRenderer;
+import view_inventory_tab.license_key_tracker.LicenseKeyTracker;
 
 public final class TableManager {
+
     private final JTable table;
-    private final DefaultTableModel model;
+    protected DefaultTableModel model;
     private String[] columns;
     private final Map<String, Integer> columnTypes;
     private TableRowSorter<DefaultTableModel> sorter = null;
@@ -37,18 +39,16 @@ public final class TableManager {
     private final List<SortOrder> sortOrders = new ArrayList<>();
     private String tableName;
     private String whereClause;
+    private boolean isInitialized = false;
     private static final Logger LOGGER = Logger.getLogger(TableManager.class.getName());
 
     public TableManager(JTable table, String tableName) {
         this.table = table;
         this.tableName = tableName;
         this.whereClause = "";
-        this.model = new DefaultTableModel();
         this.columnTypes = new HashMap<>();
+        createNewModel();
         if (table != null) {
-            table.setModel(model);
-            sorter = new TableRowSorter<>(model);
-            table.setRowSorter(sorter);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             if (this.tableName != null && !this.tableName.isEmpty()) {
                 initializeColumns();
@@ -60,161 +60,177 @@ public final class TableManager {
         this(table, null);
     }
 
+    private void createNewModel() {
+        model = new DefaultTableModel();
+        if (table != null) {
+            table.setModel(model);
+            sorter = new TableRowSorter<>(model);
+            table.setRowSorter(sorter);
+        }
+    }
+
+    public void setParentTab(ViewInventoryTab parentTab) {
+        LOGGER.log(Level.INFO, "Set parentTab for TableManager, tableName='{0}'", tableName == null ? "null" : tableName);
+    }
+
+    public void setLicenseKeyTracker(LicenseKeyTracker tracker) {
+        LOGGER.log(Level.INFO, "Set LicenseKeyTracker for TableManager, tableName='{0}'", tableName == null ? "null" : tableName);
+    }
+
     public String getTableName() {
         return tableName;
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName;
+        if (!Objects.equals(this.tableName, tableName)) {
+            this.tableName = tableName;
+            createNewModel();
+            isInitialized = false;
+            LOGGER.log(Level.INFO, "Table name changed to '{0}'", tableName == null ? "null" : tableName);
+        }
         if (this.tableName != null && !this.tableName.isEmpty()) {
             initializeColumns();
-            refreshDataAndTabs(); // Ensure data is refreshed after setting table name
-        } else {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            if (table != null) {
-                table.revalidate();
-                table.repaint();
-            }
         }
     }
 
-    public void setWhereClause(String whereClause) {
-        this.whereClause = whereClause == null ? "" : whereClause.trim();
-    }
-
-    public void initializeColumns() {
-        if (tableName == null || tableName.isEmpty()) {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            if (table != null) {
-                table.revalidate();
-                table.repaint();
+    public void setWhereClause(String searchText, String statusFilter, String deptFilter) {
+        StringBuilder where = new StringBuilder();
+        if (searchText != null && !searchText.trim().isEmpty()) {
+            where.append(" WHERE (");
+            for (String column : columns) {
+                where.append("[").append(column).append("] LIKE '%").append(searchText.replace("'", "''")).append("%'");
+                where.append(" OR ");
             }
-            return;
+            where.setLength(where.length() - 4); // Remove last " OR "
+            where.append(")");
         }
-        if (model != null) {
-            model.setRowCount(0);
-            model.setColumnCount(0);
-            model.addColumn("Edit");
-            columns = new String[0];
-            columnTypes.clear();
-            try (Connection conn = DatabaseUtils.getConnection();
-                 ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM [" + tableName + "] WHERE 1=0")) {
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                List<String> columnList = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    int sqlType = metaData.getColumnType(i);
-                    columnList.add(columnName);
-                    columnTypes.put(columnName, sqlType);
-                }
-                columns = columnList.toArray(new String[0]);
-                for (String column : columnList) {
-                    model.addColumn(column);
-                }
-                LOGGER.log(Level.INFO, "Initialized columns from database table %s: %s", new Object[]{tableName, String.join(", ", columns)});
-                LOGGER.log(Level.INFO, "Column types: %s", columnTypes);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching columns from database for table %s: %s", new Object[]{tableName, e.getMessage()});
-                JOptionPane.showMessageDialog(table, String.format("Error fetching table columns: %s. Please check database connection and table %s.", e.getMessage(), tableName), "Database Error", JOptionPane.ERROR_MESSAGE);
-                columns = new String[0];
-                columnTypes.clear();
+        if (statusFilter != null && !statusFilter.equals("All")) {
+            if (where.length() > 0) {
+                where.append(" AND ");
+            } else {
+                where.append(" WHERE ");
             }
-
-            if (table.getColumnModel().getColumnCount() > 0) {
-                TableColumn editColumn = table.getColumnModel().getColumn(0);
-                editColumn.setCellRenderer(new RowEditButtonRenderer());
-                editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-            }
+            where.append("[Status] = '").append(statusFilter.replace("'", "''")).append("'");
         }
+        if (deptFilter != null && !deptFilter.equals("All")) {
+            if (where.length() > 0) {
+                where.append(" AND ");
+            } else {
+                where.append(" WHERE ");
+            }
+            where.append("[Department] = '").append(deptFilter.replace("'", "''")).append("'");
+        }
+        this.whereClause = where.toString();
+        LOGGER.log(Level.INFO, "Set whereClause for table '{0}': {1}", new Object[]{tableName, whereClause});
     }
 
     public void refreshDataAndTabs() {
         if (tableName == null || tableName.isEmpty()) {
+            LOGGER.log(Level.WARNING, "No table name set for refreshDataAndTabs");
             model.setRowCount(0);
             model.setColumnCount(0);
             if (table != null) {
                 table.revalidate();
                 table.repaint();
             }
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: No table selected, cleared table display");
             return;
         }
-        initializeColumns(); // Reload schema every refresh to handle added/removed columns
-        int[] selectedRows = table.getSelectedRows();
-        model.setRowCount(0);
-        ArrayList<HashMap<String, String>> devices = new ArrayList<>();
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "]" + (whereClause.isEmpty() ? "" : " WHERE " + whereClause))) {
-            while (rs.next()) {
-                HashMap<String, String> device = new HashMap<>();
-                for (String column : columns) {
-                    String value = rs.getString(column);
-                    device.put(column, value != null ? value : "");
+        if (!isInitialized) {
+            initializeColumns();
+        }
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = "SELECT * FROM [" + tableName + "]" + whereClause;
+            try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                String[] newColumns = getColumnsFromResultSet(rs);
+                if (!columnsMatch(newColumns)) {
+                    initializeColumns();
                 }
-                devices.add(device);
-            }
-            LOGGER.log(Level.INFO, "Retrieved %d devices from table %s", new Object[]{devices.size(), tableName});
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching devices from table %s: %s", new Object[]{tableName, e.getMessage()});
-            JOptionPane.showMessageDialog(table, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            devices = null;
-        }
-
-        if (devices == null || devices.isEmpty()) {
-            LOGGER.log(Level.INFO, "No devices retrieved from table %s", tableName);
-            JOptionPane.showMessageDialog(table, "No data available in table " + tableName, "Info", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-        inputFormat.setLenient(false);
-        for (Map<String, String> device : devices) {
-            if (device == null) continue;
-            Object[] row = new Object[columns.length + 1];
-            row[0] = "Edit";
-            for (int i = 0; i < columns.length; i++) {
-                String column = columns[i];
-                Integer sqlType = columnTypes.getOrDefault(column, Types.VARCHAR);
-                String value = device.getOrDefault(column, "");
-                if (sqlType == Types.DATE || sqlType == Types.TIMESTAMP || column.equals("Warranty_Expiry_Date") || 
-                    column.equals("Last_Maintenance") || column.equals("Maintenance_Due") || column.equals("Date_Of_Purchase")) {
-                    try {
-                        row[i + 1] = value != null && !value.isEmpty() ? outputFormat.format(inputFormat.parse(value)) : "";
-                    } catch (ParseException e) {
-                        row[i + 1] = value;
+                model.setRowCount(0);
+                Object[] row = new Object[columns.length + 1];
+                int rowCount = 0;
+                while (rs.next()) {
+                    row[0] = "Edit";
+                    for (int i = 0; i < columns.length; i++) {
+                        row[i + 1] = rs.getObject(i + 1);
                     }
-                } else {
-                    row[i + 1] = value;
+                    model.addRow(row);
+                    rowCount++;
+                }
+                LOGGER.log(Level.INFO, "Loaded {0} rows for table '{1}'", new Object[]{rowCount, tableName});
+                if (rowCount > 0 && !model.getDataVector().isEmpty()) {
+                    LOGGER.log(Level.INFO, "Sample row data for '{0}': {1}", new Object[]{tableName, model.getDataVector().get(0)});
                 }
             }
-            model.addRow(row);
+            if (table != null) {
+                table.setModel(model);
+                table.revalidate();
+                table.repaint();
+                LOGGER.log(Level.INFO, "Table UI refreshed for '{0}'", tableName);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error refreshing data for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(table, "Error loading data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            });
         }
-        for (int row : selectedRows) {
-            if (row < table.getRowCount()) {
-                table.addRowSelectionInterval(row, row);
+    }
+
+    public void initializeColumns() {
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = "SELECT * FROM [" + tableName + "] WHERE 1=0";
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+                String[] newColumns = getColumnsFromResultSet(rs);
+                model.setColumnIdentifiers(new Object[]{"Edit"});
+                columnTypes.clear();
+                for (String column : newColumns) {
+                    model.addColumn(column);
+                    columnTypes.put(column, Types.VARCHAR);
+                }
+                columns = newColumns;
+                TableColumn editColumn = table.getColumnModel().getColumn(0);
+                editColumn.setCellRenderer(new RowEditButtonRenderer());
+                editColumn.setCellEditor(new RowEditButtonEditor(table, this));
+                editColumn.setPreferredWidth(100);
+                adjustColumnWidths();
+            }
+            isInitialized = true;
+            LOGGER.log(Level.INFO, "Initialized columns for table '{0}': {1}", new Object[]{tableName, String.join(", ", columns)});
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error initializing columns for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
+            columns = new String[0];
+            columnTypes.clear();
+            isInitialized = false;
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(table, "Error initializing columns: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }
+
+    private boolean columnsMatch(String[] newColumns) {
+        if (columns == null || newColumns.length != columns.length + 1) {
+            return false;
+        }
+        for (int i = 0; i < columns.length; i++) {
+            if (!columns[i].equals(newColumns[i + 1])) {
+                return false;
             }
         }
-        adjustColumnWidths();
-        if (table.getColumnModel().getColumnCount() > 0) {
-            TableColumn editColumn = table.getColumnModel().getColumn(0);
-            editColumn.setCellRenderer(new RowEditButtonRenderer());
-            editColumn.setCellEditor(new RowEditButtonEditor(table, this));
-            editColumn.setPreferredWidth(100);
+        return true;
+    }
+
+    private String[] getColumnsFromResultSet(ResultSet rs) throws SQLException {
+        List<String> columnList = new ArrayList<>();
+        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+            columnList.add(rs.getMetaData().getColumnName(i));
         }
-        SwingUtilities.invokeLater(() -> {
-            table.revalidate();
-            table.repaint();
-            LOGGER.log(Level.INFO, "refreshDataAndTabs: Completed table refresh for %s with columns: %s", new Object[]{tableName, String.join(", ", columns)});
-        });
+        return columnList.toArray(new String[0]);
     }
 
     private void adjustColumnWidths() {
-        if (table == null) return;
+        if (table == null) {
+            return;
+        }
         FontMetrics fm = table.getFontMetrics(table.getFont());
         for (int col = 0; col < table.getColumnCount(); col++) {
             TableColumn column = table.getColumnModel().getColumn(col);
@@ -230,7 +246,9 @@ public final class TableManager {
     }
 
     public void sortTable(int columnIndex) {
-        if (columnIndex == 0) return;
+        if (columnIndex == 0) {
+            return;
+        }
         columnIndex -= 1;
 
         int index = sortColumnIndices.indexOf(columnIndex);
@@ -250,6 +268,7 @@ public final class TableManager {
         }
         sorter.setSortKeys(sortKeys);
         sorter.sort();
+        LOGGER.log(Level.INFO, "Sorted table '{0}' on column index {1}", new Object[]{tableName, columnIndex + 1});
     }
 
     public String[] getColumns() {
@@ -258,5 +277,9 @@ public final class TableManager {
 
     public Map<String, Integer> getColumnTypes() {
         return columnTypes;
+    }
+
+    public JTable getTable() {
+        return table;
     }
 }

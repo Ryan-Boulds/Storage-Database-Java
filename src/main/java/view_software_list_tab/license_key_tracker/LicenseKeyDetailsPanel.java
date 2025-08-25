@@ -19,7 +19,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import utils.DatabaseUtils;
-import view_inventory_tab.TableManager;
+import view_software_list_tab.TableManager;
 
 public class LicenseKeyDetailsPanel extends JDialog {
     private final String licenseKey;

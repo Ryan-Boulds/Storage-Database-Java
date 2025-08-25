@@ -1,25 +1,12 @@
 package view_inventory_tab;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,27 +15,38 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 
-import utils.DatabaseUtils;
+import view_inventory_tab.import_spreadsheet_file.ImportDataTab;
+import view_inventory_tab.license_key_tracker.LicenseKeyTracker;
 import view_inventory_tab.view_software_details.DeviceDetailsPanel;
 
 public class ViewInventoryTab extends JPanel {
-    private final JTable table;
-    protected final TableManager tableManager;
-    private final JPanel mainPanel;
-    private JComponent currentView;
-    private JScrollPane tableListScrollPane;
-    private JList<String> tableList;
-    private final JSplitPane mainSplitPane;
-    private ListSelectionListener originalTableListListener;
-    private final JPanel leftPanel;
-    private static final Logger LOGGER = Logger.getLogger(ViewInventoryTab.class.getName());
 
+    private JTable table;
+    private TableManager tableManager;
+    private JPanel mainPanel;
+    private JComponent currentView;
+    private JSplitPane mainSplitPane;
+    private ListSelectionListener tableListListener;
+    private static final Logger LOGGER = Logger.getLogger(ViewInventoryTab.class.getName());
+    private ImportDataTab importDataTab;
+    private FilterPanel filterPanel;
+    private TableListPanel tableListPanel;
+    private boolean isRefreshing = false;
+    private String lastSelectedTable = null; // Store last selected table
+
+    @SuppressWarnings("LeakingThisInConstructor")
     public ViewInventoryTab() {
         setLayout(new BorderLayout());
+        initializeComponents();
+        add(currentView, BorderLayout.CENTER);
+        tableManager.setParentTab(this);
+        initializeFilterPanel();
+        setupTableListListener();
+        PopupHandler.addTablePopup(table, this);
+    }
 
-        // Initialize main panel for filter and table
+    private void initializeComponents() {
         mainPanel = new JPanel(new BorderLayout());
         table = new JTable() {
             @Override
@@ -61,209 +59,207 @@ public class ViewInventoryTab extends JPanel {
         tableManager = new TableManager(table);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Initialize split pane for left (software list) and right (main panel)
+        tableListPanel = new TableListPanel(this);
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         mainSplitPane.setDividerLocation(200);
         mainSplitPane.setResizeWeight(0.3);
-
-        // Set up left panel with software list and button
-        leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));
-        JPanel topLeftPanel = new JPanel();
-        topLeftPanel.setLayout(new BoxLayout(topLeftPanel, BoxLayout.Y_AXIS));
-        topLeftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        JLabel softwareListLabel = new JLabel("Inventory list:");
-        JButton addNewTableButton = new JButton("Add New Table");
-        topLeftPanel.add(softwareListLabel);
-        topLeftPanel.add(addNewTableButton);
-        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
-        tableListScrollPane = createTableListScrollPane();
-        leftPanel.add(tableListScrollPane, BorderLayout.CENTER);
-
-        // Set up filter panel after left panel to avoid leaking 'this'
-        FilterPanel filterPanel = new FilterPanel(
-                (search, status, dept) -> updateTables(search),
-                this::refreshDataAndTabs,
-                tableManager
-        );
-
-        // Set up main panel with filter at top and table below
-        mainPanel.add(filterPanel.getPanel(), BorderLayout.NORTH);
+        mainSplitPane.setLeftComponent(tableListPanel);
+        mainSplitPane.setRightComponent(mainPanel);
+        currentView = mainSplitPane;
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Set split pane components
-        mainSplitPane.setLeftComponent(leftPanel);
-        mainSplitPane.setRightComponent(mainPanel);
-
-        // Add action listener for new table button after filter panel initialization
-        addNewTableButton.addActionListener(e -> {
-            String inputTableName = JOptionPane.showInputDialog(this, "Enter new table name:");
-            if (inputTableName != null && !inputTableName.trim().isEmpty()) {
-                final String newTableName = inputTableName.trim();
-                if (newTableName.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Error: Table name cannot be purely numeric", "Error", JOptionPane.ERROR_MESSAGE);
-                    LOGGER.log(Level.SEVERE, "Attempted to create numeric table name '{0}'", newTableName);
-                    return;
-                }
-                try (Connection conn = DatabaseUtils.getConnection()) {
-                    List<String> existingTables = DatabaseUtils.getTableNames();
-                    if (existingTables.stream().anyMatch(t -> t.equalsIgnoreCase(newTableName))) {
-                        JOptionPane.showMessageDialog(this, "Error: Table '" + newTableName + "' already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                        LOGGER.log(Level.SEVERE, "Attempted to create existing table '{0}'", newTableName);
-                        return;
-                    }
-                    String sql = "CREATE TABLE [" + newTableName + "] ([AssetName] VARCHAR(255) PRIMARY KEY)";
-                    conn.createStatement().executeUpdate(sql);
-                    try {
-                        if (!tableExists("Settings", conn)) {
-                            createSettingsTable(conn);
-                        }
-                        int nextId = getNextSettingsId(conn);
-                        try (PreparedStatement insertPs = conn.prepareStatement("INSERT INTO Settings (ID, InventoryTables) VALUES (?, ?)")) {
-                            insertPs.setInt(1, nextId);
-                            insertPs.setString(2, newTableName);
-                            insertPs.executeUpdate();
-                        }
-                        refreshTableList();
-                        tableList.setSelectedValue(newTableName, true);
-                        tableManager.setTableName(newTableName);
-                        filterPanel.setTableName(newTableName);
-                        refreshDataAndTabs();
-                    } catch (SQLException ex) {
-                        LOGGER.log(Level.SEVERE, "Error adding new table to Settings: {0}", ex.getMessage());
-                        JOptionPane.showMessageDialog(this, "Error adding new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (SQLException ex) {
-                    LOGGER.log(Level.SEVERE, "Error creating new table '{0}': {1}", new Object[]{newTableName, ex.getMessage()});
-                    JOptionPane.showMessageDialog(this, "Error creating new table: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        currentView = mainSplitPane;
-        add(currentView, BorderLayout.CENTER);
-
-        PopupHandler.addTablePopup(table, this);
+        JLabel statusLabelLocal = new JLabel("Ready");
+        importDataTab = new ImportDataTab(statusLabelLocal, this);
+        // Ensure no table is selected initially
+        tableListPanel.getTableList().clearSelection();
+        tableManager.setTableName(null);
+        table.setModel(new DefaultTableModel());
     }
 
-    private JScrollPane createTableListScrollPane() {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        List<String> tables = getIncludedInventoryTables();
-        for (String table : tables) {
-            if (!isExcludedTable(table)) {
-                listModel.addElement(table);
-            }
-        }
-        JList<String> softwareList = new JList<>(listModel);
-        tableList = softwareList;
-        tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableList.setFixedCellWidth(180);
-        tableList.setFixedCellHeight(25);
-        tableList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        originalTableListListener = e -> {
-            if (!e.getValueIsAdjusting()) {
-                String selectedTable = tableList.getSelectedValue();
-                tableManager.setTableName(selectedTable);
-                refreshDataAndTabs();
+    private void initializeFilterPanel() {
+        filterPanel = new FilterPanel(
+            (search, status, dept) -> {
+                tableManager.setWhereClause(search, status, dept);
+                tableManager.refreshDataAndTabs();
+            },
+            () -> {
+                isRefreshing = true;
+                try {
+                    tableManager.refreshDataAndTabs();
+                    tableListPanel.updateTableList();
+                } finally {
+                    isRefreshing = false;
+                }
+            },
+            tableManager,
+            tableListPanel,
+            this
+        );
+        mainPanel.add(filterPanel.filterPanel, BorderLayout.NORTH);
+    }
+
+    private void setupTableListListener() {
+        tableListListener = e -> {
+            if (!e.getValueIsAdjusting() && !isRefreshing) {
+                String selectedTable = tableListPanel.getTableList().getSelectedValue();
+                if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
+                    isRefreshing = true;
+                    try {
+                        lastSelectedTable = selectedTable; // Store selected table
+                        tableManager.setTableName(selectedTable);
+                        if (importDataTab.getTableList() != null) {
+                            importDataTab.getTableList().setSelectedValue(selectedTable, true);
+                        }
+                        tableManager.refreshDataAndTabs();
+                        LOGGER.log(Level.INFO, "Selected table changed to: {0}", selectedTable);
+                    } finally {
+                        isRefreshing = false;
+                    }
+                } else {
+                    tableManager.setTableName(null);
+                    table.setModel(new DefaultTableModel());
+                    if (importDataTab.getTableList() != null) {
+                        importDataTab.getTableList().setSelectedValue(null, true);
+                    }
+                    lastSelectedTable = null; // Clear last selected table
+                    LOGGER.log(Level.WARNING, "No valid table selected");
+                }
             }
         };
-        tableList.addListSelectionListener(originalTableListListener);
-        tableListScrollPane = new JScrollPane(softwareList);
-        return tableListScrollPane;
-    }
-
-    private void refreshTableList() {
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        List<String> tables = getIncludedInventoryTables();
-        for (String table : tables) {
-            if (!isExcludedTable(table)) {
-                listModel.addElement(table);
-            }
-        }
-        tableList.setModel(listModel);
-        tableList.revalidate();
-        tableList.repaint();
-    }
-
-    private boolean isExcludedTable(String tableName) {
-        return tableName == null || tableName.equalsIgnoreCase("Settings") ||
-               tableName.equalsIgnoreCase("LicenseKeyRules") ||
-               tableName.equalsIgnoreCase("Templates");
-    }
-
-    private List<String> getIncludedInventoryTables() {
-        List<String> tables = new ArrayList<>();
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            if (!tableExists("Settings", conn)) {
-                createSettingsTable(conn);
-            }
-            try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT InventoryTables FROM Settings WHERE InventoryTables IS NOT NULL")) {
-                while (rs.next()) {
-                    String tableName = rs.getString("InventoryTables");
-                    if (tableName != null && !tableName.trim().isEmpty()) {
-                        tables.add(tableName);
-                    }
-                }
-            }
-            LOGGER.log(Level.INFO, "getIncludedInventoryTables: Fetched tables: {0}", tables);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching included inventory tables: {0}", e.getMessage());
-        }
-        System.out.println("ViewInventoryTab: Fetched tables: " + tables);
-        return tables;
-    }
-
-    private boolean tableExists(String tableName, Connection conn) throws SQLException {
-        DatabaseMetaData meta = conn.getMetaData();
-        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
-            return rs.next();
-        }
-    }
-
-    private void createSettingsTable(Connection conn) throws SQLException {
-        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, InventoryTables VARCHAR(255))";
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(createSql);
-        }
-    }
-
-    private int getNextSettingsId(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
-            if (rs.next()) {
-                return rs.getInt(1) + 1;
-            }
-            return 1;
-        }
+        tableListPanel.getTableList().addListSelectionListener(tableListListener);
     }
 
     public void refreshDataAndTabs() {
-        tableManager.refreshDataAndTabs();
+        if (!isRefreshing) {
+            isRefreshing = true;
+            try {
+                tableManager.refreshDataAndTabs();
+                tableListPanel.updateTableList();
+                if (importDataTab.getTableList() != null) {
+                    String currentTable = tableManager.getTableName();
+                    if (currentTable != null) {
+                        importDataTab.getTableList().setSelectedValue(currentTable, true);
+                    }
+                }
+                table.revalidate();
+                table.repaint();
+                LOGGER.log(Level.INFO, "Refreshed data and tabs for table '{0}'", tableManager.getTableName());
+            } finally {
+                isRefreshing = false;
+            }
+        }
     }
 
-    public void updateTables(String searchTerm) {
-        refreshDataAndTabs();
-        String text = searchTerm.toLowerCase();
-        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
-        if (sorter != null) {
-            javax.swing.RowFilter<DefaultTableModel, Integer> filter = null;
-            if (!text.isEmpty()) {
-                filter = new javax.swing.RowFilter<DefaultTableModel, Integer>() {
-                    @Override
-                    public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
-                        for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
-                            Object value = entry.getValue(i);
-                            if (value != null && value.toString().toLowerCase().contains(text)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                };
-            }
-            sorter.setRowFilter(filter);
+    public void showMainView() {
+        // Remove existing listener to prevent recursive calls
+        if (tableListListener != null) {
+            tableListPanel.getTableList().removeListSelectionListener(tableListListener);
         }
+
+        // Reinitialize components to mimic first-time load
+        removeAll();
+        initializeComponents();
+        tableManager.setParentTab(this);
+        initializeFilterPanel();
+        setupTableListListener();
+        PopupHandler.addTablePopup(table, this);
+
+        add(currentView, BorderLayout.CENTER);
+        // Restore last selected table if available
+        if (lastSelectedTable != null) {
+            tableListPanel.getTableList().setSelectedValue(lastSelectedTable, true);
+            tableManager.setTableName(lastSelectedTable);
+            tableManager.refreshDataAndTabs();
+        } else {
+            tableListPanel.getTableList().clearSelection();
+            tableManager.setTableName(null);
+            table.setModel(new DefaultTableModel());
+        }
+        revalidate();
+        repaint();
+        LOGGER.log(Level.INFO, "Reinitialized main view with table: {0}", lastSelectedTable);
+    }
+
+    public void showLicenseKeyTracker() {
+    String tableName = tableManager.getTableName();
+    if (tableName == null || tableName.isEmpty()) {
+        DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
+        if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
+            tableName = model.getElementAt(0);
+            tableListPanel.getTableList().setSelectedValue(tableName, true);
+            tableManager.setTableName(tableName);
+            lastSelectedTable = tableName; // Store first table
+            if (importDataTab.getTableList() != null) {
+                importDataTab.getTableList().setSelectedValue(tableName, true);
+            }
+            LOGGER.log(Level.INFO, "Selected first table '{0}' for LicenseKeyTracker", tableName);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
+            return;
+        }
+    }
+
+    // Check if License_Key column exists or can be created
+    String[] columns = tableManager.getColumns();
+    boolean hasLicenseKeyColumn = false;
+    for (String column : columns) {
+        if (column.equalsIgnoreCase("License_Key")) {
+            hasLicenseKeyColumn = true;
+            break;
+        }
+    }
+
+    if (!hasLicenseKeyColumn) {
+        LicenseKeyTracker tempTracker = new LicenseKeyTracker(this, tableManager);
+        // If the tracker was not initialized (e.g., user clicked "Go Back"), return to main view
+        if (tempTracker.getComponentCount() == 0) { // Check if UI was not initialized
+            showMainView();
+            return;
+        }
+    }
+
+    remove(currentView);
+    LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
+    currentView = tracker;
+    tableManager.setLicenseKeyTracker(tracker);
+    add(currentView, BorderLayout.CENTER);
+    revalidate();
+    repaint();
+    LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
+}
+
+    public void showImportDataTab() {
+        remove(currentView);
+        currentView = importDataTab;
+        String currentTable = tableManager.getTableName();
+        if (currentTable != null && importDataTab.getTableList() != null) {
+            importDataTab.getTableList().setSelectedValue(currentTable, true);
+        }
+        add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+        LOGGER.log(Level.INFO, "Switched to ImportDataTab view");
+    }
+
+    public TableManager getTableManager() {
+        return tableManager;
+    }
+
+    public JComponent getCurrentView() {
+        return currentView;
+    }
+
+    public void setCurrentView(JComponent currentView) {
+        this.currentView = currentView;
+    }
+
+    public ImportDataTab getImportDataTab() {
+        return importDataTab;
+    }
+
+    public TableListPanel getTableListPanel() {
+        return tableListPanel;
     }
 
     public void showDeviceDetails(String assetName) {
@@ -272,34 +268,5 @@ public class ViewInventoryTab extends JPanel {
         add(currentView, BorderLayout.CENTER);
         revalidate();
         repaint();
-    }
-
-    public void showMainView() {
-        remove(currentView);
-        currentView = mainSplitPane;
-        add(currentView, BorderLayout.CENTER);
-
-        for (ListSelectionListener listener : tableList.getListSelectionListeners()) {
-            tableList.removeListSelectionListener(listener);
-        }
-        tableList.addListSelectionListener(originalTableListListener);
-
-        String currentTable = tableManager.getTableName();
-        if (currentTable != null) {
-            tableList.setSelectedValue(currentTable, true);
-            tableManager.setTableName(currentTable);
-            refreshDataAndTabs();
-        } else {
-            tableList.clearSelection();
-            tableManager.setTableName(null);
-            refreshDataAndTabs();
-        }
-
-        revalidate();
-        repaint();
-    }
-
-    public TableManager getTableManager() {
-        return tableManager;
     }
 }

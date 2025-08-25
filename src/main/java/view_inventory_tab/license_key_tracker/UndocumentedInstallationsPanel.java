@@ -1,0 +1,168 @@
+package view_inventory_tab.license_key_tracker;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+import utils.DatabaseUtils;
+import view_inventory_tab.PopupHandler;
+import view_inventory_tab.TableManager;
+import view_inventory_tab.ViewInventoryTab;
+
+public final class UndocumentedInstallationsPanel extends JPanel {
+    private final JTable table;
+    private final TableManager tableManager;
+    private final ViewInventoryTab parentTab;
+    private final String tableName;
+    private final JTextField searchField;
+    private static final Logger LOGGER = Logger.getLogger(UndocumentedInstallationsPanel.class.getName());
+
+    public UndocumentedInstallationsPanel(ViewInventoryTab parentTab, String tableName, LicenseKeyTracker licenseKeyTracker) {
+        this.parentTab = parentTab;
+        this.tableName = tableName;
+        this.tableManager = new TableManager(new JTable(), tableName);
+        this.table = tableManager.getTable();
+        this.tableManager.setLicenseKeyTracker(licenseKeyTracker);
+        this.searchField = new JTextField(20);
+        setLayout(new BorderLayout());
+        initializeUI();
+        loadData();
+    }
+
+    private void initializeUI() {
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel titleLabel = new JLabel("Undocumented Installations for " + tableName);
+        topPanel.add(titleLabel);
+        JLabel searchLabel = new JLabel("Search:");
+        topPanel.add(searchLabel);
+        topPanel.add(searchField);
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+        });
+        add(topPanel, BorderLayout.NORTH);
+
+        table.setCellSelectionEnabled(true);
+        table.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane, BorderLayout.CENTER);
+
+        PopupHandler.addTablePopup(table, parentTab);
+    }
+
+    public void loadData() {
+    String licenseKeyColumn = findLicenseKeyColumn();
+    if (licenseKeyColumn == null) {
+        LOGGER.log(Level.WARNING, "No License_Key column found in table '{0}', keeping table empty", tableName);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+        return;
+    }
+
+    tableManager.initializeColumns();
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    model.setRowCount(0);
+
+    try (Connection conn = DatabaseUtils.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NULL OR [" + licenseKeyColumn + "] = ''")) {
+        int rowCount = 0;
+        while (rs.next()) {
+            Object[] row = new Object[model.getColumnCount()];
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                if (i == 0) {
+                    row[i] = "Edit";
+                } else {
+                    row[i] = rs.getString(model.getColumnName(i));
+                }
+            }
+            model.addRow(row);
+            rowCount++;
+        }
+        LOGGER.log(Level.INFO, "Loaded {0} rows for undocumented installations in table '{1}'", 
+            new Object[]{rowCount, tableName});
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Error fetching undocumented installations for table '{0}': {1}", 
+            new Object[]{tableName, e.getMessage()});
+        JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    private String findLicenseKeyColumn() {
+        String[] columns = tableManager.getColumns();
+        String licenseKeyColumn = null;
+        boolean warningIssued = false;
+        for (String column : columns) {
+            if (column.equalsIgnoreCase("License_Key") || column.equalsIgnoreCase("Licence_Key")) {
+                if (licenseKeyColumn == null) {
+                    licenseKeyColumn = column;
+                } else {
+                    if (!warningIssued) {
+                        LOGGER.log(Level.WARNING, "Multiple License_Key-like columns found in table '{0}': {1}, {2}. Using '{1}'", 
+                            new Object[]{tableName, licenseKeyColumn, column});
+                        JOptionPane.showMessageDialog(this, 
+                            "Warning: Multiple License_Key-like columns found (" + licenseKeyColumn + ", " + column + "). Using '" + licenseKeyColumn + "'.", 
+                            "Column Ambiguity", JOptionPane.WARNING_MESSAGE);
+                        warningIssued = true;
+                    }
+                }
+            }
+        }
+        if (licenseKeyColumn == null) {
+            LOGGER.log(Level.WARNING, "No License_Key column found in table '{0}'", tableName);
+        }
+        return licenseKeyColumn;
+    }
+
+    private void applyFilter() {
+        String text = searchField.getText().toLowerCase();
+        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
+        if (sorter != null) {
+            RowFilter<DefaultTableModel, Integer> filter = null;
+            if (!text.isEmpty()) {
+                filter = new RowFilter<DefaultTableModel, Integer>() {
+                    @Override
+                    public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                        for (int i = 1; i < entry.getModel().getColumnCount(); i++) {
+                            Object value = entry.getValue(i);
+                            if (value != null && value.toString().toLowerCase().contains(text)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                };
+            }
+            sorter.setRowFilter(filter);
+        }
+    }
+}

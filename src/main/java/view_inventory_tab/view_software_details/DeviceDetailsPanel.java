@@ -40,7 +40,7 @@ public class DeviceDetailsPanel extends JPanel {
     private JList<String> tableList;
     private JPanel dataListPanel;
 
-    public DeviceDetailsPanel(String assetName, view_inventory_tab.ViewInventoryTab parentTab) {
+    public DeviceDetailsPanel(String assetName, ViewInventoryTab parentTab) {
         this.assetName = assetName;
         this.parentTab = parentTab;
         setLayout(new BorderLayout(10, 10));

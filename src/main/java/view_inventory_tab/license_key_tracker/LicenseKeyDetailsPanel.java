@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -24,6 +26,7 @@ public class LicenseKeyDetailsPanel extends JDialog {
     private final TableManager tableManager;
     private final JTable table;
     private final DefaultTableModel tableModel;
+    private static final Logger LOGGER = Logger.getLogger(LicenseKeyDetailsPanel.class.getName());
 
     public LicenseKeyDetailsPanel(LicenseKeyTracker parent, String licenseKey, TableManager tableManager) {
         super();
@@ -69,14 +72,13 @@ public class LicenseKeyDetailsPanel extends JDialog {
         }
 
         if (licenseKeyColumn == null) {
-            System.err.println("LicenseKeyDetailsPanel: License_Key column not found in table '" + tableName + "'");
-            JOptionPane.showMessageDialog(this, "Error: License_Key column not found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, "License_Key column not found in table '{0}', keeping table empty", tableName);
             return;
         }
 
         try (Connection conn = DatabaseUtils.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " WHERE " + licenseKeyColumn + " = '" + licenseKey.replace("'", "''") + "'")) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] = '" + licenseKey.replace("'", "''") + "'")) {
             while (rs.next()) {
                 Object[] row = new Object[columns.length];
                 for (int i = 0; i < columns.length; i++) {
@@ -84,8 +86,11 @@ public class LicenseKeyDetailsPanel extends JDialog {
                 }
                 tableModel.addRow(row);
             }
+            LOGGER.log(Level.INFO, "Loaded {0} rows for license key '{1}' in table '{2}'", 
+                new Object[]{tableModel.getRowCount(), licenseKey, tableName});
         } catch (SQLException e) {
-            System.err.println("LicenseKeyDetailsPanel: Error fetching entries for license key " + licenseKey + " in table '" + tableName + "': " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error fetching entries for license key '{0}' in table '{1}': {2}", 
+                new Object[]{licenseKey, tableName, e.getMessage()});
             JOptionPane.showMessageDialog(this, "Error fetching entries: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 
