@@ -55,19 +55,69 @@ public class LicenseKeyTracker extends JPanel {
     private static final Logger LOGGER = Logger.getLogger(LicenseKeyTracker.class.getName());
 
     public LicenseKeyTracker(ViewSoftwareListTab parentTab, TableManager tableManager) {
-        this.parentTab = parentTab;
-        this.tableManager = tableManager;
-        this.keyUsageCounts = new HashMap<>();
-        this.keyListModel = new DefaultListModel<>();
-        this.keyList = new JList<>(keyListModel);
-        this.usageLimit = 10;
-        this.lastSelectedKey = null;
-        setLayout(new BorderLayout(10, 10));
-        initializeUI();
-        createLicenseKeyRulesTableIfNotExists();
-        loadLicenseKeyRules();
-        loadLicenseKeys();
+    this.parentTab = parentTab;
+    this.tableManager = tableManager;
+    this.keyUsageCounts = new HashMap<>();
+    this.keyListModel = new DefaultListModel<>();
+    this.keyList = new JList<>(keyListModel);
+    this.usageLimit = 10;
+    this.lastSelectedKey = null;
+    setLayout(new BorderLayout(10, 10));
+
+    if (!checkAndHandleLicenseKeyColumn()) {
+        // If checkAndHandleLicenseKeyColumn returns false, do not initialize UI or load data
+        return;
     }
+
+    initializeUI();
+    createLicenseKeyRulesTableIfNotExists();
+    loadLicenseKeyRules();
+    loadLicenseKeys();
+}
+
+    private boolean checkAndHandleLicenseKeyColumn() {
+    String tableName = tableManager.getTableName();
+    String licenseKeyColumn = null;
+    String[] columns = tableManager.getColumns();
+    for (String column : columns) {
+        if (column.equalsIgnoreCase("License_Key")) {
+            licenseKeyColumn = column;
+            break;
+        }
+    }
+
+    if (licenseKeyColumn != null) {
+        return true; // License_Key column exists, proceed
+    }
+
+    int confirm = JOptionPane.showOptionDialog(
+            this,
+            "There are no license keys stored for this application. Do you want to create a License_Key column to track license keys?",
+            "Create License Key Column",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            new String[] { "Yes", "Go Back" },
+            "Yes"
+    );
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("ALTER TABLE [" + tableName + "] ADD [License_Key] VARCHAR(255)");
+            LOGGER.log(Level.INFO, "Added License_Key column to table '{0}'", tableName);
+            tableManager.initializeColumns();
+            JOptionPane.showMessageDialog(this, "License_Key column has been successfully created.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            return true; // Proceed with tracker initialization
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error adding License_Key column to table '{0}': {1}", new Object[] { tableName, ex.getMessage() });
+            JOptionPane.showMessageDialog(this, String.format("Error adding License_Key column: %s", ex.getMessage()), "Error", JOptionPane.ERROR_MESSAGE);
+            return false; // Do not proceed if there's an error
+        }
+    } else {
+        LOGGER.log(Level.INFO, "User chose to go back, no License_Key column created for table '{0}'", tableName);
+        return false; // Do not proceed with tracker initialization
+    }
+}
 
     private void initializeUI() {
         JLabel titleLabel = new JLabel("License Key Tracker: " + tableManager.getTableName());
@@ -110,7 +160,7 @@ public class LicenseKeyTracker extends JPanel {
                 if (entry.contains("NumOfUses") && !entry.startsWith("Error") && !entry.startsWith("No license keys")) {
                     String key = entry.substring(0, entry.indexOf(" NumOfUses")).trim();
                     Integer count = keyUsageCounts.getOrDefault(key, 0);
-                    LOGGER.log(Level.FINE, "Rendering key '{0}' with count {1} and usageLimit {2}", new Object[]{key, count, usageLimit});
+                    LOGGER.log(Level.FINE, "Rendering key '{0}' with count {1} and usageLimit {2}", new Object[] { key, count, usageLimit });
                     if (isSelected) {
                         c.setBackground(list.getSelectionBackground());
                         c.setForeground(list.getSelectionForeground());
@@ -193,7 +243,7 @@ public class LicenseKeyTracker extends JPanel {
             loadLicenseKeys();
         }
         LOGGER.log(Level.INFO, "Toggled to {0} for table '{1}'",
-                new Object[]{showingUndocumented ? "undocumented installations" : "license keys", tableManager.getTableName()});
+                new Object[] { showingUndocumented ? "undocumented installations" : "license keys", tableManager.getTableName() });
     }
 
     private void showUndocumentedInstallations() {
@@ -205,63 +255,61 @@ public class LicenseKeyTracker extends JPanel {
         LOGGER.log(Level.INFO, "Displayed undocumented installations for table '{0}'", tableManager.getTableName());
     }
 
-    private void showEmptyDetails() {
-        detailsContainer.removeAll();
-        keyDetailsTable = new KeyDetailsTable(null, tableManager, this, parentTab);
-        detailsContainer.add(keyDetailsTable, BorderLayout.CENTER);
-        detailsContainer.revalidate();
-        detailsContainer.repaint();
-    }
-
     private void showKeyDetails(String licenseKey) {
         detailsContainer.removeAll();
         keyDetailsTable = new KeyDetailsTable(licenseKey, tableManager, this, parentTab);
         detailsContainer.add(keyDetailsTable, BorderLayout.CENTER);
         detailsContainer.revalidate();
         detailsContainer.repaint();
+        LOGGER.log(Level.INFO, "Displayed details for license key '{0}' in table '{1}'",
+                new Object[] { licenseKey, tableManager.getTableName() });
     }
 
-    private void updateUndocumentedButtonState() {
-        String licenseKeyColumn = null;
-        for (String column : tableManager.getColumns()) {
-            if (column.equalsIgnoreCase("License_Key")) {
-                licenseKeyColumn = column;
-                break;
-            }
-        }
-        toggleUndocumentedButton.setEnabled(licenseKeyColumn != null);
+    private void showEmptyDetails() {
+        detailsContainer.removeAll();
+        keyDetailsTable = new KeyDetailsTable(null, tableManager, this, parentTab);
+        detailsContainer.add(keyDetailsTable, BorderLayout.CENTER);
+        detailsContainer.revalidate();
+        detailsContainer.repaint();
+        LOGGER.log(Level.INFO, "Displayed empty details for table '{0}'", tableManager.getTableName());
     }
 
     private void createLicenseKeyRulesTableIfNotExists() {
-        try (Connection conn = DatabaseUtils.getConnection()) {
+        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
             DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getTables(null, null, "LicenseKeyRules", new String[]{"TABLE"})) {
+            try (ResultSet rs = meta.getTables(null, null, "LicenseKeyRules", null)) {
                 if (!rs.next()) {
-                    try (Statement stmt = conn.createStatement()) {
-                        stmt.executeUpdate("CREATE TABLE LicenseKeyRules (TableName VARCHAR(255) PRIMARY KEY, UsageLimit INTEGER)");
-                    }
+                    String sql = "CREATE TABLE LicenseKeyRules (TableName VARCHAR(255) PRIMARY KEY, UsageLimit INTEGER)";
+                    stmt.executeUpdate(sql);
+                    LOGGER.log(Level.INFO, "Created LicenseKeyRules table");
                 }
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error creating LicenseKeyRules table: {0}", e.getMessage());
+            JOptionPane.showMessageDialog(this, String.format("Error creating LicenseKeyRules table: %s", e.getMessage()),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void loadLicenseKeyRules() {
         String tableName = tableManager.getTableName();
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement ps = conn.prepareStatement("SELECT UsageLimit FROM LicenseKeyRules WHERE TableName = ?")) {
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT UsageLimit FROM LicenseKeyRules WHERE TableName = ?")) {
             ps.setString(1, tableName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     usageLimit = rs.getInt("UsageLimit");
+                    LOGGER.log(Level.INFO, "Loaded UsageLimit {0} for table '{1}'", new Object[] { usageLimit, tableName });
                 } else {
                     usageLimit = 10;
+                    LOGGER.log(Level.INFO, "No UsageLimit found for table '{0}', using default: {1}", new Object[] { tableName, usageLimit });
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error loading license key rules for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
-            JOptionPane.showMessageDialog(this, String.format("Error loading license key rules: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Error loading LicenseKeyRules for table '{0}': {1}", new Object[] { tableName, e.getMessage() });
             usageLimit = 10;
+            JOptionPane.showMessageDialog(this, String.format("Error loading license key rules: %s", e.getMessage()),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -269,98 +317,26 @@ public class LicenseKeyTracker extends JPanel {
         keyListModel.clear();
         keyUsageCounts.clear();
         String tableName = tableManager.getTableName();
+
         String licenseKeyColumn = null;
-        for (String column : tableManager.getColumns()) {
+        String[] columns = tableManager.getColumns();
+        for (String column : columns) {
             if (column.equalsIgnoreCase("License_Key")) {
                 licenseKeyColumn = column;
                 break;
             }
         }
 
-        // Check if table requires License_Key
-        boolean requiresLicenseKey = true;
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            // Check if Settings table exists and has RequiresLicenseKey column
-            DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getColumns(null, null, "Settings", "RequiresLicenseKey")) {
-                if (rs.next()) {
-                    try (PreparedStatement ps = conn.prepareStatement("SELECT RequiresLicenseKey FROM Settings WHERE SoftwareTables = ?")) {
-                        ps.setString(1, tableName);
-                        try (ResultSet rs2 = ps.executeQuery()) {
-                            if (rs2.next()) {
-                                requiresLicenseKey = rs2.getBoolean("RequiresLicenseKey");
-                            }
-                        }
-                    }
-                } else {
-                    LOGGER.log(Level.WARNING, "RequiresLicenseKey column not found in Settings table for table '{0}'", tableName);
-                    // If column doesn't exist, assume requiresLicenseKey is true
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error checking RequiresLicenseKey for table '{0}': {1}", new Object[]{tableName, e.getMessage()});
-        }
-
-        if (licenseKeyColumn == null && requiresLicenseKey) {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    String.format("The [License_Key] column does not exist in table '%s'. Do you want to add a [License_Key] column?", tableName),
-                    "Add License Key Column",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
-                try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate("ALTER TABLE [" + tableName + "] ADD [License_Key] VARCHAR(255)");
-                    LOGGER.log(Level.INFO, "Added License_Key column to table '{0}'", tableName);
-                    tableManager.initializeColumns();
-                    licenseKeyColumn = "License_Key";
-                } catch (SQLException ex) {
-                    LOGGER.log(Level.SEVERE, "Error adding License_Key column to table '{0}': {1}", new Object[]{tableName, ex.getMessage()});
-                    JOptionPane.showMessageDialog(this, String.format("Error adding License_Key column: %s", ex.getMessage()), "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            } else {
-                // Update Settings to mark table as not requiring License_Key
-                try (Connection conn = DatabaseUtils.getConnection()) {
-                    // Check if RequiresLicenseKey column exists
-                    DatabaseMetaData meta = conn.getMetaData();
-                    try (ResultSet rs = meta.getColumns(null, null, "Settings", "RequiresLicenseKey")) {
-                        if (rs.next()) {
-                            try (PreparedStatement ps = conn.prepareStatement("UPDATE Settings SET RequiresLicenseKey = ? WHERE SoftwareTables = ?")) {
-                                ps.setBoolean(1, false);
-                                ps.setString(2, tableName);
-                                int rowsAffected = ps.executeUpdate();
-                                if (rowsAffected == 0) {
-                                    // Insert new record if no update occurred
-                                    try (PreparedStatement psInsert = conn.prepareStatement("INSERT INTO Settings (ID, SoftwareTables, RequiresLicenseKey) VALUES (?, ?, ?)")) {
-                                        psInsert.setInt(1, getNextSettingsId(conn));
-                                        psInsert.setString(2, tableName);
-                                        psInsert.setBoolean(3, false);
-                                        psInsert.executeUpdate();
-                                    }
-                                }
-                                LOGGER.log(Level.INFO, "Marked table '{0}' as not requiring License_Key", tableName);
-                            }
-                        } else {
-                            LOGGER.log(Level.WARNING, "RequiresLicenseKey column not found, skipping update for table '{0}'", tableName);
-                        }
-                    }
-                } catch (SQLException ex) {
-                    LOGGER.log(Level.SEVERE, "Error updating RequiresLicenseKey for table '{0}': {1}", new Object[]{tableName, ex.getMessage()});
-                }
-                keyListModel.addElement(String.format("Error: License_Key column not found in table '%s'", tableName));
-                showEmptyDetails();
-                return;
-            }
-        } else if (licenseKeyColumn == null) {
-            keyListModel.addElement(String.format("Error: License_Key column not found in table '%s'", tableName));
+        if (licenseKeyColumn == null) {
+            keyListModel.addElement("No license keys stored for this application");
             showEmptyDetails();
             return;
         }
 
         List<Map.Entry<String, Integer>> entries = new ArrayList<>();
-        try (Connection conn = DatabaseUtils.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT [" + licenseKeyColumn + "], COUNT(*) as usage_count FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NOT NULL AND [" + licenseKeyColumn + "] != '' GROUP BY [" + licenseKeyColumn + "]")) {
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT [" + licenseKeyColumn + "], COUNT(*) as usage_count FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NOT NULL AND [" + licenseKeyColumn + "] != '' GROUP BY [" + licenseKeyColumn + "]")) {
             while (rs.next()) {
                 String licenseKey = rs.getString(licenseKeyColumn);
                 int count = rs.getInt("usage_count");
@@ -368,7 +344,7 @@ public class LicenseKeyTracker extends JPanel {
                 entries.add(new AbstractMap.SimpleEntry<>(licenseKey, count));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching license keys from table '{0}': {1}", new Object[]{tableName, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error fetching license keys from table '{0}': {1}", new Object[] { tableName, e.getMessage() });
             keyListModel.addElement("Error: " + e.getMessage());
             JOptionPane.showMessageDialog(this, String.format("Error fetching license keys: %s", e.getMessage()), "Database Error", JOptionPane.ERROR_MESSAGE);
             showEmptyDetails();
@@ -395,7 +371,6 @@ public class LicenseKeyTracker extends JPanel {
             keyListModel.addElement("No license keys found for current filter");
         }
 
-        // Restore selection after refresh
         if (lastSelectedKey != null) {
             String formattedEntry = String.format("%-30s NumOfUses: %d%s", lastSelectedKey,
                     keyUsageCounts.getOrDefault(lastSelectedKey, 0), getKeyLabel(lastSelectedKey));
@@ -404,7 +379,7 @@ public class LicenseKeyTracker extends JPanel {
             keyList.clearSelection();
         }
 
-        LOGGER.log(Level.INFO, "Loaded {0} license keys for table '{1}'", new Object[]{keyListModel.getSize(), tableManager.getTableName()});
+        LOGGER.log(Level.INFO, "Loaded {0} license keys for table '{1}'", new Object[] { keyListModel.getSize(), tableManager.getTableName() });
         updateUndocumentedButtonState();
         showEmptyDetails();
     }
@@ -427,12 +402,31 @@ public class LicenseKeyTracker extends JPanel {
         loadLicenseKeys();
     }
 
-    private int getNextSettingsId(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
-            if (rs.next()) {
-                return rs.getInt(1) + 1;
+    private void updateUndocumentedButtonState() {
+        String licenseKeyColumn = null;
+        String[] columns = tableManager.getColumns();
+        for (String column : columns) {
+            if (column.equalsIgnoreCase("License_Key")) {
+                licenseKeyColumn = column;
+                break;
             }
-            return 1;
+        }
+
+        if (licenseKeyColumn == null) {
+            toggleUndocumentedButton.setEnabled(false);
+            return;
+        }
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM [" + tableManager.getTableName() + "] WHERE [" + licenseKeyColumn + "] IS NULL OR [" + licenseKeyColumn + "] = ''")) {
+            rs.next();
+            int count = rs.getInt(1);
+            toggleUndocumentedButton.setEnabled(count > 0);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking undocumented installations for table '{0}': {1}",
+                    new Object[] { tableManager.getTableName(), e.getMessage() });
+            toggleUndocumentedButton.setEnabled(false);
         }
     }
 }

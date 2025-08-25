@@ -80,41 +80,42 @@ public final class UndocumentedInstallationsPanel extends JPanel {
     }
 
     public void loadData() {
-        String licenseKeyColumn = findLicenseKeyColumn();
-        if (licenseKeyColumn == null) {
-            LOGGER.log(Level.SEVERE, "No License_Key column found in table '{0}'", tableName);
-            JOptionPane.showMessageDialog(this, "No License_Key column found in table '" + tableName + "'", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        tableManager.initializeColumns();
+    String licenseKeyColumn = findLicenseKeyColumn();
+    if (licenseKeyColumn == null) {
+        LOGGER.log(Level.WARNING, "No License_Key column found in table '{0}', keeping table empty", tableName);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
-
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NULL OR [" + licenseKeyColumn + "] = ''")) {
-            int rowCount = 0;
-            while (rs.next()) {
-                Object[] row = new Object[model.getColumnCount()];
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if (i == 0) {
-                        row[i] = "Edit";
-                    } else {
-                        row[i] = rs.getString(model.getColumnName(i));
-                    }
-                }
-                model.addRow(row);
-                rowCount++;
-            }
-            LOGGER.log(Level.INFO, "Loaded {0} rows for undocumented installations in table '{1}'", 
-                new Object[]{rowCount, tableName});
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching undocumented installations for table '{0}': {1}", 
-                new Object[]{tableName, e.getMessage()});
-            JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        return;
     }
+
+    tableManager.initializeColumns();
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    model.setRowCount(0);
+
+    try (Connection conn = DatabaseUtils.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] IS NULL OR [" + licenseKeyColumn + "] = ''")) {
+        int rowCount = 0;
+        while (rs.next()) {
+            Object[] row = new Object[model.getColumnCount()];
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                if (i == 0) {
+                    row[i] = "Edit";
+                } else {
+                    row[i] = rs.getString(model.getColumnName(i));
+                }
+            }
+            model.addRow(row);
+            rowCount++;
+        }
+        LOGGER.log(Level.INFO, "Loaded {0} rows for undocumented installations in table '{1}'", 
+            new Object[]{rowCount, tableName});
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Error fetching undocumented installations for table '{0}': {1}", 
+            new Object[]{tableName, e.getMessage()});
+        JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     private String findLicenseKeyColumn() {
         String[] columns = tableManager.getColumns();

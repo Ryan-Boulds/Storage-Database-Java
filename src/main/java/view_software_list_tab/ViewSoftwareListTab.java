@@ -181,33 +181,53 @@ public class ViewSoftwareListTab extends JPanel {
     }
 
     public void showLicenseKeyTracker() {
-        String tableName = tableManager.getTableName();
-        if (tableName == null || tableName.isEmpty()) {
-            DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
-            if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
-                tableName = model.getElementAt(0);
-                tableListPanel.getTableList().setSelectedValue(tableName, true);
-                tableManager.setTableName(tableName);
-                lastSelectedTable = tableName; // Store first table
-                if (importDataTab.getTableList() != null) {
-                    importDataTab.getTableList().setSelectedValue(tableName, true);
-                }
-                LOGGER.log(Level.INFO, "Selected first table '{0}' for LicenseKeyTracker", tableName);
-            } else {
-                JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
-                LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
-                return;
+    String tableName = tableManager.getTableName();
+    if (tableName == null || tableName.isEmpty()) {
+        DefaultListModel<String> model = (DefaultListModel<String>) tableListPanel.getTableList().getModel();
+        if (!model.isEmpty() && !model.getElementAt(0).equals("No tables available")) {
+            tableName = model.getElementAt(0);
+            tableListPanel.getTableList().setSelectedValue(tableName, true);
+            tableManager.setTableName(tableName);
+            lastSelectedTable = tableName; // Store first table
+            if (importDataTab.getTableList() != null) {
+                importDataTab.getTableList().setSelectedValue(tableName, true);
             }
+            LOGGER.log(Level.INFO, "Selected first table '{0}' for LicenseKeyTracker", tableName);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a valid table first", "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.WARNING, "Attempted to open LicenseKeyTracker without selecting a valid table");
+            return;
         }
-        remove(currentView);
-        LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
-        currentView = tracker;
-        tableManager.setLicenseKeyTracker(tracker);
-        add(currentView, BorderLayout.CENTER);
-        revalidate();
-        repaint();
-        LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
     }
+
+    // Check if License_Key column exists or can be created
+    String[] columns = tableManager.getColumns();
+    boolean hasLicenseKeyColumn = false;
+    for (String column : columns) {
+        if (column.equalsIgnoreCase("License_Key")) {
+            hasLicenseKeyColumn = true;
+            break;
+        }
+    }
+
+    if (!hasLicenseKeyColumn) {
+        LicenseKeyTracker tempTracker = new LicenseKeyTracker(this, tableManager);
+        // If the tracker was not initialized (e.g., user clicked "Go Back"), return to main view
+        if (tempTracker.getComponentCount() == 0) { // Check if UI was not initialized
+            showMainView();
+            return;
+        }
+    }
+
+    remove(currentView);
+    LicenseKeyTracker tracker = new LicenseKeyTracker(this, tableManager);
+    currentView = tracker;
+    tableManager.setLicenseKeyTracker(tracker);
+    add(currentView, BorderLayout.CENTER);
+    revalidate();
+    repaint();
+    LOGGER.log(Level.INFO, "Opened LicenseKeyTracker for table '{0}'", tableName);
+}
 
     public void showImportDataTab() {
         remove(currentView);
