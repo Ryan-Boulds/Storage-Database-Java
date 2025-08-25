@@ -33,6 +33,7 @@ public class ViewSoftwareListTab extends JPanel {
     private FilterPanel filterPanel;
     private TableListPanel tableListPanel;
     private boolean isRefreshing = false;
+    private String lastSelectedTable = null; // Store last selected table
 
     @SuppressWarnings("LeakingThisInConstructor")
     public ViewSoftwareListTab() {
@@ -69,6 +70,10 @@ public class ViewSoftwareListTab extends JPanel {
 
         JLabel statusLabelLocal = new JLabel("Ready");
         importDataTab = new ImportDataTab(statusLabelLocal, this);
+        // Ensure no table is selected initially
+        tableListPanel.getTableList().clearSelection();
+        tableManager.setTableName(null);
+        table.setModel(new DefaultTableModel());
     }
 
     private void initializeFilterPanel() {
@@ -100,9 +105,10 @@ public class ViewSoftwareListTab extends JPanel {
                 if (selectedTable != null && !selectedTable.startsWith("Error") && !selectedTable.equals("No tables available")) {
                     isRefreshing = true;
                     try {
+                        lastSelectedTable = selectedTable; // Store selected table
                         tableManager.setTableName(selectedTable);
-                        if (importDataTab.getTableSelector() != null) {
-                            importDataTab.getTableSelector().setSelectedItem(selectedTable);
+                        if (importDataTab.getTableList() != null) {
+                            importDataTab.getTableList().setSelectedValue(selectedTable, true);
                         }
                         tableManager.refreshDataAndTabs();
                         LOGGER.log(Level.INFO, "Selected table changed to: {0}", selectedTable);
@@ -112,9 +118,10 @@ public class ViewSoftwareListTab extends JPanel {
                 } else {
                     tableManager.setTableName(null);
                     table.setModel(new DefaultTableModel());
-                    if (importDataTab.getTableSelector() != null) {
-                        importDataTab.getTableSelector().setSelectedItem(null);
+                    if (importDataTab.getTableList() != null) {
+                        importDataTab.getTableList().setSelectedValue(null, true);
                     }
+                    lastSelectedTable = null; // Clear last selected table
                     LOGGER.log(Level.WARNING, "No valid table selected");
                 }
             }
@@ -128,10 +135,10 @@ public class ViewSoftwareListTab extends JPanel {
             try {
                 tableManager.refreshDataAndTabs();
                 tableListPanel.updateTableList();
-                if (importDataTab.getTableSelector() != null) {
+                if (importDataTab.getTableList() != null) {
                     String currentTable = tableManager.getTableName();
                     if (currentTable != null) {
-                        importDataTab.getTableSelector().setSelectedItem(currentTable);
+                        importDataTab.getTableList().setSelectedValue(currentTable, true);
                     }
                 }
                 table.revalidate();
@@ -158,9 +165,19 @@ public class ViewSoftwareListTab extends JPanel {
         PopupHandler.addTablePopup(table, this);
 
         add(currentView, BorderLayout.CENTER);
+        // Restore last selected table if available
+        if (lastSelectedTable != null) {
+            tableListPanel.getTableList().setSelectedValue(lastSelectedTable, true);
+            tableManager.setTableName(lastSelectedTable);
+            tableManager.refreshDataAndTabs();
+        } else {
+            tableListPanel.getTableList().clearSelection();
+            tableManager.setTableName(null);
+            table.setModel(new DefaultTableModel());
+        }
         revalidate();
         repaint();
-        LOGGER.log(Level.INFO, "Reinitialized main view");
+        LOGGER.log(Level.INFO, "Reinitialized main view with table: {0}", lastSelectedTable);
     }
 
     public void showLicenseKeyTracker() {
@@ -171,8 +188,9 @@ public class ViewSoftwareListTab extends JPanel {
                 tableName = model.getElementAt(0);
                 tableListPanel.getTableList().setSelectedValue(tableName, true);
                 tableManager.setTableName(tableName);
-                if (importDataTab.getTableSelector() != null) {
-                    importDataTab.getTableSelector().setSelectedItem(tableName);
+                lastSelectedTable = tableName; // Store first table
+                if (importDataTab.getTableList() != null) {
+                    importDataTab.getTableList().setSelectedValue(tableName, true);
                 }
                 LOGGER.log(Level.INFO, "Selected first table '{0}' for LicenseKeyTracker", tableName);
             } else {
@@ -195,8 +213,8 @@ public class ViewSoftwareListTab extends JPanel {
         remove(currentView);
         currentView = importDataTab;
         String currentTable = tableManager.getTableName();
-        if (currentTable != null && importDataTab.getTableSelector() != null) {
-            importDataTab.getTableSelector().setSelectedItem(currentTable);
+        if (currentTable != null && importDataTab.getTableList() != null) {
+            importDataTab.getTableList().setSelectedValue(currentTable, true);
         }
         add(currentView, BorderLayout.CENTER);
         revalidate();

@@ -29,6 +29,7 @@ public class TableListPanel extends JPanel {
 
     private final JList<String> tableList;
     private final JScrollPane tableListScrollPane;
+    private final DefaultListModel<String> tableListModel;
     private static final Logger LOGGER = Logger.getLogger(TableListPanel.class.getName());
     private final ViewSoftwareListTab viewSoftwareListTab;
 
@@ -48,7 +49,8 @@ public class TableListPanel extends JPanel {
         add(topLeftPanel, BorderLayout.NORTH);
 
         // Initialize table list and scroll pane
-        tableList = new JList<>(new DefaultListModel<>());
+        tableListModel = new DefaultListModel<>();
+        tableList = new JList<>(tableListModel);
         tableList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableListScrollPane = new JScrollPane(tableList);
         add(tableListScrollPane, BorderLayout.CENTER);
@@ -64,81 +66,58 @@ public class TableListPanel extends JPanel {
     }
 
     public final void updateTableList() {
-        DefaultListModel<String> model = (DefaultListModel<String>) tableList.getModel();
-        model.clear();
-        List<String> tables = getIncludedSoftwareTables();
-        LOGGER.log(Level.INFO, "updateTableList: Fetched tables: {0}", tables);
-        if (tables.isEmpty()) {
-            model.addElement("No tables available");
-        } else {
-            for (String table : tables) {
-                model.addElement(table);
-            }
-            // Select the first table by default
-            if (!tables.isEmpty()) {
-                tableList.setSelectedValue(tables.get(0), true);
-            }
-        }
-    }
-
-    private List<String> getIncludedSoftwareTables() {
-        List<String> tables = new ArrayList<>();
+        tableListModel.clear();
         try (Connection conn = DatabaseUtils.getConnection()) {
-            if (!tableExists("Settings", conn)) {
-                createSettingsTable(conn);
-            }
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT DISTINCT SoftwareTables FROM Settings WHERE SoftwareTables IS NOT NULL")) {
+            List<String> tableNames = new ArrayList<>();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT SoftwareTables FROM Settings")) {
                 while (rs.next()) {
                     String tableName = rs.getString("SoftwareTables");
                     if (tableName != null && !tableName.trim().isEmpty()) {
-                        tables.add(tableName);
+                        tableNames.add(tableName);
                     }
                 }
             }
-            LOGGER.log(Level.INFO, "getIncludedSoftwareTables: Fetched tables: {0}", tables);
+            if (tableNames.isEmpty()) {
+                tableListModel.addElement("No tables available");
+            } else {
+                tableNames.forEach(tableListModel::addElement);
+            }
+            tableList.clearSelection(); // Ensure no table is selected initially
+            LOGGER.log(Level.INFO, "Updated table list with {0} tables", tableNames.size());
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error fetching included software tables: {0}", e.getMessage());
-        }
-        return tables;
-    }
-
-    private boolean tableExists(String tableName, Connection conn) throws SQLException {
-        DatabaseMetaData meta = conn.getMetaData();
-        try (ResultSet rs = meta.getTables(null, null, tableName, new String[]{"TABLE"})) {
-            return rs.next();
-        }
-    }
-
-    private void createSettingsTable(Connection conn) throws SQLException {
-        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255), RequiresLicenseKey YESNO DEFAULT True)";
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(createSql);
-            LOGGER.log(Level.INFO, "Created Settings table");
+            tableListModel.addElement("Error retrieving tables");
+            LOGGER.log(Level.SEVERE, "Error updating table list: {0}", e.getMessage());
         }
     }
 
     private void ensureSettingsTableSchema() {
         try (Connection conn = DatabaseUtils.getConnection()) {
-            if (tableExists("Settings", conn)) {
-                DatabaseMetaData meta = conn.getMetaData();
-                try (ResultSet rs = meta.getColumns(null, null, "Settings", "RequiresLicenseKey")) {
-                    if (!rs.next()) {
-                        try (Statement stmt = conn.createStatement()) {
-                            stmt.executeUpdate("ALTER TABLE Settings ADD RequiresLicenseKey YESNO DEFAULT True");
-                            LOGGER.log(Level.INFO, "Added RequiresLicenseKey column to Settings table");
-                        }
+            DatabaseMetaData meta = conn.getMetaData();
+            try (ResultSet rs = meta.getTables(null, null, "Settings", null)) {
+                if (!rs.next()) {
+                    try (Statement stmt = conn.createStatement()) {
+                        String sql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255), RequiresLicenseKey BIT)";
+                        stmt.executeUpdate(sql);
+                        LOGGER.log(Level.INFO, "Created Settings table");
                     }
                 }
-            } else {
-                createSettingsTable(conn);
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error ensuring Settings table schema: {0}", e.getMessage());
         }
     }
 
+    private boolean tableExists(String tableName, Connection conn) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, tableName, null)) {
+            return rs.next();
+        }
+    }
+
     private int getNextSettingsId(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
             if (rs.next()) {
                 return rs.getInt(1) + 1;
             }
@@ -160,8 +139,8 @@ public class TableListPanel extends JPanel {
                 return;
             }
 
-            // Create table
-            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY)";
+            // Create table with default columns
+            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY, Status VARCHAR(50), Department VARCHAR(255), License_Key VARCHAR(255))";
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(createSql);
                 LOGGER.log(Level.INFO, "Created new table '{0}'", newTableName);
@@ -180,9 +159,9 @@ public class TableListPanel extends JPanel {
 
             updateTableList();
             viewSoftwareListTab.getTableManager().setTableName(newTableName);
-            viewSoftwareListTab.getImportDataTab().updateTableSelectorOptions();
-            if (viewSoftwareListTab.getImportDataTab().getTableSelector() != null) {
-                viewSoftwareListTab.getImportDataTab().getTableSelector().setSelectedItem(newTableName);
+            viewSoftwareListTab.refreshDataAndTabs();
+            if (viewSoftwareListTab.getImportDataTab().getTableList() != null) {
+                viewSoftwareListTab.getImportDataTab().getTableList().setSelectedValue(newTableName, true);
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error creating table: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
