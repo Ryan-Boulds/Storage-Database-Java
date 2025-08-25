@@ -141,7 +141,6 @@ public class UndocumentedInstallationsDialog extends JDialog {
 
     private void applyFilter() {
         String text = searchField.getText().toLowerCase();
-        @SuppressWarnings("unchecked")
         TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) table.getRowSorter();
         if (sorter != null) {
             RowFilter<DefaultTableModel, Integer> filter = null;
