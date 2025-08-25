@@ -1,5 +1,6 @@
 import java.awt.Component;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -26,12 +27,22 @@ public class mainFile {
     private static final Logger LOGGER = Logger.getLogger(mainFile.class.getName());
 
     public static void main(String[] args) {
-        // Load logging configuration from resources
-        System.setProperty("java.util.logging.config.file", "src/main/resources/logging.properties");
+        // Check Java version
+        String javaVersion = System.getProperty("java.version");
+        if (!javaVersion.startsWith("1.8") && !javaVersion.startsWith("11") && !javaVersion.startsWith("17")) {
+            JOptionPane.showMessageDialog(null, "This application requires Java 8, 11, or 17.", "Java Version Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+
+        // Load logging configuration
         try {
-            LogManager.getLogManager().readConfiguration();
+            LogManager.getLogManager().readConfiguration(mainFile.class.getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Could not load logging properties: {0}", e.getMessage());
+            LOGGER.log(Level.WARNING, "Could not load logging properties, using default console logging: {0}", e.getMessage());
+            java.util.logging.ConsoleHandler handler = new java.util.logging.ConsoleHandler();
+            handler.setLevel(Level.ALL);
+            Logger.getLogger("").addHandler(handler);
+            Logger.getLogger("").setLevel(Level.INFO);
         }
 
         SwingUtilities.invokeLater(() -> {
@@ -43,7 +54,12 @@ public class mainFile {
             int result = fileChooser.showOpenDialog(null);
 
             if (result == JFileChooser.APPROVE_OPTION) {
-                String selectedPath = fileChooser.getSelectedFile().getAbsolutePath();
+                java.io.File selectedFile = fileChooser.getSelectedFile();
+                if (!selectedFile.exists() || !selectedFile.getName().endsWith(".accdb")) {
+                    JOptionPane.showMessageDialog(null, "Invalid or non-existent database file selected. Please choose a valid .accdb file.", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.exit(1);
+                }
+                String selectedPath = selectedFile.getAbsolutePath();
                 LoadingWindow loadingWindow = new LoadingWindow();
                 loadingWindow.appendLog("Selected database file: " + selectedPath);
 
@@ -52,21 +68,31 @@ public class mainFile {
                     try {
                         loadingWindow.appendLog("Setting database path...");
                         DatabaseUtils.setDatabasePath(selectedPath);
+                        loadingWindow.appendLog("Testing database connection...");
+                        try (java.sql.Connection conn = DatabaseUtils.getConnection()) {
+                            loadingWindow.appendLog("Database connection successful.");
+                        } catch (SQLException e) {
+                            String message = e.getMessage().contains("UCAExc") ? "Invalid or corrupted Access database file: " + e.getMessage() : "Database error: " + e.getMessage();
+                            LOGGER.log(Level.SEVERE, message);
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(null, message, "Database Error", JOptionPane.ERROR_MESSAGE);
+                                loadingWindow.close();
+                                System.exit(1);
+                            });
+                            return;
+                        }
 
                         loadingWindow.appendLog("Initializing DatabaseCreatorTab...");
                         DatabaseCreatorTab databaseCreatorTab = new DatabaseCreatorTab();
-                        // No explicit createMissingTables() call, handled in DatabaseCreatorTab constructor
 
                         loadingWindow.appendLog("Creating UI components...");
                         JLabel statusLabel = new JLabel("Ready");
                         ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
                         ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
-                        //LogNewDeviceTab logNewDeviceTab = new LogNewDeviceTab();
                         AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
                         LogCablesTab logCablesTab = new LogCablesTab();
                         LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
                         inventory_data_importer.ImportDataTab importDataTab = new inventory_data_importer.ImportDataTab(statusLabel);
-                        // Removed: data_importing_tabs.ImportDataTab softwareImportDataTab = new data_importing_tabs.ImportDataTab(statusLabel);
                         MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                         loadingWindow.appendLog("Creating main frame...");
@@ -75,12 +101,10 @@ public class mainFile {
                             databaseCreatorTab,
                             viewInventoryTab,
                             viewSoftwareListTab,
-                            //logNewDeviceTab,
                             accessoriesCountTab,
                             logCablesTab,
                             logAdaptersTab,
                             importDataTab,
-                            // Removed: softwareImportDataTab,
                             massEntryModifierTab
                         );
 
@@ -102,17 +126,11 @@ public class mainFile {
                             } else if (selected == logAdaptersTab) {
                                 logAdaptersTab.refresh();
                             }
-                            // Removed: else if (selected == softwareImportDataTab) { ... }
                         });
 
-                        // Listen for updates from MassEntryModifierTab
                         massEntryModifierTab.addPropertyChangeListener("inventoryUpdated", evt -> {
                             viewInventoryTab.refreshDataAndTabs();
                             viewSoftwareListTab.refreshDataAndTabs();
-                            // Optionally refresh other tabs if they depend on Inventory data
-                            // accessoriesCountTab.refresh();
-                            // logCablesTab.refresh();
-                            // logAdaptersTab.refresh();
                         });
 
                         frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -123,9 +141,8 @@ public class mainFile {
                         });
 
                         loadingWindow.appendLog("Initialization complete.");
-                        // Add a short delay to show logs before closing
                         try {
-                            Thread.sleep(1500); // 1.5-second delay to ensure logs are visible
+                            Thread.sleep(1500);
                         } catch (InterruptedException e) {
                             LOGGER.log(Level.WARNING, "Delay interrupted: {0}", e.getMessage());
                         }
