@@ -48,10 +48,6 @@ public final class AccessoriesCountTab extends JPanel {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        // Accessories section
-        JPanel accessoriesPanel = new JPanel(new BorderLayout(10, 10));
-        accessoriesPanel.add(UIComponentUtils.createScrollableContentPanel(accessoryTable), BorderLayout.CENTER);
-
         // Buttons panel
         JPanel buttonPanel = new JPanel();
         JButton addAccessoryButton = UIComponentUtils.createFormattedButton("Add New Accessory Type");
@@ -66,41 +62,33 @@ public final class AccessoriesCountTab extends JPanel {
         buttonPanel.add(addAccessoryButton);
         buttonPanel.add(addToStorageButton);
         buttonPanel.add(removeFromStorageButton);
-        accessoriesPanel.add(buttonPanel, BorderLayout.SOUTH);
-        mainPanel.add(accessoriesPanel);
+        mainPanel.add(UIComponentUtils.createScrollableContentPanel(accessoryTable));
+        mainPanel.add(buttonPanel);
+        mainPanel.add(statusLabel);
 
-        // Refresh button at the bottom
-        JButton refreshButton = UIComponentUtils.createFormattedButton("Refresh");
-        refreshButton.addActionListener(e -> refresh());
         add(mainPanel, BorderLayout.CENTER);
-        add(refreshButton, BorderLayout.SOUTH);
-
         refresh();
     }
 
     public void refresh() {
         LOGGER.info("Refreshing AccessoriesCountTab");
-        // Clear existing data
         accessoryTableModel.setRowCount(0);
-
-        // Update Accessories
         try {
             ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
             if (accessories == null || accessories.isEmpty()) {
                 accessoryTableModel.addRow(new Object[]{"No Data", 0});
                 LOGGER.info("No accessories data found");
             } else {
-                for (String type : PeripheralUtils.getPeripheralTypes(accessories)) {
-                    int count = PeripheralUtils.getPeripheralCount(type, accessories);
+                for (String type : PeripheralUtils.getPeripheralTypes(accessories, "Accessory")) {
+                    int count = PeripheralUtils.getPeripheralCount(type, accessories, "Accessory");
                     accessoryTableModel.addRow(new Object[]{type, count});
-                    LOGGER.log(Level.INFO, "Added accessory type ''{0}'' with count {1}", new Object[]{type, count});
+                    LOGGER.log(Level.INFO, "Added accessory type '{0}' with count {1}", new Object[]{type, count});
                 }
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error updating accessories display: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            LOGGER.log(Level.SEVERE, "Error updating accessories display: {0}", e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading accessories: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Error loading accessories: {0}", e.getMessage());
         }
-
         mainPanel.revalidate();
         mainPanel.repaint();
     }
@@ -108,73 +96,79 @@ public final class AccessoriesCountTab extends JPanel {
     private class AddAccessoryAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JDialog dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, AccessoriesCountTab.this), "Add New Accessory Type", true);
-            dialog.setSize(300, 150);
+            JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(AccessoriesCountTab.this), "Add New Accessory Type", true);
             dialog.setLayout(new BorderLayout(10, 10));
+            dialog.setSize(300, 150);
             dialog.setLocationRelativeTo(AccessoriesCountTab.this);
 
-            JPanel inputPanel = new JPanel();
-            inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+            JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
             JTextField typeField = UIComponentUtils.createFormattedTextField();
-            inputPanel.add(UIComponentUtils.createAlignedLabel("Accessory Type:"));
-            inputPanel.add(typeField);
+            typeField.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
+            inputPanel.add(UIComponentUtils.createAlignedLabel("Accessory Type:"), BorderLayout.NORTH);
+            inputPanel.add(typeField, BorderLayout.CENTER);
 
+            // Autofill suggestion
+            Set<String> existingTypes = new HashSet<>();
             try {
                 ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
-                Set<String> existingTypes = new HashSet<>(PeripheralUtils.getPeripheralTypes(accessories));
-                typeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-                    @Override
-                    public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
-                    @Override
-                    public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
-                    @Override
-                    public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
-
-                    private void update() {
-                        String text = typeField.getText().trim();
-                        if (!text.isEmpty()) {
-                            String normalized = DataUtils.capitalizeWords(text);
-                            if (existingTypes.contains(normalized)) {
-                                typeField.setToolTipText("'" + normalized + "' already exists");
-                            } else {
-                                typeField.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
-                            }
+                if (accessories != null) {
+                    for (String type : PeripheralUtils.getPeripheralTypes(accessories, "Accessory")) {
+                        if (!type.isEmpty()) {
+                            existingTypes.add(type);
                         }
                     }
-                });
+                }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(dialog, "Error loading existing accessory types: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 LOGGER.log(Level.SEVERE, "Error loading existing accessory types: {0}", ex.getMessage());
-                return;
             }
+
+            typeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                @Override
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
+                @Override
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
+                @Override
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
+                private void updateSuggestion(JTextField field, Set<String> types) {
+                    String text = field.getText();
+                    if (text.length() > 0) {
+                        for (String type : types) {
+                            if (type.startsWith(text) && !type.equals(text)) {
+                                field.setToolTipText("Suggestion: " + type);
+                                return;
+                            }
+                        }
+                    }
+                    field.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
+                }
+            });
 
             JButton addButton = UIComponentUtils.createFormattedButton("Add");
             addButton.addActionListener(ev -> {
                 String newType = typeField.getText().trim();
                 if (newType.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "Accessory type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
-                    LOGGER.severe("Attempted to add empty accessory type");
+                    LOGGER.log(Level.SEVERE, "Attempted to add empty accessory type");
                 } else if (!newType.matches("[a-zA-Z0-9-_]+")) {
                     JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
                     LOGGER.log(Level.SEVERE, "Invalid characters in accessory type: {0}", newType);
                 } else {
-                    String normalizedType = DataUtils.capitalizeWords(newType); // Normalize to title case
+                    String normalizedType = DataUtils.capitalizeWords(newType);
                     try {
-                        ArrayList<HashMap<String, String>> accessories = FileUtils.loadAccessories();
-                        Set<String> existingTypes = new HashSet<>(PeripheralUtils.getPeripheralTypes(accessories));
                         if (existingTypes.contains(normalizedType)) {
                             JOptionPane.showMessageDialog(dialog, "Accessory type already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                            LOGGER.log(Level.SEVERE, "Accessory type ''{0}'' already exists", normalizedType);
+                            LOGGER.log(Level.SEVERE, "Accessory type '{0}' already exists", normalizedType);
                         } else {
                             DatabaseUtils.updatePeripheral(normalizedType, 0, "Accessory");
                             JOptionPane.showMessageDialog(dialog, "Accessory type '" + normalizedType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                            LOGGER.log(Level.INFO, "Added accessory type ''{0}'' with count 0", normalizedType);
+                            LOGGER.log(Level.INFO, "Added accessory type '{0}' with count 0", normalizedType);
                             dialog.dispose();
                             refresh();
                         }
                     } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(dialog, "Error adding accessory type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        LOGGER.log(Level.SEVERE, "Error adding accessory type ''{0}'': {1}", new Object[]{normalizedType, ex.getMessage()});
+                        LOGGER.log(Level.SEVERE, "Error adding accessory type '{0}': {1}", new Object[]{normalizedType, ex.getMessage()});
                     }
                 }
             });
@@ -191,7 +185,7 @@ public final class AccessoriesCountTab extends JPanel {
             int selectedRow = accessoryTable.getSelectedRow();
             if (selectedRow == -1) {
                 statusLabel.setText("Error: Select an accessory type first");
-                LOGGER.severe("No accessory type selected for AddToStorageAction");
+                LOGGER.log(Level.SEVERE, "No accessory type selected for AddToStorageAction");
                 return;
             }
             String type = (String) accessoryTableModel.getValueAt(selectedRow, 0);
@@ -200,10 +194,10 @@ public final class AccessoriesCountTab extends JPanel {
                 DatabaseUtils.updatePeripheral(type, 1, "Accessory");
                 accessoryTableModel.setValueAt(currentCount + 1, selectedRow, 1);
                 statusLabel.setText("Successfully added 1 to " + type);
-                LOGGER.log(Level.INFO, "Added 1 to accessory type ''{0}'', new count: {1}{2}", new Object[]{type, currentCount, 1});
+                LOGGER.log(Level.INFO, "Added 1 to accessory type '{0}', new count: {1}", new Object[]{type, currentCount + 1});
             } catch (SQLException ex) {
                 statusLabel.setText("Error: " + ex.getMessage());
-                LOGGER.log(Level.SEVERE, "Error adding to accessory type ''{0}'': {1}", new Object[]{type, ex.getMessage()});
+                LOGGER.log(Level.SEVERE, "Error adding to accessory type '{0}': {1}", new Object[]{type, ex.getMessage()});
             }
         }
     }
@@ -214,24 +208,24 @@ public final class AccessoriesCountTab extends JPanel {
             int selectedRow = accessoryTable.getSelectedRow();
             if (selectedRow == -1) {
                 statusLabel.setText("Error: Select an accessory type first");
-                LOGGER.severe("No accessory type selected for RemoveFromStorageAction");
+                LOGGER.log(Level.SEVERE, "No accessory type selected for RemoveFromStorageAction");
                 return;
             }
             String type = (String) accessoryTableModel.getValueAt(selectedRow, 0);
             int currentCount = (int) accessoryTableModel.getValueAt(selectedRow, 1);
             if (currentCount <= 0) {
                 statusLabel.setText("Error: Count cannot go below 0");
-                LOGGER.log(Level.SEVERE, "Attempted to reduce count below 0 for accessory type ''{0}''", type);
+                LOGGER.log(Level.SEVERE, "Attempted to reduce count below 0 for accessory type '{0}'", type);
                 return;
             }
             try {
                 DatabaseUtils.updatePeripheral(type, -1, "Accessory");
                 accessoryTableModel.setValueAt(currentCount - 1, selectedRow, 1);
                 statusLabel.setText("Successfully removed 1 from " + type);
-                LOGGER.log(Level.INFO, "Removed 1 from accessory type ''{0}'', new count: {1}", new Object[]{type, currentCount - 1});
+                LOGGER.log(Level.INFO, "Removed 1 from accessory type '{0}', new count: {1}", new Object[]{type, currentCount - 1});
             } catch (SQLException ex) {
                 statusLabel.setText("Error: " + ex.getMessage());
-                LOGGER.log(Level.SEVERE, "Error removing from accessory type ''{0}'': {1}", new Object[]{type, ex.getMessage()});
+                LOGGER.log(Level.SEVERE, "Error removing from accessory type '{0}': {1}", new Object[]{type, ex.getMessage()});
             }
         }
     }

@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileUtils {
+    private static final Logger LOGGER = Logger.getLogger(FileUtils.class.getName());
+
     public static ArrayList<HashMap<String, String>> readCSVFile(File file) throws IOException {
         ArrayList<HashMap<String, String>> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -31,19 +35,33 @@ public class FileUtils {
     }
 
     public static ArrayList<HashMap<String, String>> loadCables() throws SQLException {
-        return DatabaseUtils.loadPeripherals("Cable");
+        ArrayList<HashMap<String, String>> cables = DatabaseUtils.loadPeripherals("Cable");
+        LOGGER.log(Level.INFO, "loadCables: Retrieved {0} cables", cables.size());
+        return cables;
     }
 
     public static ArrayList<HashMap<String, String>> loadDevices() throws SQLException {
-        return DatabaseUtils.loadDevices("Computers");
+        ArrayList<HashMap<String, String>> devices = DatabaseUtils.loadDevices("Computers");
+        LOGGER.log(Level.INFO, "loadDevices: Retrieved {0} devices", devices.size());
+        return devices;
     }
 
     public static ArrayList<HashMap<String, String>> loadAccessories() throws SQLException {
-        return DatabaseUtils.loadPeripherals("Accessory");
+        ArrayList<HashMap<String, String>> accessories = DatabaseUtils.loadPeripherals("Accessory");
+        LOGGER.log(Level.INFO, "loadAccessories: Retrieved {0} accessories", accessories.size());
+        return accessories;
     }
 
     public static ArrayList<HashMap<String, String>> loadAdapters() throws SQLException {
-        return DatabaseUtils.loadPeripherals("Adapter");
+        ArrayList<HashMap<String, String>> adapters = DatabaseUtils.loadPeripherals("Adapter");
+        LOGGER.log(Level.INFO, "loadAdapters: Retrieved {0} adapters", adapters.size());
+        return adapters;
+    }
+
+    public static ArrayList<HashMap<String, String>> loadChargers() throws SQLException {
+        ArrayList<HashMap<String, String>> chargers = DatabaseUtils.loadPeripherals("Charger");
+        LOGGER.log(Level.INFO, "loadChargers: Retrieved {0} chargers", chargers.size());
+        return chargers;
     }
 
     public static ArrayList<String> loadTemplates() throws SQLException {

@@ -17,6 +17,7 @@ import accessories_count.AccessoriesCountTab;
 import database_creator.DatabaseCreatorTab;
 import log_adapters.LogAdaptersTab;
 import log_cables.LogCablesTab;
+import log_chargers.LogChargersTab;
 import mass_entry_modifier.MassEntryModifierTab;
 import utils.DatabaseUtils;
 import utils.UIComponentUtils;
@@ -92,7 +93,7 @@ public class mainFile {
                         AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
                         LogCablesTab logCablesTab = new LogCablesTab();
                         LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
-                        inventory_data_importer.ImportDataTab importDataTab = new inventory_data_importer.ImportDataTab(statusLabel);
+                        LogChargersTab logChargersTab = new LogChargersTab();
                         MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                         loadingWindow.appendLog("Creating main frame...");
@@ -104,13 +105,13 @@ public class mainFile {
                             accessoriesCountTab,
                             logCablesTab,
                             logAdaptersTab,
-                            importDataTab,
+                            logChargersTab,
                             massEntryModifierTab
                         );
 
                         JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-                        tabbedPane.setTitleAt(tabbedPane.indexOfComponent(importDataTab), "Import Inventory Data");
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
+                        tabbedPane.setTitleAt(tabbedPane.indexOfComponent(logChargersTab), "Log Chargers");
                         tabbedPane.addChangeListener(e -> {
                             Component selected = tabbedPane.getSelectedComponent();
                             if (selected == viewInventoryTab) {
@@ -125,6 +126,8 @@ public class mainFile {
                                 logCablesTab.refresh();
                             } else if (selected == logAdaptersTab) {
                                 logAdaptersTab.refresh();
+                            } else if (selected == logChargersTab) {
+                                logChargersTab.refresh();
                             }
                         });
 

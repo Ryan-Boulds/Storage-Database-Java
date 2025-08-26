@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class InventoryData {
     private static ArrayList<HashMap<String, String>> cables;
     private static ArrayList<HashMap<String, String>> accessories;
+    private static ArrayList<HashMap<String, String>> chargers;
 
     public static ArrayList<HashMap<String, String>> getCables() {
         if (cables == null) {
@@ -28,5 +29,16 @@ public class InventoryData {
             }
         }
         return accessories;
+    }
+
+    public static ArrayList<HashMap<String, String>> getChargers() {
+        if (chargers == null) {
+            try {
+                chargers = DatabaseUtils.loadPeripherals("Charger");
+            } catch (SQLException e) {
+                chargers = new ArrayList<>();
+            }
+        }
+        return chargers;
     }
 }

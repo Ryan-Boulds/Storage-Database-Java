@@ -40,7 +40,7 @@ public class DeviceDetailsPanel extends JPanel {
     private JList<String> tableList;
     private JPanel dataListPanel;
 
-    public DeviceDetailsPanel(String assetName, view_software_list_tab.ViewSoftwareListTab parentTab) {
+    public DeviceDetailsPanel(String assetName, ViewSoftwareListTab parentTab) {
         this.assetName = assetName;
         this.parentTab = parentTab;
         setLayout(new BorderLayout(10, 10));
@@ -166,7 +166,7 @@ public class DeviceDetailsPanel extends JPanel {
     }
 
     private boolean isExcludedTable(String tableName) {
-        return tableName.equalsIgnoreCase("Settings") ||
+        return tableName.equalsIgnoreCase("TableInformation") ||
                tableName.equalsIgnoreCase("LicenseKeyRules") ||
                tableName.equalsIgnoreCase("Templates");
     }
@@ -174,11 +174,11 @@ public class DeviceDetailsPanel extends JPanel {
     private List<String> getIncludedInventoryTables() {
         List<String> tables = new ArrayList<>();
         try (Connection conn = DatabaseUtils.getConnection()) {
-            if (!tableExists("Settings", conn)) {
-                createSettingsTable(conn);
+            if (!tableExists("TableInformation", conn)) {
+                createTableInformationTable(conn);
             }
             try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT InventoryTables FROM Settings WHERE InventoryTables IS NOT NULL")) {
+                 ResultSet rs = stmt.executeQuery("SELECT DISTINCT InventoryTables FROM TableInformation WHERE InventoryTables IS NOT NULL")) {
                 while (rs.next()) {
                     String tableName = rs.getString("InventoryTables");
                     if (tableName != null && !tableName.trim().isEmpty()) {
@@ -199,8 +199,8 @@ public class DeviceDetailsPanel extends JPanel {
         }
     }
 
-    private void createSettingsTable(Connection conn) throws SQLException {
-        String createSql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, InventoryTables VARCHAR(255))";
+    private void createTableInformationTable(Connection conn) throws SQLException {
+        String createSql = "CREATE TABLE TableInformation (ID INTEGER PRIMARY KEY, InventoryTables VARCHAR(255))";
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createSql);
         }

@@ -9,10 +9,27 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 public class PeripheralUtils {
-    public static ArrayList<String> getPeripheralTypes(ArrayList<HashMap<String, String>> peripherals) {
+    public static ArrayList<String> getPeripheralTypes(ArrayList<HashMap<String, String>> peripherals, String category) {
         ArrayList<String> types = new ArrayList<>();
+        String typeColumn;
+        switch (category) {
+            case "Cable":
+                typeColumn = "Cable_Type";
+                break;
+            case "Accessory":
+                typeColumn = "Peripheral_Type";
+                break;
+            case "Adapter":
+                typeColumn = "Adapter_Type";
+                break;
+            case "Charger":
+                typeColumn = "Charger_Type";
+                break;
+            default:
+                return types;
+        }
         for (HashMap<String, String> peripheral : peripherals) {
-            String type = peripheral.get("Peripheral_Type");
+            String type = peripheral.get(typeColumn);
             if (type != null && !type.isEmpty() && !types.contains(type)) {
                 types.add(type);
             }
@@ -20,9 +37,26 @@ public class PeripheralUtils {
         return types;
     }
 
-    public static int getPeripheralCount(String type, ArrayList<HashMap<String, String>> peripherals) {
+    public static int getPeripheralCount(String type, ArrayList<HashMap<String, String>> peripherals, String category) {
+        String typeColumn;
+        switch (category) {
+            case "Cable":
+                typeColumn = "Cable_Type";
+                break;
+            case "Accessory":
+                typeColumn = "Peripheral_Type";
+                break;
+            case "Adapter":
+                typeColumn = "Adapter_Type";
+                break;
+            case "Charger":
+                typeColumn = "Charger_Type";
+                break;
+            default:
+                return 0;
+        }
         for (HashMap<String, String> peripheral : peripherals) {
-            if (type.equals(peripheral.get("Peripheral_Type"))) {
+            if (type.equals(peripheral.get(typeColumn))) {
                 try {
                     return Integer.parseInt(peripheral.get("Count"));
                 } catch (NumberFormatException e) {
@@ -33,13 +67,12 @@ public class PeripheralUtils {
         return 0;
     }
 
-    public static void updatePeripheralCount(String peripheralType, int countDelta, ArrayList<HashMap<String, String>> peripherals, JLabel statusLabel) throws SQLException {
-        String category = peripherals.equals(DatabaseUtils.loadPeripherals("Cable")) ? "Cable" : "Accessory";
+    public static void updatePeripheralCount(String peripheralType, int countDelta, ArrayList<HashMap<String, String>> peripherals, String category, JLabel statusLabel) throws SQLException {
         DatabaseUtils.updatePeripheral(peripheralType, countDelta, category);
         statusLabel.setText("Successfully updated " + peripheralType + " count");
     }
 
-    public static void addNewPeripheralType(JTextField newTypeField, JComboBox<String> comboBox, JLabel statusLabel, ArrayList<HashMap<String, String>> peripherals, ArrayList<String> existingTypes) throws SQLException {
+    public static void addNewPeripheralType(JTextField newTypeField, JComboBox<String> comboBox, JLabel statusLabel, ArrayList<HashMap<String, String>> peripherals, ArrayList<String> existingTypes, String category) throws SQLException {
         String newType = newTypeField.getText().trim();
         if (newType.isEmpty()) {
             statusLabel.setText("Error: New type cannot be empty");
@@ -49,7 +82,6 @@ public class PeripheralUtils {
             statusLabel.setText("Error: Type already exists");
             return;
         }
-        String category = peripherals.equals(DatabaseUtils.loadPeripherals("Cable")) ? "Cable" : "Accessory";
         DatabaseUtils.updatePeripheral(newType, 0, category);
         existingTypes.add(newType);
         comboBox.addItem(newType);

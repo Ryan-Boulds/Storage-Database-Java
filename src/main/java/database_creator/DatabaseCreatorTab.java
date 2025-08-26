@@ -120,6 +120,7 @@ public class DatabaseCreatorTab extends JPanel {
             createSettingsTable(conn, metaData);
             createAccessoriesTable(conn, metaData);
             createCablesTable(conn, metaData);
+            createChargersTable(conn, metaData);
             createAdaptersTable(conn, metaData);
             createTemplatesTable(conn, metaData);
             createLicenseKeyRulesTable(conn, metaData);
@@ -137,10 +138,10 @@ public class DatabaseCreatorTab extends JPanel {
     }
 
     private void createSettingsTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
-        if (!tableExists(metaData, "Settings")) {
+        if (!tableExists(metaData, "TableInformation")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Settings (" +
+                    "CREATE TABLE TableInformation (" +
                     "ID INTEGER PRIMARY KEY, " +
                     "InventoryTables TEXT, " +
                     "SoftwareTables TEXT)"
@@ -167,6 +168,18 @@ public class DatabaseCreatorTab extends JPanel {
                 stmt.executeUpdate(
                     "CREATE TABLE Cables (" +
                     "Cable_Type TEXT PRIMARY KEY, " +
+                    "[Count] INTEGER)"
+                );
+            }
+        }
+    }
+
+    private void createChargersTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+        if (!tableExists(metaData, "Chargers")) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                    "CREATE TABLE Chargers (" +
+                    "Charger_Type TEXT PRIMARY KEY, " +
                     "[Count] INTEGER)"
                 );
             }

@@ -58,8 +58,8 @@ public class TableListPanel extends JPanel {
         // Add action listener for Add New Table button
         addNewTableButton.addActionListener(e -> addNewTable());
 
-        // Ensure Settings table schema is up-to-date
-        ensureSettingsTableSchema();
+        // Ensure TableInformation table schema is up-to-date
+        ensureTableInformationSchema();
 
         // Initialize table list
         updateTableList();
@@ -70,7 +70,7 @@ public class TableListPanel extends JPanel {
         try (Connection conn = DatabaseUtils.getConnection()) {
             List<String> tableNames = new ArrayList<>();
             try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT SoftwareTables FROM Settings")) {
+                 ResultSet rs = stmt.executeQuery("SELECT SoftwareTables FROM TableInformation")) {
                 while (rs.next()) {
                     String tableName = rs.getString("SoftwareTables");
                     if (tableName != null && !tableName.trim().isEmpty()) {
@@ -91,20 +91,33 @@ public class TableListPanel extends JPanel {
         }
     }
 
-    private void ensureSettingsTableSchema() {
+    private void ensureTableInformationSchema() {
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getTables(null, null, "Settings", null)) {
+            try (ResultSet rs = meta.getTables(null, null, "TableInformation", null)) {
                 if (!rs.next()) {
+                    // Create table if it doesn't exist
                     try (Statement stmt = conn.createStatement()) {
-                        String sql = "CREATE TABLE Settings (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255), RequiresLicenseKey BIT)";
+                        String sql = "CREATE TABLE TableInformation (ID INTEGER PRIMARY KEY, SoftwareTables VARCHAR(255), RequiresLicenseKey BOOLEAN)";
                         stmt.executeUpdate(sql);
-                        LOGGER.log(Level.INFO, "Created Settings table");
+                        LOGGER.log(Level.INFO, "Created TableInformation table with BOOLEAN RequiresLicenseKey");
+                    }
+                } else {
+                    // Check if RequiresLicenseKey column exists
+                    try (ResultSet columns = meta.getColumns(null, null, "TableInformation", "RequiresLicenseKey")) {
+                        if (!columns.next()) {
+                            // Add RequiresLicenseKey column if missing
+                            try (Statement stmt = conn.createStatement()) {
+                                String sql = "ALTER TABLE TableInformation ADD RequiresLicenseKey BOOLEAN";
+                                stmt.executeUpdate(sql);
+                                LOGGER.log(Level.INFO, "Added RequiresLicenseKey BOOLEAN column to TableInformation");
+                            }
+                        }
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error ensuring Settings table schema: {0}", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error ensuring TableInformation table schema: {0}", e.getMessage());
         }
     }
 
@@ -117,7 +130,7 @@ public class TableListPanel extends JPanel {
 
     private int getNextSettingsId(Connection conn) throws SQLException {
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM Settings")) {
+             ResultSet rs = stmt.executeQuery("SELECT MAX(ID) FROM TableInformation")) {
             if (rs.next()) {
                 return rs.getInt(1) + 1;
             }
@@ -140,21 +153,21 @@ public class TableListPanel extends JPanel {
             }
 
             // Create table with default columns
-            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY, Status VARCHAR(50), Department VARCHAR(255), License_Key VARCHAR(255))";
+            String createSql = "CREATE TABLE [" + newTableName + "] (AssetName VARCHAR(255) PRIMARY KEY, Status VARCHAR(50))";
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(createSql);
                 LOGGER.log(Level.INFO, "Created new table '{0}'", newTableName);
             }
 
-            // Add to Settings
+            // Add to TableInformation
             int nextId = getNextSettingsId(conn);
-            String insertSql = "INSERT INTO Settings (ID, SoftwareTables, RequiresLicenseKey) VALUES (?, ?, ?)";
+            String insertSql = "INSERT INTO TableInformation (ID, SoftwareTables, RequiresLicenseKey) VALUES (?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
                 ps.setInt(1, nextId);
                 ps.setString(2, newTableName);
-                ps.setBoolean(3, true);
+                ps.setBoolean(3, true); // Use true/false for BOOLEAN type
                 ps.executeUpdate();
-                LOGGER.log(Level.INFO, "Added table '{0}' to Settings with ID {1}", new Object[]{newTableName, nextId});
+                LOGGER.log(Level.INFO, "Added table '{0}' to TableInformation with ID {1}", new Object[]{newTableName, nextId});
             }
 
             updateTableList();

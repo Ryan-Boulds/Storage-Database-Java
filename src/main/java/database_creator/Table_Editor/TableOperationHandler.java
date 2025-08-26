@@ -54,7 +54,7 @@ public class TableOperationHandler {
             tableModel.addRow(new Object[]{"Template_Name", "TEXT", "Yes"});
             editor.showMessageDialog("Status", "Default fields for Templates loaded. Click 'Create New Table' to confirm.", 1);
             return;
-        } else if (tableName.equalsIgnoreCase("Settings")) {
+        } else if (tableName.equalsIgnoreCase("TableInformation")) {
             Map<String, String> idField = new HashMap<>();
             idField.put("name", "ID");
             idField.put("type", "INTEGER");
@@ -73,7 +73,7 @@ public class TableOperationHandler {
             softField.put("primaryKey", "No");
             fields.add(softField);
             tableModel.addRow(new Object[]{"SoftwareTables", "TEXT", "No"});
-            editor.showMessageDialog("Status", "Default fields for Settings loaded. Click 'Create New Table' to confirm.", 1);
+            editor.showMessageDialog("Status", "Default fields for TableInformation loaded. Click 'Create New Table' to confirm.", 1);
             return;
         } else if (tableName.equalsIgnoreCase("Accessories") || tableName.equalsIgnoreCase("Cables") || tableName.equalsIgnoreCase("Adapters")) {
             String typeField = tableName.equalsIgnoreCase("Accessories") ? "Peripheral_Type" : 
@@ -435,7 +435,7 @@ public class TableOperationHandler {
 
     private boolean isProtectedColumn(String tableName, String columnName) {
         if (tableName == null) return false;
-        if (tableName.equalsIgnoreCase("Settings") && 
+        if (tableName.equalsIgnoreCase("TableInformation") && 
             (columnName.equals("ID") || columnName.equals("InventoryTables") || columnName.equals("SoftwareTables"))) return true;
         if (tableName.equalsIgnoreCase("Templates") && columnName.equals("Template_Name")) return true;
         if (tableName.equalsIgnoreCase("Accessories") && columnName.equals("Peripheral_Type")) return true;
@@ -446,7 +446,7 @@ public class TableOperationHandler {
     }
 
     private boolean isProtectedTable(String tableName) {
-        return tableName.equalsIgnoreCase("Settings") || 
+        return tableName.equalsIgnoreCase("TableInformation") || 
                tableName.equalsIgnoreCase("Templates") || 
                tableName.equalsIgnoreCase("Accessories") || 
                tableName.equalsIgnoreCase("Cables") || 

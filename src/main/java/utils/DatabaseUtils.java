@@ -283,36 +283,50 @@ public class DatabaseUtils {
                 table = "Adapters";
                 typeColumn = "Adapter_Type";
                 break;
+            case "Charger":
+                table = "Chargers";
+                typeColumn = "Charger_Type";
+                break;
             default:
                 throw new IllegalArgumentException("Unknown category: " + category);
         }
-
-        String selectSql = "SELECT Count FROM [" + table + "] WHERE " + typeColumn + " = ?";
-        try (Connection conn = getConnection(); PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-            selectStmt.setString(1, peripheralType);
-            try (ResultSet rs = selectStmt.executeQuery()) {
-                if (rs.next()) {
-                    int currentCount = rs.getInt("Count");
-                    int newCount = Math.max(0, currentCount + countDelta);
-                    String updateSql = "UPDATE [" + table + "] SET Count = ? WHERE " + typeColumn + " = ?";
-                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                        updateStmt.setInt(1, newCount);
-                        updateStmt.setString(2, peripheralType);
-                        LOGGER.log(Level.INFO, "Executing UPDATE peripheral SQL: {0}", updateSql);
-                        updateStmt.executeUpdate();
-                    }
-                } else {
-                    String sql = "INSERT INTO [" + table + "] (" + typeColumn + ", Count) VALUES (?, ?)";
-                    try (PreparedStatement insertStmt = conn.prepareStatement(sql)) {
-                        insertStmt.setString(1, peripheralType);
-                        insertStmt.setInt(2, countDelta);
-                        LOGGER.log(Level.INFO, "Executing INSERT peripheral SQL: {0}", sql);
-                        insertStmt.executeUpdate();
+        String selectSql = "SELECT [Count] FROM [" + table + "] WHERE " + typeColumn + " = ?";
+        String updateSql = "UPDATE [" + table + "] SET [Count] = ? WHERE " + typeColumn + " = ?";
+        String insertSql = "INSERT INTO [" + table + "] (" + typeColumn + ", [Count]) VALUES (?, ?)";
+        try (Connection conn = getConnection()) {
+            // Check if peripheral exists
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                selectStmt.setString(1, peripheralType);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Update existing peripheral
+                        int currentCount = rs.getInt("Count");
+                        int newCount = currentCount + countDelta;
+                        if (newCount < 0) {
+                            throw new SQLException("Cannot reduce count below 0 for " + peripheralType);
+                        }
+                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                            updateStmt.setInt(1, newCount);
+                            updateStmt.setString(2, peripheralType);
+                            updateStmt.executeUpdate();
+                            LOGGER.log(Level.INFO, "Updated {0} count to {1} in table {2}", new Object[]{peripheralType, newCount, table});
+                        }
+                    } else {
+                        // Insert new peripheral
+                        if (countDelta < 0) {
+                            throw new SQLException("Cannot set negative count for new " + peripheralType);
+                        }
+                        try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                            insertStmt.setString(1, peripheralType);
+                            insertStmt.setInt(2, countDelta);
+                            insertStmt.executeUpdate();
+                            LOGGER.log(Level.INFO, "Inserted new {0} with count {1} in table {2}", new Object[]{peripheralType, countDelta, table});
+                        }
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating peripheral {0}: {1}", new Object[]{peripheralType, e.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error updating peripheral {0} in category {1}: {2}", new Object[]{peripheralType, category, e.getMessage()});
             throw e;
         }
     }
@@ -429,10 +443,14 @@ public class DatabaseUtils {
                 table = "Adapters";
                 typeColumn = "Adapter_Type";
                 break;
+            case "Charger":
+                table = "Chargers";
+                typeColumn = "Charger_Type";
+                break;
             default:
                 throw new IllegalArgumentException("Unknown category: " + category);
         }
-        String sql = "SELECT " + typeColumn + ", Count FROM [" + table + "]";
+        String sql = "SELECT " + typeColumn + ", [Count] FROM [" + table + "]";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 HashMap<String, String> peripheral = new HashMap<>();
