@@ -2,6 +2,7 @@ package log_cables;
 
 import java.awt.BorderLayout;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +41,7 @@ public final class LogCablesTab extends JPanel {
     private static final String UNASSIGNED_IN_LOCATION = "Unassigned in this location";
     private static final String PATH_SEPARATOR = "--";
 
-    public LogCablesTab() {
+    public LogCablesTab() throws SQLException {
         setLayout(new BorderLayout(10, 10));
 
         statusLabel = UIComponentUtils.createAlignedLabel("");
@@ -191,6 +192,7 @@ public final class LogCablesTab extends JPanel {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
             if (node != null) {
                 String parentPath = buildPathFromNode(node);
+                parentPath = normalizePath(parentPath); // Normalize the parent path
                 new NewLocationDialog(this, parentPath).showDialog();
             }
         });
@@ -223,17 +225,18 @@ public final class LogCablesTab extends JPanel {
             // Get top-level locations
             List<String> topLevelLocations = CablesDAO.getSubLocations(null);
             for (String location : topLevelLocations) {
-                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(location);
+                String normalizedLocation = normalizePath(location);
+                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(getLastSegment(normalizedLocation));
                 // Add "Unassigned in this location" if there are direct cables and sub-locations
-                List<String> subLocations = CablesDAO.getSubLocations(location);
+                List<String> subLocations = CablesDAO.getSubLocations(normalizedLocation);
                 if (!subLocations.isEmpty()) {
-                    List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(location);
+                    List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(normalizedLocation);
                     if (!directCables.isEmpty()) {
                         locationNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
                     }
                 }
                 // Build sub-tree
-                buildLocationTree(locationNode, location);
+                buildLocationTree(locationNode, normalizedLocation);
                 root.add(locationNode);
             }
             // Add Unassigned location
@@ -252,20 +255,43 @@ public final class LogCablesTab extends JPanel {
     private void buildLocationTree(DefaultMutableTreeNode parentNode, String parentPath) throws SQLException {
         List<String> subLocations = CablesDAO.getSubLocations(parentPath);
         for (String subLocation : subLocations) {
-            String fullPath = parentPath == null ? subLocation : parentPath + PATH_SEPARATOR + subLocation;
-            DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(subLocation);
+            String normalizedSubLocation = normalizePath(subLocation);
+            String lastSegment = getLastSegment(normalizedSubLocation);
+            DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(lastSegment);
             // Add "Unassigned in this location" if there are direct cables and sub-locations
-            List<String> subSubLocations = CablesDAO.getSubLocations(fullPath);
+            List<String> subSubLocations = CablesDAO.getSubLocations(normalizedSubLocation);
             if (!subSubLocations.isEmpty()) {
-                List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
+                List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(normalizedSubLocation);
                 if (!directCables.isEmpty()) {
                     subNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
                 }
             }
             // Recursively build sub-tree
-            buildLocationTree(subNode, fullPath);
+            buildLocationTree(subNode, normalizedSubLocation);
             parentNode.add(subNode);
         }
+    }
+
+    private String normalizePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return null;
+        }
+        String[] segments = path.split(PATH_SEPARATOR);
+        LinkedHashSet<String> uniqueSegments = new LinkedHashSet<>();
+        for (String segment : segments) {
+            if (!segment.isEmpty()) {
+                uniqueSegments.add(segment);
+            }
+        }
+        return String.join(PATH_SEPARATOR, uniqueSegments);
+    }
+
+    private String getLastSegment(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        String[] segments = path.split(PATH_SEPARATOR);
+        return segments[segments.length - 1];
     }
 
     public void refreshTable(String location, boolean isUnassignedView) {

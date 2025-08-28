@@ -3,7 +3,7 @@ package log_cables.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.Set;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,7 +43,7 @@ public class MoveCableAction implements ActionListener {
             tab.setStatus("Error: Select a location first");
             return;
         }
-        String sourceLocation = node.getUserObject().equals("Unassigned in this location")
+        String currentLocation = node.getUserObject().equals("Unassigned in this location")
                 ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
                 : buildPathFromNode(node);
 
@@ -54,25 +54,35 @@ public class MoveCableAction implements ActionListener {
 
         JPanel inputPanel = new JPanel(new java.awt.BorderLayout());
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel locationLabel = new JLabel("Select target location:");
-        JComboBox<String> locationCombo = new JComboBox<>();
-        Set<String> locations = CablesDAO.getAllLocations();
-        locations.remove(sourceLocation); // Don't allow moving to same location
-        for (String loc : locations) {
-            locationCombo.addItem(loc);
+        JLabel locationLabel = new JLabel("Select new location:");
+        JComboBox<String> locationComboBox = new JComboBox<>();
+        try {
+            List<String> locations = CablesDAO.getAllLocations();
+            for (String location : locations) {
+                if (!location.equals(currentLocation)) {
+                    locationComboBox.addItem(location);
+                }
+            }
+        } catch (SQLException ex) {
+            tab.setStatus("Error retrieving locations: " + ex.getMessage());
+            JOptionPane.showMessageDialog(dialog, "Error retrieving locations: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        locationCombo.addItem(tab.getUnassignedLocation());
         JLabel quantityLabel = new JLabel("Enter quantity to move:");
         JTextField quantityField = UIComponentUtils.createFormattedTextField();
         inputPanel.add(locationLabel, java.awt.BorderLayout.NORTH);
-        inputPanel.add(locationCombo, java.awt.BorderLayout.CENTER);
+        inputPanel.add(locationComboBox, java.awt.BorderLayout.CENTER);
         inputPanel.add(quantityLabel, java.awt.BorderLayout.SOUTH);
         inputPanel.add(quantityField, java.awt.BorderLayout.SOUTH);
 
         JButton moveButton = UIComponentUtils.createFormattedButton("Move");
         moveButton.addActionListener(e1 -> {
-            String targetLocation = (String) locationCombo.getSelectedItem();
+            String newLocation = (String) locationComboBox.getSelectedItem();
             String quantityText = quantityField.getText().trim();
+            if (newLocation == null || newLocation.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Please select a new location", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             int quantity;
             try {
                 quantity = Integer.parseInt(quantityText);
@@ -85,17 +95,14 @@ public class MoveCableAction implements ActionListener {
                 return;
             }
             try {
-                int sourceId = CablesDAO.getCableId(cableType, sourceLocation);
-                if (sourceId == -1) {
-                    JOptionPane.showMessageDialog(dialog, "Cable not found at source location", "Error", JOptionPane.ERROR_MESSAGE);
+                int cableId = CablesDAO.getCableId(cableType, currentLocation);
+                if (cableId == -1) {
+                    tab.setStatus("Error: Cable type '" + cableType + "' not found at " + currentLocation);
+                    JOptionPane.showMessageDialog(dialog, "Cable not found", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if (!CablesDAO.canRemoveCable(sourceId)) {
-                    JOptionPane.showMessageDialog(dialog, "No cables available to move", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                CablesDAO.moveCable(sourceId, targetLocation, quantity);
-                tab.setStatus("Successfully moved " + quantity + " " + cableType + " to " + targetLocation);
+                CablesDAO.moveCable(cableId, newLocation, quantity);
+                tab.setStatus("Successfully moved " + quantity + " " + cableType + " to " + newLocation);
                 tab.refresh();
                 dialog.dispose();
             } catch (SQLException ex) {

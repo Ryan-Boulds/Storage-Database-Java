@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-08-28T10:24:32</date>
-  <millis>1756394672640</millis>
+  <date>2025-08-28T10:35:02</date>
+  <millis>1756395302928</millis>
   <sequence>0</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -13,8 +13,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:32</date>
-  <millis>1756394672660</millis>
+  <date>2025-08-28T10:35:02</date>
+  <millis>1756395302961</millis>
   <sequence>1</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -24,8 +24,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673537</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304103</millis>
   <sequence>2</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -35,8 +35,8 @@
   <message>Database path set to: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673539</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304104</millis>
   <sequence>3</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -46,8 +46,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673897</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304158</millis>
   <sequence>4</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -57,20 +57,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673946</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304177</millis>
   <sequence>5</sequence>
-  <logger>view_inventory_tab.TableListPanel</logger>
-  <level>INFO</level>
-  <class>view_inventory_tab.TableListPanel</class>
-  <method>ensureTableInformationSchema</method>
-  <thread>29</thread>
-  <message>Added RequiresLicenseKey BOOLEAN column to TableInformation</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673946</millis>
-  <sequence>6</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -79,9 +68,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673948</millis>
-  <sequence>7</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304187</millis>
+  <sequence>6</sequence>
   <logger>view_inventory_tab.TableListPanel</logger>
   <level>INFO</level>
   <class>view_inventory_tab.TableListPanel</class>
@@ -90,8 +79,19 @@
   <message>Updated table list with 0 tables</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673980</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304215</millis>
+  <sequence>7</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304229</millis>
   <sequence>8</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -101,20 +101,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673994</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304233</millis>
   <sequence>9</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:33</date>
-  <millis>1756394673996</millis>
-  <sequence>10</sequence>
   <logger>view_inventory_tab.TableListPanel</logger>
   <level>INFO</level>
   <class>view_inventory_tab.TableListPanel</class>
@@ -123,9 +112,9 @@
   <message>Updated table list with 0 tables</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674009</millis>
-  <sequence>11</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304246</millis>
+  <sequence>10</sequence>
   <logger>view_inventory_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_inventory_tab.TableManager</class>
@@ -134,8 +123,19 @@
   <message>Set parentTab for TableManager, tableName={0}</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674048</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304290</millis>
+  <sequence>11</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304302</millis>
   <sequence>12</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -145,20 +145,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674060</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304306</millis>
   <sequence>13</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674062</millis>
-  <sequence>14</sequence>
   <logger>view_software_list_tab.TableListPanel</logger>
   <level>INFO</level>
   <class>view_software_list_tab.TableListPanel</class>
@@ -167,8 +156,19 @@
   <message>Updated table list with 0 tables</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674083</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304330</millis>
+  <sequence>14</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304340</millis>
   <sequence>15</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -178,20 +178,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674093</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304342</millis>
   <sequence>16</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>29</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674096</millis>
-  <sequence>17</sequence>
   <logger>view_software_list_tab.TableListPanel</logger>
   <level>INFO</level>
   <class>view_software_list_tab.TableListPanel</class>
@@ -200,9 +189,9 @@
   <message>Updated table list with 0 tables</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674108</millis>
-  <sequence>18</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304353</millis>
+  <sequence>17</sequence>
   <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
   <class>view_software_list_tab.TableManager</class>
@@ -211,9 +200,9 @@
   <message>Set parentTab for TableManager, tableName={0}</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674149</millis>
-  <sequence>19</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304389</millis>
+  <sequence>18</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
@@ -222,9 +211,9 @@
   <message>Refreshing AccessoriesCountTab</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674153</millis>
-  <sequence>20</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304392</millis>
+  <sequence>19</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -233,9 +222,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674157</millis>
-  <sequence>21</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304397</millis>
+  <sequence>20</sequence>
   <logger>utils.FileUtils</logger>
   <level>INFO</level>
   <class>utils.FileUtils</class>
@@ -244,9 +233,9 @@
   <message>loadAccessories: Retrieved 0 accessories</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674158</millis>
-  <sequence>22</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304397</millis>
+  <sequence>21</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
@@ -255,9 +244,9 @@
   <message>No accessories data found</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674174</millis>
-  <sequence>23</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304414</millis>
+  <sequence>22</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -266,30 +255,41 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674261</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304419</millis>
+  <sequence>23</sequence>
+  <logger>log_cables.CablesDAO</logger>
+  <level>INFO</level>
+  <class>log_cables.CablesDAO</class>
+  <method>ensureSchema</method>
+  <thread>29</thread>
+  <message>Cables table found: Cables</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304420</millis>
   <sequence>24</sequence>
   <logger>log_cables.CablesDAO</logger>
   <level>INFO</level>
   <class>log_cables.CablesDAO</class>
   <method>ensureSchema</method>
   <thread>29</thread>
-  <message>Added Parent_Location column to Cables table</message>
+  <message>Cables table already exists</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674276</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304454</millis>
   <sequence>25</sequence>
   <logger>log_cables.CablesDAO</logger>
   <level>INFO</level>
   <class>log_cables.CablesDAO</class>
   <method>ensureSchema</method>
   <thread>29</thread>
-  <message>Added missing index idx_cable_type_location to existing Cables table</message>
+  <message>Index idx_cable_type_location already exists, skipping creation</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674350</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304531</millis>
   <sequence>26</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -299,8 +299,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674357</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304616</millis>
   <sequence>27</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -310,19 +310,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674359</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304620</millis>
   <sequence>28</sequence>
-  <logger>utils.FileUtils</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>utils.FileUtils</class>
-  <method>loadAdapters</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>29</thread>
-  <message>loadAdapters: Retrieved 0 adapters</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674372</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304623</millis>
   <sequence>29</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -332,19 +332,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674374</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304626</millis>
   <sequence>30</sequence>
-  <logger>utils.FileUtils</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>utils.FileUtils</class>
-  <method>loadChargers</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>29</thread>
-  <message>loadChargers: Retrieved 0 chargers</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674399</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304628</millis>
   <sequence>31</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -354,20 +354,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674407</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304637</millis>
   <sequence>32</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getInventoryColumnNames</method>
-  <thread>29</thread>
-  <message>Retrieved columns for table Inventory: []</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674421</millis>
-  <sequence>33</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -376,9 +365,53 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:34</date>
-  <millis>1756394674433</millis>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304641</millis>
+  <sequence>33</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAdapters</method>
+  <thread>29</thread>
+  <message>loadAdapters: Retrieved 0 adapters</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304652</millis>
   <sequence>34</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304655</millis>
+  <sequence>35</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadChargers</method>
+  <thread>29</thread>
+  <message>loadChargers: Retrieved 0 chargers</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304676</millis>
+  <sequence>36</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304692</millis>
+  <sequence>37</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -387,9 +420,31 @@
   <message>Retrieved columns for table Inventory: []</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677252</millis>
-  <sequence>35</sequence>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304699</millis>
+  <sequence>38</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>29</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:04</date>
+  <millis>1756395304762</millis>
+  <sequence>39</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getInventoryColumnNames</method>
+  <thread>29</thread>
+  <message>Retrieved columns for table Inventory: []</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:08</date>
+  <millis>1756395308260</millis>
+  <sequence>40</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
@@ -398,9 +453,9 @@
   <message>Refreshing AccessoriesCountTab</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677253</millis>
-  <sequence>36</sequence>
+  <date>2025-08-28T10:35:08</date>
+  <millis>1756395308261</millis>
+  <sequence>41</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -409,9 +464,9 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677257</millis>
-  <sequence>37</sequence>
+  <date>2025-08-28T10:35:08</date>
+  <millis>1756395308265</millis>
+  <sequence>42</sequence>
   <logger>utils.FileUtils</logger>
   <level>INFO</level>
   <class>utils.FileUtils</class>
@@ -420,9 +475,9 @@
   <message>loadAccessories: Retrieved 0 accessories</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677258</millis>
-  <sequence>38</sequence>
+  <date>2025-08-28T10:35:08</date>
+  <millis>1756395308283</millis>
+  <sequence>43</sequence>
   <logger>accessories_count.AccessoriesCountTab</logger>
   <level>INFO</level>
   <class>accessories_count.AccessoriesCountTab</class>
@@ -431,63 +486,8 @@
   <message>No accessories data found</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677843</millis>
-  <sequence>39</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>WARNING</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
-  <thread>16</thread>
-  <message>No table name set for refreshDataAndTabs</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677846</millis>
-  <sequence>40</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677847</millis>
-  <sequence>41</sequence>
-  <logger>view_software_list_tab.TableListPanel</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.TableListPanel</class>
-  <method>updateTableList</method>
-  <thread>16</thread>
-  <message>Updated table list with 0 tables</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:37</date>
-  <millis>1756394677848</millis>
-  <sequence>42</sequence>
-  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
-  <level>INFO</level>
-  <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>refreshDataAndTabs</method>
-  <thread>16</thread>
-  <message>Refreshed data and tabs for table {0}</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:38</date>
-  <millis>1756394678379</millis>
-  <sequence>43</sequence>
-  <logger>accessories_count.AccessoriesCountTab</logger>
-  <level>INFO</level>
-  <class>accessories_count.AccessoriesCountTab</class>
-  <method>refresh</method>
-  <thread>16</thread>
-  <message>Refreshing AccessoriesCountTab</message>
-</record>
-<record>
-  <date>2025-08-28T10:24:38</date>
-  <millis>1756394678379</millis>
+  <date>2025-08-28T10:35:10</date>
+  <millis>1756395310163</millis>
   <sequence>44</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -497,41 +497,41 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:38</date>
-  <millis>1756394678381</millis>
+  <date>2025-08-28T10:35:10</date>
+  <millis>1756395310165</millis>
   <sequence>45</sequence>
-  <logger>utils.FileUtils</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>utils.FileUtils</class>
-  <method>loadAccessories</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>loadAccessories: Retrieved 0 accessories</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:38</date>
-  <millis>1756394678382</millis>
+  <date>2025-08-28T10:35:11</date>
+  <millis>1756395311323</millis>
   <sequence>46</sequence>
-  <logger>accessories_count.AccessoriesCountTab</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>accessories_count.AccessoriesCountTab</class>
-  <method>refresh</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>No accessories data found</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:39</date>
-  <millis>1756394679164</millis>
+  <date>2025-08-28T10:35:11</date>
+  <millis>1756395311859</millis>
   <sequence>47</sequence>
-  <logger>view_software_list_tab.TableManager</logger>
-  <level>WARNING</level>
-  <class>view_software_list_tab.TableManager</class>
-  <method>refreshDataAndTabs</method>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>No table name set for refreshDataAndTabs</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:39</date>
-  <millis>1756394679164</millis>
+  <date>2025-08-28T10:35:11</date>
+  <millis>1756395311860</millis>
   <sequence>48</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -541,30 +541,30 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:39</date>
-  <millis>1756394679165</millis>
+  <date>2025-08-28T10:35:12</date>
+  <millis>1756395312547</millis>
   <sequence>49</sequence>
-  <logger>view_software_list_tab.TableListPanel</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_software_list_tab.TableListPanel</class>
-  <method>updateTableList</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Updated table list with 0 tables</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:39</date>
-  <millis>1756394679166</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313027</millis>
   <sequence>50</sequence>
-  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>view_software_list_tab.ViewSoftwareListTab</class>
-  <method>refreshDataAndTabs</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Refreshed data and tabs for table {0}</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684011</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313029</millis>
   <sequence>51</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -574,8 +574,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684013</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313420</millis>
   <sequence>52</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -585,19 +585,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684059</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313423</millis>
   <sequence>53</sequence>
-  <logger>log_cables.CablesDAO</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>log_cables.CablesDAO</class>
-  <method>createLocation</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Created new location: Test (parent: null)</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684060</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313907</millis>
   <sequence>54</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -607,8 +607,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684062</millis>
+  <date>2025-08-28T10:35:13</date>
+  <millis>1756395313909</millis>
   <sequence>55</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -618,8 +618,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:44</date>
-  <millis>1756394684063</millis>
+  <date>2025-08-28T10:35:15</date>
+  <millis>1756395315091</millis>
   <sequence>56</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -629,8 +629,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:45</date>
-  <millis>1756394685395</millis>
+  <date>2025-08-28T10:35:15</date>
+  <millis>1756395315093</millis>
   <sequence>57</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -640,8 +640,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:45</date>
-  <millis>1756394685397</millis>
+  <date>2025-08-28T10:35:15</date>
+  <millis>1756395315907</millis>
   <sequence>58</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -651,8 +651,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692445</millis>
+  <date>2025-08-28T10:35:15</date>
+  <millis>1756395315908</millis>
   <sequence>59</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -662,8 +662,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692447</millis>
+  <date>2025-08-28T10:35:27</date>
+  <millis>1756395327107</millis>
   <sequence>60</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -673,19 +673,19 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692457</millis>
+  <date>2025-08-28T10:35:27</date>
+  <millis>1756395327109</millis>
   <sequence>61</sequence>
-  <logger>log_cables.CablesDAO</logger>
+  <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
-  <class>log_cables.CablesDAO</class>
-  <method>createLocation</method>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
   <thread>16</thread>
-  <message>Created new location: Test--Testsub (parent: Test)</message>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692457</millis>
+  <date>2025-08-28T10:35:27</date>
+  <millis>1756395327128</millis>
   <sequence>62</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -695,8 +695,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692459</millis>
+  <date>2025-08-28T10:35:27</date>
+  <millis>1756395327130</millis>
   <sequence>63</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -706,8 +706,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692461</millis>
+  <date>2025-08-28T10:35:35</date>
+  <millis>1756395335241</millis>
   <sequence>64</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -717,8 +717,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692464</millis>
+  <date>2025-08-28T10:35:43</date>
+  <millis>1756395343259</millis>
   <sequence>65</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -728,8 +728,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692470</millis>
+  <date>2025-08-28T10:35:43</date>
+  <millis>1756395343747</millis>
   <sequence>66</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -739,8 +739,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:52</date>
-  <millis>1756394692472</millis>
+  <date>2025-08-28T10:35:43</date>
+  <millis>1756395343749</millis>
   <sequence>67</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -750,8 +750,8 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:53</date>
-  <millis>1756394693547</millis>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349579</millis>
   <sequence>68</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
@@ -761,9 +761,372 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-08-28T10:24:53</date>
-  <millis>1756394693549</millis>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349581</millis>
   <sequence>69</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349590</millis>
+  <sequence>70</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349593</millis>
+  <sequence>71</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349595</millis>
+  <sequence>72</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349598</millis>
+  <sequence>73</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349600</millis>
+  <sequence>74</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349601</millis>
+  <sequence>75</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349602</millis>
+  <sequence>76</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:49</date>
+  <millis>1756395349604</millis>
+  <sequence>77</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:50</date>
+  <millis>1756395350868</millis>
+  <sequence>78</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:50</date>
+  <millis>1756395350870</millis>
+  <sequence>79</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359204</millis>
+  <sequence>80</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359206</millis>
+  <sequence>81</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359217</millis>
+  <sequence>82</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359219</millis>
+  <sequence>83</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359222</millis>
+  <sequence>84</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359223</millis>
+  <sequence>85</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359226</millis>
+  <sequence>86</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359228</millis>
+  <sequence>87</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359230</millis>
+  <sequence>88</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359232</millis>
+  <sequence>89</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359235</millis>
+  <sequence>90</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359238</millis>
+  <sequence>91</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:35:59</date>
+  <millis>1756395359241</millis>
+  <sequence>92</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:00</date>
+  <millis>1756395360867</millis>
+  <sequence>93</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:00</date>
+  <millis>1756395360868</millis>
+  <sequence>94</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:02</date>
+  <millis>1756395362308</millis>
+  <sequence>95</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:02</date>
+  <millis>1756395362309</millis>
+  <sequence>96</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:05</date>
+  <millis>1756395365533</millis>
+  <sequence>97</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:10</date>
+  <millis>1756395370315</millis>
+  <sequence>98</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:10</date>
+  <millis>1756395370317</millis>
+  <sequence>99</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:10</date>
+  <millis>1756395370923</millis>
+  <sequence>100</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:10</date>
+  <millis>1756395370925</millis>
+  <sequence>101</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-08-28T10:36:13</date>
+  <millis>1756395373220</millis>
+  <sequence>102</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>

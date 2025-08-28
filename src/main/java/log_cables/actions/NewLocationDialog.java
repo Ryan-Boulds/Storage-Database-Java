@@ -1,6 +1,7 @@
 package log_cables.actions;
 
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,7 +23,7 @@ public class NewLocationDialog {
 
     public NewLocationDialog(LogCablesTab tab, String parentLocation) {
         this.tab = tab;
-        this.parentLocation = parentLocation;
+        this.parentLocation = normalizePath(parentLocation);
     }
 
     public void showDialog() {
@@ -68,5 +69,19 @@ public class NewLocationDialog {
         dialog.add(inputPanel, java.awt.BorderLayout.CENTER);
         dialog.add(createButton, java.awt.BorderLayout.SOUTH);
         dialog.setVisible(true);
+    }
+
+    private String normalizePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return null;
+        }
+        String[] segments = path.split(LogCablesTab.getPathSeparator());
+        LinkedHashSet<String> uniqueSegments = new LinkedHashSet<>();
+        for (String segment : segments) {
+            if (!segment.isEmpty()) {
+                uniqueSegments.add(segment);
+            }
+        }
+        return String.join(LogCablesTab.getPathSeparator(), uniqueSegments);
     }
 }
