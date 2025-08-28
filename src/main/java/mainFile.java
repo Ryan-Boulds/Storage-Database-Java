@@ -25,7 +25,9 @@ import view_inventory_tab.ViewInventoryTab;
 import view_software_list_tab.ViewSoftwareListTab;
 
 public class mainFile {
+
     private static final Logger LOGGER = Logger.getLogger(mainFile.class.getName());
+    private static final boolean DEVELOPER_MODE = false; // Developer mode toggle
 
     public static void main(String[] args) {
         // Check Java version
@@ -70,7 +72,8 @@ public class mainFile {
                         loadingWindow.appendLog("Setting database path...");
                         DatabaseUtils.setDatabasePath(selectedPath);
                         loadingWindow.appendLog("Testing database connection...");
-                        try (java.sql.Connection conn = DatabaseUtils.getConnection()) {
+                        try {
+                            DatabaseUtils.getConnection();
                             loadingWindow.appendLog("Database connection successful.");
                         } catch (SQLException e) {
                             String message = e.getMessage().contains("UCAExc") ? "Invalid or corrupted Access database file: " + e.getMessage() : "Database error: " + e.getMessage();
@@ -97,17 +100,31 @@ public class mainFile {
                         MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
 
                         loadingWindow.appendLog("Creating main frame...");
-                        JFrame frame = UIComponentUtils.createMainFrame(
-                            "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
-                            databaseCreatorTab,
-                            viewInventoryTab,
-                            viewSoftwareListTab,
-                            accessoriesCountTab,
-                            logCablesTab,
-                            logAdaptersTab,
-                            logChargersTab,
-                            massEntryModifierTab
-                        );
+
+                        JFrame frame;
+                        if (DEVELOPER_MODE) {
+                            frame = UIComponentUtils.createMainFrame(
+                                    "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
+                                    databaseCreatorTab,
+                                    viewInventoryTab,
+                                    viewSoftwareListTab,
+                                    accessoriesCountTab,
+                                    logCablesTab,
+                                    logAdaptersTab,
+                                    logChargersTab,
+                                    massEntryModifierTab
+                            );
+                        } else {
+                            frame = UIComponentUtils.createMainFrame(
+                                    "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
+                                    viewInventoryTab,
+                                    viewSoftwareListTab,
+                                    accessoriesCountTab,
+                                    logCablesTab,
+                                    logAdaptersTab,
+                                    logChargersTab
+                            );
+                        }
 
                         JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
                         tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
@@ -122,8 +139,6 @@ public class mainFile {
                                 massEntryModifierTab.refresh();
                             } else if (selected == accessoriesCountTab) {
                                 accessoriesCountTab.refresh();
-                            } else if (selected == logCablesTab) {
-                                logCablesTab.refresh();
                             } else if (selected == logAdaptersTab) {
                                 logAdaptersTab.refresh();
                             } else if (selected == logChargersTab) {

@@ -74,70 +74,47 @@ public class DatabaseCreatorTab extends JPanel {
             }
         } else {
             statusLabel.setText("No database path set. Please select a valid .accdb file.");
-            JOptionPane.showMessageDialog(this, "Please select a valid .accdb file to initialize the database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private boolean validateDatabasePath() {
-        String dbPath = dbPathField.getText().trim();
-        if (dbPath.isEmpty() || !dbPath.toLowerCase().endsWith(".accdb")) {
-            return false;
-        }
-        File dbFile = new File(dbPath);
-        return dbFile.exists() || dbFile.getParentFile().canWrite();
+        String path = dbPathField.getText().trim();
+        if (path.isEmpty()) return false;
+        File file = new File(path);
+        return file.exists() && path.toLowerCase().endsWith(".accdb");
     }
 
     private void browseDatabaseFile() {
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Access Database Files (*.accdb)", "accdb");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        int result = fileChooser.showOpenDialog(this);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            dbPathField.setText(selectedFile.getAbsolutePath());
-            DatabaseUtils.setDatabasePath(selectedFile.getAbsolutePath());
-            statusLabel.setText("Selected database: " + selectedFile.getName());
-            try {
-                createDefaultTables();
-                statusLabel.setText("Database initialized successfully.");
-            } catch (SQLException e) {
-                statusLabel.setText("Error: " + e.getMessage());
-                JOptionPane.showMessageDialog(this, "Error initializing database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Access Database Files (*.accdb)", "accdb"));
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
+            dbPathField.setText(path);
+            DatabaseUtils.setDatabasePath(path);
+            initializeDatabase();
         }
     }
 
-    public void createDefaultTables() throws SQLException {
-        if (!validateDatabasePath()) {
-            statusLabel.setText("Invalid database path.");
-            throw new SQLException("Please enter a valid .accdb file path.");
+    private boolean tableExists(DatabaseMetaData metaData, String tableName) throws SQLException {
+        try (ResultSet rs = metaData.getTables(null, null, tableName, null)) {
+            return rs.next();
         }
+    }
 
+    private void createDefaultTables() throws SQLException {
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            createSettingsTable(conn, metaData);
             createAccessoriesTable(conn, metaData);
             createCablesTable(conn, metaData);
             createChargersTable(conn, metaData);
             createAdaptersTable(conn, metaData);
             createTemplatesTable(conn, metaData);
+            createTableInformationTable(conn, metaData);
             createLicenseKeyRulesTable(conn, metaData);
-            statusLabel.setText("Default tables checked/created successfully.");
-        } catch (SQLException e) {
-            statusLabel.setText("Error: " + e.getMessage());
-            throw e;
         }
     }
 
-    private boolean tableExists(DatabaseMetaData metaData, String tableName) throws SQLException {
-        try (ResultSet rs = metaData.getTables(null, null, tableName, new String[]{"TABLE"})) {
-            return rs.next();
-        }
-    }
-
-    private void createSettingsTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+    private void createTableInformationTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
         if (!tableExists(metaData, "TableInformation")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
@@ -155,8 +132,11 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Accessories (" +
-                    "Peripheral_Type TEXT PRIMARY KEY, " +
-                    "[Count] INTEGER)"
+                    "ID AUTOINCREMENT PRIMARY KEY, " +
+                    "Peripheral_Type VARCHAR(255), " +
+                    "[Count] INTEGER, " +
+                    "Location VARCHAR(255), " +
+                    "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -167,8 +147,11 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Cables (" +
-                    "Cable_Type TEXT PRIMARY KEY, " +
-                    "[Count] INTEGER)"
+                    "ID AUTOINCREMENT PRIMARY KEY, " +
+                    "Cable_Type VARCHAR(255), " +
+                    "[Count] INTEGER, " +
+                    "Location VARCHAR(255), " +
+                    "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -179,8 +162,11 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Chargers (" +
-                    "Charger_Type TEXT PRIMARY KEY, " +
-                    "[Count] INTEGER)"
+                    "ID AUTOINCREMENT PRIMARY KEY, " +
+                    "Charger_Type VARCHAR(255), " +
+                    "[Count] INTEGER, " +
+                    "Location VARCHAR(255), " +
+                    "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -191,8 +177,11 @@ public class DatabaseCreatorTab extends JPanel {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
                     "CREATE TABLE Adapters (" +
-                    "Adapter_Type TEXT PRIMARY KEY, " +
-                    "[Count] INTEGER)"
+                    "ID AUTOINCREMENT PRIMARY KEY, " +
+                    "Adapter_Type VARCHAR(255), " +
+                    "[Count] INTEGER, " +
+                    "Location VARCHAR(255), " +
+                    "Previous_Location VARCHAR(255))"
                 );
             }
         }

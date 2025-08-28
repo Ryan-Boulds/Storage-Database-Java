@@ -65,20 +65,16 @@ public class TableUIComponents {
 
         JPanel buttonPanel = new JPanel();
         JButton addFieldButton = UIComponentUtils.createFormattedButton("Add Field");
-        addFieldButton.addActionListener(e -> {
-            operationHandler.addField(fieldNameField, fieldTypeComboBox, primaryKeyComboBox);
-            showMessageDialog("Status", "Field added to new table definition.", 1);
-        });
+        addFieldButton.addActionListener(e -> operationHandler.addField(fieldNameField, fieldTypeComboBox, primaryKeyComboBox));
         JButton createTableButton = UIComponentUtils.createFormattedButton("Create New Table");
         createTableButton.addActionListener(e -> operationHandler.createNewTable(newTableNameField));
-        JButton addColumnButton = UIComponentUtils.createFormattedButton("Add Column to Table");
-        addColumnButton.addActionListener(e -> operationHandler.addColumn());
+        JButton renameTableButton = UIComponentUtils.createFormattedButton("Rename Table");
+        renameTableButton.addActionListener(e -> operationHandler.renameTable(newTableNameField));
         JButton deleteTableButton = UIComponentUtils.createFormattedButton("Delete Table");
         deleteTableButton.addActionListener(e -> operationHandler.deleteTable());
-
         buttonPanel.add(addFieldButton);
         buttonPanel.add(createTableButton);
-        buttonPanel.add(addColumnButton);
+        buttonPanel.add(renameTableButton);
         buttonPanel.add(deleteTableButton);
 
         controlPanel = new JPanel(new BorderLayout());
@@ -89,13 +85,13 @@ public class TableUIComponents {
         columnMenu = new JPopupMenu();
         JMenuItem renameItem = new JMenuItem("Rename Column");
         renameItem.addActionListener(e -> operationHandler.renameColumn());
-        JMenuItem changeTypeItem = new JMenuItem("Change Column Type");
+        JMenuItem changeTypeItem = new JMenuItem("Change Type");
         changeTypeItem.addActionListener(e -> operationHandler.changeColumnType());
         JMenuItem moveLeftItem = new JMenuItem("Move Left");
-        moveLeftItem.addActionListener(e -> operationHandler.moveColumn(-1));
+        moveLeftItem.addActionListener(e -> operationHandler.moveColumnLeft());
         JMenuItem moveRightItem = new JMenuItem("Move Right");
-        moveRightItem.addActionListener(e -> operationHandler.moveColumn(1));
-        JMenuItem setPrimaryKeyItem = new JMenuItem("Set Primary Key");
+        moveRightItem.addActionListener(e -> operationHandler.moveColumnRight());
+        JMenuItem setPrimaryKeyItem = new JMenuItem("Set as Primary Key");
         setPrimaryKeyItem.addActionListener(e -> operationHandler.setPrimaryKey());
         JMenuItem removePrimaryKeyItem = new JMenuItem("Remove Primary Key");
         removePrimaryKeyItem.addActionListener(e -> operationHandler.removePrimaryKey());

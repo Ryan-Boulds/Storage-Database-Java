@@ -1,209 +1,257 @@
 package log_cables;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.JTree;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
-import utils.DatabaseUtils;
-import utils.FileUtils;
+import log_cables.actions.AddCableAction;
+import log_cables.actions.AddToStorageAction;
+import log_cables.actions.DeleteCableAction;
+import log_cables.actions.DeleteLocationAction;
+import log_cables.actions.MoveCableAction;
+import log_cables.actions.NewLocationDialog;
+import log_cables.actions.RemoveFromStorageAction;
 import utils.UIComponentUtils;
 
 public final class LogCablesTab extends JPanel {
+    private final JTree locationTree;
     private final JTable cableTable;
-    private final DefaultTableModel tableModel;
+    private DefaultTableModel tableModel;
     private final JLabel statusLabel;
+    private static final Logger LOGGER = Logger.getLogger(LogCablesTab.class.getName());
+    private static final String UNASSIGNED_LOCATION = "Unassigned";
 
     public LogCablesTab() {
         setLayout(new BorderLayout(10, 10));
 
-        // Initialize table model and table
-        tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0);
+        statusLabel = UIComponentUtils.createAlignedLabel("");
+
+        // Ensure schema
+        CablesDAO.ensureSchema();
+
+        // Split pane for tree and table
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setResizeWeight(0.3);
+
+        // Left: Location tree with new location button
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel topLeftPanel = new JPanel(new BorderLayout());
+        JLabel locationLabel = new JLabel("Locations:");
+        JButton newLocationButton = UIComponentUtils.createFormattedButton("New Location");
+        newLocationButton.addActionListener(e -> new NewLocationDialog(this).showDialog());
+        topLeftPanel.add(locationLabel, BorderLayout.WEST);
+        topLeftPanel.add(newLocationButton, BorderLayout.EAST);
+        leftPanel.add(topLeftPanel, BorderLayout.NORTH);
+        locationTree = new JTree();
+        locationTree.setRootVisible(false);
+        JScrollPane treeScrollPane = new JScrollPane(locationTree);
+        leftPanel.add(treeScrollPane, BorderLayout.CENTER);
+        splitPane.setLeftComponent(leftPanel);
+
+        // Right: Cable table and buttons
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JLabel cablesLabel = new JLabel("Cables:");
+        rightPanel.add(cablesLabel, BorderLayout.NORTH);
+        tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         cableTable = new JTable(tableModel);
         cableTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        refresh();
+        JScrollPane tableScrollPane = new JScrollPane(cableTable);
+        rightPanel.add(tableScrollPane, BorderLayout.CENTER);
 
-        // Main panel with vertical layout
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        // Buttons panel
         JPanel buttonPanel = new JPanel();
         JButton addCableButton = UIComponentUtils.createFormattedButton("Add New Cable Type");
         JButton addToStorageButton = UIComponentUtils.createFormattedButton("Add to Storage");
         JButton removeFromStorageButton = UIComponentUtils.createFormattedButton("Remove from Storage");
-        statusLabel = UIComponentUtils.createAlignedLabel("");
 
-        addCableButton.addActionListener(new AddCableAction());
-        addToStorageButton.addActionListener(new AddToStorageAction());
-        removeFromStorageButton.addActionListener(new RemoveFromStorageAction());
+        addCableButton.addActionListener(new AddCableAction(this));
+        addToStorageButton.addActionListener(new AddToStorageAction(this));
+        removeFromStorageButton.addActionListener(new RemoveFromStorageAction(this));
 
         buttonPanel.add(addCableButton);
         buttonPanel.add(addToStorageButton);
         buttonPanel.add(removeFromStorageButton);
-        panel.add(UIComponentUtils.createScrollableContentPanel(cableTable));
-        panel.add(buttonPanel);
-        panel.add(statusLabel);
+        rightPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(panel, BorderLayout.CENTER);
+        splitPane.setRightComponent(rightPanel);
+
+        add(splitPane, BorderLayout.CENTER);
+        add(statusLabel, BorderLayout.SOUTH);
+
+        // Tree selection listener
+        locationTree.addTreeSelectionListener(e -> {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
+            if (node != null) {
+                String location = (String) node.getUserObject();
+                refreshTable(location);
+            }
+        });
+
+        // Right-click menu for table
+        JPopupMenu tablePopup = new JPopupMenu();
+        JMenuItem moveCableItem = new JMenuItem("Move Cable");
+        JMenuItem deleteCableItem = new JMenuItem("Delete Cable");
+        tablePopup.add(moveCableItem);
+        tablePopup.add(deleteCableItem);
+
+        cableTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = cableTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        cableTable.setRowSelectionInterval(row, row);
+                        tablePopup.show(cableTable, e.getX(), e.getY());
+                    }
+                }
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = cableTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        cableTable.setRowSelectionInterval(row, row);
+                        tablePopup.show(cableTable, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        // Right-click menu for location tree
+        JPopupMenu treePopup = new JPopupMenu();
+        JMenuItem deleteLocationItem = new JMenuItem("Delete Location");
+        treePopup.add(deleteLocationItem);
+
+        locationTree.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    TreePath path = locationTree.getPathForLocation(e.getX(), e.getY());
+                    if (path != null) {
+                        locationTree.setSelectionPath(path);
+                        treePopup.show(locationTree, e.getX(), e.getY());
+                    }
+                }
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    TreePath path = locationTree.getPathForLocation(e.getX(), e.getY());
+                    if (path != null) {
+                        locationTree.setSelectionPath(path);
+                        treePopup.show(locationTree, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        moveCableItem.addActionListener(new MoveCableAction(this));
+        deleteCableItem.addActionListener(new DeleteCableAction(this));
+        deleteLocationItem.addActionListener(new DeleteLocationAction(this));
+
+        refreshTree();
+    }
+
+    public void refreshTree() {
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+        Set<String> locations = CablesDAO.getAllLocations();
+        for (String location : locations) {
+            root.add(new DefaultMutableTreeNode(location));
+        }
+        locationTree.setModel(new DefaultTreeModel(root));
+        for (int i = 0; i < locationTree.getRowCount(); i++) {
+            locationTree.expandRow(i);
+        }
+    }
+
+    public void refreshTable(String location) {
+        try {
+            // Update table columns based on location
+            if (location.equals(UNASSIGNED_LOCATION)) {
+                tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count", "Previous Location"}, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+            } else {
+                tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+            }
+            cableTable.setModel(tableModel);
+
+            tableModel.setRowCount(0);
+            List<CablesDAO.CableEntry> cables = CablesDAO.getCablesByLocation(location);
+            // Sort cables: non-zero counts first (alphabetically), then zero counts (alphabetically)
+            cables.sort(Comparator.comparingInt((CablesDAO.CableEntry c) -> c.count == 0 ? 1 : 0)
+                    .thenComparing(c -> c.cableType));
+            for (CablesDAO.CableEntry cable : cables) {
+                if (location.equals(UNASSIGNED_LOCATION)) {
+                    tableModel.addRow(new Object[]{cable.cableType, cable.count, cable.previousLocation});
+                } else {
+                    tableModel.addRow(new Object[]{cable.cableType, cable.count});
+                }
+            }
+            statusLabel.setText("Table refreshed for location: " + (location.equals(UNASSIGNED_LOCATION) ? UNASSIGNED_LOCATION : location));
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error refreshing table: {0}", e.getMessage());
+            setStatus("Error refreshing table: " + e.getMessage());
+        }
     }
 
     public void refresh() {
-        tableModel.setRowCount(0);
-        try {
-            ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
-            if (cables == null || cables.isEmpty()) {
-                tableModel.addRow(new Object[]{"No Data", 0});
-            } else {
-                for (HashMap<String, String> cable : cables) {
-                    String type = cable.getOrDefault("Cable_Type", "");
-                    String countStr = cable.getOrDefault("Count", "0");
-                    if (!type.isEmpty()) {
-                        int count = Integer.parseInt(countStr);
-                        tableModel.addRow(new Object[]{type, count});
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error loading cables: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
+        String location = node != null ? (String) node.getUserObject() : UNASSIGNED_LOCATION;
+        refreshTable(location);
+        refreshTree();
     }
 
-    private class AddCableAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(LogCablesTab.this), "Add New Cable Type", true);
-            dialog.setLayout(new BorderLayout(10, 10));
-            dialog.setSize(300, 150);
-            dialog.setLocationRelativeTo(LogCablesTab.this);
-
-            JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
-            JTextField typeField = UIComponentUtils.createFormattedTextField();
-            typeField.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
-            inputPanel.add(UIComponentUtils.createAlignedLabel("Cable Type:"), BorderLayout.NORTH);
-            inputPanel.add(typeField, BorderLayout.CENTER);
-
-            // Autofill suggestion
-            Set<String> existingTypes = new HashSet<>();
-            try {
-                ArrayList<HashMap<String, String>> cables = FileUtils.loadCables();
-                if (cables != null) {
-                    for (HashMap<String, String> cable : cables) {
-                        String type = cable.getOrDefault("Cable_Type", "");
-                        if (!type.isEmpty()) {
-                            existingTypes.add(type); // Preserve original case
-                        }
-                    }
-                }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(dialog, "Error loading existing cable types: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-            typeField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-                @Override
-                public void insertUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
-                @Override
-                public void removeUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
-                @Override
-                public void changedUpdate(javax.swing.event.DocumentEvent e) { updateSuggestion(typeField, existingTypes); }
-                private void updateSuggestion(JTextField field, Set<String> types) {
-                    String text = field.getText();
-                    if (text.length() > 0) {
-                        for (String type : types) {
-                            if (type.startsWith(text) && !type.equals(text)) {
-                                field.setToolTipText("Suggestion: " + type);
-                                return;
-                            }
-                        }
-                    }
-                    field.setToolTipText("Start typing to see existing types (use valid characters: letters, numbers, -, _)");
-                }
-            });
-
-            JButton addButton = UIComponentUtils.createFormattedButton("Add");
-            addButton.addActionListener(ev -> {
-                String newType = typeField.getText().trim();
-                if (newType.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Cable type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (!newType.matches("[a-zA-Z0-9-_]+")) {
-                    JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (existingTypes.contains(newType)) {
-                    JOptionPane.showMessageDialog(dialog, "Cable type already exists", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    try {
-                        DatabaseUtils.updatePeripheral(newType, 0, "Cable");
-                        JOptionPane.showMessageDialog(dialog, "Cable type '" + newType + "' added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        dialog.dispose();
-                        refresh();
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(dialog, "Error adding cable type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-
-            dialog.add(inputPanel, BorderLayout.CENTER);
-            dialog.add(addButton, BorderLayout.SOUTH);
-            dialog.setVisible(true);
-        }
+    public void setStatus(String message) {
+        statusLabel.setText(message);
     }
 
-    private class AddToStorageAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int selectedRow = cableTable.getSelectedRow();
-            if (selectedRow == -1) {
-                statusLabel.setText("Error: Select a cable type first");
-                return;
-            }
-            String type = (String) tableModel.getValueAt(selectedRow, 0);
-            int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
-            try {
-                DatabaseUtils.updatePeripheral(type, 1, "Cable");
-                tableModel.setValueAt(currentCount + 1, selectedRow, 1);
-                statusLabel.setText("Successfully added 1 to " + type);
-            } catch (SQLException ex) {
-                statusLabel.setText("Error: " + ex.getMessage());
-            }
-        }
+    public JTable getCableTable() {
+        return cableTable;
     }
 
-    private class RemoveFromStorageAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int selectedRow = cableTable.getSelectedRow();
-            if (selectedRow == -1) {
-                statusLabel.setText("Error: Select a cable type first");
-                return;
-            }
-            String type = (String) tableModel.getValueAt(selectedRow, 0);
-            int currentCount = (int) tableModel.getValueAt(selectedRow, 1);
-            if (currentCount <= 0) {
-                statusLabel.setText("Error: Count cannot go below 0");
-                return;
-            }
-            try {
-                DatabaseUtils.updatePeripheral(type, -1, "Cable");
-                tableModel.setValueAt(currentCount - 1, selectedRow, 1);
-                statusLabel.setText("Successfully removed 1 from " + type);
-            } catch (SQLException ex) {
-                statusLabel.setText("Error: " + ex.getMessage());
-            }
-        }
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
+
+    public JTree getLocationTree() {
+        return locationTree;
+    }
+
+    public String getUnassignedLocation() {
+        return UNASSIGNED_LOCATION;
     }
 }
