@@ -42,7 +42,7 @@ public class DeleteLocationAction implements ActionListener {
                 CablesDAO.deleteLocation(location);
                 tab.setStatus("Successfully deleted location " + location + " and moved cables to Unassigned");
                 tab.refreshTree();
-                tab.refreshTable(tab.getUnassignedLocation());
+                tab.refreshTable(tab.getUnassignedLocation(), false);
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting location: " + ex.getMessage());
                 JOptionPane.showMessageDialog(tab, "Error deleting location: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

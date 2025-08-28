@@ -50,7 +50,7 @@ public class DeleteCableAction implements ActionListener {
                 CablesDAO.deleteCable(id);
                 tab.setStatus("Successfully deleted " + cableType + " at " + 
                               (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
-                tab.refreshTable(location);
+                tab.refreshTable(location, false);
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting cable: " + ex.getMessage());
                 JOptionPane.showMessageDialog(tab, "Error deleting cable: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

@@ -2,9 +2,7 @@ package log_cables;
 
 import java.awt.BorderLayout;
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,6 +37,8 @@ public final class LogCablesTab extends JPanel {
     private final JLabel statusLabel;
     private static final Logger LOGGER = Logger.getLogger(LogCablesTab.class.getName());
     private static final String UNASSIGNED_LOCATION = "Unassigned";
+    private static final String UNASSIGNED_IN_LOCATION = "Unassigned in this location";
+    private static final String PATH_SEPARATOR = "--";
 
     public LogCablesTab() {
         setLayout(new BorderLayout(10, 10));
@@ -58,7 +58,7 @@ public final class LogCablesTab extends JPanel {
         JPanel topLeftPanel = new JPanel(new BorderLayout());
         JLabel locationLabel = new JLabel("Locations:");
         JButton newLocationButton = UIComponentUtils.createFormattedButton("New Location");
-        newLocationButton.addActionListener(e -> new NewLocationDialog(this).showDialog());
+        newLocationButton.addActionListener(e -> new NewLocationDialog(this, null).showDialog());
         topLeftPanel.add(locationLabel, BorderLayout.WEST);
         topLeftPanel.add(newLocationButton, BorderLayout.EAST);
         leftPanel.add(topLeftPanel, BorderLayout.NORTH);
@@ -107,8 +107,16 @@ public final class LogCablesTab extends JPanel {
         locationTree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
             if (node != null) {
-                String location = (String) node.getUserObject();
-                refreshTable(location);
+                String nodeValue = (String) node.getUserObject();
+                if (nodeValue.equals(UNASSIGNED_IN_LOCATION)) {
+                    // Get the parent node's full path
+                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+                    String parentPath = buildPathFromNode(parentNode);
+                    refreshTable(parentPath, true);
+                } else {
+                    String fullPath = buildPathFromNode(node);
+                    refreshTable(fullPath, false);
+                }
             }
         });
 
@@ -145,7 +153,9 @@ public final class LogCablesTab extends JPanel {
         // Right-click menu for location tree
         JPopupMenu treePopup = new JPopupMenu();
         JMenuItem deleteLocationItem = new JMenuItem("Delete Location");
+        JMenuItem addSubCategoryItem = new JMenuItem("Add Sub-Category");
         treePopup.add(deleteLocationItem);
+        treePopup.add(addSubCategoryItem);
 
         locationTree.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -154,7 +164,10 @@ public final class LogCablesTab extends JPanel {
                     TreePath path = locationTree.getPathForLocation(e.getX(), e.getY());
                     if (path != null) {
                         locationTree.setSelectionPath(path);
-                        treePopup.show(locationTree, e.getX(), e.getY());
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        if (node != null && !node.getUserObject().equals(UNASSIGNED_IN_LOCATION)) {
+                            treePopup.show(locationTree, e.getX(), e.getY());
+                        }
                     }
                 }
             }
@@ -164,64 +177,137 @@ public final class LogCablesTab extends JPanel {
                     TreePath path = locationTree.getPathForLocation(e.getX(), e.getY());
                     if (path != null) {
                         locationTree.setSelectionPath(path);
-                        treePopup.show(locationTree, e.getX(), e.getY());
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        if (node != null && !node.getUserObject().equals(UNASSIGNED_IN_LOCATION)) {
+                            treePopup.show(locationTree, e.getX(), e.getY());
+                        }
                     }
                 }
             }
         });
 
+        deleteLocationItem.addActionListener(new DeleteLocationAction(this));
+        addSubCategoryItem.addActionListener(e -> {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
+            if (node != null) {
+                String parentPath = buildPathFromNode(node);
+                new NewLocationDialog(this, parentPath).showDialog();
+            }
+        });
+
         moveCableItem.addActionListener(new MoveCableAction(this));
         deleteCableItem.addActionListener(new DeleteCableAction(this));
-        deleteLocationItem.addActionListener(new DeleteLocationAction(this));
 
         refreshTree();
     }
 
+    private String buildPathFromNode(DefaultMutableTreeNode node) {
+        if (node == null || node.isRoot()) {
+            return null;
+        }
+        TreePath path = new TreePath(node.getPath());
+        Object[] nodes = path.getPath();
+        StringBuilder fullPath = new StringBuilder();
+        for (int i = 1; i < nodes.length; i++) { // Skip root
+            if (i > 1) {
+                fullPath.append(PATH_SEPARATOR);
+            }
+            fullPath.append(nodes[i].toString());
+        }
+        return fullPath.toString();
+    }
+
     public void refreshTree() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
-        Set<String> locations = CablesDAO.getAllLocations();
-        for (String location : locations) {
-            root.add(new DefaultMutableTreeNode(location));
-        }
-        locationTree.setModel(new DefaultTreeModel(root));
-        for (int i = 0; i < locationTree.getRowCount(); i++) {
-            locationTree.expandRow(i);
+        try {
+            // Get top-level locations
+            List<String> topLevelLocations = CablesDAO.getSubLocations(null);
+            for (String location : topLevelLocations) {
+                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(location);
+                // Add "Unassigned in this location" if there are direct cables and sub-locations
+                List<String> subLocations = CablesDAO.getSubLocations(location);
+                if (!subLocations.isEmpty()) {
+                    List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(location);
+                    if (!directCables.isEmpty()) {
+                        locationNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
+                    }
+                }
+                // Build sub-tree
+                buildLocationTree(locationNode, location);
+                root.add(locationNode);
+            }
+            // Add Unassigned location
+            DefaultMutableTreeNode unassignedNode = new DefaultMutableTreeNode(UNASSIGNED_LOCATION);
+            root.add(unassignedNode);
+            locationTree.setModel(new DefaultTreeModel(root));
+            for (int i = 0; i < locationTree.getRowCount(); i++) {
+                locationTree.expandRow(i);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error refreshing tree: {0}", e.getMessage());
+            setStatus("Error refreshing tree: " + e.getMessage());
         }
     }
 
-    public void refreshTable(String location) {
+    private void buildLocationTree(DefaultMutableTreeNode parentNode, String parentPath) throws SQLException {
+        List<String> subLocations = CablesDAO.getSubLocations(parentPath);
+        for (String subLocation : subLocations) {
+            String fullPath = parentPath == null ? subLocation : parentPath + PATH_SEPARATOR + subLocation;
+            DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(subLocation);
+            // Add "Unassigned in this location" if there are direct cables and sub-locations
+            List<String> subSubLocations = CablesDAO.getSubLocations(fullPath);
+            if (!subSubLocations.isEmpty()) {
+                List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
+                if (!directCables.isEmpty()) {
+                    subNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
+                }
+            }
+            // Recursively build sub-tree
+            buildLocationTree(subNode, fullPath);
+            parentNode.add(subNode);
+        }
+    }
+
+    public void refreshTable(String location, boolean isUnassignedView) {
         try {
-            // Update table columns based on location
-            if (location.equals(UNASSIGNED_LOCATION)) {
-                tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count", "Previous Location"}, 0) {
+            List<CablesDAO.CableEntry> cables;
+            if (isUnassignedView || !CablesDAO.getSubLocations(location).isEmpty()) {
+                // Parent location or Unassigned in this location: show aggregated counts
+                tableModel = new DefaultTableModel(new String[]{"Cable Type", "Total Count"}, 0) {
                     @Override
                     public boolean isCellEditable(int row, int column) {
                         return false;
                     }
                 };
+                cables = CablesDAO.getCablesByParentLocation(location);
             } else {
-                tableModel = new DefaultTableModel(new String[]{"Cable Type", "Count"}, 0) {
+                // Leaf location or Unassigned: show direct counts
+                tableModel = new DefaultTableModel(
+                        location.equals(UNASSIGNED_LOCATION) ? new String[]{"Cable Type", "Count", "Previous Location"} : new String[]{"Cable Type", "Count"}, 0) {
                     @Override
                     public boolean isCellEditable(int row, int column) {
                         return false;
                     }
                 };
+                cables = CablesDAO.getCablesByLocation(location);
             }
             cableTable.setModel(tableModel);
 
             tableModel.setRowCount(0);
-            List<CablesDAO.CableEntry> cables = CablesDAO.getCablesByLocation(location);
             // Sort cables: non-zero counts first (alphabetically), then zero counts (alphabetically)
-            cables.sort(Comparator.comparingInt((CablesDAO.CableEntry c) -> c.count == 0 ? 1 : 0)
+            cables.sort(java.util.Comparator.comparingInt((CablesDAO.CableEntry c) -> c.count == 0 ? 1 : 0)
                     .thenComparing(c -> c.cableType));
             for (CablesDAO.CableEntry cable : cables) {
+                if (cable.cableType.startsWith("Placeholder_")) {
+                    continue;
+                }
                 if (location.equals(UNASSIGNED_LOCATION)) {
                     tableModel.addRow(new Object[]{cable.cableType, cable.count, cable.previousLocation});
                 } else {
                     tableModel.addRow(new Object[]{cable.cableType, cable.count});
                 }
             }
-            statusLabel.setText("Table refreshed for location: " + (location.equals(UNASSIGNED_LOCATION) ? UNASSIGNED_LOCATION : location));
+            statusLabel.setText("Table refreshed for: " + (isUnassignedView ? location + " (Unassigned)" : location));
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error refreshing table: {0}", e.getMessage());
             setStatus("Error refreshing table: " + e.getMessage());
@@ -230,9 +316,19 @@ public final class LogCablesTab extends JPanel {
 
     public void refresh() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
-        String location = node != null ? (String) node.getUserObject() : UNASSIGNED_LOCATION;
-        refreshTable(location);
-        refreshTree();
+        if (node == null) {
+            refreshTable(UNASSIGNED_LOCATION, false);
+        } else {
+            String nodeValue = (String) node.getUserObject();
+            if (nodeValue.equals(UNASSIGNED_IN_LOCATION)) {
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+                String parentPath = buildPathFromNode(parentNode);
+                refreshTable(parentPath, true);
+            } else {
+                String fullPath = buildPathFromNode(node);
+                refreshTable(fullPath, false);
+            }
+        }
     }
 
     public void setStatus(String message) {
@@ -253,5 +349,9 @@ public final class LogCablesTab extends JPanel {
 
     public String getUnassignedLocation() {
         return UNASSIGNED_LOCATION;
+    }
+
+    public static String getPathSeparator() {
+        return PATH_SEPARATOR;
     }
 }

@@ -15,8 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import log_cables.CablesDAO;
 import log_cables.LogCablesTab;
@@ -33,117 +33,95 @@ public class MoveCableAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         int selectedRow = tab.getCableTable().getSelectedRow();
         if (selectedRow == -1) {
-            tab.setStatus("Error: Select a cable type first");
+            tab.setStatus("Error: Select a cable to move");
             return;
         }
+
         String cableType = (String) tab.getTableModel().getValueAt(selectedRow, 0);
-        int availableCount = ((Number) tab.getTableModel().getValueAt(selectedRow, 1)).intValue();
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tab.getLocationTree().getLastSelectedPathComponent();
         if (node == null) {
             tab.setStatus("Error: Select a location first");
             return;
         }
-        String sourceLocation = (String) node.getUserObject();
-
-        Set<String> locations = CablesDAO.getAllLocations();
-        locations.remove(sourceLocation);
-        if (locations.isEmpty()) {
-            tab.setStatus("Error: No other locations to move to");
-            return;
-        }
-        String[] locationArray = locations.toArray(new String[0]);
+        String sourceLocation = node.getUserObject().equals("Unassigned in this location")
+                ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
+                : buildPathFromNode(node);
 
         JDialog dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, tab), "Move Cable", true);
-        dialog.setSize(350, 200);
+        dialog.setSize(300, 200);
         dialog.setLayout(new java.awt.BorderLayout());
         dialog.setLocationRelativeTo(tab);
 
-        JPanel inputPanel = new JPanel(new java.awt.BorderLayout(5, 5));
+        JPanel inputPanel = new JPanel(new java.awt.BorderLayout());
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel label = new JLabel("Move " + cableType + " from " + sourceLocation + " to:");
-        JComboBox<String> locationCombo = UIComponentUtils.createFormattedComboBox(locationArray);
-        JLabel qtyLabel = new JLabel("Quantity (max " + availableCount + "):");
-        JTextField qtyField = UIComponentUtils.createFormattedTextField();
-        qtyField.setText("1");
-        JButton transferAllButton = UIComponentUtils.createFormattedButton("Transfer All");
-        transferAllButton.addActionListener(e1 -> qtyField.setText(String.valueOf(availableCount)));
-
-        JPanel qtyPanel = new JPanel(new java.awt.BorderLayout(5, 0));
-        qtyPanel.add(qtyField, java.awt.BorderLayout.CENTER);
-        qtyPanel.add(transferAllButton, java.awt.BorderLayout.EAST);
-
-        inputPanel.add(label, java.awt.BorderLayout.NORTH);
+        JLabel locationLabel = new JLabel("Select target location:");
+        JComboBox<String> locationCombo = new JComboBox<>();
+        Set<String> locations = CablesDAO.getAllLocations();
+        locations.remove(sourceLocation); // Don't allow moving to same location
+        for (String loc : locations) {
+            locationCombo.addItem(loc);
+        }
+        locationCombo.addItem(tab.getUnassignedLocation());
+        JLabel quantityLabel = new JLabel("Enter quantity to move:");
+        JTextField quantityField = UIComponentUtils.createFormattedTextField();
+        inputPanel.add(locationLabel, java.awt.BorderLayout.NORTH);
         inputPanel.add(locationCombo, java.awt.BorderLayout.CENTER);
-        inputPanel.add(qtyPanel, java.awt.BorderLayout.SOUTH);
-        qtyPanel.add(qtyLabel, java.awt.BorderLayout.NORTH);
+        inputPanel.add(quantityLabel, java.awt.BorderLayout.SOUTH);
+        inputPanel.add(quantityField, java.awt.BorderLayout.SOUTH);
 
         JButton moveButton = UIComponentUtils.createFormattedButton("Move");
         moveButton.addActionListener(e1 -> {
             String targetLocation = (String) locationCombo.getSelectedItem();
-            String qtyText = qtyField.getText().trim();
+            String quantityText = quantityField.getText().trim();
+            int quantity;
             try {
-                int quantity = Integer.parseInt(qtyText);
+                quantity = Integer.parseInt(quantityText);
                 if (quantity <= 0) {
                     JOptionPane.showMessageDialog(dialog, "Quantity must be positive", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if (quantity > availableCount) {
-                    JOptionPane.showMessageDialog(dialog, "Cannot move more than " + availableCount + " cables", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                int id;
-                try {
-                    id = CablesDAO.getCableId(cableType, sourceLocation);
-                    if (id == -1) {
-                        tab.setStatus("Error: Cable type '" + cableType + "' not found at " + sourceLocation);
-                        return;
-                    }
-                } catch (SQLException ex) {
-                    tab.setStatus("Error retrieving cable ID: " + ex.getMessage());
-                    JOptionPane.showMessageDialog(dialog, "Error retrieving cable ID: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                // Disable UI elements during processing
-                moveButton.setEnabled(false);
-                locationCombo.setEnabled(false);
-                qtyField.setEnabled(false);
-                transferAllButton.setEnabled(false);
-                tab.setStatus("Processing...");
-                // Perform move operation in background
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws SQLException {
-                        CablesDAO.moveCable(id, targetLocation, quantity);
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            get(); // Check for exceptions
-                            tab.setStatus("Successfully moved " + quantity + " of " + cableType + " to " + targetLocation);
-                            tab.refreshTable(sourceLocation);
-                            dialog.dispose();
-                        } catch (InterruptedException | java.util.concurrent.ExecutionException ex) {
-                            String errorMsg = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
-                            tab.setStatus("Error moving cable: " + errorMsg);
-                            JOptionPane.showMessageDialog(dialog, "Error moving cable: " + errorMsg, "Error", JOptionPane.ERROR_MESSAGE);
-                        } finally {
-                            moveButton.setEnabled(true);
-                            locationCombo.setEnabled(true);
-                            qtyField.setEnabled(true);
-                            transferAllButton.setEnabled(true);
-                        }
-                    }
-                };
-                worker.execute();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid quantity: " + qtyText, "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Invalid quantity format", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                int sourceId = CablesDAO.getCableId(cableType, sourceLocation);
+                if (sourceId == -1) {
+                    JOptionPane.showMessageDialog(dialog, "Cable not found at source location", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (!CablesDAO.canRemoveCable(sourceId)) {
+                    JOptionPane.showMessageDialog(dialog, "No cables available to move", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                CablesDAO.moveCable(sourceId, targetLocation, quantity);
+                tab.setStatus("Successfully moved " + quantity + " " + cableType + " to " + targetLocation);
+                tab.refresh();
+                dialog.dispose();
+            } catch (SQLException ex) {
+                tab.setStatus("Error moving cable: " + ex.getMessage());
+                JOptionPane.showMessageDialog(dialog, "Error moving cable: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         dialog.add(inputPanel, java.awt.BorderLayout.CENTER);
         dialog.add(moveButton, java.awt.BorderLayout.SOUTH);
         dialog.setVisible(true);
+    }
+
+    private String buildPathFromNode(DefaultMutableTreeNode node) {
+        if (node == null || node.isRoot()) {
+            return null;
+        }
+        TreePath path = new TreePath(node.getPath());
+        Object[] nodes = path.getPath();
+        StringBuilder fullPath = new StringBuilder();
+        for (int i = 1; i < nodes.length; i++) { // Skip root
+            if (i > 1) {
+                fullPath.append(LogCablesTab.getPathSeparator());
+            }
+            fullPath.append(nodes[i].toString());
+        }
+        return fullPath.toString();
     }
 }

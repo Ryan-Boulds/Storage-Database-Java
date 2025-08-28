@@ -45,7 +45,7 @@ public class RemoveFromStorageAction implements ActionListener {
             CablesDAO.updateCount(id, -1);
             tab.setStatus("Successfully removed 1 from " + type + " at " + 
                           (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
-            tab.refreshTable(location);
+            tab.refreshTable(location, false);
         } catch (SQLException ex) {
             tab.setStatus("Error: " + ex.getMessage());
         }

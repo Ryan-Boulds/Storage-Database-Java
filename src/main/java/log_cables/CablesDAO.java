@@ -21,19 +21,20 @@ public final class CablesDAO {
     private static final String TABLE_NAME = "Cables";
 
     public static class CableEntry {
-
         public final int id;
         public final String cableType;
         public final int count;
         public final String location;
         public final String previousLocation;
+        public final String parentLocation;
 
-        public CableEntry(int id, String cableType, int count, String location, String previousLocation) {
+        public CableEntry(int id, String cableType, int count, String location, String previousLocation, String parentLocation) {
             this.id = id;
             this.cableType = cableType;
             this.count = count;
             this.location = location;
             this.previousLocation = previousLocation;
+            this.parentLocation = parentLocation;
         }
     }
 
@@ -44,83 +45,37 @@ public final class CablesDAO {
                 if (!rs.next()) {
                     // Table doesn't exist, create it
                     try (Statement stmt = conn.createStatement()) {
-                        String sql = "CREATE TABLE " + TABLE_NAME + " (ID AUTOINCREMENT PRIMARY KEY, Cable_Type VARCHAR(255), [Count] INTEGER, Location VARCHAR(255), Previous_Location VARCHAR(255))";
+                        String sql = "CREATE TABLE " + TABLE_NAME + " (ID AUTOINCREMENT PRIMARY KEY, Cable_Type VARCHAR(255), [Count] INTEGER, Location VARCHAR(255), Previous_Location VARCHAR(255), Parent_Location VARCHAR(255))";
                         stmt.executeUpdate(sql);
-                        // Check if index exists
-                        boolean indexExists = false;
-                        try (ResultSet indexes = meta.getIndexInfo(null, null, TABLE_NAME, false, false)) {
-                            while (indexes.next()) {
-                                String indexName = indexes.getString("INDEX_NAME");
-                                if ("idx_cable_type_location".equals(indexName)) {
-                                    indexExists = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!indexExists) {
-                            stmt.executeUpdate("CREATE INDEX idx_cable_type_location ON " + TABLE_NAME + " (Cable_Type, Location)");
-                            LOGGER.log(Level.INFO, "Created Cables table with index idx_cable_type_location");
-                        } else {
-                            LOGGER.log(Level.INFO, "Created Cables table, index idx_cable_type_location already exists");
-                        }
+                        stmt.executeUpdate("CREATE INDEX idx_cable_type_location ON " + TABLE_NAME + " (Cable_Type, Location)");
+                        LOGGER.log(Level.INFO, "Created Cables table with index idx_cable_type_location");
                     }
                 } else {
-                    // Table exists, check for ID column (new schema)
-                    try (ResultSet columns = meta.getColumns(null, null, TABLE_NAME, "ID")) {
+                    // Table exists, check for Parent_Location column
+                    try (ResultSet columns = meta.getColumns(null, null, TABLE_NAME, "Parent_Location")) {
                         if (!columns.next()) {
-                            // Old schema detected, migrate to new schema
+                            // Add Parent_Location column
                             try (Statement stmt = conn.createStatement()) {
-                                // Create temporary table
-                                stmt.executeUpdate(
-                                        "CREATE TABLE TempCables (ID AUTOINCREMENT PRIMARY KEY, Cable_Type VARCHAR(255), [Count] INTEGER, Location VARCHAR(255), Previous_Location VARCHAR(255))"
-                                );
-                                // Migrate data
-                                stmt.executeUpdate(
-                                        "INSERT INTO TempCables (Cable_Type, [Count], Location, Previous_Location) "
-                                        + "SELECT Cable_Type, [Count], 'Unassigned', NULL FROM " + TABLE_NAME
-                                );
-                                // Drop old table
-                                stmt.executeUpdate("DROP TABLE " + TABLE_NAME);
-                                // Rename temporary table
-                                stmt.executeUpdate("ALTER TABLE TempCables RENAME TO " + TABLE_NAME);
-                                // Check if index exists
-                                boolean indexExists = false;
-                                try (ResultSet indexes = meta.getIndexInfo(null, null, TABLE_NAME, false, false)) {
-                                    while (indexes.next()) {
-                                        String indexName = indexes.getString("INDEX_NAME");
-                                        if ("idx_cable_type_location".equals(indexName)) {
-                                            indexExists = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!indexExists) {
-                                    stmt.executeUpdate("CREATE INDEX idx_cable_type_location ON " + TABLE_NAME + " (Cable_Type, Location)");
-                                    LOGGER.log(Level.INFO, "Migrated Cables table to new schema with index idx_cable_type_location");
-                                } else {
-                                    LOGGER.log(Level.INFO, "Migrated Cables table to new schema, index idx_cable_type_location already exists");
-                                }
+                                stmt.executeUpdate("ALTER TABLE " + TABLE_NAME + " ADD Parent_Location VARCHAR(255)");
+                                LOGGER.log(Level.INFO, "Added Parent_Location column to Cables table");
                             }
-                        } else {
-                            // New schema exists, ensure index
-                            boolean indexExists = false;
-                            try (ResultSet indexes = meta.getIndexInfo(null, null, TABLE_NAME, false, false)) {
-                                while (indexes.next()) {
-                                    String indexName = indexes.getString("INDEX_NAME");
-                                    if ("idx_cable_type_location".equals(indexName)) {
-                                        indexExists = true;
-                                        break;
-                                    }
-                                }
+                        }
+                    }
+                    // Ensure index exists
+                    boolean indexExists = false;
+                    try (ResultSet indexes = meta.getIndexInfo(null, null, TABLE_NAME, false, false)) {
+                        while (indexes.next()) {
+                            String indexName = indexes.getString("INDEX_NAME");
+                            if ("idx_cable_type_location".equals(indexName)) {
+                                indexExists = true;
+                                break;
                             }
-                            if (!indexExists) {
-                                try (Statement stmt = conn.createStatement()) {
-                                    stmt.executeUpdate("CREATE INDEX idx_cable_type_location ON " + TABLE_NAME + " (Cable_Type, Location)");
-                                    LOGGER.log(Level.INFO, "Added missing index idx_cable_type_location to existing Cables table");
-                                }
-                            } else {
-                                LOGGER.log(Level.INFO, "Cables table schema already up to date with index idx_cable_type_location");
-                            }
+                        }
+                    }
+                    if (!indexExists) {
+                        try (Statement stmt = conn.createStatement()) {
+                            stmt.executeUpdate("CREATE INDEX idx_cable_type_location ON " + TABLE_NAME + " (Cable_Type, Location)");
+                            LOGGER.log(Level.INFO, "Added missing index idx_cable_type_location to existing Cables table");
                         }
                     }
                 }
@@ -131,18 +86,19 @@ public final class CablesDAO {
         }
     }
 
-    public static void addCable(String cableType, int count, String location) throws SQLException {
+    public static void addCable(String cableType, int count, String location, String parentLocation) throws SQLException {
         try (Connection conn = DatabaseUtils.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location) VALUES (?, ?, ?, ?)")) {
+                    "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location, Parent_Location) VALUES (?, ?, ?, ?, ?)")) {
                 ps.setString(1, cableType);
                 ps.setInt(2, count);
                 ps.setString(3, location);
                 ps.setString(4, null);
+                ps.setString(5, parentLocation);
                 ps.executeUpdate();
                 conn.commit();
-                LOGGER.log(Level.INFO, "Added {0} {1} cables at {2}", new Object[]{count, cableType, location});
+                LOGGER.log(Level.INFO, "Added {0} {1} cables at {2} (parent: {3})", new Object[]{count, cableType, location, parentLocation});
             } catch (SQLException e) {
                 conn.rollback();
                 LOGGER.log(Level.SEVERE, "Error adding cable: {0}", e.getMessage());
@@ -165,18 +121,19 @@ public final class CablesDAO {
         }
     }
 
-    public static void createLocation(String location) throws SQLException {
+    public static void createLocation(String location, String parentLocation) throws SQLException {
         try (Connection conn = DatabaseUtils.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location) VALUES (?, ?, ?, ?)")) {
+                    "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location, Parent_Location) VALUES (?, ?, ?, ?, ?)")) {
                 ps.setString(1, "Placeholder_" + location);
                 ps.setInt(2, 0);
                 ps.setString(3, location);
                 ps.setString(4, null);
+                ps.setString(5, parentLocation);
                 ps.executeUpdate();
                 conn.commit();
-                LOGGER.log(Level.INFO, "Created new location: {0}", location);
+                LOGGER.log(Level.INFO, "Created new location: {0} (parent: {1})", new Object[]{location, parentLocation});
             } catch (SQLException e) {
                 conn.rollback();
                 LOGGER.log(Level.SEVERE, "Error creating location: {0}", e.getMessage());
@@ -277,8 +234,9 @@ public final class CablesDAO {
                 int currentCount;
                 String cableType;
                 String sourceLocation;
+                String sourceParentLocation;
                 try (PreparedStatement psSource = conn.prepareStatement(
-                        "SELECT Cable_Type, [Count], Location FROM " + TABLE_NAME + " WHERE ID = ?")) {
+                        "SELECT Cable_Type, [Count], Location, Parent_Location FROM " + TABLE_NAME + " WHERE ID = ?")) {
                     psSource.setInt(1, sourceId);
                     try (ResultSet rsSource = psSource.executeQuery()) {
                         if (!rsSource.next()) {
@@ -287,12 +245,16 @@ public final class CablesDAO {
                         cableType = rsSource.getString("Cable_Type");
                         currentCount = rsSource.getInt("Count");
                         sourceLocation = rsSource.getString("Location");
+                        sourceParentLocation = rsSource.getString("Parent_Location");
                     }
                 }
                 if (quantity > currentCount) {
                     throw new SQLException("Cannot move " + quantity + " cables; only " + currentCount + " available");
                 }
                 boolean transferAll = (quantity == currentCount);
+
+                // Get target parent location (assume same parent as source for simplicity, adjust if needed)
+                String targetParentLocation = targetLocation.equals("Unassigned") ? null : sourceParentLocation;
 
                 // Check if target exists
                 boolean targetExists = false;
@@ -314,7 +276,6 @@ public final class CablesDAO {
                     }
                 }
                 if (targetExists) {
-                    // If target is Unassigned, update Previous_Location; otherwise, keep existing
                     String updatePrev = targetLocation.equals("Unassigned") ? newPrevLoc : targetPrev;
                     try (PreparedStatement psUpdateTarget = conn.prepareStatement(
                             "UPDATE " + TABLE_NAME + " SET [Count] = ?, Previous_Location = ? WHERE ID = ?")) {
@@ -325,11 +286,12 @@ public final class CablesDAO {
                     }
                 } else {
                     try (PreparedStatement psInsert = conn.prepareStatement(
-                            "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location) VALUES (?, ?, ?, ?)")) {
+                            "INSERT INTO " + TABLE_NAME + " (Cable_Type, [Count], Location, Previous_Location, Parent_Location) VALUES (?, ?, ?, ?, ?)")) {
                         psInsert.setString(1, cableType);
                         psInsert.setInt(2, quantity);
                         psInsert.setString(3, targetLocation);
                         psInsert.setString(4, newPrevLoc);
+                        psInsert.setString(5, targetParentLocation);
                         psInsert.executeUpdate();
                     }
                 }
@@ -357,7 +319,7 @@ public final class CablesDAO {
     public static List<CableEntry> getCablesByLocation(String location) throws SQLException {
         List<CableEntry> cables = new ArrayList<>();
         try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement ps = conn.prepareStatement(
-                "SELECT ID, Cable_Type, [Count], Location, Previous_Location FROM " + TABLE_NAME + " WHERE Location = ? AND Cable_Type NOT LIKE '%Placeholder'")) {
+                "SELECT ID, Cable_Type, [Count], Location, Previous_Location, Parent_Location FROM " + TABLE_NAME + " WHERE Location = ? AND Cable_Type NOT LIKE '%Placeholder'")) {
             ps.setString(1, location);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -366,7 +328,33 @@ public final class CablesDAO {
                             rs.getString("Cable_Type"),
                             rs.getInt("Count"),
                             rs.getString("Location"),
-                            rs.getString("Previous_Location")
+                            rs.getString("Previous_Location"),
+                            rs.getString("Parent_Location")
+                    ));
+                }
+            }
+        }
+        return cables;
+    }
+
+    public static List<CableEntry> getCablesByParentLocation(String parentLocation) throws SQLException {
+        List<CableEntry> cables = new ArrayList<>();
+        String query = parentLocation == null
+                ? "SELECT Cable_Type, SUM([Count]) as [Count] FROM " + TABLE_NAME + " WHERE Parent_Location IS NULL AND Cable_Type NOT LIKE '%Placeholder' GROUP BY Cable_Type"
+                : "SELECT Cable_Type, SUM([Count]) as [Count] FROM " + TABLE_NAME + " WHERE Parent_Location = ? AND Cable_Type NOT LIKE '%Placeholder' GROUP BY Cable_Type";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            if (parentLocation != null) {
+                ps.setString(1, parentLocation);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    cables.add(new CableEntry(
+                            0, // ID not needed for aggregated view
+                            rs.getString("Cable_Type"),
+                            rs.getInt("Count"),
+                            null, // Location not applicable
+                            null, // Previous_Location not applicable
+                            parentLocation // Parent_Location
                     ));
                 }
             }
@@ -389,10 +377,34 @@ public final class CablesDAO {
         return locations;
     }
 
+    public static List<String> getSubLocations(String parentLocation) throws SQLException {
+        List<String> subLocations = new ArrayList<>();
+        String query = parentLocation == null
+                ? "SELECT DISTINCT Location FROM " + TABLE_NAME + " WHERE Parent_Location IS NULL"
+                : "SELECT DISTINCT Location FROM " + TABLE_NAME + " WHERE Parent_Location = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            if (parentLocation != null) {
+                ps.setString(1, parentLocation);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    subLocations.add(rs.getString("Location"));
+                }
+            }
+        }
+        return subLocations;
+    }
+
     public static void deleteLocation(String targetLocation) throws SQLException {
         try (Connection conn = DatabaseUtils.getConnection()) {
             conn.setAutoCommit(false);
             try {
+                // Check for sub-locations
+                List<String> subLocations = getSubLocations(targetLocation);
+                if (!subLocations.isEmpty()) {
+                    throw new SQLException("Cannot delete location " + targetLocation + " with sub-locations: " + subLocations);
+                }
+
                 PreparedStatement selectPs = conn.prepareStatement(
                         "SELECT ID, Cable_Type, [Count], Previous_Location FROM " + TABLE_NAME + " WHERE Location = ?");
                 selectPs.setString(1, targetLocation);
@@ -433,10 +445,11 @@ public final class CablesDAO {
                             } else {
                                 // No matching cable type in Unassigned: update location to Unassigned
                                 PreparedStatement updatePs = conn.prepareStatement(
-                                        "UPDATE " + TABLE_NAME + " SET Location = ?, Previous_Location = ? WHERE ID = ?");
+                                        "UPDATE " + TABLE_NAME + " SET Location = ?, Previous_Location = ?, Parent_Location = ? WHERE ID = ?");
                                 updatePs.setString(1, "Unassigned");
                                 updatePs.setString(2, newPrevLoc);
-                                updatePs.setInt(3, id);
+                                updatePs.setString(3, null);
+                                updatePs.setInt(4, id);
                                 updatePs.executeUpdate();
                             }
                         }

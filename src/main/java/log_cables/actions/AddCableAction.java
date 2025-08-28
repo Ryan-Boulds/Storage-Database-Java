@@ -2,8 +2,6 @@ package log_cables.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
@@ -16,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import log_cables.CablesDAO;
 import log_cables.LogCablesTab;
@@ -35,7 +34,13 @@ public class AddCableAction implements ActionListener {
             tab.setStatus("Error: Select a location first");
             return;
         }
-        String location = (String) node.getUserObject();
+        String location = node.getUserObject().equals("Unassigned in this location")
+                ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
+                : buildPathFromNode(node);
+        String separator = LogCablesTab.getPathSeparator();
+        String parentLocation = location.contains(separator) 
+                ? location.substring(0, location.lastIndexOf(separator)) 
+                : null;
 
         JDialog dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, tab), "Add New Cable Type", true);
         dialog.setSize(300, 200);
@@ -44,70 +49,67 @@ public class AddCableAction implements ActionListener {
 
         JPanel inputPanel = new JPanel(new java.awt.BorderLayout());
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JLabel cableLabel = new JLabel("Enter new cable type:");
-        JTextField cableField = UIComponentUtils.createFormattedTextField();
-        JLabel countLabel = new JLabel("Enter count:");
-        JTextField countField = UIComponentUtils.createFormattedTextField();
-        countField.setText("0");
-
-        // Prevent spaces in cable type
-        cableField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == ' ') {
-                    e.consume();
-                }
-            }
-        });
-
-        JPanel fieldsPanel = new JPanel(new java.awt.GridLayout(2, 2, 5, 5));
-        fieldsPanel.add(cableLabel);
-        fieldsPanel.add(cableField);
-        fieldsPanel.add(countLabel);
-        fieldsPanel.add(countField);
-        inputPanel.add(fieldsPanel, java.awt.BorderLayout.CENTER);
+        JLabel typeLabel = new JLabel("Enter cable type:");
+        JTextField typeField = UIComponentUtils.createFormattedTextField();
+        JLabel quantityLabel = new JLabel("Enter quantity:");
+        JTextField quantityField = UIComponentUtils.createFormattedTextField();
+        inputPanel.add(typeLabel, java.awt.BorderLayout.NORTH);
+        inputPanel.add(typeField, java.awt.BorderLayout.CENTER);
+        inputPanel.add(quantityLabel, java.awt.BorderLayout.SOUTH);
+        inputPanel.add(quantityField, java.awt.BorderLayout.SOUTH);
 
         JButton addButton = UIComponentUtils.createFormattedButton("Add");
         addButton.addActionListener(e1 -> {
-            String newType = cableField.getText().trim();
-            String countText = countField.getText().trim();
-            if (newType.isEmpty()) {
+            String cableType = typeField.getText().trim();
+            String quantityText = quantityField.getText().trim();
+            if (cableType.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Cable type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if (!newType.matches("[a-zA-Z0-9-_]+")) {
-                JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            int count;
+            int quantity;
             try {
-                count = Integer.parseInt(countText);
-                if (count < 0) {
-                    JOptionPane.showMessageDialog(dialog, "Count cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                quantity = Integer.parseInt(quantityText);
+                if (quantity < 0) {
+                    JOptionPane.showMessageDialog(dialog, "Quantity cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid count format", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Invalid quantity format", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
-                if (CablesDAO.cableExistsAtLocation(newType, location)) {
+                if (CablesDAO.cableExistsAtLocation(cableType, location)) {
                     JOptionPane.showMessageDialog(dialog, "Cable type already exists at this location", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                CablesDAO.addCable(newType, count, location);
-                tab.setStatus("Successfully added new cable type '" + newType + "' at " + 
-                              (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
-                tab.refreshTable(location);
+                CablesDAO.addCable(cableType, quantity, location, parentLocation);
+                tab.setStatus("Successfully added " + quantity + " " + cableType + " to " + location);
+                tab.refresh();
                 dialog.dispose();
             } catch (SQLException ex) {
-                tab.setStatus("Error adding cable type: " + ex.getMessage());
-                JOptionPane.showMessageDialog(dialog, "Error adding cable type: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                tab.setStatus("Error adding cable: " + ex.getMessage());
+                JOptionPane.showMessageDialog(dialog, "Error adding cable: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         dialog.add(inputPanel, java.awt.BorderLayout.CENTER);
         dialog.add(addButton, java.awt.BorderLayout.SOUTH);
         dialog.setVisible(true);
+    }
+
+    private String buildPathFromNode(DefaultMutableTreeNode node) {
+        if (node == null || node.isRoot()) {
+            return null;
+        }
+        TreePath path = new TreePath(node.getPath());
+        Object[] nodes = path.getPath();
+        StringBuilder fullPath = new StringBuilder();
+        for (int i = 1; i < nodes.length; i++) { // Skip root
+            if (i > 1) {
+                fullPath.append(LogCablesTab.getPathSeparator());
+            }
+            fullPath.append(nodes[i].toString());
+        }
+        return fullPath.toString();
     }
 }

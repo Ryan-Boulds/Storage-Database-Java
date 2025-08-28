@@ -1,7 +1,5 @@
 package log_cables.actions;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
@@ -19,13 +17,16 @@ import log_cables.LogCablesTab;
 import utils.UIComponentUtils;
 
 public class NewLocationDialog {
-    @SuppressWarnings("unused")
     private final LogCablesTab tab;
-    private final JDialog dialog;
+    private final String parentLocation;
 
-    public NewLocationDialog(LogCablesTab tab) {
+    public NewLocationDialog(LogCablesTab tab, String parentLocation) {
         this.tab = tab;
-        dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, tab), "New Location", true);
+        this.parentLocation = parentLocation;
+    }
+
+    public void showDialog() {
+        JDialog dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, tab), "New Location", true);
         dialog.setSize(300, 150);
         dialog.setLayout(new java.awt.BorderLayout());
         dialog.setLocationRelativeTo(tab);
@@ -33,38 +34,30 @@ public class NewLocationDialog {
         JPanel inputPanel = new JPanel(new java.awt.BorderLayout());
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JLabel label = new JLabel("Enter new location name:");
-        JTextField textField = UIComponentUtils.createFormattedTextField();
-        // Prevent spaces in text field
-        textField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == ' ') {
-                    e.consume();
-                }
-            }
-        });
+        JTextField locationField = UIComponentUtils.createFormattedTextField();
         inputPanel.add(label, java.awt.BorderLayout.NORTH);
-        inputPanel.add(textField, java.awt.BorderLayout.CENTER);
+        inputPanel.add(locationField, java.awt.BorderLayout.CENTER);
 
-        JButton addButton = UIComponentUtils.createFormattedButton("Add");
-        addButton.addActionListener(e1 -> {
-            String newLocation = textField.getText().trim();
-            if (newLocation.isEmpty()) {
+        JButton createButton = UIComponentUtils.createFormattedButton("Create");
+        createButton.addActionListener(e -> {
+            String locationName = locationField.getText().trim();
+            if (locationName.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Location name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if (!newLocation.matches("[a-zA-Z0-9-_]+")) {
-                JOptionPane.showMessageDialog(dialog, "Invalid characters. Use letters, numbers, -, or _ only", "Error", JOptionPane.ERROR_MESSAGE);
+            if (locationName.contains(LogCablesTab.getPathSeparator())) {
+                JOptionPane.showMessageDialog(dialog, "Location name cannot contain '" + LogCablesTab.getPathSeparator() + "'", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            String fullPath = parentLocation == null ? locationName : parentLocation + LogCablesTab.getPathSeparator() + locationName;
             try {
-                if (CablesDAO.locationExists(newLocation)) {
+                if (CablesDAO.locationExists(fullPath)) {
                     JOptionPane.showMessageDialog(dialog, "Location already exists", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                CablesDAO.createLocation(newLocation);
+                CablesDAO.createLocation(fullPath, parentLocation);
                 tab.refreshTree();
-                tab.setStatus("Successfully created location: " + newLocation);
+                tab.setStatus("Location created: " + fullPath);
                 dialog.dispose();
             } catch (SQLException ex) {
                 tab.setStatus("Error creating location: " + ex.getMessage());
@@ -73,10 +66,7 @@ public class NewLocationDialog {
         });
 
         dialog.add(inputPanel, java.awt.BorderLayout.CENTER);
-        dialog.add(addButton, java.awt.BorderLayout.SOUTH);
-    }
-
-    public void showDialog() {
+        dialog.add(createButton, java.awt.BorderLayout.SOUTH);
         dialog.setVisible(true);
     }
 }
