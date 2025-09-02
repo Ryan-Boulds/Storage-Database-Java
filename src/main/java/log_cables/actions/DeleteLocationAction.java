@@ -25,7 +25,7 @@ public class DeleteLocationAction implements ActionListener {
             return;
         }
         String location = (String) node.getUserObject();
-        if (location.equals(tab.getUnassignedLocation())) {
+        if (location.equals(LogCablesTab.getUnassignedLocation())) {
             tab.setStatus("Error: Cannot delete the Unassigned location");
             return;
         }
@@ -42,7 +42,7 @@ public class DeleteLocationAction implements ActionListener {
                 CablesDAO.deleteLocation(location);
                 tab.setStatus("Successfully deleted location " + location + " and moved cables to Unassigned");
                 tab.refreshTree();
-                tab.refreshTable(tab.getUnassignedLocation(), false);
+                tab.refreshTable(LogCablesTab.getUnassignedLocation(), false);
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting location: " + ex.getMessage());
                 JOptionPane.showMessageDialog(tab, "Error deleting location: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

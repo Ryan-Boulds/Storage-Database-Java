@@ -28,6 +28,7 @@ import view_inventory_tab.ViewInventoryTab;
 
 @SuppressWarnings({"unused", "OverridableMethodCallInConstructor"})
 public class KeyDetailsTable extends JPanel {
+
     private final String licenseKey;
     private final TableManager tableManager;
     private final LicenseKeyTracker licenseKeyTracker;
@@ -45,8 +46,8 @@ public class KeyDetailsTable extends JPanel {
         this.searchField = new JTextField(20);
         this.tableManager.setLicenseKeyTracker(licenseKeyTracker);
         setLayout(new BorderLayout());
-        LOGGER.log(Level.INFO, "KeyDetailsTable initialized for licenseKey='{0}', tableName='{1}'", 
-            new Object[]{licenseKey, tableManager.getTableName()});
+        LOGGER.log(Level.INFO, "KeyDetailsTable initialized for licenseKey='{0}', tableName='{1}'",
+                new Object[]{licenseKey, tableManager.getTableName()});
         initializeUI();
         loadData();
     }
@@ -86,56 +87,55 @@ public class KeyDetailsTable extends JPanel {
     }
 
     public void loadData() {
-    String tableName = tableManager.getTableName();
-    String licenseKeyColumn = findLicenseKeyColumn();
-    if (licenseKeyColumn == null) {
-        LOGGER.log(Level.WARNING, "No License_Key column found in table '{0}', keeping table empty", tableName);
+        String tableName = tableManager.getTableName();
+        String licenseKeyColumn = findLicenseKeyColumn();
+        if (licenseKeyColumn == null) {
+            LOGGER.log(Level.WARNING, "No License_Key column found in table '{0}', keeping table empty", tableName);
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            model.setRowCount(0);
+            return;
+        }
+
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
-        return;
-    }
 
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    model.setRowCount(0);
+        LOGGER.log(Level.INFO, "Table columns: {0}, column count: {1}",
+                new Object[]{String.join(", ", tableManager.getColumns()), model.getColumnCount()});
 
-    LOGGER.log(Level.INFO, "Table columns: {0}, column count: {1}", 
-        new Object[]{String.join(", ", tableManager.getColumns()), model.getColumnCount()});
-
-    if (licenseKey == null) {
-        LOGGER.log(Level.INFO, "No licenseKey provided, keeping table empty");
-        return;
-    }
-
-    String query = "SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] = ?";
-    LOGGER.log(Level.INFO, "Executing query: {0} with licenseKey='{1}'", new Object[]{query, licenseKey});
-    try (Connection conn = DatabaseUtils.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-        stmt.setString(1, licenseKey);
-        try (ResultSet rs = stmt.executeQuery()) {
-            int rowCount = 0;
-            while (rs.next()) {
-                Object[] row = new Object[model.getColumnCount()];
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if (i == 0) {
-                        row[i] = "Edit";
-                    } else {
-                        row[i] = rs.getString(model.getColumnName(i));
-                    }
-                }
-                model.addRow(row);
-                rowCount++;
-            }
-            LOGGER.log(Level.INFO, "Loaded {0} rows for licenseKey='{1}' in table '{2}'", 
-                new Object[]{rowCount, licenseKey, tableName});
+        if (licenseKey == null) {
+            LOGGER.log(Level.INFO, "No licenseKey provided, keeping table empty");
+            return;
         }
-    } catch (SQLException e) {
-        LOGGER.log(Level.SEVERE, "Error fetching entries for key '{0}' in table '{1}': {2}", 
-            new Object[]{licenseKey, tableName, e.getMessage()});
-        JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-    }
 
-    tableManager.sortTable(1);
-}
+        String query = "SELECT * FROM [" + tableName + "] WHERE [" + licenseKeyColumn + "] = ?";
+        LOGGER.log(Level.INFO, "Executing query: {0} with licenseKey='{1}'", new Object[]{query, licenseKey});
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, licenseKey);
+            try (ResultSet rs = stmt.executeQuery()) {
+                int rowCount = 0;
+                while (rs.next()) {
+                    Object[] row = new Object[model.getColumnCount()];
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        if (i == 0) {
+                            row[i] = "Edit";
+                        } else {
+                            row[i] = rs.getString(model.getColumnName(i));
+                        }
+                    }
+                    model.addRow(row);
+                    rowCount++;
+                }
+                LOGGER.log(Level.INFO, "Loaded {0} rows for licenseKey='{1}' in table '{2}'",
+                        new Object[]{rowCount, licenseKey, tableName});
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error fetching entries for key '{0}' in table '{1}': {2}",
+                    new Object[]{licenseKey, tableName, e.getMessage()});
+            JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        tableManager.sortTable(1);
+    }
 
     private String findLicenseKeyColumn() {
         String[] columns = tableManager.getColumns();
@@ -147,11 +147,11 @@ public class KeyDetailsTable extends JPanel {
                     licenseKeyColumn = column;
                 } else {
                     if (!warningIssued) {
-                        LOGGER.log(Level.WARNING, "Multiple License_Key-like columns found in table '{0}': {1}, {2}. Using '{1}'", 
-                            new Object[]{tableManager.getTableName(), licenseKeyColumn, column});
-                        JOptionPane.showMessageDialog(this, 
-                            "Warning: Multiple License_Key-like columns found (" + licenseKeyColumn + ", " + column + "). Using '" + licenseKeyColumn + "'.", 
-                            "Column Ambiguity", JOptionPane.WARNING_MESSAGE);
+                        LOGGER.log(Level.WARNING, "Multiple License_Key-like columns found in table '{0}': {1}, {2}. Using '{1}'",
+                                new Object[]{tableManager.getTableName(), licenseKeyColumn, column});
+                        JOptionPane.showMessageDialog(this,
+                                "Warning: Multiple License_Key-like columns found (" + licenseKeyColumn + ", " + column + "). Using '" + licenseKeyColumn + "'.",
+                                "Column Ambiguity", JOptionPane.WARNING_MESSAGE);
                         warningIssued = true;
                     }
                 }

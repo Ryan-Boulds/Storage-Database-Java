@@ -3,7 +3,11 @@ package log_cables.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import log_cables.CablesDAO;
@@ -11,6 +15,7 @@ import log_cables.LogCablesTab;
 
 public class RemoveFromStorageAction implements ActionListener {
     private final LogCablesTab tab;
+    private static final Logger LOGGER = Logger.getLogger(RemoveFromStorageAction.class.getName());
 
     public RemoveFromStorageAction(LogCablesTab tab) {
         this.tab = tab;
@@ -20,34 +25,71 @@ public class RemoveFromStorageAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         int selectedRow = tab.getCableTable().getSelectedRow();
         if (selectedRow == -1) {
-            tab.setStatus("Error: Select a cable type first");
+            tab.setStatus("Error: Select a cable to remove from storage");
+            JOptionPane.showMessageDialog(null, "Please select a cable to remove from storage", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String type = (String) tab.getTableModel().getValueAt(selectedRow, 0);
+
+        String cableType = (String) tab.getTableModel().getValueAt(selectedRow, 0);
+        final String selectedCableType = cableType; // Save for reselection, declared final
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tab.getLocationTree().getLastSelectedPathComponent();
         if (node == null) {
             tab.setStatus("Error: Select a location first");
+            JOptionPane.showMessageDialog(null, "Please select a location first", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String location = (String) node.getUserObject();
+        String location = node.getUserObject().equals("Unassigned in this location")
+                ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
+                : buildPathFromNode(node);
+
         try {
-            int id = CablesDAO.getCableId(type, location);
-            if (id == -1) {
-                tab.setStatus("Error: Cable type '" + type + "' not found at " + 
-                              (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
+            int cableId = CablesDAO.getCableId(cableType, location);
+            if (cableId == -1) {
+                tab.setStatus("Error: Cable type '" + cableType + "' not found at " + location);
+                JOptionPane.showMessageDialog(null, "Cable not found", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if (!CablesDAO.canRemoveCable(id)) {
-                tab.setStatus("Error: Cannot remove cable '" + type + "'; count is 0 at " + 
-                              (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
+            if (!CablesDAO.canRemoveCable(cableId)) {
+                tab.setStatus("Error: No cables of type '" + cableType + "' available to remove at " + location);
+                JOptionPane.showMessageDialog(null, "No cables available to remove", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            CablesDAO.updateCount(id, -1);
-            tab.setStatus("Successfully removed 1 from " + type + " at " + 
-                          (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
-            tab.refreshTable(location, false);
+            CablesDAO.updateCount(cableId, -1);
+            tab.setStatus("Removed 1 " + cableType + " from " + location);
+            // Refresh the table and restore selection
+            tab.refresh();
+            if (selectedCableType != null) {
+                JTable table = tab.getCableTable();
+                for (int i = 0; i < table.getRowCount(); i++) {
+                    if (selectedCableType.equals(table.getValueAt(i, 0))) {
+                        table.setRowSelectionInterval(i, i);
+                        break;
+                    }
+                }
+            }
         } catch (SQLException ex) {
-            tab.setStatus("Error: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, "Error removing from storage: {0}", ex.getMessage());
+            tab.setStatus("Error removing from storage: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Error removing from storage: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String buildPathFromNode(DefaultMutableTreeNode node) {
+        if (node == null || node.isRoot()) {
+            return null;
+        }
+        if (node.getUserObject().equals("Unassigned")) {
+            return "Unassigned";
+        }
+        javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
+        Object[] nodes = path.getPath();
+        StringBuilder fullPath = new StringBuilder();
+        for (int i = 1; i < nodes.length; i++) { // Skip root
+            if (i > 1) {
+                fullPath.append(LogCablesTab.getPathSeparator());
+            }
+            fullPath.append(nodes[i].toString());
+        }
+        return fullPath.toString();
     }
 }

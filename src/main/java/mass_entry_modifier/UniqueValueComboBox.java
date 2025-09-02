@@ -15,6 +15,7 @@ import utils.DatabaseUtils;
 import utils.DefaultColumns;
 
 public final class UniqueValueComboBox extends JComboBox<String> {
+
     private final JComboBox<String> columnCombo;
     private final Supplier<String> tableNameSupplier;
 
@@ -44,27 +45,26 @@ public final class UniqueValueComboBox extends JComboBox<String> {
             // For text columns, select directly
             sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
         } else // Adjust SQL based on column type
-        switch (columnType) {
-            case "DOUBLE":
-                // For numeric columns like Memory, select raw values and convert in Java
-                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
-                break;
-            case "DATE":
-                // For date columns, use Format to ensure consistent string output
-                sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
-                break;
-            default:
-                // For text columns, select directly
-                sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
-                break;
+        {
+            switch (columnType) {
+                case "DOUBLE":
+                    // For numeric columns like Memory, select raw values and convert in Java
+                    sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
+                    break;
+                case "DATE":
+                    // For date columns, use Format to ensure consistent string output
+                    sql = "SELECT DISTINCT Format([" + selectedColumn + "], 'yyyy-mm-dd') AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL";
+                    break;
+                default:
+                    // For text columns, select directly
+                    sql = "SELECT DISTINCT [" + selectedColumn + "] AS Value FROM [" + tableName + "] WHERE [" + selectedColumn + "] IS NOT NULL AND [" + selectedColumn + "] <> ''";
+                    break;
+            }
         }
 
         System.out.println("Executing SQL for " + selectedColumn + " in " + tableName + ": " + sql);
         try (
-            Connection conn = DatabaseUtils.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()
-        ) {
+                Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 String value;
                 if ("DOUBLE".equals(columnType)) {

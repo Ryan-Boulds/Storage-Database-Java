@@ -44,12 +44,12 @@ public class DeleteCableAction implements ActionListener {
                 int id = CablesDAO.getCableId(cableType, location);
                 if (id == -1) {
                     tab.setStatus("Error: Cable type '" + cableType + "' not found at " + 
-                                  (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
+                                  (location.equals(LogCablesTab.getUnassignedLocation()) ? LogCablesTab.getUnassignedLocation() : location));
                     return;
                 }
                 CablesDAO.deleteCable(id);
                 tab.setStatus("Successfully deleted " + cableType + " at " + 
-                              (location.equals(tab.getUnassignedLocation()) ? tab.getUnassignedLocation() : location));
+                              (location.equals(LogCablesTab.getUnassignedLocation()) ? LogCablesTab.getUnassignedLocation() : location));
                 tab.refreshTable(location, false);
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting cable: " + ex.getMessage());

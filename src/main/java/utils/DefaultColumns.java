@@ -1,13 +1,14 @@
 //One day, this will be gone.
-
 package utils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultColumns {
+
     // Default column definitions for inventory data (name -> Access data type)
     private static final Map<String, String> INVENTORY_COLUMN_DEFINITIONS = new HashMap<>();
+
     static {
         INVENTORY_COLUMN_DEFINITIONS.put("AssetName", "TEXT");
         INVENTORY_COLUMN_DEFINITIONS.put("Proc", "TEXT");
@@ -32,18 +33,21 @@ public class DefaultColumns {
 
     // Optional: Definitions for Accessories, Cables, Adapters
     private static final Map<String, String> ACCESSORIES_COLUMN_DEFINITIONS = new HashMap<>();
+
     static {
         ACCESSORIES_COLUMN_DEFINITIONS.put("Peripheral_Type", "TEXT");
         ACCESSORIES_COLUMN_DEFINITIONS.put("Count", "INTEGER");
     }
 
     private static final Map<String, String> CABLES_COLUMN_DEFINITIONS = new HashMap<>();
+
     static {
         CABLES_COLUMN_DEFINITIONS.put("Cable_Type", "TEXT");
         CABLES_COLUMN_DEFINITIONS.put("Count", "INTEGER");
     }
 
     private static final Map<String, String> ADAPTERS_COLUMN_DEFINITIONS = new HashMap<>();
+
     static {
         ADAPTERS_COLUMN_DEFINITIONS.put("Adapter_Type", "TEXT");
         ADAPTERS_COLUMN_DEFINITIONS.put("Count", "INTEGER");
