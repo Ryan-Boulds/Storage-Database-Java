@@ -23,6 +23,10 @@ public class RemoveFromStorageAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (tab.isSummaryView()) {
+            JOptionPane.showMessageDialog(tab, "Cannot perform this action in summary view", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         int selectedRow = tab.getCableTable().getSelectedRow();
         if (selectedRow == -1) {
             tab.setStatus("Error: Select a cable to remove from storage");

@@ -1,7 +1,6 @@
 package log_cables.actions;
 
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -36,6 +35,10 @@ public class MoveCableAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (tab.isSummaryView()) {
+            JOptionPane.showMessageDialog(tab, "Cannot perform this action in summary view", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         int selectedRow = tab.getCableTable().getSelectedRow();
         if (selectedRow == -1) {
             tab.setStatus("Error: Select a cable to move");
@@ -96,7 +99,7 @@ public class MoveCableAction implements ActionListener {
 
             List<String> topLevelLocations = CablesDAO.getSubLocations(null);
             for (String location : topLevelLocations) {
-                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(location);
+                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(getLastSegment(location));
                 // Check if "Unassigned in this location" should be added
                 List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(location);
                 boolean hasDirectCables = false;
@@ -125,10 +128,9 @@ public class MoveCableAction implements ActionListener {
             dialog.dispose();
             return;
         }
+
         JTree locationTree = new JTree(new DefaultTreeModel(root));
         locationTree.setRootVisible(false);
-        locationTree.setFont(new Font("SansSerif", Font.PLAIN, 14)); // Slightly larger font for readability
-        // Expand all nodes to match main tree
         for (int i = 0; i < locationTree.getRowCount(); i++) {
             locationTree.expandRow(i);
         }
@@ -208,7 +210,7 @@ public class MoveCableAction implements ActionListener {
     private void addSubLocations(DefaultMutableTreeNode parentNode, String parentLocation) throws SQLException {
         List<String> subLocations = CablesDAO.getSubLocations(parentLocation);
         for (String subLocation : subLocations) {
-            DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(subLocation);
+            DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(getLastSegment(subLocation));
             List<String> subSubLocations = CablesDAO.getSubLocations(subLocation);
             List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(subLocation);
             boolean hasDirectCables = false;
@@ -223,6 +225,14 @@ public class MoveCableAction implements ActionListener {
             }
             addSubLocations(locationNode, subLocation);
             parentNode.add(locationNode);
+        }
+    }
+
+    private String getLastSegment(String location) {
+        if (location.contains(LogCablesTab.getPathSeparator())) {
+            return location.substring(location.lastIndexOf(LogCablesTab.getPathSeparator()) + LogCablesTab.getPathSeparator().length());
+        } else {
+            return location;
         }
     }
 

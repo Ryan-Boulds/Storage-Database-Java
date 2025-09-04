@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,8 +31,6 @@ public class CablesDAO {
     public static void ensureSchema() throws SQLException {
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-
-            // Check if Cables table exists
             boolean tableExists = false;
             try (ResultSet rs = metaData.getTables(null, null, "Cables", new String[]{"TABLE"})) {
                 if (rs.next()) {
@@ -50,7 +49,6 @@ public class CablesDAO {
                 }
             } else {
                 LOGGER.log(Level.INFO, "Cables table already exists");
-                // Check if Parent_Location column exists and remove it if present
                 try (ResultSet rs = metaData.getColumns(null, null, "Cables", "Parent_Location")) {
                     if (rs.next()) {
                         String alterTableSQL = "ALTER TABLE Cables DROP COLUMN Parent_Location";
@@ -79,36 +77,31 @@ public class CablesDAO {
     }
 
     public static void addCable(String cableType, int count, String location) throws SQLException {
-        String selectSql = "SELECT Id, Count FROM Cables WHERE Cable_Type = ? AND Location = ?";
+        String selectSql = "SELECT Id FROM Cables WHERE Cable_Type = ? AND Location = ?";
         String updateSql = "UPDATE Cables SET Count = Count + ? WHERE Id = ?";
         String insertSql = "INSERT INTO Cables (Cable_Type, Count, Location) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseUtils.getConnection()) {
-            conn.setAutoCommit(false); // Use transaction to ensure atomicity
+            conn.setAutoCommit(false);
             try {
-                // Check if the cable already exists
                 int existingId = -1;
-                int currentCount = 0;
                 try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
                     selectStmt.setString(1, cableType);
                     selectStmt.setString(2, location);
                     try (ResultSet rs = selectStmt.executeQuery()) {
                         if (rs.next()) {
                             existingId = rs.getInt("Id");
-                            currentCount = rs.getInt("Count");
                         }
                     }
                 }
 
                 if (existingId != -1) {
-                    // Update existing record
                     try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                         updateStmt.setInt(1, count);
                         updateStmt.setInt(2, existingId);
                         updateStmt.executeUpdate();
                     }
                 } else {
-                    // Insert new record
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                         insertStmt.setString(1, cableType);
                         insertStmt.setInt(2, count);
@@ -153,7 +146,7 @@ public class CablesDAO {
     }
 
     public static void moveCable(int cableId, String newLocation, int quantity) throws SQLException {
-        String sqlSelect = "SELECT Cable_Type, Count, Location FROM Cables WHERE Id = ?";
+        String sqlSelect = "SELECT Cable_Type, Count FROM Cables WHERE Id = ?";
         String sqlSelectTarget = "SELECT Id, Count FROM Cables WHERE Cable_Type = ? AND Location = ?";
         String sqlUpdate = "UPDATE Cables SET Count = ? WHERE Id = ?";
         String sqlInsert = "INSERT INTO Cables (Cable_Type, Count, Location) VALUES (?, ?, ?)";
@@ -161,20 +154,26 @@ public class CablesDAO {
 
         try (Connection conn = DatabaseUtils.getConnection()) {
             conn.setAutoCommit(false);
-
             try (PreparedStatement stmtSelect = conn.prepareStatement(sqlSelect)) {
                 stmtSelect.setInt(1, cableId);
                 try (ResultSet rs = stmtSelect.executeQuery()) {
                     if (rs.next()) {
-                        int currentCount = rs.getInt("Count");
-                        String currentLocation = rs.getString("Location");
                         String cableType = rs.getString("Cable_Type");
+                        int currentCount = rs.getInt("Count");
 
                         if (quantity > currentCount) {
-                            throw new SQLException("Not enough cables to move");
+                            throw new SQLException("Quantity exceeds available count");
                         }
 
-                        // Check if a record exists in the new location
+                        // Update source count
+                        int newSourceCount = currentCount - quantity;
+                        try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
+                            stmtUpdate.setInt(1, newSourceCount);
+                            stmtUpdate.setInt(2, cableId);
+                            stmtUpdate.executeUpdate();
+                        }
+
+                        // Find or create target
                         int targetId = -1;
                         int targetCount = 0;
                         try (PreparedStatement stmtSelectTarget = conn.prepareStatement(sqlSelectTarget)) {
@@ -189,55 +188,27 @@ public class CablesDAO {
                         }
 
                         if (targetId != -1) {
-                            // Update existing record in new location
                             try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
                                 stmtUpdate.setInt(1, targetCount + quantity);
                                 stmtUpdate.setInt(2, targetId);
                                 stmtUpdate.executeUpdate();
                             }
-                            // Update original record to remove moved quantity
-                            try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
-                                stmtUpdate.setInt(1, currentCount - quantity);
-                                stmtUpdate.setInt(2, cableId);
-                                stmtUpdate.executeUpdate();
-                            }
                         } else {
-                            // Update the original record to move the quantity
-                            try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
-                                stmtUpdate.setInt(1, quantity);
-                                stmtUpdate.setInt(2, cableId);
-                                stmtUpdate.executeUpdate();
-                            }
-                            // Set the new location
-                            try (PreparedStatement stmtUpdate = conn.prepareStatement("UPDATE Cables SET Location = ? WHERE Id = ?")) {
-                                stmtUpdate.setString(1, newLocation);
-                                stmtUpdate.setInt(2, cableId);
-                                stmtUpdate.executeUpdate();
-                            }
-                        }
-
-                        // If not moving all cables, insert a new record for the remaining quantity
-                        if (currentCount > quantity && targetId == -1) {
                             try (PreparedStatement stmtInsert = conn.prepareStatement(sqlInsert)) {
                                 stmtInsert.setString(1, cableType);
-                                stmtInsert.setInt(2, currentCount - quantity);
-                                stmtInsert.setString(3, currentLocation);
+                                stmtInsert.setInt(2, quantity);
+                                stmtInsert.setString(3, newLocation);
                                 stmtInsert.executeUpdate();
                             }
                         }
 
-                        // Clean up zero-count records
-                        try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDelete)) {
-                            stmtDelete.setInt(1, cableId);
-                            stmtDelete.executeUpdate();
-                        }
-                        if (targetId != -1) {
+                        // Delete if source count is 0
+                        if (newSourceCount == 0) {
                             try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDelete)) {
-                                stmtDelete.setInt(1, targetId);
+                                stmtDelete.setInt(1, cableId);
                                 stmtDelete.executeUpdate();
                             }
                         }
-
                         conn.commit();
                     } else {
                         throw new SQLException("Cable ID not found");
@@ -290,16 +261,11 @@ public class CablesDAO {
                 while (rs.next()) {
                     String location = rs.getString("Location");
                     if (parentLocation == null) {
-                        // Top-level locations
                         if (!location.contains(LogCablesTab.getPathSeparator()) || location.equals(LogCablesTab.getUnassignedLocation())) {
                             locations.add(location);
                         }
                     } else {
-                        // Sub-locations under parent
-                        String[] parts = location.split(LogCablesTab.getPathSeparator());
-                        if (parts.length > 1 && parts[0].equals(parentLocation)) {
-                            locations.add(location);
-                        }
+                        locations.add(location);
                     }
                 }
             }
@@ -379,5 +345,19 @@ public class CablesDAO {
             }
         }
         return locations;
+    }
+
+    public static List<String> getUniqueCableTypes() throws SQLException {
+        List<String> cableTypes = new ArrayList<>();
+        String sql = "SELECT DISTINCT Cable_Type FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%'";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    cableTypes.add(rs.getString("Cable_Type"));
+                }
+            }
+        }
+        Collections.sort(cableTypes);
+        return cableTypes;
     }
 }

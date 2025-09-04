@@ -5,13 +5,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,7 +42,7 @@ public class AddCableAction implements ActionListener {
         }
 
         JDialog dialog = new JDialog((JFrame) tab.getTopLevelAncestor(), "Add Cable", true);
-        dialog.setSize(300, 200);
+        dialog.setSize(400, 250);
         dialog.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -54,54 +52,67 @@ public class AddCableAction implements ActionListener {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Cable Type Selection
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(new JLabel("Cable Type:"), gbc);
 
         gbc.gridx = 1;
-        JTextField cableTypeField = new JTextField(15);
-        panel.add(cableTypeField, gbc);
+        JLabel cableTypeLabel = new JLabel("None selected");
+        panel.add(cableTypeLabel, gbc);
 
+        gbc.gridx = 2;
+        JButton selectCableTypeButton = UIComponentUtils.createFormattedButton("Select");
+        selectCableTypeButton.addActionListener(e1 -> {
+            SelectCableTypeDialog selectDialog = new SelectCableTypeDialog((JFrame) tab.getTopLevelAncestor());
+            String selectedType = selectDialog.showDialog();
+            if (selectedType != null && !selectedType.isEmpty()) {
+                cableTypeLabel.setText(selectedType);
+            }
+        });
+        panel.add(selectCableTypeButton, gbc);
+
+        // Quantity
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(new JLabel("Quantity:"), gbc);
 
         gbc.gridx = 1;
+        gbc.gridwidth = 2;
         JTextField quantityField = UIComponentUtils.createFormattedTextField();
         panel.add(quantityField, gbc);
+        gbc.gridwidth = 1;
 
+        // Location Selection
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(new JLabel("Location:"), gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> locationCombo = new JComboBox<>();
-        try {
-            List<String> locations = CablesDAO.getAllLocations();
-            for (String location : locations) {
-                locationCombo.addItem(location);
-            }
-            if (!locations.contains(LogCablesTab.getUnassignedLocation())) {
-                locationCombo.addItem(LogCablesTab.getUnassignedLocation());
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Error retrieving locations: {0}", ex.getMessage());
-            tab.setStatus("Error retrieving locations: " + ex.getMessage());
-            JOptionPane.showMessageDialog(dialog, "Error retrieving locations: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            dialog.dispose();
-            return;
-        }
-        panel.add(locationCombo, gbc);
+        JLabel locationLabel = new JLabel("None selected");
+        panel.add(locationLabel, gbc);
 
+        gbc.gridx = 2;
+        JButton selectLocationButton = UIComponentUtils.createFormattedButton("Select");
+        selectLocationButton.addActionListener(e1 -> {
+            SelectLocationDialog selectDialog = new SelectLocationDialog((JFrame) tab.getTopLevelAncestor());
+            String selectedLocation = selectDialog.showDialog();
+            if (selectedLocation != null && !selectedLocation.isEmpty()) {
+                locationLabel.setText(selectedLocation);
+            }
+        });
+        panel.add(selectLocationButton, gbc);
+
+        // Add Button
         gbc.gridx = 0;
         gbc.gridy = 3;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         JButton addButton = UIComponentUtils.createFormattedButton("Add Cable");
         addButton.addActionListener(e1 -> {
-            String cableType = cableTypeField.getText().trim();
-            if (cableType.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Cable type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+            String cableType = cableTypeLabel.getText();
+            if ("None selected".equals(cableType)) {
+                JOptionPane.showMessageDialog(dialog, "Please select a cable type", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             String quantityText = quantityField.getText().trim();
@@ -116,15 +127,14 @@ public class AddCableAction implements ActionListener {
                 JOptionPane.showMessageDialog(dialog, "Invalid quantity format", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String selectedLocation = (String) locationCombo.getSelectedItem();
-            if (selectedLocation == null) {
+            String selectedLocation = locationLabel.getText();
+            if ("None selected".equals(selectedLocation)) {
                 JOptionPane.showMessageDialog(dialog, "Please select a location", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
                 CablesDAO.addCable(cableType, quantity, selectedLocation);
                 tab.setStatus("Added " + quantity + " " + cableType + " to " + selectedLocation);
-                // Refresh the table and restore selection
                 tab.refresh();
                 if (selectedCableType != null) {
                     JTable table = tab.getCableTable();
