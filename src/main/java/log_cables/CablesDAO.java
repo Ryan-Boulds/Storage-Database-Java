@@ -360,4 +360,15 @@ public class CablesDAO {
         Collections.sort(cableTypes);
         return cableTypes;
     }
+
+public static void cleanUpUnassignedSublocations() throws SQLException {
+    String sql = "UPDATE Cables SET Location = ? WHERE Location LIKE ? || ?";
+    try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, LogCablesTab.getUnassignedLocation());
+        stmt.setString(2, "%");
+        stmt.setString(3, LogCablesTab.getPathSeparator() + LogCablesTab.getUnassignedLocation());
+        stmt.executeUpdate();
+    }
+}
+
 }

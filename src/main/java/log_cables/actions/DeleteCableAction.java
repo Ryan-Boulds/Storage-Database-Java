@@ -30,7 +30,14 @@ public class DeleteCableAction implements ActionListener {
             tab.setStatus("Error: Select a location first");
             return;
         }
-        String location = (String) node.getUserObject();
+        String nodeValue = (String) node.getUserObject();
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+        String location;
+        if (nodeValue.equals("Unassigned") && parent instanceof DefaultMutableTreeNode && !((DefaultMutableTreeNode) parent).isRoot()) {
+            location = buildPathFromNode(parent);
+        } else {
+            location = buildPathFromNode(node);
+        }
 
         int confirm = JOptionPane.showConfirmDialog(
             tab,
@@ -44,17 +51,37 @@ public class DeleteCableAction implements ActionListener {
                 int id = CablesDAO.getCableId(cableType, location);
                 if (id == -1) {
                     tab.setStatus("Error: Cable type '" + cableType + "' not found at " + 
-                                  (location.equals(LogCablesTab.getUnassignedLocation()) ? LogCablesTab.getUnassignedLocation() : location));
+                                  location);
                     return;
                 }
                 CablesDAO.deleteCable(id);
                 tab.setStatus("Successfully deleted " + cableType + " at " + 
-                              (location.equals(LogCablesTab.getUnassignedLocation()) ? LogCablesTab.getUnassignedLocation() : location));
-                tab.refreshTable(location, false);
+                              location);
+                tab.refresh();
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting cable: " + ex.getMessage());
                 JOptionPane.showMessageDialog(tab, "Error deleting cable: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private String buildPathFromNode(DefaultMutableTreeNode node) {
+        if (node == null || node.isRoot()) {
+            return null;
+        }
+        Object userObject = node.getUserObject();
+        if (userObject.equals("Unassigned") && node.getParent() instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node.getParent()).isRoot()) {
+            return "Unassigned";
+        }
+        javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
+        Object[] nodes = path.getPath();
+        StringBuilder fullPath = new StringBuilder();
+        for (int i = 1; i < nodes.length; i++) { // Skip root
+            if (i > 1) {
+                fullPath.append(LogCablesTab.getPathSeparator());
+            }
+            fullPath.append(nodes[i].toString());
+        }
+        return fullPath.toString();
     }
 }

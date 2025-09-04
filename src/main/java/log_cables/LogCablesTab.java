@@ -32,6 +32,7 @@ import log_cables.actions.RemoveFromStorageAction;
 import utils.UIComponentUtils;
 
 public final class LogCablesTab extends JPanel {
+
     private final JTree locationTree;
     private final JTable cableTable;
     private final DefaultTableModel tableModel;
@@ -39,8 +40,8 @@ public final class LogCablesTab extends JPanel {
     private static final Logger LOGGER = Logger.getLogger(LogCablesTab.class.getName());
     private static final String UNASSIGNED_LOCATION = "Unassigned";
     private static final String UNASSIGNED_IN_LOCATION = "Unassigned";
-    private static final String PATH_SEPARATOR = "--";
-    private static final String DISPLAY_SEPARATOR = "/";
+    private static final String PATH_SEPARATOR = "/";
+    public static final String DISPLAY_SEPARATOR = "/";
     private boolean isSummaryView = false;
     private final JButton addToStorageButton;
     private final JButton removeFromStorageButton;
@@ -53,8 +54,9 @@ public final class LogCablesTab extends JPanel {
 
         statusLabel = UIComponentUtils.createAlignedLabel("");
 
-        // Ensure schema
+        // Ensure schema and clean up unassigned sublocations
         CablesDAO.ensureSchema();
+        CablesDAO.cleanUpUnassignedSublocations();
 
         // Split pane for tree and table
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -96,7 +98,7 @@ public final class LogCablesTab extends JPanel {
         rightPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
-        addCableButton = UIComponentUtils.createFormattedButton("Add New Cable Type");
+        addCableButton = UIComponentUtils.createFormattedButton("Add Cable");
         addCableButton.addActionListener(new AddCableAction(this));
         buttonPanel.add(addCableButton);
 
@@ -155,6 +157,12 @@ public final class LogCablesTab extends JPanel {
             return;
         }
 
+        // Check for "Unassigned" in the input
+        if (java.util.Arrays.stream(segments).anyMatch(s -> s.equalsIgnoreCase(UNASSIGNED_LOCATION))) {
+            JOptionPane.showMessageDialog(this, "Sublocation name cannot contain 'Unassigned'", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
             String currentPath = parentLocation.equals(UNASSIGNED_LOCATION) ? "" : parentLocation;
             List<String> existingLocations = CablesDAO.getAllLocations();
@@ -192,12 +200,16 @@ public final class LogCablesTab extends JPanel {
     public void refreshTree() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
         try {
+            // Add top-level locations, excluding "Unassigned" initially
             List<String> topLevelLocations = CablesDAO.getSubLocations(null);
             for (String location : topLevelLocations) {
-                // Build hierarchical tree for each top-level location
-                addLocationToTree(root, location);
+                if (!location.equals(UNASSIGNED_LOCATION)) {
+                    addLocationToTree(root, location);
+                }
             }
-            List<CablesDAO.CableEntry> unassignedCables = CablesDAO.getCablesByLocation(getUnassignedLocation());
+
+            // Add top-level "Unassigned" node only if it has non-placeholder cables
+            List<CablesDAO.CableEntry> unassignedCables = CablesDAO.getCablesByLocation(UNASSIGNED_LOCATION);
             boolean hasUnassignedCables = false;
             for (CablesDAO.CableEntry cable : unassignedCables) {
                 if (!cable.cableType.startsWith("Placeholder_")) {
@@ -209,6 +221,7 @@ public final class LogCablesTab extends JPanel {
                 DefaultMutableTreeNode unassignedNode = new DefaultMutableTreeNode(UNASSIGNED_LOCATION);
                 root.add(unassignedNode);
             }
+
             locationTree.setModel(new DefaultTreeModel(root));
             for (int i = 0; i < locationTree.getRowCount(); i++) {
                 locationTree.expandRow(i);
@@ -220,25 +233,30 @@ public final class LogCablesTab extends JPanel {
     }
 
     private void addLocationToTree(DefaultMutableTreeNode parentNode, String location) throws SQLException {
+        // Skip if location is empty or the top-level "Unassigned" (handled in refreshTree)
+        if (location == null || location.isEmpty() || location.equals(UNASSIGNED_LOCATION)) {
+            return;
+        }
+
         String[] segments = location.split(PATH_SEPARATOR);
         DefaultMutableTreeNode currentNode = parentNode;
         StringBuilder currentPath = new StringBuilder();
-        StringBuilder displayPath = new StringBuilder();
 
-        // Build the hierarchical tree structure with display separator
         for (int i = 0; i < segments.length; i++) {
             String segment = segments[i];
             if (i > 0) {
                 currentPath.append(PATH_SEPARATOR);
-                displayPath.append(DISPLAY_SEPARATOR);
             }
             currentPath.append(segment);
-            displayPath.append(segment);
 
-            // Check if the node already exists
+            // Skip adding "Unassigned" as a segment unless it's the full path
+            if (segment.equals(UNASSIGNED_LOCATION) && !currentPath.toString().equals(UNASSIGNED_LOCATION)) {
+                continue;
+            }
+
             boolean nodeExists = false;
             for (int j = 0; j < currentNode.getChildCount(); j++) {
-                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j); // Cast to DefaultMutableTreeNode
                 if (child.getUserObject().equals(segment)) {
                     currentNode = child;
                     nodeExists = true;
@@ -248,24 +266,36 @@ public final class LogCablesTab extends JPanel {
 
             if (!nodeExists) {
                 DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(segment);
-                newNode.setUserObject(segment); // Store segment for display
                 currentNode.add(newNode);
                 currentNode = newNode;
             }
         }
 
-        // Add "Unassigned" if there are direct cables and sublocations
         String fullPath = currentPath.toString();
         List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
-        boolean hasDirectCables = !directCables.isEmpty(); // Simplified check
+        boolean hasDirectCables = !directCables.isEmpty();
         List<String> subLocations = CablesDAO.getSubLocations(fullPath);
-        if (!subLocations.isEmpty() && hasDirectCables) {
+
+        // Check if "Unassigned" node already exists to avoid duplicates
+        boolean hasUnassignedNode = false;
+        for (int i = 0; i < currentNode.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i); // Cast to DefaultMutableTreeNode
+            if (child.getUserObject().equals(UNASSIGNED_IN_LOCATION)) {
+                hasUnassignedNode = true;
+                break;
+            }
+        }
+
+        // Add "Unassigned" node only if it doesn’t exist and the conditions are met
+        if (!hasUnassignedNode && !subLocations.isEmpty() && hasDirectCables && !fullPath.equals(UNASSIGNED_LOCATION)) {
             currentNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
         }
 
-        // Recursively add sublocations
+        // Recursively add sublocations, skipping top-level "Unassigned"
         for (String subLocation : subLocations) {
-            addLocationToTree(parentNode, subLocation); // Use full path for recursion
+            if (!subLocation.equals(UNASSIGNED_LOCATION)) {
+                addLocationToTree(parentNode, subLocation);
+            }
         }
     }
 
@@ -361,7 +391,7 @@ public final class LogCablesTab extends JPanel {
         return PATH_SEPARATOR;
     }
 
-    private String buildPathFromNode(DefaultMutableTreeNode node) {
+    public String buildPathFromNode(DefaultMutableTreeNode node) {
         if (node == null || node.isRoot()) {
             return null;
         }

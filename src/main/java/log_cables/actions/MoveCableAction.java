@@ -1,6 +1,6 @@
 package log_cables.actions;
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -53,39 +53,31 @@ public class MoveCableAction implements ActionListener {
             JOptionPane.showMessageDialog(null, "Please select a location first", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String currentLocation = node.getUserObject().equals("Unassigned in this location")
-                ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
-                : buildPathFromNode(node);
+        String nodeValue = (String) node.getUserObject();
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+        String currentLocation;
+        if (nodeValue.equals("Unassigned") && parentNode instanceof DefaultMutableTreeNode && !((DefaultMutableTreeNode) parentNode).isRoot()) {
+            currentLocation = buildPathFromNode(parentNode).replace("/", LogCablesTab.getPathSeparator());
+        } else {
+            currentLocation = buildPathFromNode(node).replace("/", LogCablesTab.getPathSeparator());
+        }
 
         JDialog dialog = new JDialog((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, tab), "Move Cable", true);
-        dialog.setSize(700, 500); // Increased size for better usability
-        dialog.setMinimumSize(new Dimension(600, 450)); // Prevent resizing too small
-        dialog.setLayout(new GridBagLayout());
-        dialog.setLocationRelativeTo(tab);
+        dialog.setSize(600, 400);
+        dialog.setMinimumSize(new java.awt.Dimension(500, 300));
+        dialog.setLayout(new BorderLayout(10, 10));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Location Tree
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
+        // Location Tree Panel
+        JPanel treePanel = new JPanel(new BorderLayout());
+        treePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         JLabel locationLabel = new JLabel("Select New Location:");
-        inputPanel.add(locationLabel, gbc);
+        treePanel.add(locationLabel, BorderLayout.NORTH);
 
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.5; // Give more vertical space to the tree
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+        JTree locationTree;
         try {
-            // Check if "Unassigned" should be added
-            List<CablesDAO.CableEntry> unassignedCables = CablesDAO.getCablesByLocation("Unassigned");
+            // Add top-level "Unassigned"
+            List<CablesDAO.CableEntry> unassignedCables = CablesDAO.getCablesByLocation(LogCablesTab.getUnassignedLocation());
             boolean hasUnassignedCables = false;
             for (CablesDAO.CableEntry cable : unassignedCables) {
                 if (!cable.cableType.startsWith("Placeholder_")) {
@@ -94,68 +86,51 @@ public class MoveCableAction implements ActionListener {
                 }
             }
             if (hasUnassignedCables) {
-                root.add(new DefaultMutableTreeNode("Unassigned"));
+                root.add(new DefaultMutableTreeNode(LogCablesTab.getUnassignedLocation()));
             }
 
+            // Get all top-level locations
             List<String> topLevelLocations = CablesDAO.getSubLocations(null);
             for (String location : topLevelLocations) {
-                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(getLastSegment(location));
-                // Check if "Unassigned in this location" should be added
-                List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(location);
-                boolean hasDirectCables = false;
-                for (CablesDAO.CableEntry cable : directCables) {
-                    if (!cable.cableType.startsWith("Placeholder_")) {
-                        hasDirectCables = true;
-                        break;
-                    }
-                }
-                List<String> subLocations = CablesDAO.getSubLocations(location);
-                if (!subLocations.isEmpty() && hasDirectCables) {
-                    locationNode.add(new DefaultMutableTreeNode("Unassigned in this location"));
-                }
-                addSubLocations(locationNode, location);
-                root.add(locationNode);
+                if (location.equals(LogCablesTab.getUnassignedLocation())) continue;
+                addLocationToTree(root, location);
             }
-            if (topLevelLocations.isEmpty() && !hasUnassignedCables && !CablesDAO.locationExists("Unassigned")) {
-                tab.setStatus("Warning: No locations available. Please create a location first.");
-                JOptionPane.showMessageDialog(dialog, "No locations available. Please create a location first.", "Warning", JOptionPane.WARNING_MESSAGE);
-                dialog.dispose();
-                return;
+            locationTree = new JTree(new DefaultTreeModel(root));
+            locationTree.setRootVisible(false);
+            for (int i = 0; i < locationTree.getRowCount(); i++) {
+                locationTree.expandRow(i);
             }
+            JScrollPane treeScrollPane = new JScrollPane(locationTree);
+            treePanel.add(treeScrollPane, BorderLayout.CENTER);
         } catch (SQLException ex) {
-            tab.setStatus("Error retrieving locations: " + ex.getMessage());
-            JOptionPane.showMessageDialog(dialog, "Error retrieving locations: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            dialog.dispose();
+            tab.setStatus("Error loading locations for move: " + ex.getMessage());
+            JOptionPane.showMessageDialog(dialog, "Error loading locations: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JTree locationTree = new JTree(new DefaultTreeModel(root));
-        locationTree.setRootVisible(false);
-        for (int i = 0; i < locationTree.getRowCount(); i++) {
-            locationTree.expandRow(i);
-        }
-        JScrollPane treeScrollPane = new JScrollPane(locationTree);
-        treeScrollPane.setPreferredSize(new Dimension(500, 300)); // Increased size for better visibility
-        inputPanel.add(treeScrollPane, gbc);
-
-        // Quantity
-        gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        gbc.weighty = 0.0;
+        // Input and Button Panel
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
         JLabel quantityLabel = new JLabel("Quantity to Move:");
         inputPanel.add(quantityLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.weightx = 1.0;
         JTextField quantityField = UIComponentUtils.createFormattedTextField();
         inputPanel.add(quantityField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 1;
         gbc.gridwidth = 2;
+        gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
         JButton moveButton = UIComponentUtils.createFormattedButton("Move Cable");
         moveButton.addActionListener(e1 -> {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) locationTree.getLastSelectedPathComponent();
@@ -163,14 +138,13 @@ public class MoveCableAction implements ActionListener {
                 JOptionPane.showMessageDialog(dialog, "Please select a new location", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String selectedValue = (String) selectedNode.getUserObject();
-            if (selectedValue.equals("Unassigned in this location")) {
-                JOptionPane.showMessageDialog(dialog, "Cannot move to 'Unassigned in this location'. Please select a valid location.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            String newLocation = buildPathFromNode(selectedNode);
+            String newLocation = buildPathFromNode(selectedNode).replace("/", LogCablesTab.getPathSeparator());
             if (newLocation == null || newLocation.equals(currentLocation)) {
                 JOptionPane.showMessageDialog(dialog, "Please select a different location", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (newLocation.endsWith(LogCablesTab.getPathSeparator() + "Unassigned")) {
+                JOptionPane.showMessageDialog(dialog, "Cannot move to 'Unassigned' in a location. Please select a valid location.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             String quantityText = quantityField.getText().trim();
@@ -203,36 +177,58 @@ public class MoveCableAction implements ActionListener {
         });
         inputPanel.add(moveButton, gbc);
 
-        dialog.add(inputPanel);
+        dialog.add(treePanel, BorderLayout.CENTER);
+        dialog.add(inputPanel, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(tab);
         dialog.setVisible(true);
     }
 
-    private void addSubLocations(DefaultMutableTreeNode parentNode, String parentLocation) throws SQLException {
-        List<String> subLocations = CablesDAO.getSubLocations(parentLocation);
-        for (String subLocation : subLocations) {
-            DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(getLastSegment(subLocation));
-            List<String> subSubLocations = CablesDAO.getSubLocations(subLocation);
-            List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(subLocation);
-            boolean hasDirectCables = false;
-            for (CablesDAO.CableEntry cable : directCables) {
-                if (!cable.cableType.startsWith("Placeholder_")) {
-                    hasDirectCables = true;
+    private void addLocationToTree(DefaultMutableTreeNode parentNode, String location) throws SQLException {
+        String[] segments = location.split(LogCablesTab.getPathSeparator());
+        DefaultMutableTreeNode currentNode = parentNode;
+        StringBuilder currentPath = new StringBuilder();
+        StringBuilder displayPath = new StringBuilder();
+
+        // Build the hierarchical tree structure with display separator
+        for (int i = 0; i < segments.length; i++) {
+            String segment = segments[i];
+            if (i > 0) {
+                currentPath.append(LogCablesTab.getPathSeparator());
+                displayPath.append("/");
+            }
+            currentPath.append(segment);
+            displayPath.append(segment);
+
+            // Check if the node already exists
+            boolean nodeExists = false;
+            for (int j = 0; j < currentNode.getChildCount(); j++) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+                if (child.getUserObject().equals(segment)) {
+                    currentNode = child;
+                    nodeExists = true;
                     break;
                 }
             }
-            if (!subSubLocations.isEmpty() && hasDirectCables) {
-                locationNode.add(new DefaultMutableTreeNode("Unassigned in this location"));
-            }
-            addSubLocations(locationNode, subLocation);
-            parentNode.add(locationNode);
-        }
-    }
 
-    private String getLastSegment(String location) {
-        if (location.contains(LogCablesTab.getPathSeparator())) {
-            return location.substring(location.lastIndexOf(LogCablesTab.getPathSeparator()) + LogCablesTab.getPathSeparator().length());
-        } else {
-            return location;
+            if (!nodeExists) {
+                DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(segment);
+                currentNode.add(newNode);
+                currentNode = newNode;
+            }
+        }
+
+        // Add "Unassigned" if there are direct cables and sublocations
+        String fullPath = currentPath.toString();
+        List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
+        boolean hasDirectCables = !directCables.isEmpty();
+        List<String> subLocations = CablesDAO.getSubLocations(fullPath);
+        if (!subLocations.isEmpty() && hasDirectCables) {
+            currentNode.add(new DefaultMutableTreeNode("Unassigned"));
+        }
+
+        // Recursively add sublocations
+        for (String subLocation : subLocations) {
+            addLocationToTree(parentNode, subLocation);
         }
     }
 
@@ -240,15 +236,28 @@ public class MoveCableAction implements ActionListener {
         if (node == null || node.isRoot()) {
             return null;
         }
-        if (node.getUserObject().equals("Unassigned")) {
-            return "Unassigned";
+        Object userObject = node.getUserObject();
+        if (userObject.equals(LogCablesTab.getUnassignedLocation()) && node.getParent() instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node.getParent()).isRoot()) {
+            return LogCablesTab.getUnassignedLocation();
+        }
+        if (userObject.equals("Unassigned")) {
+            javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
+            Object[] nodes = path.getPath();
+            StringBuilder fullPath = new StringBuilder();
+            for (int i = 1; i < nodes.length - 1; i++) { // Exclude the "Unassigned" node
+                if (i > 1) {
+                    fullPath.append("/");
+                }
+                fullPath.append(nodes[i].toString());
+            }
+            return fullPath.toString();
         }
         javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
         Object[] nodes = path.getPath();
         StringBuilder fullPath = new StringBuilder();
         for (int i = 1; i < nodes.length; i++) { // Skip root
             if (i > 1) {
-                fullPath.append(LogCablesTab.getPathSeparator());
+                fullPath.append("/");
             }
             fullPath.append(nodes[i].toString());
         }

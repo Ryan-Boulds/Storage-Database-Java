@@ -38,9 +38,14 @@ public class AddToStorageAction implements ActionListener {
             JOptionPane.showMessageDialog(null, "Please select a location first", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String location = node.getUserObject().equals("Unassigned in this location")
-                ? buildPathFromNode((DefaultMutableTreeNode) node.getParent())
-                : buildPathFromNode(node);
+        String nodeValue = (String) node.getUserObject();
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+        String location;
+        if (nodeValue.equals("Unassigned") && parent instanceof DefaultMutableTreeNode && !((DefaultMutableTreeNode) parent).isRoot()) {
+            location = buildPathFromNode(parent);
+        } else {
+            location = buildPathFromNode(node);
+        }
 
         try {
             int cableId = CablesDAO.getCableId(cableType, location);
@@ -85,7 +90,8 @@ public class AddToStorageAction implements ActionListener {
         if (node == null || node.isRoot()) {
             return null;
         }
-        if (node.getUserObject().equals("Unassigned")) {
+        Object userObject = node.getUserObject();
+        if (userObject.equals("Unassigned") && node.getParent() instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node.getParent()).isRoot()) {
             return "Unassigned";
         }
         javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
