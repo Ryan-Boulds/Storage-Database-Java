@@ -1,5 +1,4 @@
 import java.awt.Component;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -11,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import accessories_count.AccessoriesCountTab;
@@ -40,7 +40,7 @@ public class mainFile {
         // Load logging configuration
         try {
             LogManager.getLogManager().readConfiguration(mainFile.class.getResourceAsStream("/logging.properties"));
-        } catch (IOException e) {
+        } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
             LOGGER.log(Level.WARNING, "Could not load logging properties, using default console logging: {0}", e.getMessage());
             java.util.logging.ConsoleHandler handler = new java.util.logging.ConsoleHandler();
             handler.setLevel(Level.ALL);
@@ -49,138 +49,153 @@ public class mainFile {
         }
 
         SwingUtilities.invokeLater(() -> {
+            // Set native look and feel
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
+                LOGGER.log(Level.WARNING, "Could not set native look and feel: {0}", e.getMessage());
+            }
+
             // Prompt for database path
+            String filePath = null;
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Access Database Files (*.accdb)", "accdb");
             fileChooser.setFileFilter(filter);
-            int result = fileChooser.showOpenDialog(null);
+            fileChooser.setDialogTitle("Select Access Database File");
+            fileChooser.setApproveButtonText("Select");
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setPreferredSize(new java.awt.Dimension(800, 600));
+            fileChooser.setMultiSelectionEnabled(false);
 
+            int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 java.io.File selectedFile = fileChooser.getSelectedFile();
                 if (!selectedFile.exists() || !selectedFile.getName().endsWith(".accdb")) {
                     JOptionPane.showMessageDialog(null, "Invalid or non-existent database file selected. Please choose a valid .accdb file.", "Error", JOptionPane.ERROR_MESSAGE);
                     System.exit(1);
                 }
-                String selectedPath = selectedFile.getAbsolutePath();
-                LoadingWindow loadingWindow = new LoadingWindow();
-                loadingWindow.appendLog("Selected database file: " + selectedPath);
-
-                // Perform initialization in a background thread
-                new Thread(() -> {
-                    try {
-                        loadingWindow.appendLog("Setting database path...");
-                        DatabaseUtils.setDatabasePath(selectedPath);
-                        loadingWindow.appendLog("Testing database connection...");
-                        try {
-                            DatabaseUtils.getConnection();
-                            loadingWindow.appendLog("Database connection successful.");
-                        } catch (SQLException e) {
-                            String message = e.getMessage().contains("UCAExc") ? "Invalid or corrupted Access database file: " + e.getMessage() : "Database error: " + e.getMessage();
-                            LOGGER.log(Level.SEVERE, message);
-                            SwingUtilities.invokeLater(() -> {
-                                JOptionPane.showMessageDialog(null, message, "Database Error", JOptionPane.ERROR_MESSAGE);
-                                loadingWindow.close();
-                                System.exit(1);
-                            });
-                            return;
-                        }
-
-                        loadingWindow.appendLog("Initializing DatabaseCreatorTab...");
-                        DatabaseCreatorTab databaseCreatorTab = new DatabaseCreatorTab();
-
-                        loadingWindow.appendLog("Creating UI components...");
-                        JLabel statusLabel = new JLabel("Ready");
-                        ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
-                        ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
-                        AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
-                        LogCablesTab logCablesTab = new LogCablesTab();
-                        LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
-                        LogChargersTab logChargersTab = new LogChargersTab();
-                        MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
-
-                        loadingWindow.appendLog("Creating main frame...");
-
-                        JFrame frame;
-                        if (DEVELOPER_MODE) {
-                            frame = UIComponentUtils.createMainFrame(
-                                    "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
-                                    databaseCreatorTab,
-                                    viewInventoryTab,
-                                    viewSoftwareListTab,
-                                    accessoriesCountTab,
-                                    logCablesTab,
-                                    logAdaptersTab,
-                                    logChargersTab,
-                                    massEntryModifierTab
-                            );
-                        } else {
-                            frame = UIComponentUtils.createMainFrame(
-                                    "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
-                                    viewInventoryTab,
-                                    viewSoftwareListTab,
-                                    accessoriesCountTab,
-                                    logCablesTab,
-                                    logAdaptersTab,
-                                    logChargersTab
-                            );
-                        }
-
-                        JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-                        tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
-                        tabbedPane.setTitleAt(tabbedPane.indexOfComponent(logChargersTab), "Log Chargers");
-                        tabbedPane.addChangeListener(e -> {
-                            Component selected = tabbedPane.getSelectedComponent();
-                            if (selected == viewInventoryTab) {
-                                viewInventoryTab.refreshDataAndTabs();
-                            } else if (selected == viewSoftwareListTab) {
-                                viewSoftwareListTab.refreshDataAndTabs();
-                            } else if (selected == massEntryModifierTab) {
-                                massEntryModifierTab.refresh();
-                            } else if (selected == accessoriesCountTab) {
-                                accessoriesCountTab.refresh();
-                            } else if (selected == logAdaptersTab) {
-                                logAdaptersTab.refresh();
-                            } else if (selected == logChargersTab) {
-                                logChargersTab.refresh();
-                            }
-                        });
-
-                        massEntryModifierTab.addPropertyChangeListener("inventoryUpdated", evt -> {
-                            viewInventoryTab.refreshDataAndTabs();
-                            viewSoftwareListTab.refreshDataAndTabs();
-                        });
-
-                        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                            @Override
-                            public void windowClosing(java.awt.event.WindowEvent e) {
-                                System.exit(0);
-                            }
-                        });
-
-                        loadingWindow.appendLog("Initialization complete.");
-                        try {
-                            Thread.sleep(1500);
-                        } catch (InterruptedException e) {
-                            LOGGER.log(Level.WARNING, "Delay interrupted: {0}", e.getMessage());
-                        }
-                        SwingUtilities.invokeLater(() -> {
-                            loadingWindow.close();
-                            frame.setVisible(true);
-                        });
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Initialization error: {0}", e.getMessage());
-                        SwingUtilities.invokeLater(() -> {
-                            JOptionPane.showMessageDialog(null, "Error initializing application: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                            loadingWindow.close();
-                            System.exit(1);
-                        });
-                    }
-                }).start();
+                filePath = selectedFile.getAbsolutePath();
             } else {
                 JOptionPane.showMessageDialog(null, "No database file selected. Application will exit.", "Error", JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
             }
+
+            final String selectedPath = filePath;
+            LoadingWindow loadingWindow = new LoadingWindow();
+            loadingWindow.appendLog("Selected database file: " + selectedPath);
+
+            // Perform initialization in a background thread
+            new Thread(() -> {
+                try {
+                    loadingWindow.appendLog("Setting database path...");
+                    DatabaseUtils.setDatabasePath(selectedPath);
+                    loadingWindow.appendLog("Testing database connection...");
+                    try {
+                        DatabaseUtils.getConnection();
+                        loadingWindow.appendLog("Database connection successful.");
+                    } catch (SQLException e) {
+                        String message = e.getMessage().contains("UCAExc") ? "Invalid or corrupted Access database file: " + e.getMessage() : "Database error: " + e.getMessage();
+                        LOGGER.log(Level.SEVERE, message);
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(null, message, "Database Error", JOptionPane.ERROR_MESSAGE);
+                            loadingWindow.close();
+                            System.exit(1);
+                        });
+                        return;
+                    }
+
+                    loadingWindow.appendLog("Initializing DatabaseCreatorTab...");
+                    DatabaseCreatorTab databaseCreatorTab = new DatabaseCreatorTab();
+
+                    loadingWindow.appendLog("Creating UI components...");
+                    JLabel statusLabel = new JLabel("Ready");
+                    ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
+                    ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
+                    AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
+                    LogCablesTab logCablesTab = new LogCablesTab();
+                    LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
+                    LogChargersTab logChargersTab = new LogChargersTab();
+                    MassEntryModifierTab massEntryModifierTab = new MassEntryModifierTab(statusLabel);
+
+                    loadingWindow.appendLog("Creating main frame...");
+
+                    JFrame frame;
+                    if (DEVELOPER_MODE) {
+                        frame = UIComponentUtils.createMainFrame(
+                                "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
+                                databaseCreatorTab,
+                                viewInventoryTab,
+                                viewSoftwareListTab,
+                                accessoriesCountTab,
+                                logCablesTab,
+                                logAdaptersTab,
+                                logChargersTab,
+                                massEntryModifierTab
+                        );
+                    } else {
+                        frame = UIComponentUtils.createMainFrame(
+                                "Aisin Inventory Manager - Work in Progress - Report issues to r-boulds@aisinil.com",
+                                viewInventoryTab,
+                                viewSoftwareListTab,
+                                accessoriesCountTab,
+                                logCablesTab,
+                                logAdaptersTab,
+                                logChargersTab
+                        );
+                    }
+
+                    JTabbedPane tabbedPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+                    tabbedPane.setTitleAt(tabbedPane.indexOfComponent(viewSoftwareListTab), "View Software List");
+                    tabbedPane.setTitleAt(tabbedPane.indexOfComponent(logChargersTab), "Log Chargers");
+                    tabbedPane.addChangeListener(e -> {
+                        Component selected = tabbedPane.getSelectedComponent();
+                        if (selected == viewInventoryTab) {
+                            viewInventoryTab.refreshDataAndTabs();
+                        } else if (selected == viewSoftwareListTab) {
+                            viewSoftwareListTab.refreshDataAndTabs();
+                        } else if (selected == massEntryModifierTab) {
+                            massEntryModifierTab.refresh();
+                        } else if (selected == accessoriesCountTab) {
+                            accessoriesCountTab.refresh();
+                        } else if (selected == logAdaptersTab) {
+                            logAdaptersTab.refresh();
+                        } else if (selected == logChargersTab) {
+                            logChargersTab.refresh();
+                        }
+                    });
+
+                    massEntryModifierTab.addPropertyChangeListener("inventoryUpdated", evt -> {
+                        viewInventoryTab.refreshDataAndTabs();
+                        viewSoftwareListTab.refreshDataAndTabs();
+                    });
+
+                    frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                        @Override
+                        public void windowClosing(java.awt.event.WindowEvent e) {
+                            System.exit(0);
+                        }
+                    });
+
+                    loadingWindow.appendLog("Initialization complete.");
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.WARNING, "Delay interrupted: {0}", e.getMessage());
+                    }
+                    SwingUtilities.invokeLater(() -> {
+                        loadingWindow.close();
+                        frame.setVisible(true);
+                    });
+                } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
+                    LOGGER.log(Level.SEVERE, "Initialization error: {0}", e.getMessage());
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(null, "Error initializing application: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        loadingWindow.close();
+                        System.exit(1);
+                    });
+                }
+            }).start();
         });
     }
 }

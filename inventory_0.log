@@ -2,9 +2,20 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662799</millis>
-  <sequence>123</sequence>
+  <date>2025-09-09T10:22:06</date>
+  <millis>1757431326011</millis>
+  <sequence>132</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAdapters</method>
+  <thread>16</thread>
+  <message>loadAdapters: Retrieved 0 adapters</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:06</date>
+  <millis>1757431326542</millis>
+  <sequence>133</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -13,9 +24,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662800</millis>
-  <sequence>124</sequence>
+  <date>2025-09-09T10:22:06</date>
+  <millis>1757431326544</millis>
+  <sequence>134</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadChargers</method>
+  <thread>16</thread>
+  <message>loadChargers: Retrieved 0 chargers</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:06</date>
+  <millis>1757431326941</millis>
+  <sequence>135</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -24,9 +46,31 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662802</millis>
-  <sequence>125</sequence>
+  <date>2025-09-09T10:22:06</date>
+  <millis>1757431326944</millis>
+  <sequence>136</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAdapters</method>
+  <thread>16</thread>
+  <message>loadAdapters: Retrieved 0 adapters</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327573</millis>
+  <sequence>137</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>Refreshing AccessoriesCountTab</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327574</millis>
+  <sequence>138</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -35,9 +79,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662803</millis>
-  <sequence>126</sequence>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327575</millis>
+  <sequence>139</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAccessories</method>
+  <thread>16</thread>
+  <message>loadAccessories: Retrieved 0 accessories</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327576</millis>
+  <sequence>140</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>No accessories data found</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327902</millis>
+  <sequence>141</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>WARNING</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No table name set for refreshDataAndTabs</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327902</millis>
+  <sequence>142</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -46,9 +123,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662804</millis>
-  <sequence>127</sequence>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327904</millis>
+  <sequence>143</sequence>
+  <logger>view_software_list_tab.TableListPanel</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableListPanel</class>
+  <method>updateTableList</method>
+  <thread>16</thread>
+  <message>Updated table list with 0 tables</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:07</date>
+  <millis>1757431327904</millis>
+  <sequence>144</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Refreshed data and tabs for table {0}</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:08</date>
+  <millis>1757431328932</millis>
+  <sequence>145</sequence>
+  <logger>view_inventory_tab.TableManager</logger>
+  <level>WARNING</level>
+  <class>view_inventory_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No table name set for refreshDataAndTabs</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:08</date>
+  <millis>1757431328933</millis>
+  <sequence>146</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -57,9 +167,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662805</millis>
-  <sequence>128</sequence>
+  <date>2025-09-09T10:22:08</date>
+  <millis>1757431328934</millis>
+  <sequence>147</sequence>
+  <logger>view_inventory_tab.TableListPanel</logger>
+  <level>INFO</level>
+  <class>view_inventory_tab.TableListPanel</class>
+  <method>updateTableList</method>
+  <thread>16</thread>
+  <message>Updated table list with 0 tables</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:08</date>
+  <millis>1757431328935</millis>
+  <sequence>148</sequence>
+  <logger>view_inventory_tab.ViewInventoryTab</logger>
+  <level>INFO</level>
+  <class>view_inventory_tab.ViewInventoryTab</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Refreshed data and tabs for table {0}</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329414</millis>
+  <sequence>149</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>WARNING</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No table name set for refreshDataAndTabs</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329415</millis>
+  <sequence>150</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -68,9 +211,42 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662806</millis>
-  <sequence>129</sequence>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329417</millis>
+  <sequence>151</sequence>
+  <logger>view_software_list_tab.TableListPanel</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableListPanel</class>
+  <method>updateTableList</method>
+  <thread>16</thread>
+  <message>Updated table list with 0 tables</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329417</millis>
+  <sequence>152</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Refreshed data and tabs for table {0}</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329877</millis>
+  <sequence>153</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>Refreshing AccessoriesCountTab</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329878</millis>
+  <sequence>154</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -79,9 +255,31 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662807</millis>
-  <sequence>130</sequence>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329880</millis>
+  <sequence>155</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAccessories</method>
+  <thread>16</thread>
+  <message>loadAccessories: Retrieved 0 accessories</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:09</date>
+  <millis>1757431329880</millis>
+  <sequence>156</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>No accessories data found</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:12</date>
+  <millis>1757431332071</millis>
+  <sequence>157</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -90,14 +288,190 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-09T08:47:42</date>
-  <millis>1757425662809</millis>
-  <sequence>131</sequence>
+  <date>2025-09-09T10:22:12</date>
+  <millis>1757431332073</millis>
+  <sequence>158</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAdapters</method>
+  <thread>16</thread>
+  <message>loadAdapters: Retrieved 0 adapters</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:12</date>
+  <millis>1757431332469</millis>
+  <sequence>159</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
   <method>getConnection</method>
   <thread>16</thread>
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:12</date>
+  <millis>1757431332471</millis>
+  <sequence>160</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadChargers</method>
+  <thread>16</thread>
+  <message>loadChargers: Retrieved 0 chargers</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333221</millis>
+  <sequence>161</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333223</millis>
+  <sequence>162</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAdapters</method>
+  <thread>16</thread>
+  <message>loadAdapters: Retrieved 0 adapters</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333942</millis>
+  <sequence>163</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>Refreshing AccessoriesCountTab</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333942</millis>
+  <sequence>164</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333944</millis>
+  <sequence>165</sequence>
+  <logger>utils.FileUtils</logger>
+  <level>INFO</level>
+  <class>utils.FileUtils</class>
+  <method>loadAccessories</method>
+  <thread>16</thread>
+  <message>loadAccessories: Retrieved 0 accessories</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:13</date>
+  <millis>1757431333944</millis>
+  <sequence>166</sequence>
+  <logger>accessories_count.AccessoriesCountTab</logger>
+  <level>INFO</level>
+  <class>accessories_count.AccessoriesCountTab</class>
+  <method>refresh</method>
+  <thread>16</thread>
+  <message>No accessories data found</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:14</date>
+  <millis>1757431334870</millis>
+  <sequence>167</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>WARNING</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No table name set for refreshDataAndTabs</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:14</date>
+  <millis>1757431334870</millis>
+  <sequence>168</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:14</date>
+  <millis>1757431334872</millis>
+  <sequence>169</sequence>
+  <logger>view_software_list_tab.TableListPanel</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableListPanel</class>
+  <method>updateTableList</method>
+  <thread>16</thread>
+  <message>Updated table list with 0 tables</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:14</date>
+  <millis>1757431334872</millis>
+  <sequence>170</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Refreshed data and tabs for table {0}</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:15</date>
+  <millis>1757431335351</millis>
+  <sequence>171</sequence>
+  <logger>view_inventory_tab.TableManager</logger>
+  <level>WARNING</level>
+  <class>view_inventory_tab.TableManager</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>No table name set for refreshDataAndTabs</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:15</date>
+  <millis>1757431335351</millis>
+  <sequence>172</sequence>
+  <logger>utils.DatabaseUtils</logger>
+  <level>INFO</level>
+  <class>utils.DatabaseUtils</class>
+  <method>getConnection</method>
+  <thread>16</thread>
+  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:15</date>
+  <millis>1757431335353</millis>
+  <sequence>173</sequence>
+  <logger>view_inventory_tab.TableListPanel</logger>
+  <level>INFO</level>
+  <class>view_inventory_tab.TableListPanel</class>
+  <method>updateTableList</method>
+  <thread>16</thread>
+  <message>Updated table list with 0 tables</message>
+</record>
+<record>
+  <date>2025-09-09T10:22:15</date>
+  <millis>1757431335353</millis>
+  <sequence>174</sequence>
+  <logger>view_inventory_tab.ViewInventoryTab</logger>
+  <level>INFO</level>
+  <class>view_inventory_tab.ViewInventoryTab</class>
+  <method>refreshDataAndTabs</method>
+  <thread>16</thread>
+  <message>Refreshed data and tabs for table {0}</message>
 </record>
 </log>
