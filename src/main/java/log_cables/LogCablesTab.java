@@ -256,7 +256,7 @@ public final class LogCablesTab extends JPanel {
 
             boolean nodeExists = false;
             for (int j = 0; j < currentNode.getChildCount(); j++) {
-                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j); // Cast to DefaultMutableTreeNode
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j);
                 if (child.getUserObject().equals(segment)) {
                     currentNode = child;
                     nodeExists = true;
@@ -273,21 +273,27 @@ public final class LogCablesTab extends JPanel {
 
         String fullPath = currentPath.toString();
         List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
-        boolean hasDirectCables = !directCables.isEmpty();
+        boolean hasDirectCables = false;
+        for (CablesDAO.CableEntry cable : directCables) {
+            if (!cable.cableType.startsWith("Placeholder_")) {
+                hasDirectCables = true;
+                break;
+            }
+        }
         List<String> subLocations = CablesDAO.getSubLocations(fullPath);
 
         // Check if "Unassigned" node already exists to avoid duplicates
         boolean hasUnassignedNode = false;
         for (int i = 0; i < currentNode.getChildCount(); i++) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i); // Cast to DefaultMutableTreeNode
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i);
             if (child.getUserObject().equals(UNASSIGNED_IN_LOCATION)) {
                 hasUnassignedNode = true;
                 break;
             }
         }
 
-        // Add "Unassigned" node only if it doesn’t exist and the conditions are met
-        if (!hasUnassignedNode && !subLocations.isEmpty() && hasDirectCables && !fullPath.equals(UNASSIGNED_LOCATION)) {
+        // Add "Unassigned" node only if it doesn’t exist, there are direct cables, and the location is not top-level Unassigned
+        if (!hasUnassignedNode && hasDirectCables && !fullPath.equals(UNASSIGNED_LOCATION)) {
             currentNode.add(new DefaultMutableTreeNode(UNASSIGNED_IN_LOCATION));
         }
 
@@ -359,7 +365,7 @@ public final class LogCablesTab extends JPanel {
         if (nodeValue.equals(UNASSIGNED_IN_LOCATION)) {
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
             String parentPath = buildPathFromNode(parentNode).replace(DISPLAY_SEPARATOR, PATH_SEPARATOR);
-            refreshTable(parentPath + PATH_SEPARATOR + UNASSIGNED_IN_LOCATION, false); // Use PATH_SEPARATOR for consistency
+            refreshTable(parentPath + PATH_SEPARATOR + UNASSIGNED_IN_LOCATION, false);
         } else {
             String fullPath = buildPathFromNode(node).replace(DISPLAY_SEPARATOR, PATH_SEPARATOR);
             boolean isSummary = node.getChildCount() > 0;

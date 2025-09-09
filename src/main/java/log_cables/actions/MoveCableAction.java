@@ -168,6 +168,7 @@ public class MoveCableAction implements ActionListener {
                 }
                 CablesDAO.moveCable(cableId, newLocation, quantity);
                 tab.setStatus("Successfully moved " + quantity + " " + cableType + " to " + newLocation);
+                tab.refreshTree(); // Refresh the tree to update Unassigned nodes
                 tab.refresh();
                 dialog.dispose();
             } catch (SQLException ex) {
@@ -184,22 +185,27 @@ public class MoveCableAction implements ActionListener {
     }
 
     private void addLocationToTree(DefaultMutableTreeNode parentNode, String location) throws SQLException {
+        // Skip if location is empty or the top-level "Unassigned" (handled in actionPerformed)
+        if (location == null || location.isEmpty() || location.equals(LogCablesTab.getUnassignedLocation())) {
+            return;
+        }
+
         String[] segments = location.split(LogCablesTab.getPathSeparator());
         DefaultMutableTreeNode currentNode = parentNode;
         StringBuilder currentPath = new StringBuilder();
-        StringBuilder displayPath = new StringBuilder();
 
-        // Build the hierarchical tree structure with display separator
         for (int i = 0; i < segments.length; i++) {
             String segment = segments[i];
             if (i > 0) {
                 currentPath.append(LogCablesTab.getPathSeparator());
-                displayPath.append("/");
             }
             currentPath.append(segment);
-            displayPath.append(segment);
 
-            // Check if the node already exists
+            // Skip adding "Unassigned" as a segment unless it's the full path
+            if (segment.equals(LogCablesTab.getUnassignedLocation()) && !currentPath.toString().equals(LogCablesTab.getUnassignedLocation())) {
+                continue;
+            }
+
             boolean nodeExists = false;
             for (int j = 0; j < currentNode.getChildCount(); j++) {
                 DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j);
@@ -217,18 +223,37 @@ public class MoveCableAction implements ActionListener {
             }
         }
 
-        // Add "Unassigned" if there are direct cables and sublocations
         String fullPath = currentPath.toString();
         List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
-        boolean hasDirectCables = !directCables.isEmpty();
+        boolean hasDirectCables = false;
+        for (CablesDAO.CableEntry cable : directCables) {
+            if (!cable.cableType.startsWith("Placeholder_")) {
+                hasDirectCables = true;
+                break;
+            }
+        }
         List<String> subLocations = CablesDAO.getSubLocations(fullPath);
-        if (!subLocations.isEmpty() && hasDirectCables) {
+
+        // Check if "Unassigned" node already exists to avoid duplicates
+        boolean hasUnassignedNode = false;
+        for (int i = 0; i < currentNode.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i);
+            if (child.getUserObject().equals("Unassigned")) {
+                hasUnassignedNode = true;
+                break;
+            }
+        }
+
+        // Add "Unassigned" node only if it doesn’t exist, there are direct cables, and the location is not top-level Unassigned
+        if (!hasUnassignedNode && hasDirectCables && !fullPath.equals(LogCablesTab.getUnassignedLocation())) {
             currentNode.add(new DefaultMutableTreeNode("Unassigned"));
         }
 
-        // Recursively add sublocations
+        // Recursively add sublocations, skipping top-level "Unassigned"
         for (String subLocation : subLocations) {
-            addLocationToTree(parentNode, subLocation);
+            if (!subLocation.equals(LogCablesTab.getUnassignedLocation())) {
+                addLocationToTree(parentNode, subLocation);
+            }
         }
     }
 

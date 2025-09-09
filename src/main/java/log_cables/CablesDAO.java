@@ -231,14 +231,49 @@ public class CablesDAO {
         }
     }
 
-    public static void deleteLocation(String location) throws SQLException {
-        String sql = "UPDATE Cables SET Location = ? WHERE Location = ? OR Location LIKE ? || ?";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, LogCablesTab.getUnassignedLocation());
-            stmt.setString(2, location);
-            stmt.setString(3, location);
-            stmt.setString(4, LogCablesTab.getPathSeparator() + "%");
-            stmt.executeUpdate();
+    public static void deleteLocation(String fullLocation) throws SQLException {
+        if (fullLocation.equals(LogCablesTab.getUnassignedLocation())) {
+            throw new SQLException("Cannot delete Unassigned location");
+        }
+        String pathSep = LogCablesTab.getPathSeparator();
+        String targetLocation;
+        int lastSep = fullLocation.lastIndexOf(pathSep);
+        if (lastSep == -1) {
+            targetLocation = LogCablesTab.getUnassignedLocation();
+        } else {
+            targetLocation = fullLocation.substring(0, lastSep);
+        }
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // Get cables to move (excludes placeholders)
+                String selectSql = "SELECT Cable_Type, Count FROM Cables WHERE Location = ? AND Cable_Type NOT LIKE 'Placeholder_%'";
+                List<CableEntry> cables = new ArrayList<>();
+                try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                    selectStmt.setString(1, fullLocation);
+                    try (ResultSet rs = selectStmt.executeQuery()) {
+                        while (rs.next()) {
+                            cables.add(new CableEntry(rs.getString("Cable_Type"), rs.getInt("Count"), null));
+                        }
+                    }
+                }
+                // Move each by adding (merges if exists)
+                for (CableEntry ce : cables) {
+                    addCable(ce.cableType, ce.count, targetLocation);
+                }
+                // Delete everything at the location (including placeholder)
+                String deleteSql = "DELETE FROM Cables WHERE Location = ?";
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                    deleteStmt.setString(1, fullLocation);
+                    deleteStmt.executeUpdate();
+                }
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         }
     }
 

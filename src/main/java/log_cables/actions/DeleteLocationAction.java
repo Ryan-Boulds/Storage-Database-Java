@@ -24,25 +24,35 @@ public class DeleteLocationAction implements ActionListener {
             tab.setStatus("Error: Select a location first");
             return;
         }
-        String location = (String) node.getUserObject();
-        if (location.equals(LogCablesTab.getUnassignedLocation())) {
+        String fullPath = tab.buildPathFromNode(node);
+        if (fullPath == null) {
+            tab.setStatus("Error: Invalid location selected");
+            return;
+        }
+        fullPath = fullPath.replace(LogCablesTab.DISPLAY_SEPARATOR, LogCablesTab.getPathSeparator());
+        if (fullPath.equals(LogCablesTab.getUnassignedLocation()) || fullPath.endsWith(LogCablesTab.getPathSeparator() + LogCablesTab.getUnassignedLocation())) {
             tab.setStatus("Error: Cannot delete the Unassigned location");
+            return;
+        }
+        if (node.getChildCount() > 0) {
+            tab.setStatus("Error: Cannot delete location with sublocations");
+            JOptionPane.showMessageDialog(tab, "Cannot delete location that has sublocations", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         int confirm = JOptionPane.showConfirmDialog(
             tab,
-            "Are you sure you want to delete location " + location + "? All cables will be moved to Unassigned.",
+            "Are you sure you want to delete location " + fullPath.replace(LogCablesTab.getPathSeparator(), LogCablesTab.DISPLAY_SEPARATOR) + "? All cables will be moved to parent or Unassigned.",
             "Confirm Delete Location",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.WARNING_MESSAGE
         );
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                CablesDAO.deleteLocation(location);
-                tab.setStatus("Successfully deleted location " + location + " and moved cables to Unassigned");
+                CablesDAO.deleteLocation(fullPath);
+                tab.setStatus("Successfully deleted location " + fullPath.replace(LogCablesTab.getPathSeparator(), LogCablesTab.DISPLAY_SEPARATOR) + " and moved cables to parent or Unassigned");
                 tab.refreshTree();
-                tab.refreshTable(LogCablesTab.getUnassignedLocation(), false);
+                tab.refresh();
             } catch (SQLException ex) {
                 tab.setStatus("Error deleting location: " + ex.getMessage());
                 JOptionPane.showMessageDialog(tab, "Error deleting location: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

@@ -135,6 +135,7 @@ public class AddCableAction implements ActionListener {
             try {
                 CablesDAO.addCable(cableType, quantity, selectedLocation);
                 tab.setStatus("Added " + quantity + " " + cableType + " to " + selectedLocation);
+                tab.refreshTree(); // Refresh the tree to update Unassigned nodes
                 tab.refresh();
                 if (selectedCableType != null) {
                     JTable table = tab.getCableTable();
