@@ -5,7 +5,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import database_creator.FieldDialog;
 import utils.DatabaseUtils;
 
 public class TableOperationHandler {
@@ -112,6 +110,27 @@ public class TableOperationHandler {
             tableModel.addRow(new Object[]{"Previous_Location", "VARCHAR(255)", "No"});
             editor.showMessageDialog("Status", "Default fields for " + tableName + " loaded. Click 'Create New Table' to confirm.", 1);
             return;
+        } else if (tableName.equalsIgnoreCase("Locations")) {
+            Map<String, String> idField = new HashMap<>();
+            idField.put("name", "ID");
+            idField.put("type", "AUTOINCREMENT");
+            idField.put("primaryKey", "Yes");
+            fields.add(idField);
+            tableModel.addRow(new Object[]{"ID", "AUTOINCREMENT", "Yes"});
+            Map<String, String> dataTypeField = new HashMap<>();
+            dataTypeField.put("name", "Datatype");
+            dataTypeField.put("type", "VARCHAR(255)");
+            dataTypeField.put("primaryKey", "No");
+            fields.add(dataTypeField);
+            tableModel.addRow(new Object[]{"Datatype", "VARCHAR(255)", "No"});
+            Map<String, String> locField = new HashMap<>();
+            locField.put("name", "Location");
+            locField.put("type", "VARCHAR(255)");
+            locField.put("primaryKey", "No");
+            fields.add(locField);
+            tableModel.addRow(new Object[]{"Location", "VARCHAR(255)", "No"});
+            editor.showMessageDialog("Status", "Default fields for Locations loaded. Click 'Create New Table' to confirm.", 1);
+            return;
         }
 
         try (Connection conn = DatabaseUtils.getConnection()) {
@@ -145,101 +164,140 @@ public class TableOperationHandler {
 
     public void addField(JTextField fieldNameField, JComboBox<String> fieldTypeComboBox, JComboBox<String> primaryKeyComboBox) {
         String fieldName = fieldNameField.getText().trim();
-        String fieldType = (String) fieldTypeComboBox.getSelectedItem();
-        String primaryKey = (String) primaryKeyComboBox.getSelectedItem();
         if (fieldName.isEmpty()) {
             editor.showMessageDialog("Error", "Field name cannot be empty.", 0);
             return;
         }
+        String fieldType = (String) fieldTypeComboBox.getSelectedItem();
+        String isPrimaryKey = (String) primaryKeyComboBox.getSelectedItem();
         String tableName = (String) tableComboBox.getSelectedItem();
-        if (isProtectedTable(tableName)) {
-            editor.showMessageDialog("Error", "Cannot modify fields of protected table '" + tableName + "'.", 0);
+        if (tableName == null) {
+            editor.showMessageDialog("Error", "No table selected.", 0);
             return;
         }
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getColumns(null, null, tableName, fieldName);
-            if (rs.next()) {
-                editor.showMessageDialog("Error", "Field '" + fieldName + "' already exists in table '" + tableName + "'.", 0);
-                return;
+        if (isProtectedTable(tableName)) {
+            editor.showMessageDialog("Error", "Cannot add fields to protected table '" + tableName + "'.", 0);
+            return;
+        }
+        if (isPrimaryKey.equals("Yes")) {
+            for (Map<String, String> field : fields) {
+                if (field.get("primaryKey").equals("Yes")) {
+                    editor.showMessageDialog("Error", "Table already has a primary key.", 0);
+                    return;
+                }
             }
-            Map<String, String> field = new HashMap<>();
-            field.put("name", fieldName);
-            field.put("type", fieldType);
-            field.put("primaryKey", primaryKey);
-            fields.add(field);
-            tableModel.addRow(new Object[]{fieldName, fieldType, primaryKey});
-            fieldNameField.setText("");
+        }
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = String.format("ALTER TABLE %s ADD COLUMN %s %s", tableName, fieldName, fieldType);
+            if (isPrimaryKey.equals("Yes")) {
+                sql = String.format("ALTER TABLE %s ADD COLUMN %s %s PRIMARY KEY", tableName, fieldName, fieldType);
+            }
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                Map<String, String> newField = new HashMap<>();
+                newField.put("name", fieldName);
+                newField.put("type", fieldType);
+                newField.put("primaryKey", isPrimaryKey);
+                fields.add(newField);
+                tableModel.addRow(new Object[]{fieldName, fieldType, isPrimaryKey});
+                editor.showMessageDialog("Success", "Field added successfully.", 1);
+                fieldNameField.setText("");
+            }
         } catch (SQLException e) {
             editor.showMessageDialog("Error", "Failed to add field: " + e.getMessage(), 0);
         }
     }
 
-    public void moveColumnLeft() {
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (selectedRow <= 0) {
-            editor.showMessageDialog("Error", "Cannot move field left.", 0);
-            return;
-        }
-        String tableName = (String) tableComboBox.getSelectedItem();
-        if (isProtectedTable(tableName)) {
-            editor.showMessageDialog("Error", "Cannot modify fields of protected table '" + tableName + "'.", 0);
-            return;
-        }
-        // Swap fields in the list
-        Map<String, String> field = fields.remove(selectedRow);
-        fields.add(selectedRow - 1, field);
-        // Update table model
-        tableModel.moveRow(selectedRow, selectedRow, selectedRow - 1);
-        fieldsTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-        editor.showMessageDialog("Success", "Field moved left.", 1);
-    }
-
-    public void moveColumnRight() {
-        int selectedRow = fieldsTable.getSelectedRow();
-        if (selectedRow >= fieldsTable.getRowCount() - 1) {
-            editor.showMessageDialog("Error", "Cannot move field right.", 0);
-            return;
-        }
-        String tableName = (String) tableComboBox.getSelectedItem();
-        if (isProtectedTable(tableName)) {
-            editor.showMessageDialog("Error", "Cannot modify fields of protected table '" + tableName + "'.", 0);
-            return;
-        }
-        // Swap fields in the list
-        Map<String, String> field = fields.remove(selectedRow);
-        fields.add(selectedRow + 1, field);
-        // Update table model
-        tableModel.moveRow(selectedRow, selectedRow, selectedRow + 1);
-        fieldsTable.setRowSelectionInterval(selectedRow + 1, selectedRow + 1);
-        editor.showMessageDialog("Success", "Field moved right.", 1);
-    }
-
     public void loadTableSchema() {
         String tableName = (String) tableComboBox.getSelectedItem();
-        if (tableName == null) return;
+        if (tableName == null) {
+            return;
+        }
         fields.clear();
         tableModel.setRowCount(0);
         try (Connection conn = DatabaseUtils.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getColumns(null, null, tableName, null);
-            ResultSet pkRs = metaData.getPrimaryKeys(null, null, tableName);
-            List<String> primaryKeys = new ArrayList<>();
-            while (pkRs.next()) {
-                primaryKeys.add(pkRs.getString("COLUMN_NAME"));
-            }
-            while (rs.next()) {
+            ResultSet columns = metaData.getColumns(null, null, tableName, null);
+            while (columns.next()) {
+                String columnName = columns.getString("COLUMN_NAME");
+                String columnType = columns.getString("TYPE_NAME");
+                switch (columnType) {
+                    case "LONG":
+                    case "INTEGER":
+                        columnType = "INTEGER";
+                        break;
+                    case "TEXT":
+                        columnType = "TEXT";
+                        break;
+                    case "VARCHAR":
+                        int size = columns.getInt("COLUMN_SIZE");
+                        columnType = "VARCHAR(" + size + ")";
+                        break;
+                    case "DATE":
+                        columnType = "DATE";
+                        break;
+                    case "BOOLEAN":
+                        columnType = "BOOLEAN";
+                        break;
+                    case "DOUBLE":
+                        columnType = "DOUBLE";
+                        break;
+                    case "COUNTER":
+                        columnType = "AUTOINCREMENT";
+                        break;
+                    default:
+                        break;
+                }
                 Map<String, String> field = new HashMap<>();
-                String columnName = rs.getString("COLUMN_NAME");
-                String columnType = rs.getString("TYPE_NAME");
                 field.put("name", columnName);
                 field.put("type", columnType);
-                field.put("primaryKey", primaryKeys.contains(columnName) ? "Yes" : "No");
+                field.put("primaryKey", "No");
                 fields.add(field);
-                tableModel.addRow(new Object[]{columnName, columnType, field.get("primaryKey")});
+                tableModel.addRow(new Object[]{columnName, columnType, "No"});
+            }
+            ResultSet pk = metaData.getPrimaryKeys(null, null, tableName);
+            while (pk.next()) {
+                String pkColumn = pk.getString("COLUMN_NAME");
+                for (int i = 0; i < fields.size(); i++) {
+                    if (fields.get(i).get("name").equals(pkColumn)) {
+                        fields.get(i).put("primaryKey", "Yes");
+                        tableModel.setValueAt("Yes", i, 2);
+                        break;
+                    }
+                }
             }
         } catch (SQLException e) {
             editor.showMessageDialog("Error", "Failed to load table schema: " + e.getMessage(), 0);
+        }
+    }
+
+    public void renameTable(JTextField newTableNameField) {
+        String oldTableName = (String) tableComboBox.getSelectedItem();
+        String newTableName = newTableNameField.getText().trim();
+        if (oldTableName == null || newTableName.isEmpty() || oldTableName.equals(newTableName)) {
+            editor.showMessageDialog("Error", "Invalid table names.", 0);
+            return;
+        }
+        if (isProtectedTable(oldTableName)) {
+            editor.showMessageDialog("Error", "Cannot rename protected table '" + oldTableName + "'.", 0);
+            return;
+        }
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            if (tableExists(metaData, newTableName)) {
+                editor.showMessageDialog("Error", "Table '" + newTableName + "' already exists.", 0);
+                return;
+            }
+            String sql = String.format("ALTER TABLE %s RENAME TO %s", oldTableName, newTableName);
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                editor.showMessageDialog("Success", "Table renamed successfully.", 1);
+                schemaManager.loadTableList();
+                tableComboBox.setSelectedItem(newTableName);
+                newTableNameField.setText("");
+            }
+        } catch (SQLException e) {
+            editor.showMessageDialog("Error", "Failed to rename table: " + e.getMessage(), 0);
         }
     }
 
@@ -253,48 +311,23 @@ public class TableOperationHandler {
             editor.showMessageDialog("Error", "Cannot delete protected table '" + tableName + "'.", 0);
             return;
         }
-        int confirm = JOptionPane.showConfirmDialog(editor, "Are you sure you want to delete table '" + tableName + "'?", 
+        int confirm = JOptionPane.showConfirmDialog(editor, 
+                "Are you sure you want to delete table '" + tableName + "'? This cannot be undone.", 
                 "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
-        try (Connection conn = DatabaseUtils.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DROP TABLE " + tableName);
-            editor.showMessageDialog("Success", "Table '" + tableName + "' deleted successfully.", 1);
-            schemaManager.loadTableList();
-            fields.clear();
-            tableModel.setRowCount(0);
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            String sql = String.format("DROP TABLE %s", tableName);
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+                editor.showMessageDialog("Success", "Table deleted successfully.", 1);
+                schemaManager.loadTableList();
+                fields.clear();
+                tableModel.setRowCount(0);
+            }
         } catch (SQLException e) {
             editor.showMessageDialog("Error", "Failed to delete table: " + e.getMessage(), 0);
-        }
-    }
-
-    public void renameTable(JTextField newTableNameField) {
-        String oldTableName = (String) tableComboBox.getSelectedItem();
-        String newTableName = newTableNameField.getText().trim();
-        if (newTableName.isEmpty()) {
-            editor.showMessageDialog("Error", "New table name cannot be empty.", 0);
-            return;
-        }
-        if (isProtectedTable(oldTableName)) {
-            editor.showMessageDialog("Error", "Cannot rename protected table '" + oldTableName + "'.", 0);
-            return;
-        }
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            if (tableExists(metaData, newTableName)) {
-                editor.showMessageDialog("Error", "Table '" + newTableName + "' already exists.", 0);
-                return;
-            }
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("ALTER TABLE " + oldTableName + " RENAME TO " + newTableName);
-                editor.showMessageDialog("Success", "Table renamed to '" + newTableName + "' successfully.", 1);
-                schemaManager.loadTableList();
-                tableComboBox.setSelectedItem(newTableName);
-            }
-        } catch (SQLException e) {
-            editor.showMessageDialog("Error", "Failed to rename table: " + e.getMessage(), 0);
         }
     }
 
@@ -310,23 +343,12 @@ public class TableOperationHandler {
             editor.showMessageDialog("Error", "Cannot rename protected column '" + oldColumnName + "'.", 0);
             return;
         }
-        FieldDialog dialog = new FieldDialog();
-        dialog.setVisible(true);
-        if (!dialog.isConfirmed()) {
+        String newColumnName = JOptionPane.showInputDialog(editor, "Enter new column name:", oldColumnName);
+        if (newColumnName == null || newColumnName.trim().isEmpty() || newColumnName.equals(oldColumnName)) {
             return;
         }
-        String newColumnName = dialog.getField().getName();
-        if (newColumnName.isEmpty()) {
-            editor.showMessageDialog("Error", "New column name cannot be empty.", 0);
-            return;
-        }
+        newColumnName = newColumnName.trim();
         try (Connection conn = DatabaseUtils.getConnection()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getColumns(null, null, tableName, newColumnName);
-            if (rs.next()) {
-                editor.showMessageDialog("Error", "Column '" + newColumnName + "' already exists.", 0);
-                return;
-            }
             String sql = String.format("ALTER TABLE %s RENAME COLUMN %s TO %s", tableName, oldColumnName, newColumnName);
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sql);
@@ -351,12 +373,12 @@ public class TableOperationHandler {
             editor.showMessageDialog("Error", "Cannot change type of protected column '" + columnName + "'.", 0);
             return;
         }
-        FieldDialog dialog = new FieldDialog();
-        dialog.setVisible(true);
-        if (!dialog.isConfirmed()) {
+        String[] types = {"TEXT", "INTEGER", "DOUBLE", "DATE", "BOOLEAN", "VARCHAR(255)"};
+        String newType = (String) JOptionPane.showInputDialog(editor, "Select new column type:", "Change Column Type",
+                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
+        if (newType == null) {
             return;
         }
-        String newType = dialog.getField().getType();
         try (Connection conn = DatabaseUtils.getConnection()) {
             String sql = String.format("ALTER TABLE %s ALTER COLUMN %s %s", tableName, columnName, newType);
             try (Statement stmt = conn.createStatement()) {
@@ -368,6 +390,34 @@ public class TableOperationHandler {
         } catch (SQLException e) {
             editor.showMessageDialog("Error", "Failed to change column type: " + e.getMessage(), 0);
         }
+    }
+
+    public void moveColumnLeft() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow <= 0) {
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot move protected column '" + columnName + "'.", 0);
+            return;
+        }
+        editor.showMessageDialog("Info", "Column reordering is not supported in MS Access.", 0);
+    }
+
+    public void moveColumnRight() {
+        int selectedRow = fieldsTable.getSelectedRow();
+        if (selectedRow == -1 || selectedRow >= fieldsTable.getRowCount() - 1) {
+            return;
+        }
+        String tableName = (String) tableComboBox.getSelectedItem();
+        String columnName = (String) tableModel.getValueAt(selectedRow, 0);
+        if (isProtectedColumn(tableName, columnName)) {
+            editor.showMessageDialog("Error", "Cannot move protected column '" + columnName + "'.", 0);
+            return;
+        }
+        editor.showMessageDialog("Info", "Column reordering is not supported in MS Access.", 0);
     }
 
     public void setPrimaryKey() {
@@ -494,6 +544,8 @@ public class TableOperationHandler {
         if (tableName.equalsIgnoreCase("Adapters") && 
             (columnName.equals("ID") || columnName.equals("Adapter_Type") || columnName.equals("Count") || 
              columnName.equals("Location") || columnName.equals("Previous_Location"))) return true;
+        if (tableName.equalsIgnoreCase("Locations") && 
+            (columnName.equals("ID") || columnName.equals("Datatype") || columnName.equals("Location"))) return true;
         return tableName.equalsIgnoreCase("LicenseKeyRules") && 
                 (columnName.equals("Rule_ID") || columnName.equals("Rule_Name") || columnName.equals("Rule_Description"));
     }
@@ -505,7 +557,7 @@ public class TableOperationHandler {
                tableName.equalsIgnoreCase("Cables") || 
                tableName.equalsIgnoreCase("Chargers") || 
                tableName.equalsIgnoreCase("Adapters") || 
-               tableName.equalsIgnoreCase("LicenseKeyRules");
+               tableName.equalsIgnoreCase("LicenseKeyRules") ||
+               tableName.equalsIgnoreCase("Locations");
     }
-
 }

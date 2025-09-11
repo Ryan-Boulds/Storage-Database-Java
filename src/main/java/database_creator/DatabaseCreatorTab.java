@@ -111,6 +111,7 @@ public class DatabaseCreatorTab extends JPanel {
             createTemplatesTable(conn, metaData);
             createTableInformationTable(conn, metaData);
             createLicenseKeyRulesTable(conn, metaData);
+            createLocationsTable(conn, metaData); // Added call to create Locations table
         }
     }
 
@@ -206,6 +207,19 @@ public class DatabaseCreatorTab extends JPanel {
                     "Rule_ID INTEGER PRIMARY KEY, " +
                     "Rule_Name TEXT, " +
                     "Rule_Description TEXT)"
+                );
+            }
+        }
+    }
+
+    private void createLocationsTable(Connection conn, DatabaseMetaData metaData) throws SQLException {
+        if (!tableExists(metaData, "Locations")) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(
+                    "CREATE TABLE Locations (" +
+                    "ID AUTOINCREMENT PRIMARY KEY, " +
+                    "Datatype VARCHAR(255), " +
+                    "Location VARCHAR(255))"
                 );
             }
         }

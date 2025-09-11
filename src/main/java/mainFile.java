@@ -1,4 +1,5 @@
 import java.awt.Component;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -11,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import accessories_count.AccessoriesCountTab;
@@ -40,7 +42,7 @@ public class mainFile {
         // Load logging configuration
         try {
             LogManager.getLogManager().readConfiguration(mainFile.class.getResourceAsStream("/logging.properties"));
-        } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
+        } catch (@SuppressWarnings("catchingUnchecked") IOException e) {
             LOGGER.log(Level.WARNING, "Could not load logging properties, using default console logging: {0}", e.getMessage());
             java.util.logging.ConsoleHandler handler = new java.util.logging.ConsoleHandler();
             handler.setLevel(Level.ALL);
@@ -52,7 +54,7 @@ public class mainFile {
             // Set native look and feel
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
+            } catch (@SuppressWarnings("catchingUnchecked") ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
                 LOGGER.log(Level.WARNING, "Could not set native look and feel: {0}", e.getMessage());
             }
 
@@ -187,7 +189,7 @@ public class mainFile {
                         loadingWindow.close();
                         frame.setVisible(true);
                     });
-                } catch (@SuppressWarnings("catchingUnchecked") Exception e) {
+                } catch (@SuppressWarnings("catchingUnchecked") SQLException e) {
                     LOGGER.log(Level.SEVERE, "Initialization error: {0}", e.getMessage());
                     SwingUtilities.invokeLater(() -> {
                         JOptionPane.showMessageDialog(null, "Error initializing application: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

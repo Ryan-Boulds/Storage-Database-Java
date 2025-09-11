@@ -149,8 +149,8 @@ public class SelectLocationDialog {
             }
         }
 
-        // Add "Unassigned" node only if it doesn’t exist, there are direct cables, and the location is not top-level Unassigned
-        if (!hasUnassignedNode && hasDirectCables && !fullPath.equals(LogCablesTab.getUnassignedLocation())) {
+        // Add "Unassigned" node only if it doesn’t exist, there are direct cables, sublocations exist, and the location is not top-level Unassigned
+        if (!hasUnassignedNode && hasDirectCables && !subLocations.isEmpty() && !fullPath.equals(LogCablesTab.getUnassignedLocation())) {
             currentNode.add(new DefaultMutableTreeNode("Unassigned"));
         }
 
