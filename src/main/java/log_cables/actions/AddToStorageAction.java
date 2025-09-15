@@ -48,18 +48,9 @@ public class AddToStorageAction implements ActionListener {
         }
 
         try {
-            int cableId = CablesDAO.getCableId(cableType, location);
-            if (cableId == -1) {
-                // No existing record, add a new one
-                CablesDAO.addCable(cableType, 1, location);
-                tab.setStatus("Added 1 " + cableType + " to " + location);
-                LOGGER.log(Level.INFO, "Added new cable: {0} at {1}", new Object[]{cableType, location});
-            } else {
-                // Existing record, increment count
-                CablesDAO.updateCount(cableId, 1);
-                tab.setStatus("Added 1 " + cableType + " to " + location);
-                LOGGER.log(Level.INFO, "Incremented cable count: {0} at {1}", new Object[]{cableType, location});
-            }
+            CablesDAO.addCable(cableType, 1, location); // Add 1 cable
+            tab.setStatus("Added 1 " + cableType + " to " + location);
+            LOGGER.log(Level.INFO, "Added cable: {0} at {1}", new Object[]{cableType, location});
             // Refresh the table and restore selection
             tab.refresh();
             if (selectedCableType != null) {

@@ -63,7 +63,7 @@ public class RemoveFromStorageAction implements ActionListener {
                 JOptionPane.showMessageDialog(null, "No cables available to remove", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            CablesDAO.updateCount(cableId, -1);
+            CablesDAO.removeCable(cableId, 1); // Remove 1 cable
             tab.setStatus("Removed 1 " + cableType + " from " + location);
             // Refresh the table and restore selection
             tab.refresh();

@@ -44,10 +44,12 @@ public class SelectLocationDialog {
                 root.add(new DefaultMutableTreeNode(LogCablesTab.getUnassignedLocation()));
             }
 
-            List<String> topLevelLocations = CablesDAO.getSubLocations(null);
-            for (String location : topLevelLocations) {
-                if (location.equals(LogCablesTab.getUnassignedLocation())) continue;
-                addLocationToTree(root, location);
+            // Add all locations
+            List<String> allLocations = CablesDAO.getAllLocations();
+            for (String location : allLocations) {
+                if (!location.equals(LogCablesTab.getUnassignedLocation())) {
+                    addLocationToTree(root, location);
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(dialog, "Error loading locations: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -89,13 +91,12 @@ public class SelectLocationDialog {
         return selectedLocation;
     }
 
-    private void addLocationToTree(DefaultMutableTreeNode parentNode, String location) throws SQLException {
-        // Skip if location is empty or the top-level "Unassigned" (handled in constructor)
-        if (location == null || location.isEmpty() || location.equals(LogCablesTab.getUnassignedLocation())) {
+    private void addLocationToTree(DefaultMutableTreeNode parentNode, String fullPath) throws SQLException {
+        if (fullPath == null || fullPath.isEmpty()) {
             return;
         }
 
-        String[] segments = location.split(LogCablesTab.getPathSeparator());
+        String[] segments = fullPath.split(LogCablesTab.getPathSeparator());
         DefaultMutableTreeNode currentNode = parentNode;
         StringBuilder currentPath = new StringBuilder();
 
@@ -106,15 +107,10 @@ public class SelectLocationDialog {
             }
             currentPath.append(segment);
 
-            // Skip adding "Unassigned" as a segment unless it's the full path
-            if (segment.equals(LogCablesTab.getUnassignedLocation()) && !currentPath.toString().equals(LogCablesTab.getUnassignedLocation())) {
-                continue;
-            }
-
             boolean nodeExists = false;
             for (int j = 0; j < currentNode.getChildCount(); j++) {
                 DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-                if (child.getUserObject().equals(segment)) {
+                if (child.getUserObject().toString().equals(segment)) {
                     currentNode = child;
                     nodeExists = true;
                     break;
@@ -128,8 +124,10 @@ public class SelectLocationDialog {
             }
         }
 
-        String fullPath = currentPath.toString();
-        List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPath);
+        String fullPathStr = currentPath.toString();
+        List<CablesDAO.CableEntry> directCables = CablesDAO.getCablesByLocation(fullPathStr);
+        List<String> subLocations = CablesDAO.getSubLocations(fullPathStr);
+
         boolean hasDirectCables = false;
         for (CablesDAO.CableEntry cable : directCables) {
             if (!cable.cableType.startsWith("Placeholder_")) {
@@ -137,27 +135,19 @@ public class SelectLocationDialog {
                 break;
             }
         }
-        List<String> subLocations = CablesDAO.getSubLocations(fullPath);
 
-        // Check if "Unassigned" node already exists to avoid duplicates
-        boolean hasUnassignedNode = false;
-        for (int i = 0; i < currentNode.getChildCount(); i++) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i);
-            if (child.getUserObject().equals("Unassigned")) {
-                hasUnassignedNode = true;
-                break;
+        // Add "Unassigned" node only if there are direct cables and sublocations exist
+        if (hasDirectCables && !subLocations.isEmpty() && !fullPathStr.equals(LogCablesTab.getUnassignedLocation())) {
+            boolean hasUnassignedNode = false;
+            for (int i = 0; i < currentNode.getChildCount(); i++) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) currentNode.getChildAt(i);
+                if (child.getUserObject().equals("Unassigned")) {
+                    hasUnassignedNode = true;
+                    break;
+                }
             }
-        }
-
-        // Add "Unassigned" node only if it doesn’t exist, there are direct cables, sublocations exist, and the location is not top-level Unassigned
-        if (!hasUnassignedNode && hasDirectCables && !subLocations.isEmpty() && !fullPath.equals(LogCablesTab.getUnassignedLocation())) {
-            currentNode.add(new DefaultMutableTreeNode("Unassigned"));
-        }
-
-        // Recursively add sublocations, skipping top-level "Unassigned"
-        for (String subLocation : subLocations) {
-            if (!subLocation.equals(LogCablesTab.getUnassignedLocation())) {
-                addLocationToTree(parentNode, subLocation);
+            if (!hasUnassignedNode) {
+                currentNode.add(new DefaultMutableTreeNode("Unassigned"));
             }
         }
     }
@@ -167,27 +157,30 @@ public class SelectLocationDialog {
             return null;
         }
         Object userObject = node.getUserObject();
-        if (userObject.equals(LogCablesTab.getUnassignedLocation()) && node.getParent() instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node.getParent()).isRoot()) {
-            return LogCablesTab.getUnassignedLocation();
-        }
         if (userObject.equals("Unassigned")) {
-            javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
+            // For "Unassigned" node, return the parent path
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+            if (parentNode == null || parentNode.isRoot()) {
+                return LogCablesTab.getUnassignedLocation();
+            }
+            javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(parentNode.getPath());
             Object[] nodes = path.getPath();
             StringBuilder fullPath = new StringBuilder();
-            for (int i = 1; i < nodes.length - 1; i++) { // Exclude the "Unassigned" node
+            for (int i = 1; i < nodes.length; i++) { // Skip root
                 if (i > 1) {
-                    fullPath.append("/");
+                    fullPath.append(LogCablesTab.getPathSeparator());
                 }
                 fullPath.append(nodes[i].toString());
             }
             return fullPath.toString();
         }
+        // For non-"Unassigned" nodes, build the full path
         javax.swing.tree.TreePath path = new javax.swing.tree.TreePath(node.getPath());
         Object[] nodes = path.getPath();
         StringBuilder fullPath = new StringBuilder();
         for (int i = 1; i < nodes.length; i++) { // Skip root
             if (i > 1) {
-                fullPath.append("/");
+                fullPath.append(LogCablesTab.getPathSeparator());
             }
             fullPath.append(nodes[i].toString());
         }

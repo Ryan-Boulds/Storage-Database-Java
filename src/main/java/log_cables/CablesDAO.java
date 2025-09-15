@@ -59,7 +59,6 @@ public class CablesDAO {
                         }
                     }
                 }
-                // No need to check or add Previous_Location
             }
 
             String selectOldPlaceholders = "SELECT DISTINCT Location FROM Cables WHERE Cable_Type LIKE 'Placeholder_%'";
@@ -149,24 +148,36 @@ public class CablesDAO {
             }
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    subLocations.add(rs.getString("Location"));
+                    String fullLoc = rs.getString("Location");
+                    String subLoc = (parentLocation == null) ? fullLoc : fullLoc.substring(parentLocation.length() + 1);
+                    int sepIdx = subLoc.indexOf(LogCablesTab.getPathSeparator());
+                    if (sepIdx != -1) {
+                        subLoc = subLoc.substring(0, sepIdx);
+                    }
+                    subLocations.add(subLoc);
                 }
             }
         }
 
-        String cableSql;
+        String cabSql;
         if (parentLocation == null) {
-            cableSql = "SELECT DISTINCT Location FROM Cables WHERE Location NOT LIKE '%/%' AND Location IS NOT NULL AND Cable_Type NOT LIKE 'Placeholder_%'";
+            cabSql = "SELECT DISTINCT Location FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%' AND Location NOT LIKE '%/%'";
         } else {
-            cableSql = "SELECT DISTINCT Location FROM Cables WHERE Location LIKE ? || '/%' AND Location IS NOT NULL AND Cable_Type NOT LIKE 'Placeholder_%'";
+            cabSql = "SELECT DISTINCT Location FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%' AND Location LIKE ? || '/%'";
         }
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(cableSql)) {
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(cabSql)) {
             if (parentLocation != null) {
                 stmt.setString(1, parentLocation);
             }
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    subLocations.add(rs.getString("Location"));
+                    String fullLoc = rs.getString("Location");
+                    String subLoc = (parentLocation == null) ? fullLoc : fullLoc.substring(parentLocation.length() + 1);
+                    int sepIdx = subLoc.indexOf(LogCablesTab.getPathSeparator());
+                    if (sepIdx != -1) {
+                        subLoc = subLoc.substring(0, sepIdx);
+                    }
+                    subLocations.add(subLoc);
                 }
             }
         }
@@ -176,79 +187,53 @@ public class CablesDAO {
         return result;
     }
 
+    public static List<String> getAllLocations() throws SQLException {
+        List<String> locations = new ArrayList<>();
+        String sql = "SELECT DISTINCT Location FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%' UNION SELECT Location FROM Locations WHERE Datatype = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, DATATYPE_CABLE);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String loc = rs.getString("Location");
+                    if (loc != null && !loc.isEmpty()) {
+                        locations.add(loc);
+                    }
+                }
+            }
+        }
+        Collections.sort(locations);
+        return locations;
+    }
+
     public static void createLocation(String fullPath, String parentLocation) throws SQLException {
+        if (fullPath == null || fullPath.isEmpty()) {
+            throw new SQLException("Location cannot be empty");
+        }
         if (locationExists(fullPath)) {
-            LOGGER.log(Level.INFO, "Location already exists: {0}", fullPath);
-            return;
+            throw new SQLException("Location already exists: " + fullPath);
+        }
+        if (parentLocation != null && !locationExists(parentLocation)) {
+            throw new SQLException("Parent location does not exist: " + parentLocation);
         }
         String sql = "INSERT INTO Locations (Datatype, Location) VALUES (?, ?)";
         try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, DATATYPE_CABLE);
             stmt.setString(2, fullPath);
             stmt.executeUpdate();
-            LOGGER.log(Level.INFO, "Created location in Locations table: {0}", fullPath);
+            LOGGER.log(Level.INFO, "Created location: {0}", fullPath);
         }
-    }
-
-    public static List<String> getAllLocations() throws SQLException {
-        Set<String> locations = new HashSet<>();
-        String sql = "SELECT Location FROM Locations WHERE Datatype = ?";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, DATATYPE_CABLE);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    locations.add(rs.getString("Location"));
-                }
-            }
-        }
-
-        sql = "SELECT DISTINCT Location FROM Cables WHERE Location IS NOT NULL AND Cable_Type NOT LIKE 'Placeholder_%'";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    locations.add(rs.getString("Location"));
-                }
-            }
-        }
-
-        List<String> result = new ArrayList<>(locations);
-        Collections.sort(result);
-        return result;
-    }
-
-    public static List<String> getUniqueCableTypes() throws SQLException {
-        List<String> cableTypes = new ArrayList<>();
-        String sql = "SELECT DISTINCT Cable_Type FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%'";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    cableTypes.add(rs.getString("Cable_Type"));
-                }
-            }
-        }
-        Collections.sort(cableTypes);
-        return cableTypes;
-    }
-
-    public static int getCableId(String cableType, String location) throws SQLException {
-        String sql = "SELECT Id FROM Cables WHERE Cable_Type = ? AND Location = ? AND Count > 0";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, cableType);
-            stmt.setString(2, location);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("Id");
-                }
-            }
-        }
-        return -1;
     }
 
     public static void addCable(String cableType, int count, String location) throws SQLException {
+        if (count <= 0) {
+            throw new SQLException("Count must be positive");
+        }
+        if (!locationExists(location)) {
+            createLocation(location, getParentPath(location));
+        }
         String selectSql = "SELECT Id FROM Cables WHERE Cable_Type = ? AND Location = ?";
         String updateSql = "UPDATE Cables SET Count = Count + ? WHERE Id = ?";
         String insertSql = "INSERT INTO Cables (Cable_Type, Count, Location) VALUES (?, ?, ?)";
-
         try (Connection conn = DatabaseUtils.getConnection()) {
             int cableId = -1;
             try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
@@ -260,7 +245,6 @@ public class CablesDAO {
                     }
                 }
             }
-
             if (cableId != -1) {
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                     updateStmt.setInt(1, count);
@@ -275,51 +259,39 @@ public class CablesDAO {
                     insertStmt.executeUpdate();
                 }
             }
+            LOGGER.log(Level.INFO, "Added {0} cables of type {1} to {2}", new Object[]{count, cableType, location});
         }
     }
 
-    public static void updateCount(int cableId, int delta) throws SQLException {
-        String selectSql = "SELECT Count, Cable_Type, Location FROM Cables WHERE Id = ?";
-        String updateSql = "UPDATE Cables SET Count = ? WHERE Id = ?";
-        String deleteSql = "DELETE FROM Cables WHERE Id = ?";
-
+    public static void removeCable(int cableId, int count) throws SQLException {
+        if (count <= 0) {
+            throw new SQLException("Count to remove must be positive");
+        }
+        String selectSql = "SELECT Count FROM Cables WHERE Id = ?";
+        String updateSql = "UPDATE Cables SET Count = Count - ? WHERE Id = ?";
         try (Connection conn = DatabaseUtils.getConnection()) {
-            int currentCount;
-            String cableType = null;
-            String location = null;
+            int currentCount = 0;
             try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
                 selectStmt.setInt(1, cableId);
                 try (ResultSet rs = selectStmt.executeQuery()) {
                     if (rs.next()) {
                         currentCount = rs.getInt("Count");
-                        cableType = rs.getString("Cable_Type");
-                        location = rs.getString("Location");
                     } else {
                         throw new SQLException("Cable ID not found: " + cableId);
                     }
                 }
             }
-
-            int newCount = currentCount + delta;
-            if (newCount < 0) {
-                throw new SQLException("Cannot reduce count below 0 for cable ID: " + cableId);
+            if (currentCount < count) {
+                throw new SQLException("Not enough cables to remove: " + currentCount + " available, " + count + " requested");
             }
-
-            if (newCount == 0) {
-                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
-                    deleteStmt.setInt(1, cableId);
-                    deleteStmt.executeUpdate();
-                    LOGGER.log(Level.INFO, "Deleted cable with ID {0} due to zero count", cableId);
-                }
-            } else {
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                    updateStmt.setInt(1, newCount);
-                    updateStmt.setInt(2, cableId);
-                    updateStmt.executeUpdate();
-                }
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setInt(1, count);
+                updateStmt.setInt(2, cableId);
+                updateStmt.executeUpdate();
             }
-            LOGGER.log(Level.INFO, "Updated count for cable ID {0} ({1} at {2}) by {3}, new count: {4}",
-                    new Object[]{cableId, cableType, location, delta, newCount});
+            if (currentCount - count == 0) {
+                deleteCable(cableId);
+            }
         }
     }
 
@@ -338,7 +310,7 @@ public class CablesDAO {
 
     public static List<CableEntry> getCablesByLocation(String location) throws SQLException {
         List<CableEntry> cables = new ArrayList<>();
-        String sql = "SELECT Cable_Type, Count FROM Cables WHERE Location = ? AND Count > 0 AND Cable_Type NOT LIKE 'Placeholder_%'";
+        String sql = "SELECT Cable_Type, Count FROM Cables WHERE Location = ? AND Cable_Type NOT LIKE 'Placeholder_%' ORDER BY Count DESC, Cable_Type ASC";
         try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, location);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -351,6 +323,32 @@ public class CablesDAO {
             }
         }
         return cables;
+    }
+
+    public static int getCableId(String cableType, String location) throws SQLException {
+        String sql = "SELECT Id FROM Cables WHERE Cable_Type = ? AND Location = ?";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, cableType);
+            stmt.setString(2, location);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("Id");
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static List<String> getUniqueCableTypes() throws SQLException {
+        List<String> types = new ArrayList<>();
+        String sql = "SELECT DISTINCT Cable_Type FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%' ORDER BY Cable_Type ASC";
+        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                types.add(rs.getString("Cable_Type"));
+            }
+        }
+        return types;
     }
 
     public static List<CableEntry> getCablesSummary(String parentLocation) throws SQLException {
@@ -382,25 +380,81 @@ public class CablesDAO {
     }
 
     public static void deleteLocation(String fullPath) throws SQLException {
+        if (fullPath == null || fullPath.isEmpty()) {
+            throw new SQLException("Invalid location");
+        }
+        if (fullPath.equals(LogCablesTab.getUnassignedLocation())) {
+            throw new SQLException("Cannot delete the Unassigned location");
+        }
+
         String parentPath = getParentPath(fullPath);
         String targetLocation = (parentPath != null) ? parentPath : LogCablesTab.getUnassignedLocation();
 
-        String updateSql = "UPDATE Cables SET Location = ? WHERE Location = ? OR Location LIKE ? || ?";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(updateSql)) {
-            stmt.setString(1, targetLocation);
-            stmt.setString(2, fullPath);
-            stmt.setString(3, fullPath);
-            stmt.setString(4, LogCablesTab.getPathSeparator() + "%");
-            int updated = stmt.executeUpdate();
-            LOGGER.log(Level.INFO, "Moved {0} cables to {1}", new Object[]{updated, targetLocation});
-        }
+        List<CableEntry> cablesToMove = new ArrayList<>();
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            cablesToMove.addAll(getCablesByLocation(fullPath));
 
-        String deleteSql = "DELETE FROM Locations WHERE Datatype = ? AND Location = ?";
-        try (Connection conn = DatabaseUtils.getConnection(); PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
-            stmt.setString(1, DATATYPE_CABLE);
-            stmt.setString(2, fullPath);
-            stmt.executeUpdate();
-            LOGGER.log(Level.INFO, "Deleted location from Locations table: {0}", fullPath);
+            String subLocationSql = "SELECT Cable_Type, Count, Location FROM Cables WHERE Cable_Type NOT LIKE 'Placeholder_%' AND Location LIKE ? || ?";
+            try (PreparedStatement subStmt = conn.prepareStatement(subLocationSql)) {
+                subStmt.setString(1, fullPath);
+                subStmt.setString(2, LogCablesTab.getPathSeparator() + "%");
+                try (ResultSet rs = subStmt.executeQuery()) {
+                    while (rs.next()) {
+                        cablesToMove.add(new CableEntry(
+                                rs.getString("Cable_Type"),
+                                rs.getInt("Count")
+                        ));
+                    }
+                }
+            }
+
+            conn.setAutoCommit(false);
+            try {
+                for (CableEntry ce : cablesToMove) {
+                    int targetId = getCableId(ce.cableType, targetLocation);
+                    if (targetId != -1) {
+                        String updateSql = "UPDATE Cables SET Count = Count + ? WHERE Id = ?";
+                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                            updateStmt.setInt(1, ce.count);
+                            updateStmt.setInt(2, targetId);
+                            updateStmt.executeUpdate();
+                        }
+                    } else {
+                        String insertSql = "INSERT INTO Cables (Cable_Type, Count, Location) VALUES (?, ?, ?)";
+                        try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                            insertStmt.setString(1, ce.cableType);
+                            insertStmt.setInt(2, ce.count);
+                            insertStmt.setString(3, targetLocation);
+                            insertStmt.executeUpdate();
+                        }
+                    }
+                }
+
+                String deleteCablesSql = "DELETE FROM Cables WHERE Location = ? OR Location LIKE ? || ?";
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteCablesSql)) {
+                    deleteStmt.setString(1, fullPath);
+                    deleteStmt.setString(2, fullPath);
+                    deleteStmt.setString(3, LogCablesTab.getPathSeparator() + "%");
+                    deleteStmt.executeUpdate();
+                }
+
+                String deleteLocationSql = "DELETE FROM Locations WHERE Datatype = ? AND (Location = ? OR Location LIKE ? || ?)";
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteLocationSql)) {
+                    deleteStmt.setString(1, DATATYPE_CABLE);
+                    deleteStmt.setString(2, fullPath);
+                    deleteStmt.setString(3, fullPath);
+                    deleteStmt.setString(4, LogCablesTab.getPathSeparator() + "%");
+                    deleteStmt.executeUpdate();
+                }
+
+                conn.commit();
+                LOGGER.log(Level.INFO, "Deleted location {0} and moved cables to {1}", new Object[]{fullPath, targetLocation});
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         }
     }
 

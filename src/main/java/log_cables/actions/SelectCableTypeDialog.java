@@ -45,7 +45,7 @@ public class SelectCableTypeDialog {
             JOptionPane.showMessageDialog(dialog, "Error loading cable types: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Search bar
+        // Search bar and Add New button
         JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         searchField = new JTextField();
@@ -59,6 +59,28 @@ public class SelectCableTypeDialog {
         });
         searchPanel.add(new JLabel("Search:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
+
+        JButton addNewButton = new JButton("Add New");
+        addNewButton.addActionListener(e -> {
+            String input = searchField.getText().trim();
+            if (input.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a cable type in the search bar", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (allCableTypes.stream().anyMatch(t -> t.equalsIgnoreCase(input))) {
+                JOptionPane.showMessageDialog(dialog, "Cable type already exists (case-insensitive)", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            // Show confirmation popup with bold text
+            String message = "<html>Do you want to label the cable as: <b>" + input + "</b></html>";
+            int confirm = JOptionPane.showConfirmDialog(dialog, message, "Confirm New Cable Type", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                selectedType = input;
+                dialog.dispose();
+            }
+            // No option returns to the dialog (no action needed)
+        });
+        searchPanel.add(addNewButton, BorderLayout.EAST);
 
         // Cable type list
         cableTypeList = new JList<>(allCableTypes.toArray(new String[0]));
@@ -78,25 +100,10 @@ public class SelectCableTypeDialog {
             }
         });
 
-        JButton addNewButton = new JButton("Add New");
-        addNewButton.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(dialog, "Enter new cable type:");
-            if (input != null && !input.trim().isEmpty()) {
-                final String newType = input.trim();
-                if (allCableTypes.stream().anyMatch(t -> t.equalsIgnoreCase(newType))) {
-                    JOptionPane.showMessageDialog(dialog, "Cable type already exists (case-insensitive)", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    selectedType = newType;
-                    dialog.dispose();
-                }
-            }
-        });
-
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dialog.dispose());
 
         buttonPanel.add(selectButton);
-        buttonPanel.add(addNewButton);
         buttonPanel.add(cancelButton);
 
         dialog.add(searchPanel, BorderLayout.NORTH);
