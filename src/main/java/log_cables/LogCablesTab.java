@@ -153,7 +153,6 @@ public final class LogCablesTab extends JPanel {
         topButtonPanel.add(moveCableButton);
         topButtonPanel.add(deleteCableButton);
         searchAndButtonPanel.add(topButtonPanel, BorderLayout.EAST);
-
         topRightPanel.add(searchAndButtonPanel, BorderLayout.CENTER);
 
         // Table
