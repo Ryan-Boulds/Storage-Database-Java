@@ -2,9 +2,53 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363266</millis>
-  <sequence>246</sequence>
+  <date>2025-09-17T08:19:03</date>
+  <millis>1758115143972</millis>
+  <sequence>120</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showEmptyDetails</method>
+  <thread>16</thread>
+  <message>Displayed empty details for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:03</date>
+  <millis>1758115143973</millis>
+  <sequence>121</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:03</date>
+  <millis>1758115143975</millis>
+  <sequence>122</sequence>
+  <logger>view_software_list_tab.ViewSoftwareListTab</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.ViewSoftwareListTab</class>
+  <method>showLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Opened LicenseKeyTracker for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:03</date>
+  <millis>1758115143975</millis>
+  <sequence>123</sequence>
+  <logger>view_software_list_tab.FilterPanel</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.FilterPanel</class>
+  <method>lambda$7</method>
+  <thread>16</thread>
+  <message>Navigated to LicenseKeyTracker from FilterPanel</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145850</millis>
+  <sequence>124</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -13,9 +57,31 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363268</millis>
-  <sequence>247</sequence>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145858</millis>
+  <sequence>125</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145859</millis>
+  <sequence>126</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145864</millis>
+  <sequence>127</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -24,9 +90,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363269</millis>
-  <sequence>248</sequence>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145872</millis>
+  <sequence>128</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>initializeColumns</method>
+  <thread>16</thread>
+  <message>Initialized columns for table {0}: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145873</millis>
+  <sequence>129</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -35,9 +112,108 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363270</millis>
-  <sequence>249</sequence>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145889</millis>
+  <sequence>130</sequence>
+  <logger>view_software_list_tab.license_key_tracker.UndocumentedInstallationsPanel</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.UndocumentedInstallationsPanel</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Loaded 829 rows for undocumented installations in table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145890</millis>
+  <sequence>131</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showUndocumentedInstallations</method>
+  <thread>16</thread>
+  <message>Displayed undocumented installations for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:05</date>
+  <millis>1758115145891</millis>
+  <sequence>132</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>toggleUndocumentedView</method>
+  <thread>16</thread>
+  <message>Toggled to undocumented installations for table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146976</millis>
+  <sequence>133</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146976</millis>
+  <sequence>134</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146978</millis>
+  <sequence>135</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146978</millis>
+  <sequence>136</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146978</millis>
+  <sequence>137</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>No licenseKey provided, keeping table empty</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146979</millis>
+  <sequence>138</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showEmptyDetails</method>
+  <thread>16</thread>
+  <message>Displayed empty details for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146979</millis>
+  <sequence>139</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -46,9 +222,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363271</millis>
-  <sequence>250</sequence>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146984</millis>
+  <sequence>140</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>loadLicenseKeys</method>
+  <thread>16</thread>
+  <message>Loaded 4 license keys for table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146984</millis>
+  <sequence>141</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -57,9 +244,86 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363272</millis>
-  <sequence>251</sequence>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146988</millis>
+  <sequence>142</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146988</millis>
+  <sequence>143</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146989</millis>
+  <sequence>144</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146990</millis>
+  <sequence>145</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146990</millis>
+  <sequence>146</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>No licenseKey provided, keeping table empty</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146991</millis>
+  <sequence>147</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showEmptyDetails</method>
+  <thread>16</thread>
+  <message>Displayed empty details for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:06</date>
+  <millis>1758115146991</millis>
+  <sequence>148</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>toggleUndocumentedView</method>
+  <thread>16</thread>
+  <message>Toggled to license keys for table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:13</date>
+  <millis>1758115153081</millis>
+  <sequence>149</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -68,9 +332,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363273</millis>
-  <sequence>252</sequence>
+  <date>2025-09-17T08:19:13</date>
+  <millis>1758115153094</millis>
+  <sequence>150</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeySettingsDialog</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeySettingsDialog</class>
+  <method>saveLimit</method>
+  <thread>16</thread>
+  <message>Inserted UsageLimit 2 for TableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154018</millis>
+  <sequence>151</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -79,9 +354,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363275</millis>
-  <sequence>253</sequence>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154020</millis>
+  <sequence>152</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>loadLicenseKeyRules</method>
+  <thread>16</thread>
+  <message>Loaded UsageLimit 2 for table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154020</millis>
+  <sequence>153</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -90,9 +376,20 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:23</date>
-  <millis>1758050363276</millis>
-  <sequence>254</sequence>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154022</millis>
+  <sequence>154</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>loadLicenseKeys</method>
+  <thread>16</thread>
+  <message>Loaded 4 license keys for table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154023</millis>
+  <sequence>155</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -101,9 +398,130 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:25</date>
-  <millis>1758050365346</millis>
-  <sequence>255</sequence>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154025</millis>
+  <sequence>156</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154025</millis>
+  <sequence>157</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154026</millis>
+  <sequence>158</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154026</millis>
+  <sequence>159</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154027</millis>
+  <sequence>160</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>No licenseKey provided, keeping table empty</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:14</date>
+  <millis>1758115154027</millis>
+  <sequence>161</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showEmptyDetails</method>
+  <thread>16</thread>
+  <message>Displayed empty details for table {0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158760</millis>
+  <sequence>162</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158761</millis>
+  <sequence>163</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158765</millis>
+  <sequence>164</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158766</millis>
+  <sequence>165</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158766</millis>
+  <sequence>166</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Executing query: SELECT * FROM [test] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158766</millis>
+  <sequence>167</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -112,9 +530,97 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:26</date>
-  <millis>1758050366395</millis>
-  <sequence>256</sequence>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158768</millis>
+  <sequence>168</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Loaded 2 rows for licenseKey={1} in table {2}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158789</millis>
+  <sequence>169</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>sortTable</method>
+  <thread>16</thread>
+  <message>Sorted table {0} on column index 1</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:18</date>
+  <millis>1758115158790</millis>
+  <sequence>170</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showKeyDetails</method>
+  <thread>16</thread>
+  <message>Displayed details for license key {0} in table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159417</millis>
+  <sequence>171</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159418</millis>
+  <sequence>172</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159420</millis>
+  <sequence>173</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159420</millis>
+  <sequence>174</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159420</millis>
+  <sequence>175</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Executing query: SELECT * FROM [test] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159421</millis>
+  <sequence>176</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -123,9 +629,97 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370001</millis>
-  <sequence>257</sequence>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159422</millis>
+  <sequence>177</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Loaded 3 rows for licenseKey={1} in table {2}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159423</millis>
+  <sequence>178</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>sortTable</method>
+  <thread>16</thread>
+  <message>Sorted table {0} on column index 1</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159424</millis>
+  <sequence>179</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showKeyDetails</method>
+  <thread>16</thread>
+  <message>Displayed details for license key {0} in table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159954</millis>
+  <sequence>180</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159955</millis>
+  <sequence>181</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159956</millis>
+  <sequence>182</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159956</millis>
+  <sequence>183</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159957</millis>
+  <sequence>184</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Executing query: SELECT * FROM [test] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159957</millis>
+  <sequence>185</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -134,9 +728,97 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370001</millis>
-  <sequence>258</sequence>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159960</millis>
+  <sequence>186</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Loaded 2 rows for licenseKey={1} in table {2}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159961</millis>
+  <sequence>187</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>sortTable</method>
+  <thread>16</thread>
+  <message>Sorted table {0} on column index 1</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:19</date>
+  <millis>1758115159961</millis>
+  <sequence>188</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showKeyDetails</method>
+  <thread>16</thread>
+  <message>Displayed details for license key {0} in table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160554</millis>
+  <sequence>189</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160555</millis>
+  <sequence>190</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160555</millis>
+  <sequence>191</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160556</millis>
+  <sequence>192</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160556</millis>
+  <sequence>193</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Executing query: SELECT * FROM [test] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160556</millis>
+  <sequence>194</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -145,9 +827,97 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370003</millis>
-  <sequence>259</sequence>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160558</millis>
+  <sequence>195</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Loaded 1 rows for licenseKey={1} in table {2}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160558</millis>
+  <sequence>196</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>sortTable</method>
+  <thread>16</thread>
+  <message>Sorted table {0} on column index 1</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160559</millis>
+  <sequence>197</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showKeyDetails</method>
+  <thread>16</thread>
+  <message>Displayed details for license key {0} in table {1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160937</millis>
+  <sequence>198</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.TableManager</class>
+  <method>setLicenseKeyTracker</method>
+  <thread>16</thread>
+  <message>Set LicenseKeyTracker for TableManager, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160938</millis>
+  <sequence>199</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>&lt;init&gt;</method>
+  <thread>16</thread>
+  <message>KeyDetailsTable initialized for licenseKey={0}, tableName={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160939</millis>
+  <sequence>200</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>initializeUI</method>
+  <thread>16</thread>
+  <message>UI initialized for KeyDetailsTable, tableName={0}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160939</millis>
+  <sequence>201</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Table columns: AssetName, Status, software, version, Domain, Username, Userdomain, IPAddress, Description, Manufacturer, Model, Location, IPLocation, OS, SP, Build, OS_Version, Created_at, Last_successful_scan, Proc, Processor, Memory, IP_Address, LICENSE_KEY, column count: 25</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160940</millis>
+  <sequence>202</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
+  <level>INFO</level>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
+  <thread>16</thread>
+  <message>Executing query: SELECT * FROM [test] WHERE [LICENSE_KEY] = ? with licenseKey={1}</message>
+</record>
+<record>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160940</millis>
+  <sequence>203</sequence>
   <logger>utils.DatabaseUtils</logger>
   <level>INFO</level>
   <class>utils.DatabaseUtils</class>
@@ -156,179 +926,36 @@
   <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370015</millis>
-  <sequence>260</sequence>
-  <logger>log_chargers.ChargersDAO</logger>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160942</millis>
+  <sequence>204</sequence>
+  <logger>view_software_list_tab.license_key_tracker.KeyDetailsTable</logger>
   <level>INFO</level>
-  <class>log_chargers.ChargersDAO</class>
-  <method>deleteLocation</method>
+  <class>view_software_list_tab.license_key_tracker.KeyDetailsTable</class>
+  <method>loadData</method>
   <thread>16</thread>
-  <message>Deleted location L1/L2/L3 and moved chargers to L1/L2</message>
+  <message>Loaded 1 rows for licenseKey={1} in table {2}</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370015</millis>
-  <sequence>261</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160942</millis>
+  <sequence>205</sequence>
+  <logger>view_software_list_tab.TableManager</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.TableManager</class>
+  <method>sortTable</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+  <message>Sorted table {0} on column index 1</message>
 </record>
 <record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370016</millis>
-  <sequence>262</sequence>
-  <logger>utils.DatabaseUtils</logger>
+  <date>2025-09-17T08:19:20</date>
+  <millis>1758115160943</millis>
+  <sequence>206</sequence>
+  <logger>view_software_list_tab.license_key_tracker.LicenseKeyTracker</logger>
   <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
+  <class>view_software_list_tab.license_key_tracker.LicenseKeyTracker</class>
+  <method>showKeyDetails</method>
   <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370017</millis>
-  <sequence>263</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370018</millis>
-  <sequence>264</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370019</millis>
-  <sequence>265</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370020</millis>
-  <sequence>266</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370021</millis>
-  <sequence>267</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370022</millis>
-  <sequence>268</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370023</millis>
-  <sequence>269</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:30</date>
-  <millis>1758050370024</millis>
-  <sequence>270</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:31</date>
-  <millis>1758050371338</millis>
-  <sequence>271</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:40</date>
-  <millis>1758050380315</millis>
-  <sequence>272</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:40</date>
-  <millis>1758050380319</millis>
-  <sequence>273</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:40</date>
-  <millis>1758050380328</millis>
-  <sequence>274</sequence>
-  <logger>log_chargers.ChargersDAO</logger>
-  <level>INFO</level>
-  <class>log_chargers.ChargersDAO</class>
-  <method>deleteCharger</method>
-  <thread>16</thread>
-  <message>Deleted charger with ID 3</message>
-</record>
-<record>
-  <date>2025-09-16T14:19:40</date>
-  <millis>1758050380329</millis>
-  <sequence>275</sequence>
-  <logger>utils.DatabaseUtils</logger>
-  <level>INFO</level>
-  <class>utils.DatabaseUtils</class>
-  <method>getConnection</method>
-  <thread>16</thread>
-  <message>Connecting to database: jdbc:ucanaccess://C:/Users/ami6985/OneDrive - AISIN WORLD CORP/Desktop/New Microsoft Access Database.accdb</message>
+  <message>Displayed details for license key {0} in table {1}</message>
 </record>
 </log>

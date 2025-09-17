@@ -15,7 +15,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import accessories_count.AccessoriesCountTab;
+import accessories_count.LogAccessoriesTab;
 import database_creator.DatabaseCreatorTab;
 import log_adapters.LogAdaptersTab;
 import log_cables.LogCablesTab;
@@ -59,7 +59,6 @@ public class mainFile {
             }
 
             // Prompt for database path
-            String filePath = null;
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Access Database Files (*.accdb)", "accdb");
@@ -70,6 +69,7 @@ public class mainFile {
             fileChooser.setPreferredSize(new java.awt.Dimension(800, 600));
             fileChooser.setMultiSelectionEnabled(false);
 
+            final String[] selectedPath = new String[1];
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 java.io.File selectedFile = fileChooser.getSelectedFile();
@@ -77,21 +77,19 @@ public class mainFile {
                     JOptionPane.showMessageDialog(null, "Invalid or non-existent database file selected. Please choose a valid .accdb file.", "Error", JOptionPane.ERROR_MESSAGE);
                     System.exit(1);
                 }
-                filePath = selectedFile.getAbsolutePath();
+                selectedPath[0] = selectedFile.getAbsolutePath();
             } else {
                 JOptionPane.showMessageDialog(null, "No database file selected. Application will exit.", "Error", JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
             }
-
-            final String selectedPath = filePath;
             LoadingWindow loadingWindow = new LoadingWindow();
-            loadingWindow.appendLog("Selected database file: " + selectedPath);
+            loadingWindow.appendLog("Selected database file: " + selectedPath[0]);
 
             // Perform initialization in a background thread
             new Thread(() -> {
                 try {
                     loadingWindow.appendLog("Setting database path...");
-                    DatabaseUtils.setDatabasePath(selectedPath);
+                    DatabaseUtils.setDatabasePath(selectedPath[0]);
                     loadingWindow.appendLog("Testing database connection...");
                     try {
                         DatabaseUtils.getConnection();
@@ -114,7 +112,7 @@ public class mainFile {
                     JLabel statusLabel = new JLabel("Ready");
                     ViewInventoryTab viewInventoryTab = new ViewInventoryTab();
                     ViewSoftwareListTab viewSoftwareListTab = new ViewSoftwareListTab();
-                    AccessoriesCountTab accessoriesCountTab = new AccessoriesCountTab();
+                    LogAccessoriesTab accessoriesCountTab = new LogAccessoriesTab();
                     LogCablesTab logCablesTab = new LogCablesTab();
                     LogAdaptersTab logAdaptersTab = new LogAdaptersTab();
                     LogChargersTab logChargersTab = new LogChargersTab();

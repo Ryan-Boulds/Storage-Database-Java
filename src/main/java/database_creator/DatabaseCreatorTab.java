@@ -22,6 +22,7 @@ import utils.DatabaseUtils;
 import utils.UIComponentUtils;
 
 public class DatabaseCreatorTab extends JPanel {
+
     private final JTextField dbPathField;
     private JLabel statusLabel = new JLabel();
 
@@ -79,7 +80,9 @@ public class DatabaseCreatorTab extends JPanel {
 
     private boolean validateDatabasePath() {
         String path = dbPathField.getText().trim();
-        if (path.isEmpty()) return false;
+        if (path.isEmpty()) {
+            return false;
+        }
         File file = new File(path);
         return file.exists() && path.toLowerCase().endsWith(".accdb");
     }
@@ -119,10 +122,10 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "TableInformation")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE TableInformation (" +
-                    "ID INTEGER PRIMARY KEY, " +
-                    "InventoryTables TEXT, " +
-                    "SoftwareTables TEXT)"
+                        "CREATE TABLE TableInformation ("
+                        + "ID INTEGER PRIMARY KEY, "
+                        + "InventoryTables TEXT, "
+                        + "SoftwareTables TEXT)"
                 );
             }
         }
@@ -132,12 +135,12 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Accessories")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Accessories (" +
-                    "ID AUTOINCREMENT PRIMARY KEY, " +
-                    "Peripheral_Type VARCHAR(255), " +
-                    "[Count] INTEGER, " +
-                    "Location VARCHAR(255), " +
-                    "Previous_Location VARCHAR(255))"
+                        "CREATE TABLE Accessories ("
+                        + "ID AUTOINCREMENT PRIMARY KEY, "
+                        + "Accessory_Type VARCHAR(255), "
+                        + "[Count] INTEGER, "
+                        + "Location VARCHAR(255), "
+                        + "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -147,12 +150,12 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Cables")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Cables (" +
-                    "ID AUTOINCREMENT PRIMARY KEY, " +
-                    "Cable_Type VARCHAR(255), " +
-                    "[Count] INTEGER, " +
-                    "Location VARCHAR(255), " +
-                    "Previous_Location VARCHAR(255))"
+                        "CREATE TABLE Cables ("
+                        + "ID AUTOINCREMENT PRIMARY KEY, "
+                        + "Cable_Type VARCHAR(255), "
+                        + "[Count] INTEGER, "
+                        + "Location VARCHAR(255), "
+                        + "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -162,12 +165,12 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Chargers")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Chargers (" +
-                    "ID AUTOINCREMENT PRIMARY KEY, " +
-                    "Charger_Type VARCHAR(255), " +
-                    "[Count] INTEGER, " +
-                    "Location VARCHAR(255), " +
-                    "Previous_Location VARCHAR(255))"
+                        "CREATE TABLE Chargers ("
+                        + "ID AUTOINCREMENT PRIMARY KEY, "
+                        + "Charger_Type VARCHAR(255), "
+                        + "[Count] INTEGER, "
+                        + "Location VARCHAR(255), "
+                        + "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -177,12 +180,12 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Adapters")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Adapters (" +
-                    "ID AUTOINCREMENT PRIMARY KEY, " +
-                    "Adapter_Type VARCHAR(255), " +
-                    "[Count] INTEGER, " +
-                    "Location VARCHAR(255), " +
-                    "Previous_Location VARCHAR(255))"
+                        "CREATE TABLE Adapters ("
+                        + "ID AUTOINCREMENT PRIMARY KEY, "
+                        + "Adapter_Type VARCHAR(255), "
+                        + "[Count] INTEGER, "
+                        + "Location VARCHAR(255), "
+                        + "Previous_Location VARCHAR(255))"
                 );
             }
         }
@@ -192,8 +195,8 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Templates")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Templates (" +
-                    "Template_Name TEXT PRIMARY KEY)"
+                        "CREATE TABLE Templates ("
+                        + "Template_Name TEXT PRIMARY KEY)"
                 );
             }
         }
@@ -203,10 +206,9 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "LicenseKeyRules")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE LicenseKeyRules (" +
-                    "Rule_ID INTEGER PRIMARY KEY, " +
-                    "Rule_Name TEXT, " +
-                    "Rule_Description TEXT)"
+                        "CREATE TABLE LicenseKeyRules ("
+                        + "TableName VARCHAR(255) PRIMARY KEY, "
+                        + "UsageLimit INTEGER)"
                 );
             }
         }
@@ -216,10 +218,10 @@ public class DatabaseCreatorTab extends JPanel {
         if (!tableExists(metaData, "Locations")) {
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(
-                    "CREATE TABLE Locations (" +
-                    "ID AUTOINCREMENT PRIMARY KEY, " +
-                    "Datatype VARCHAR(255), " +
-                    "Location VARCHAR(255))"
+                        "CREATE TABLE Locations ("
+                        + "ID AUTOINCREMENT PRIMARY KEY, "
+                        + "Datatype VARCHAR(255), "
+                        + "Location VARCHAR(255))"
                 );
             }
         }
